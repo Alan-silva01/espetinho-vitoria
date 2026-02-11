@@ -1,0 +1,240 @@
+.inventory-container {
+    padding: 32px;
+}
+
+.inventory-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+}
+
+.inventory-header h1 {
+    font-size: 28px;
+    font-weight: 800;
+    color: #111827;
+}
+
+.inventory-header p {
+    color: #6B7280;
+}
+
+.header-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.btn-secondary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: white;
+    border: 1px solid #E5E7EB;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+    background: #F9FAFB;
+}
+
+.btn-primary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: #C41E2E;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(196, 30, 46, 0.2);
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: #A01824;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(196, 30, 46, 0.3);
+}
+
+.btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #9CA3AF;
+    box-shadow: none;
+}
+
+.inventory-controls {
+    margin-bottom: 24px;
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: white;
+    padding: 12px 16px;
+    border-radius: 12px;
+    border: 1px solid #E5E7EB;
+    max-width: 400px;
+}
+
+.search-bar input {
+    border: none;
+    outline: none;
+    width: 100%;
+    font-size: 14px;
+}
+
+.search-bar svg {
+    color: #9CA3AF;
+}
+
+.inventory-table-wrapper {
+    background: white;
+    border-radius: 20px;
+    border: 1px solid #E5E7EB;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.inventory-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.inventory-table th {
+    background: #F9FAFB;
+    padding: 16px 24px;
+    text-align: left;
+    font-size: 12px;
+    font-weight: 700;
+    color: #6B7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid #E5E7EB;
+}
+
+.inventory-table td {
+    padding: 16px 24px;
+    border-bottom: 1px solid #F3F4F6;
+    vertical-align: middle;
+}
+
+.row-dirty {
+    background: #FFFBEB;
+}
+
+.product-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.product-info strong {
+    font-size: 15px;
+    color: #111827;
+}
+
+.cat-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    background: #F3F4F6;
+    color: #6B7280;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+
+.stock-input-group {
+    display: flex;
+    align-items: center;
+    background: #F9FAFB;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    padding: 4px 8px;
+    width: 100px;
+}
+
+.stock-input-group input {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font-size: 16px;
+    font-weight: 700;
+    text-align: center;
+    outline: none;
+}
+
+.input-steppers {
+    display: flex;
+    flex-direction: column;
+}
+
+.input-steppers button {
+    background: none;
+    border: none;
+    padding: 2px;
+    color: #9CA3AF;
+    cursor: pointer;
+}
+
+.input-steppers button:hover {
+    color: #374151;
+}
+
+.stock-count {
+    font-size: 16px;
+    font-weight: 800;
+    color: #10B981;
+}
+
+.stock-count.low {
+    color: #F59E0B;
+}
+
+.stock-count.zero {
+    color: #EF4444;
+}
+
+.status-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.status-label.ok {
+    color: #10B981;
+}
+
+.status-label.low {
+    color: #F59E0B;
+}
+
+.status-label.out {
+    color: #EF4444;
+}
+
+.spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}

@@ -1,0 +1,315 @@
+.orders-kanban-container {
+    padding: 24px;
+    height: calc(100vh - 64px);
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-page-header {
+    margin-bottom: 24px;
+}
+
+.admin-page-header h1 {
+    font-size: 24px;
+    font-weight: 800;
+    color: #111827;
+}
+
+.admin-page-header p {
+    color: #6B7280;
+    font-size: 14px;
+}
+
+.kanban-board {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    flex: 1;
+    min-height: 0;
+}
+
+.kanban-column {
+    background: #F3F4F6;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    min-width: 280px;
+}
+
+.kanban-column-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding: 0 4px;
+}
+
+.header-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.header-title h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #374151;
+}
+
+.count-badge {
+    background: white;
+    padding: 2px 8px;
+    border-radius: 99px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #6B7280;
+    border: 1px solid #E5E7EB;
+}
+
+.kanban-cards-list {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-right: 4px;
+}
+
+/* Custom scrollbar for kanban lists */
+.kanban-cards-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.kanban-cards-list::-webkit-scrollbar-thumb {
+    background: #D1D5DB;
+    border-radius: 10px;
+}
+
+.order-card {
+    background: white;
+    border-radius: 14px;
+    padding: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    border: 1px solid #E5E7EB;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.order-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    border-color: #D1D5DB;
+}
+
+.order-card__header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.order-number {
+    font-size: 13px;
+    font-weight: 800;
+    color: #111827;
+}
+
+.order-time {
+    font-size: 11px;
+    color: #9CA3AF;
+    font-weight: 600;
+}
+
+.customer-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: #374151;
+    margin-bottom: 4px;
+}
+
+.order-summary {
+    font-size: 13px;
+    color: #6B7280;
+    margin-bottom: 12px;
+}
+
+.order-type-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    background: #F9FAFB;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #6B7280;
+    text-transform: capitalize;
+    margin-bottom: 12px;
+}
+
+.order-card__actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-action {
+    flex: 1;
+    padding: 8px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-action.start {
+    background: #FEF3C7;
+    color: #D97706;
+}
+
+.btn-action.start:hover {
+    background: #FDE68A;
+}
+
+.btn-action.delivery {
+    background: #DBEAFE;
+    color: #2563EB;
+}
+
+.btn-action.delivery:hover {
+    background: #BFDBFE;
+}
+
+.btn-action.finish {
+    background: #D1FAE5;
+    color: #059669;
+}
+
+.btn-action.finish:hover {
+    background: #A7F3D0;
+}
+
+/* Modal */
+.order-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.order-modal {
+    background: white;
+    width: 100%;
+    max-width: 500px;
+    border-radius: 24px;
+    overflow: hidden;
+    animation: modalScaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes modalScaleUp {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.modal-header {
+    padding: 24px;
+    border-bottom: 1px solid #F3F4F6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h2 {
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.modal-header button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #9CA3AF;
+}
+
+.modal-body {
+    padding: 24px;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.modal-section {
+    margin-bottom: 24px;
+}
+
+.modal-section h3 {
+    font-size: 14px;
+    font-weight: 800;
+    color: #374151;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 15px;
+    margin-bottom: 6px;
+}
+
+.items-list {
+    background: #F9FAFB;
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.item-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: #4B5563;
+}
+
+.total-row {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 16px;
+    margin-top: 12px;
+    border-top: 1px dashed #D1D5DB;
+}
+
+.final-price {
+    font-size: 18px;
+    color: #C41E2E;
+}
+
+@media (max-width: 1200px) {
+    .kanban-board {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    .kanban-board {
+        grid-template-columns: 1fr;
+    }
+}
