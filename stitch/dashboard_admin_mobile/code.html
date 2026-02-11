@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Espetinho Vitória - Dashboard Admin</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#c41c2a",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#211113",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "1rem", 
+                        "lg": "2rem", 
+                        "xl": "3rem", 
+                        "full": "9999px"
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 20px -2px rgba(196, 28, 42, 0.1)',
+                        'inner-white': 'inset 0 2px 4px 0 rgba(255, 255, 255, 0.3)',
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar hide for horizontal scrolling */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-100 antialiased selection:bg-primary/30">
+<!-- Mobile Container (Max Width Constrained for PC view, Full width on Mobile) -->
+<div class="mx-auto w-full max-w-md min-h-screen relative pb-24 overflow-hidden bg-background-light dark:bg-background-dark shadow-2xl">
+<!-- Header -->
+<header class="flex items-center justify-between px-6 pt-6 pb-2 sticky top-0 z-20 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md">
+<button class="p-2 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+<span class="material-icons-round text-2xl text-gray-700 dark:text-gray-200">menu</span>
+</button>
+<div class="flex flex-col items-center">
+<span class="text-xs font-semibold tracking-widest uppercase text-primary mb-0.5">Admin</span>
+<h1 class="text-lg font-bold text-gray-900 dark:text-white leading-none">Espetinho Vitória</h1>
+</div>
+<button class="relative p-2 -mr-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group">
+<span class="material-icons-outlined text-2xl text-gray-700 dark:text-gray-200 group-hover:text-primary transition-colors">notifications</span>
+<span class="absolute top-2 right-2 w-2.5 h-2.5 bg-primary rounded-full border-2 border-background-light dark:border-background-dark"></span>
+</button>
+</header>
+<!-- Main Content -->
+<main class="px-5 mt-4 space-y-6">
+<!-- Hero Card: Vendas Hoje -->
+<div class="relative w-full overflow-hidden rounded-lg bg-gradient-to-br from-primary to-[#8a131d] text-white shadow-soft shadow-primary/40 group">
+<!-- Background decorative shapes -->
+<div class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 rounded-full bg-white/10 blur-2xl group-hover:bg-white/20 transition-all duration-500"></div>
+<div class="absolute bottom-0 left-0 -mb-8 -ml-8 w-40 h-40 rounded-full bg-black/10 blur-xl"></div>
+<div class="relative p-6">
+<div class="flex justify-between items-start mb-1">
+<div class="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full w-fit">
+<span class="material-icons-round text-sm">calendar_today</span>
+<span class="text-xs font-medium tracking-wide">Vendas Hoje</span>
+</div>
+<button class="opacity-80 hover:opacity-100 transition-opacity">
+<span class="material-icons-round text-xl">more_horiz</span>
+</button>
+</div>
+<div class="mt-4">
+<h2 class="text-4xl font-bold tracking-tight mb-1">R$ 3.450,00</h2>
+<div class="flex items-center gap-2 text-red-100">
+<div class="flex items-center bg-white/20 px-2 py-0.5 rounded text-xs font-semibold">
+<span class="material-icons-round text-sm mr-0.5">trending_up</span>
+                                +15%
+                            </div>
+<span class="text-sm font-medium opacity-90">vs. ontem</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Secondary Metrics Grid -->
+<div class="grid grid-cols-2 gap-4">
+<!-- Pedidos Card -->
+<div class="bg-white dark:bg-white/5 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-white/10 hover:border-primary/30 transition-colors">
+<div class="flex items-center gap-2 mb-2">
+<div class="w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+<span class="material-icons-round text-lg">receipt_long</span>
+</div>
+<span class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Pedidos</span>
+</div>
+<p class="text-2xl font-bold text-gray-800 dark:text-white">42</p>
+<p class="text-xs text-green-600 dark:text-green-400 font-medium mt-1">▲ 8 novos</p>
+</div>
+<!-- Ticket Médio Card -->
+<div class="bg-white dark:bg-white/5 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-white/10 hover:border-primary/30 transition-colors">
+<div class="flex items-center gap-2 mb-2">
+<div class="w-8 h-8 rounded-full bg-orange-50 dark:bg-orange-900/30 flex items-center justify-center text-orange-600 dark:text-orange-400">
+<span class="material-icons-round text-lg">payments</span>
+</div>
+<span class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Ticket M.</span>
+</div>
+<p class="text-2xl font-bold text-gray-800 dark:text-white">R$ 82</p>
+<p class="text-xs text-gray-400 dark:text-gray-500 font-medium mt-1">Estável</p>
+</div>
+<!-- Upsell Card (Full Width in Grid Logic or adjust as needed, keeping 2 cols so maybe this one spans 2? No, let's keep grid consistency or add a third one. The user asked for 3 specific white cards. Let's make the 3rd one span 2 cols or use a flex row scroll for metrics if space is tight. Let's try making the 3rd one full width of the grid row) -->
+<div class="col-span-2 bg-white dark:bg-white/5 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-white/10 flex items-center justify-between hover:border-primary/30 transition-colors">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<div class="w-8 h-8 rounded-full bg-purple-50 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400">
+<span class="material-icons-round text-lg">stars</span>
+</div>
+<span class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Taxa de Upsell</span>
+</div>
+<p class="text-2xl font-bold text-gray-800 dark:text-white mt-1">12.5% <span class="text-sm font-normal text-gray-400"> conversão</span></p>
+</div>
+<!-- Mini circular progress representation -->
+<div class="relative w-12 h-12">
+<svg class="w-full h-full transform -rotate-90">
+<circle class="text-gray-100 dark:text-gray-700" cx="24" cy="24" fill="transparent" r="20" stroke="currentColor" stroke-width="4"></circle>
+<circle class="text-primary" cx="24" cy="24" fill="transparent" r="20" stroke="currentColor" stroke-dasharray="125" stroke-dashoffset="100" stroke-width="4"></circle>
+</svg>
+<span class="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-gray-600 dark:text-gray-300">OK</span>
+</div>
+</div>
+</div>
+<!-- Chart Section -->
+<div class="bg-white dark:bg-white/5 p-5 rounded-lg shadow-sm border border-gray-100 dark:border-white/10">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-sm font-bold text-gray-800 dark:text-white">Vendas (7 dias)</h3>
+<select class="bg-transparent text-xs font-medium text-gray-500 border-none focus:ring-0 cursor-pointer p-0 pr-4">
+<option>Última semana</option>
+<option>Último mês</option>
+</select>
+</div>
+<!-- Simplified CSS Chart using gradients/clip-path visualization -->
+<div class="h-32 w-full relative flex items-end justify-between gap-1 mt-2">
+<!-- Chart Lines/Bars Visualization -->
+<div class="absolute inset-0 flex items-end">
+<svg class="w-full h-full overflow-visible" preserveaspectratio="none" viewbox="0 0 100 40">
+<!-- Gradient definition -->
+<defs>
+<lineargradient id="chartGradient" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#c41c2a" stop-opacity="0.2"></stop>
+<stop offset="100%" stop-color="#c41c2a" stop-opacity="0"></stop>
+</lineargradient>
+</defs>
+<!-- Area fill -->
+<path d="M0,40 L0,30 C10,32 20,20 30,25 C40,30 50,15 60,18 C70,21 80,10 90,5 L100,0 L100,40 Z" fill="url(#chartGradient)"></path>
+<!-- Stroke line -->
+<path d="M0,30 C10,32 20,20 30,25 C40,30 50,15 60,18 C70,21 80,10 90,5 L100,0" fill="none" stroke="#c41c2a" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path>
+<!-- Dots on key points -->
+<circle class="bg-background-light" cx="30" cy="25" fill="#c41c2a" r="1.5" stroke="white" stroke-width="0.5"></circle>
+<circle class="bg-background-light" cx="60" cy="18" fill="#c41c2a" r="1.5" stroke="white" stroke-width="0.5"></circle>
+<circle class="bg-background-light" cx="90" cy="5" fill="#c41c2a" r="1.5" stroke="white" stroke-width="0.5"></circle>
+</svg>
+</div>
+<!-- X-Axis Labels -->
+<div class="absolute -bottom-5 w-full flex justify-between text-[10px] text-gray-400 font-medium px-1">
+<span>Seg</span>
+<span>Ter</span>
+<span>Qua</span>
+<span>Qui</span>
+<span>Sex</span>
+<span>Sab</span>
+<span>Dom</span>
+</div>
+</div>
+<div class="h-4 w-full"></div> <!-- Spacer for labels -->
+</div>
+<!-- Últimos Pedidos List -->
+<div class="pb-4">
+<div class="flex items-center justify-between mb-3 px-1">
+<h3 class="text-sm font-bold text-gray-800 dark:text-white">Últimos Pedidos</h3>
+<a class="text-xs font-semibold text-primary hover:text-red-700" href="#">Ver todos</a>
+</div>
+<div class="space-y-3">
+<!-- Order Item 1 -->
+<div class="bg-white dark:bg-white/5 p-3 rounded-xl border border-gray-100 dark:border-white/5 flex items-center justify-between shadow-sm">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-900/20 flex items-center justify-center text-orange-600 dark:text-orange-400 flex-shrink-0">
+<span class="material-icons-round text-lg">soup_kitchen</span>
+</div>
+<div>
+<h4 class="text-sm font-bold text-gray-800 dark:text-white">Mesa 08</h4>
+<p class="text-xs text-gray-400 font-medium">#PED-4829 • 2 min atrás</p>
+</div>
+</div>
+<div class="text-right">
+<span class="inline-block px-2 py-0.5 rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 text-[10px] font-bold uppercase tracking-wide mb-1">Na Cozinha</span>
+<p class="text-sm font-bold text-gray-900 dark:text-white">R$ 145,90</p>
+</div>
+</div>
+<!-- Order Item 2 -->
+<div class="bg-white dark:bg-white/5 p-3 rounded-xl border border-gray-100 dark:border-white/5 flex items-center justify-between shadow-sm">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center text-green-600 dark:text-green-400 flex-shrink-0">
+<span class="material-icons-round text-lg">delivery_dining</span>
+</div>
+<div>
+<h4 class="text-sm font-bold text-gray-800 dark:text-white">Delivery (João)</h4>
+<p class="text-xs text-gray-400 font-medium">#PED-4828 • 15 min atrás</p>
+</div>
+</div>
+<div class="text-right">
+<span class="inline-block px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-[10px] font-bold uppercase tracking-wide mb-1">Enviado</span>
+<p class="text-sm font-bold text-gray-900 dark:text-white">R$ 82,50</p>
+</div>
+</div>
+<!-- Order Item 3 -->
+<div class="bg-white dark:bg-white/5 p-3 rounded-xl border border-gray-100 dark:border-white/5 flex items-center justify-between shadow-sm opacity-60">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-500 dark:text-gray-400 flex-shrink-0">
+<span class="material-icons-round text-lg">check</span>
+</div>
+<div>
+<h4 class="text-sm font-bold text-gray-800 dark:text-white">Balcão</h4>
+<p class="text-xs text-gray-400 font-medium">#PED-4827 • 22 min atrás</p>
+</div>
+</div>
+<div class="text-right">
+<span class="inline-block px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-[10px] font-bold uppercase tracking-wide mb-1">Finalizado</span>
+<p class="text-sm font-bold text-gray-900 dark:text-white">R$ 24,00</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto z-40 bg-white dark:bg-[#2a1618] border-t border-gray-100 dark:border-white/5 pb-6 pt-3 px-6 shadow-[0_-10px_40px_-10px_rgba(0,0,0,0.05)]">
+<ul class="flex justify-between items-center">
+<li>
+<a class="flex flex-col items-center gap-1 text-primary group" href="#">
+<div class="p-1.5 rounded-xl bg-primary/10 group-hover:bg-primary/20 transition-colors">
+<span class="material-icons-round text-2xl">dashboard</span>
+</div>
+<span class="text-[10px] font-semibold">Home</span>
+</a>
+</li>
+<li>
+<a class="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors" href="#">
+<span class="material-icons-round text-2xl">receipt_long</span>
+<span class="text-[10px] font-medium">Pedidos</span>
+</a>
+</li>
+<!-- Center Action Button - Floating Style Adjustment -->
+<li class="-mt-8">
+<button class="flex flex-col items-center justify-center w-14 h-14 rounded-full bg-primary text-white shadow-lg shadow-primary/40 hover:scale-105 transition-transform">
+<span class="material-icons-round text-2xl">add</span>
+</button>
+</li>
+<li>
+<a class="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors" href="#">
+<span class="material-icons-round text-2xl">inventory_2</span>
+<span class="text-[10px] font-medium">Estoque</span>
+</a>
+</li>
+<li>
+<a class="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors" href="#">
+<span class="material-icons-round text-2xl">settings</span>
+<span class="text-[10px] font-medium">Ajustes</span>
+</a>
+</li>
+</ul>
+</nav>
+</div>
+</body></html>

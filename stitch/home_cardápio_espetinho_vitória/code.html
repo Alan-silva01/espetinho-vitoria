@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Espetinho Vitória Home</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#D90429", // Red seen in screenshots and logo
+                        secondary: "#EF233C", // Lighter red for gradients/accents
+                        "background-light": "#F9FAFB",
+                        "background-dark": "#18181B",
+                        "surface-light": "#FFFFFF",
+                        "surface-dark": "#27272A",
+                        "text-primary-light": "#111827",
+                        "text-primary-dark": "#F3F4F6",
+                        "text-secondary-light": "#6B7280",
+                        "text-secondary-dark": "#9CA3AF",
+                    },
+                    fontFamily: {
+                        display: ["Poppins", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "1rem", // 16px
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
+                    }
+                },
+            },
+        };
+    </script>
+<style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }.hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen text-text-primary-light dark:text-text-primary-dark transition-colors duration-200">
+<div class="max-w-md mx-auto relative min-h-screen pb-24 bg-background-light dark:bg-background-dark overflow-hidden">
+<header class="flex justify-between items-center px-5 pt-8 pb-4 bg-surface-light dark:bg-surface-dark sticky top-0 z-20 shadow-sm dark:shadow-none">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary bg-white flex items-center justify-center">
+<span class="material-icons-round text-primary">local_fire_department</span>
+</div>
+<div>
+<p class="text-xs text-text-secondary-light dark:text-text-secondary-dark">Bem-vindo ao</p>
+<h1 class="text-lg font-bold text-primary leading-tight">Espetinho Vitória</h1>
+</div>
+</div>
+<button class="relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+<span class="material-icons-round text-gray-700 dark:text-gray-300">notifications_none</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full border-2 border-white dark:border-surface-dark"></span>
+</button>
+</header>
+<div class="px-5 mt-4">
+<div class="relative">
+<span class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 material-icons-round">search</span>
+<input class="w-full pl-12 pr-4 py-3 rounded-2xl bg-white dark:bg-surface-dark border-none shadow-soft focus:ring-2 focus:ring-primary/20 text-sm text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500" placeholder="O que vamos comer hoje?" type="text"/>
+<button class="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 bg-primary text-white rounded-xl shadow-md">
+<span class="material-icons-round text-lg">tune</span>
+</button>
+</div>
+</div>
+<div class="mt-6 pl-5">
+<div class="flex gap-3 overflow-x-auto hide-scrollbar pb-2 pr-5">
+<button class="flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-full shadow-lg shadow-primary/30 whitespace-nowrap transition-transform active:scale-95">
+<span class="material-icons-round text-sm">local_fire_department</span>
+<span class="font-medium text-sm">Espetos</span>
+</button>
+<button class="flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-surface-dark text-text-secondary-light dark:text-text-secondary-dark rounded-full shadow-sm border border-gray-100 dark:border-gray-700 whitespace-nowrap transition hover:bg-gray-50 dark:hover:bg-gray-700">
+<span class="material-icons-round text-sm text-purple-500">icecream</span>
+<span class="font-medium text-sm">Açaí</span>
+</button>
+<button class="flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-surface-dark text-text-secondary-light dark:text-text-secondary-dark rounded-full shadow-sm border border-gray-100 dark:border-gray-700 whitespace-nowrap transition hover:bg-gray-50 dark:hover:bg-gray-700">
+<span class="material-icons-round text-sm text-blue-400">local_drink</span>
+<span class="font-medium text-sm">Bebidas</span>
+</button>
+<button class="flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-surface-dark text-text-secondary-light dark:text-text-secondary-dark rounded-full shadow-sm border border-gray-100 dark:border-gray-700 whitespace-nowrap transition hover:bg-gray-50 dark:hover:bg-gray-700">
+<span class="material-icons-round text-sm text-orange-400">soup_kitchen</span>
+<span class="font-medium text-sm">Caldos</span>
+</button>
+</div>
+</div>
+<div class="flex justify-between items-center px-5 mt-6 mb-4">
+<h2 class="text-lg font-bold text-text-primary-light dark:text-text-primary-dark">Destaques</h2>
+<button class="text-sm text-primary font-medium hover:underline">Ver tudo</button>
+</div>
+<div class="px-5 grid grid-cols-2 gap-4 pb-4">
+<div class="bg-white dark:bg-surface-dark p-3 rounded-2xl shadow-soft hover:shadow-lg transition-shadow border border-transparent dark:border-gray-700/50">
+<div class="relative aspect-square rounded-xl overflow-hidden mb-3 bg-gray-100 dark:bg-gray-800">
+<img alt="Delicious beef skewer on a plate" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAyFK6uMKNtpekUtGQWogTLpa6jl_bgn6fwNOvMef5qaWpw-p-TX0tbubDuGbF4B3_owZBO7hxHRwJYvZNEJUutsfcLetKFzb5rLqq4Bpi9yFQHQjMWbP0vEdCiCAsHviNC8lqlEJe53_8hRvDOph_-0c-hbdHq-a2tJ42gao_9F3h5IvtsVBFUsdP9cdaB45E2YxkDFXKXthwDuvALJClVOdgBSDTBm4k3BtU5WMo-wVFFcgge0nYk0GTe3e_fYvA94C8ThDJEOT13"/>
+<div class="absolute top-2 right-2 bg-white/90 dark:bg-black/60 backdrop-blur-sm p-1.5 rounded-full shadow-sm">
+<span class="material-icons-round text-primary text-xs block">favorite_border</span>
+</div>
+</div>
+<h3 class="font-bold text-base text-text-primary-light dark:text-text-primary-dark mb-1 truncate">Espetinho de Picanha</h3>
+<p class="text-xs text-text-secondary-light dark:text-text-secondary-dark mb-3">Acompanha farofa</p>
+<div class="flex justify-between items-center">
+<span class="font-bold text-primary">R$ 12,00</span>
+<button class="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white shadow-md active:scale-95 transition">
+<span class="material-icons-round text-sm">add</span>
+</button>
+</div>
+</div>
+<div class="bg-white dark:bg-surface-dark p-3 rounded-2xl shadow-soft hover:shadow-lg transition-shadow border border-transparent dark:border-gray-700/50">
+<div class="relative aspect-square rounded-xl overflow-hidden mb-3 bg-gray-100 dark:bg-gray-800">
+<img alt="Grilled chicken skewer" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJ4f88ph9RQ3xLyr0NTPQWvELuPGzCgtLv7hje4614gm8HYj5GapIE3XZATA_LL37U2SW2D3HX-dqAdgn57IXduXDSqZnyD0-5tfs6S9_l1bAL6IQDMgUMA0UlYXQP3EzgI5Agdn8YuqXOeAVDIsGtDAzLtUbrJwEgvl90ui_B0L3NdbND5tYEQrMtbHYSl6egktr-RDccKUXK4srj21sqt3qgVBfcqB8biYVBPuLnifFGDJXJostczGiL-HrplpHBzBYolr6v6sTD"/>
+<div class="absolute top-2 right-2 bg-white/90 dark:bg-black/60 backdrop-blur-sm p-1.5 rounded-full shadow-sm">
+<span class="material-icons-round text-primary text-xs block">favorite_border</span>
+</div>
+</div>
+<h3 class="font-bold text-base text-text-primary-light dark:text-text-primary-dark mb-1 truncate">Espetinho de Frango</h3>
+<p class="text-xs text-text-secondary-light dark:text-text-secondary-dark mb-3">Com bacon crocante</p>
+<div class="flex justify-between items-center">
+<span class="font-bold text-primary">R$ 8,00</span>
+<button class="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white shadow-md active:scale-95 transition">
+<span class="material-icons-round text-sm">add</span>
+</button>
+</div>
+</div>
+<div class="bg-white dark:bg-surface-dark p-3 rounded-2xl shadow-soft hover:shadow-lg transition-shadow border border-transparent dark:border-gray-700/50">
+<div class="relative aspect-square rounded-xl overflow-hidden mb-3 bg-gray-100 dark:bg-gray-800">
+<img alt="Acai bowl with fruits" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBKhsMWpmoTxGbgWzLgHczonJhb94g4UXTQ6WcAQf6e8qUdSkjcxKAkcNxlk5p3LX9-epJLfmPVV6spGiQcoVG91uGREPToKp_4S0jqLjCsz00NIpxTP-otr5AjhJR1nkuuUPwVCR78JDKbOVdzDYRxWkGPqxJAsvQtwGIPCXDea33c8_KNuGbtf8otY2c9wfLoEI8TfDQxYR2xChno2CKjNVAWhCDKOhGlLbIxFnxUK3cr9ZrDb1xIDTMB29bXEtRUpb7dbKS5mKhe"/>
+</div>
+<h3 class="font-bold text-base text-text-primary-light dark:text-text-primary-dark mb-1 truncate">Açaí Completo 500ml</h3>
+<p class="text-xs text-text-secondary-light dark:text-text-secondary-dark mb-3">Morango e leite ninho</p>
+<div class="flex justify-between items-center">
+<span class="font-bold text-primary">R$ 18,00</span>
+<button class="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white shadow-md active:scale-95 transition">
+<span class="material-icons-round text-sm">add</span>
+</button>
+</div>
+</div>
+<div class="bg-white dark:bg-surface-dark p-3 rounded-2xl shadow-soft hover:shadow-lg transition-shadow border border-transparent dark:border-gray-700/50">
+<div class="relative aspect-square rounded-xl overflow-hidden mb-3 bg-gray-100 dark:bg-gray-800">
+<img alt="Hot soup in a bowl" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDOP54p0rZkeq_saFJE9MLlqbSz7hrJalEWaOWhjvzvsgbkVdxhATsnvhtgWObzMwxbk7MpfdeZ-Kus3H6OZexrQ3tddekyks5GbSw_gF3AwpvvkRxUWVBinzQF2rJJnEITVNVG3pRfC5pJ7Jg97HtpVWgrNQ-czEzBNcROlLU_yUiLpI_7P_-WLwramP_Ez24YtUMHl_58mgKcM-1xkqrwSj3DmaJiG06Wa1EOg9PP7VggrsRMmK7XRFqk2_IrxI2NizUL0Aqr7VRS"/>
+</div>
+<h3 class="font-bold text-base text-text-primary-light dark:text-text-primary-dark mb-1 truncate">Caldo de Feijão</h3>
+<p class="text-xs text-text-secondary-light dark:text-text-secondary-dark mb-3">Com torresmo</p>
+<div class="flex justify-between items-center">
+<span class="font-bold text-primary">R$ 10,00</span>
+<button class="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white shadow-md active:scale-95 transition">
+<span class="material-icons-round text-sm">add</span>
+</button>
+</div>
+</div>
+</div>
+<div class="px-5 mb-6">
+<div class="w-full bg-gradient-to-r from-primary to-secondary rounded-2xl p-4 text-white shadow-lg flex items-center justify-between relative overflow-hidden">
+<div class="relative z-10 w-2/3">
+<span class="text-xs font-medium bg-white/20 px-2 py-0.5 rounded mb-2 inline-block">Oferta do dia</span>
+<h3 class="font-bold text-lg leading-snug mb-1">Combo Casal</h3>
+<p class="text-xs opacity-90 mb-3">2 Espetos + 1 Açaí grande</p>
+<button class="text-xs font-bold bg-white text-primary px-3 py-1.5 rounded-full shadow-sm hover:bg-gray-100">Peça agora</button>
+</div>
+<div class="absolute right-[-10px] top-[-10px] w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+<img alt="Combo food abstract" class="w-24 h-24 object-cover rounded-full border-4 border-white/20 relative z-10 transform translate-x-2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmwU6-_CRiEFyUd0od79Yzfn1e7ZxQmQMSujMwxMlB6XJ8huEmi9OyyoOk6lptvF0E1iZPHsMCu8by8C7RTiyMQe4f7VNkH3LjolPIDIdK4pFN3u_FQIB4dmZTothpIktWfmclFUCLm17D_51Unjv_QltBEzKwQSheyQ8w2pZXjCm7RCdxp_kUkecYVNf2B3wy_ew8bazdHwBSZRSSCVbBf-2U42s80h6U_mHdMkN-KjpQfBjMvx_WYz0Bn3jTca1MdbR62YQrtOa8"/>
+</div>
+</div>
+<div class="fixed bottom-0 left-0 right-0 bg-white dark:bg-surface-dark border-t border-gray-100 dark:border-gray-800 px-6 py-3 flex justify-between items-center rounded-t-3xl shadow-[0_-5px_20px_rgba(0,0,0,0.05)] z-30 max-w-md mx-auto">
+<button class="flex flex-col items-center gap-1 text-primary group">
+<div class="p-1 rounded-xl bg-primary/10 dark:bg-primary/20 transition-colors group-hover:bg-primary/20">
+<span class="material-icons-round text-2xl">home</span>
+</div>
+<span class="text-[10px] font-semibold">Início</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-gray-400 dark:text-gray-500 hover:text-primary dark:hover:text-primary transition-colors">
+<span class="material-icons-round text-2xl">receipt_long</span>
+<span class="text-[10px] font-medium">Pedidos</span>
+</button>
+<div class="relative -top-5">
+<button class="w-14 h-14 bg-primary text-white rounded-full flex items-center justify-center shadow-lg shadow-primary/40 transform transition hover:-translate-y-1 active:scale-95">
+<span class="material-icons-round text-2xl">shopping_cart</span>
+<span class="absolute top-3 right-3 w-3 h-3 bg-yellow-400 rounded-full border-2 border-primary"></span>
+</button>
+</div>
+<button class="flex flex-col items-center gap-1 text-gray-400 dark:text-gray-500 hover:text-primary dark:hover:text-primary transition-colors">
+<span class="material-icons-round text-2xl">favorite_border</span>
+<span class="text-[10px] font-medium">Favoritos</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-gray-400 dark:text-gray-500 hover:text-primary dark:hover:text-primary transition-colors">
+<span class="material-icons-round text-2xl">person_outline</span>
+<span class="text-[10px] font-medium">Perfil</span>
+</button>
+</div>
+</div>
+
+</body></html>

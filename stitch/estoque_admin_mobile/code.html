@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Estoque Admin Mobile</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#136dec",
+              "background-light": "#f6f7f8",
+              "background-dark": "#101822",
+              "success": "#22c55e",
+              "warning": "#f59e0b",
+              "danger": "#ef4444",
+            },
+            fontFamily: {
+              "display": ["Inter", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px"},
+            boxShadow: {
+                'card': '0 2px 8px -2px rgba(19, 109, 236, 0.08)',
+                'nav': '0 -4px 20px -5px rgba(0, 0, 0, 0.05)',
+                'fab': '0 4px 15px rgba(19, 109, 236, 0.4)',
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        /* Hide scrollbar for IE, Edge and Firefox */
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #136dec;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #136dec;
+        }
+        
+        /* Smooth transition for progress bars */
+        .progress-bar-fill {
+            transition: width 0.5s ease-out;
+        }
+
+        /* iOS safe area support */
+        .safe-pb {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-100 antialiased selection:bg-primary/30">
+<div class="mx-auto max-w-[390px] min-h-screen bg-background-light dark:bg-background-dark relative pb-24 overflow-hidden shadow-2xl">
+<!-- Header -->
+<header class="px-5 pt-12 pb-4 flex justify-between items-center sticky top-0 z-30 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md">
+<div>
+<h2 class="text-xs font-semibold text-primary tracking-wider uppercase mb-0.5">Espetinho Vitória</h2>
+<h1 class="text-2xl font-bold text-gray-900 dark:text-white">Estoque</h1>
+</div>
+<button class="relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+<span class="absolute top-2 right-2 w-2.5 h-2.5 bg-danger rounded-full border-2 border-background-light dark:border-background-dark"></span>
+<span class="material-icons-round text-gray-600 dark:text-gray-300">notifications</span>
+</button>
+</header>
+<!-- Category Filters -->
+<div class="px-5 mb-6">
+<div class="flex space-x-3 overflow-x-auto no-scrollbar pb-2">
+<button class="flex-shrink-0 bg-primary text-white px-5 py-2.5 rounded-full text-sm font-medium shadow-md shadow-primary/20 transition-transform active:scale-95">
+                    Todos
+                </button>
+<button class="flex-shrink-0 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 px-5 py-2.5 rounded-full text-sm font-medium whitespace-nowrap hover:border-primary/50 transition-colors active:scale-95">
+                    Espetinhos
+                </button>
+<button class="flex-shrink-0 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 px-5 py-2.5 rounded-full text-sm font-medium whitespace-nowrap hover:border-primary/50 transition-colors active:scale-95">
+                    Bebidas
+                </button>
+<button class="flex-shrink-0 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 px-5 py-2.5 rounded-full text-sm font-medium whitespace-nowrap hover:border-primary/50 transition-colors active:scale-95">
+                    Porções
+                </button>
+<button class="flex-shrink-0 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 px-5 py-2.5 rounded-full text-sm font-medium whitespace-nowrap hover:border-primary/50 transition-colors active:scale-95">
+                    Sobremesas
+                </button>
+</div>
+</div>
+<!-- Stats Overview (Optional Quick Glance) -->
+<div class="px-5 mb-6 grid grid-cols-2 gap-3">
+<div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-card border border-gray-100 dark:border-gray-700">
+<div class="text-xs text-gray-500 dark:text-gray-400 font-medium mb-1">Total Items</div>
+<div class="text-xl font-bold text-gray-900 dark:text-white">142</div>
+</div>
+<div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-card border border-gray-100 dark:border-gray-700">
+<div class="text-xs text-warning font-medium mb-1 flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-warning"></span> Baixo Estoque
+                </div>
+<div class="text-xl font-bold text-gray-900 dark:text-white">8</div>
+</div>
+</div>
+<!-- Product List -->
+<div class="px-5 space-y-4 pb-24">
+<!-- Product Card: High Stock -->
+<div class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-card border border-gray-100 dark:border-gray-700 flex flex-col gap-3 relative overflow-hidden">
+<div class="absolute top-0 right-0 w-1 h-full bg-primary rounded-r-xl"></div>
+<div class="flex justify-between items-start">
+<div class="flex gap-3">
+<div class="w-12 h-12 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
+<img alt="Grilled beef skewer close up" class="w-full h-full object-cover rounded-lg mix-blend-multiply dark:mix-blend-normal" data-alt="Close up of delicious grilled meat skewer" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDSUmNVPUjCOxif-OAmRfk-DuCif1XxcHtN3VWAM-Xq0pPr_f7XSgGput-Ac6at86J_B6fuNUJSsuOU7bzewfk80Ob6qodC2HPfJYKWrsXxraDBBzsLm2b63AVAZk2q3Ve46yM2fvCI0cuQLoERI6bfBM7jvrrMhbollG8dQTzK13S-SR11daG4OXShVKfRd1YA7DrpW0lbfCtYALC7QcQXZ4NOFcULsIow2oqzMdf92Qw_s4nytLtM4V-bOHa78aKu9a7f0axvuVYS"/>
+</div>
+<div>
+<h3 class="font-bold text-gray-900 dark:text-white text-base leading-tight">Espetinho de Carne</h3>
+<p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Categoria: Espetinhos</p>
+</div>
+</div>
+<!-- Large Toggle Switch -->
+<div class="flex flex-col items-end">
+<label class="flex items-center cursor-pointer relative" for="toggle1">
+<input checked="" class="sr-only peer" id="toggle1" type="checkbox"/>
+<div class="w-14 h-8 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 dark:peer-focus:ring-primary/40 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-7 after:w-7 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+</label>
+<span class="text-[10px] font-medium text-primary mt-1">Disponível</span>
+</div>
+</div>
+<!-- Stock Progress -->
+<div>
+<div class="flex justify-between items-end mb-1">
+<span class="text-xs font-semibold text-gray-700 dark:text-gray-300">Estoque</span>
+<span class="text-sm font-bold text-gray-900 dark:text-white">45 <span class="text-gray-400 text-xs font-normal">/ 50 un</span></span>
+</div>
+<div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2.5">
+<div class="bg-primary h-2.5 rounded-full progress-bar-fill" style="width: 90%"></div>
+</div>
+</div>
+</div>
+<!-- Product Card: Low Stock (Warning) -->
+<div class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-card border border-gray-100 dark:border-gray-700 flex flex-col gap-3 relative overflow-hidden">
+<div class="absolute top-0 right-0 w-1 h-full bg-warning rounded-r-xl"></div>
+<div class="flex justify-between items-start">
+<div class="flex gap-3">
+<div class="w-12 h-12 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
+<img alt="Chicken skewer on a plate" class="w-full h-full object-cover rounded-lg mix-blend-multiply dark:mix-blend-normal" data-alt="Grilled chicken pieces on skewer" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-Rj-XvzCFCFbYWdO8pNPkXNzdYrrti6P4aLJWMV3331A-36ian3-nMYvmWPa5CF5lkHCbtf6TEdzWPdYGeiJiGC0ZTBzl9w38aak9NSE7u8OJOl-ifSMG-tbtkub4ihBvRSXdwsVi3nTq-ksEuY3Mn8Q1uBaiooSQtDVSicrnpHIotLiPZU7eEaCXCkuSXFcPL38hMqleWVx8SJphYEGmPAsW-hpEs88Yh14d9r4ysFGpdEXCFJ5JVJj_PTSRptEK-vYFSbdiEi7T"/>
+</div>
+<div>
+<h3 class="font-bold text-gray-900 dark:text-white text-base leading-tight">Espetinho de Frango</h3>
+<p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Categoria: Espetinhos</p>
+</div>
+</div>
+<div class="flex flex-col items-end">
+<label class="flex items-center cursor-pointer relative" for="toggle2">
+<input checked="" class="sr-only peer" id="toggle2" type="checkbox"/>
+<div class="w-14 h-8 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 dark:peer-focus:ring-primary/40 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-7 after:w-7 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+</label>
+<span class="text-[10px] font-medium text-warning mt-1">Poucas Unidades</span>
+</div>
+</div>
+<div>
+<div class="flex justify-between items-end mb-1">
+<span class="text-xs font-semibold text-gray-700 dark:text-gray-300">Estoque</span>
+<span class="text-sm font-bold text-warning">8 <span class="text-gray-400 text-xs font-normal">/ 40 un</span></span>
+</div>
+<div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2.5">
+<div class="bg-warning h-2.5 rounded-full progress-bar-fill" style="width: 20%"></div>
+</div>
+</div>
+</div>
+<!-- Product Card: Beverage -->
+<div class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-card border border-gray-100 dark:border-gray-700 flex flex-col gap-3 relative overflow-hidden">
+<div class="absolute top-0 right-0 w-1 h-full bg-primary rounded-r-xl"></div>
+<div class="flex justify-between items-start">
+<div class="flex gap-3">
+<div class="w-12 h-12 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center flex-shrink-0 text-2xl">
+                            🍺
+                        </div>
+<div>
+<h3 class="font-bold text-gray-900 dark:text-white text-base leading-tight">Cerveja Lata 350ml</h3>
+<p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Categoria: Bebidas</p>
+</div>
+</div>
+<div class="flex flex-col items-end">
+<label class="flex items-center cursor-pointer relative" for="toggle3">
+<input checked="" class="sr-only peer" id="toggle3" type="checkbox"/>
+<div class="w-14 h-8 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 dark:peer-focus:ring-primary/40 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-7 after:w-7 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+</label>
+<span class="text-[10px] font-medium text-primary mt-1">Disponível</span>
+</div>
+</div>
+<div>
+<div class="flex justify-between items-end mb-1">
+<span class="text-xs font-semibold text-gray-700 dark:text-gray-300">Estoque</span>
+<span class="text-sm font-bold text-gray-900 dark:text-white">120 <span class="text-gray-400 text-xs font-normal">/ 200 un</span></span>
+</div>
+<div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2.5">
+<div class="bg-primary h-2.5 rounded-full progress-bar-fill" style="width: 60%"></div>
+</div>
+</div>
+</div>
+<!-- Product Card: Sold Out -->
+<div class="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4 border border-gray-200 dark:border-gray-700 flex flex-col gap-3 relative opacity-75">
+<div class="flex justify-between items-start">
+<div class="flex gap-3 grayscale opacity-80">
+<div class="w-12 h-12 rounded-lg bg-gray-200 dark:bg-gray-700 flex items-center justify-center flex-shrink-0 text-2xl">
+                            🍡
+                        </div>
+<div>
+<h3 class="font-bold text-gray-600 dark:text-gray-400 text-base leading-tight line-through decoration-gray-400">Pão de Alho</h3>
+<p class="text-xs text-gray-500 dark:text-gray-500 mt-1">Categoria: Acompanhamentos</p>
+</div>
+</div>
+<div class="flex flex-col items-end">
+<label class="flex items-center cursor-pointer relative" for="toggle4">
+<input class="sr-only peer" id="toggle4" type="checkbox"/>
+<div class="w-14 h-8 bg-gray-300 peer-focus:outline-none rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-7 after:w-7 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+</label>
+<span class="text-[10px] font-bold text-danger uppercase tracking-wide mt-1">Esgotado</span>
+</div>
+</div>
+<div>
+<div class="flex justify-between items-end mb-1">
+<span class="text-xs font-semibold text-gray-400 dark:text-gray-500">Estoque</span>
+<span class="text-sm font-bold text-danger">0 <span class="text-gray-400 text-xs font-normal">/ 30 un</span></span>
+</div>
+<div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+<div class="bg-gray-400 h-2.5 rounded-full w-0"></div>
+</div>
+</div>
+</div>
+<!-- Product Card: High Stock -->
+<div class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-card border border-gray-100 dark:border-gray-700 flex flex-col gap-3 relative overflow-hidden">
+<div class="absolute top-0 right-0 w-1 h-full bg-primary rounded-r-xl"></div>
+<div class="flex justify-between items-start">
+<div class="flex gap-3">
+<div class="w-12 h-12 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
+<img alt="Sausage on skewer" class="w-full h-full object-cover rounded-lg mix-blend-multiply dark:mix-blend-normal" data-alt="Grilled sausage skewer close up" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAN8lbInu7m0zPt8ES7NVQqk_hcFZE1NFkjbWNo8G3k5zISTi8OB3Ha1_56ISQgyEHmT-9Yhu6PY_AIURv5fUOIHF-2PJZZEM8qeCqfogTpaUNHxARnI-CisNostl6wIfqFP_Bi5I86Wv75dzgSTBp0XVdqbocJTY_CtGYtas1Awc0DdHHFHWlhLFR5O8wAaXpIHr2gc4ErnQMUxLARRqRIYKH32aEm7s2HSkDy5LeB0lAXeYuMcd_9evDV8kLsq0WyqPv21cIVH-Eg"/>
+</div>
+<div>
+<h3 class="font-bold text-gray-900 dark:text-white text-base leading-tight">Espetinho de Linguiça</h3>
+<p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Categoria: Espetinhos</p>
+</div>
+</div>
+<div class="flex flex-col items-end">
+<label class="flex items-center cursor-pointer relative" for="toggle5">
+<input checked="" class="sr-only peer" id="toggle5" type="checkbox"/>
+<div class="w-14 h-8 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 dark:peer-focus:ring-primary/40 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-7 after:w-7 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+</label>
+<span class="text-[10px] font-medium text-primary mt-1">Disponível</span>
+</div>
+</div>
+<div>
+<div class="flex justify-between items-end mb-1">
+<span class="text-xs font-semibold text-gray-700 dark:text-gray-300">Estoque</span>
+<span class="text-sm font-bold text-gray-900 dark:text-white">38 <span class="text-gray-400 text-xs font-normal">/ 40 un</span></span>
+</div>
+<div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2.5">
+<div class="bg-primary h-2.5 rounded-full progress-bar-fill" style="width: 95%"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Floating Action Button -->
+<button class="fixed right-5 bottom-[90px] w-14 h-14 bg-primary rounded-full shadow-fab flex items-center justify-center text-white z-40 hover:scale-105 active:scale-95 transition-transform">
+<span class="material-icons-round text-3xl">add</span>
+</button>
+<!-- Bottom Navigation -->
+<nav class="fixed bottom-0 w-full max-w-[390px] bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 pb-[env(safe-area-inset-bottom)] shadow-nav z-50 rounded-t-2xl">
+<div class="flex justify-around items-center h-[70px]">
+<a class="flex flex-col items-center justify-center w-full h-full text-gray-400 dark:text-gray-500 hover:text-primary dark:hover:text-primary transition-colors" href="#">
+<span class="material-icons-round text-2xl mb-1">home</span>
+<span class="text-[10px] font-medium">Início</span>
+</a>
+<a class="flex flex-col items-center justify-center w-full h-full text-primary relative" href="#">
+<span class="material-icons-round text-2xl mb-1">inventory_2</span>
+<span class="text-[10px] font-bold">Estoque</span>
+<!-- Active Indicator Dot -->
+<span class="absolute top-3 right-[30%] w-2 h-2 bg-primary/20 rounded-full animate-pulse"></span>
+</a>
+<a class="flex flex-col items-center justify-center w-full h-full text-gray-400 dark:text-gray-500 hover:text-primary dark:hover:text-primary transition-colors" href="#">
+<span class="material-icons-round text-2xl mb-1">receipt_long</span>
+<span class="text-[10px] font-medium">Vendas</span>
+</a>
+<a class="flex flex-col items-center justify-center w-full h-full text-gray-400 dark:text-gray-500 hover:text-primary dark:hover:text-primary transition-colors" href="#">
+<span class="material-icons-round text-2xl mb-1">person</span>
+<span class="text-[10px] font-medium">Perfil</span>
+</a>
+</div>
+</nav>
+</div>
+</body></html>

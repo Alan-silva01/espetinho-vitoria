@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Dashboard Admin - Espetinho Vitória</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#c41c2a",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#211113",
+                        "sidebar-dark": "#1A1A2E", // Custom color requested
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for horizontal scrolling */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-gray-800 antialiased">
+<!-- Mobile Header -->
+<header class="sticky top-0 z-30 flex items-center justify-between px-4 py-3 bg-white shadow-sm dark:bg-[#1A1A2E] dark:text-white">
+<div class="flex items-center gap-3">
+<button class="p-2 -ml-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+<span class="material-icons">menu</span>
+</button>
+<h1 class="text-lg font-bold tracking-tight text-gray-900 dark:text-white">Espetinho Vitória</h1>
+</div>
+<div class="flex items-center gap-3">
+<button class="relative p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+<span class="material-icons text-gray-500 dark:text-gray-300">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full border-2 border-white dark:border-sidebar-dark"></span>
+</button>
+<div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden border border-gray-200 dark:border-gray-700">
+<img alt="Profile" class="w-full h-full object-cover" data-alt="User profile picture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBuP_hYPhXiWfc7vEY6Et6nAXo9yxulBzOTtqphfU8-JkkBlGv9ucjY-dIpCBTjGGyBy7eUt0Z1UiuAmfFxQqf6XGGYQhnXM_0hbZjKig1H1v_r0vWgFFOhfmMHJwycYaRmzZtagxoHQEYwMBTwRXSjXfLH5BNGQxT-TT8gfBFupUhhl2kgquqgFh-ig1g6ts3srhGmtSBJe-sQ8XRLenfnhTAn5PwjZ-IBrV7k4ZCcGoH5qhViqoRQ3UM8qSHeeyrB4BKPaCyBtUii"/>
+</div>
+</div>
+</header>
+<!-- Sidebar (Hidden by default on mobile, simulated here as a bottom sheet or off-canvas idea if needed, but we keep it simple for this view) -->
+<!-- For this "phone form factor" output, we will focus on the main dashboard content as the primary view. -->
+<main class="pb-20">
+<!-- Welcome Section -->
+<div class="px-5 pt-6 pb-2">
+<p class="text-sm text-gray-500 dark:text-gray-400">Terça-feira, 24 Out</p>
+<h2 class="text-2xl font-bold text-gray-900 dark:text-white">Olá, Admin 👋</h2>
+</div>
+<!-- KPI Carousel (Horizontal Scroll) -->
+<div class="flex overflow-x-auto gap-4 px-5 py-4 hide-scrollbar snap-x snap-mandatory">
+<!-- Card 1: Vendas Hoje (Active/Primary) -->
+<div class="snap-center shrink-0 w-[280px] p-5 rounded-xl bg-gradient-to-br from-primary to-[#a01520] text-white shadow-lg shadow-primary/30 relative overflow-hidden">
+<div class="absolute top-0 right-0 p-4 opacity-10">
+<span class="material-icons text-6xl">payments</span>
+</div>
+<div class="relative z-10">
+<p class="text-primary-100 text-sm font-medium mb-1">Vendas Hoje</p>
+<h3 class="text-3xl font-bold mb-4">R$ 2.450,00</h3>
+<div class="flex items-center gap-1 bg-white/20 w-fit px-2 py-1 rounded-lg backdrop-blur-sm">
+<span class="material-icons text-sm">trending_up</span>
+<span class="text-xs font-bold">12%</span>
+<span class="text-xs text-primary-50 ml-1">vs ontem</span>
+</div>
+</div>
+</div>
+<!-- Card 2: Pedidos Hoje -->
+<div class="snap-center shrink-0 w-[240px] p-5 rounded-xl bg-white dark:bg-[#1A1A2E] shadow-sm border border-gray-100 dark:border-gray-800 flex flex-col justify-between">
+<div class="flex justify-between items-start mb-2">
+<div class="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+<span class="material-icons text-blue-600 dark:text-blue-400">receipt_long</span>
+</div>
+<span class="text-xs font-medium text-gray-400">Total</span>
+</div>
+<div>
+<h3 class="text-2xl font-bold text-gray-900 dark:text-white">47</h3>
+<p class="text-sm text-gray-500 dark:text-gray-400">Pedidos hoje</p>
+</div>
+</div>
+<!-- Card 3: Ticket Médio -->
+<div class="snap-center shrink-0 w-[240px] p-5 rounded-xl bg-white dark:bg-[#1A1A2E] shadow-sm border border-gray-100 dark:border-gray-800 flex flex-col justify-between">
+<div class="flex justify-between items-start mb-2">
+<div class="p-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
+<span class="material-icons text-green-600 dark:text-green-400">attach_money</span>
+</div>
+<span class="text-xs font-medium text-gray-400">Média</span>
+</div>
+<div>
+<h3 class="text-2xl font-bold text-gray-900 dark:text-white">R$ 52,12</h3>
+<p class="text-sm text-gray-500 dark:text-gray-400">Ticket Médio</p>
+</div>
+</div>
+<!-- Card 4: Upsell -->
+<div class="snap-center shrink-0 w-[240px] p-5 rounded-xl bg-white dark:bg-[#1A1A2E] shadow-sm border border-gray-100 dark:border-gray-800 flex flex-col justify-between">
+<div class="flex justify-between items-start mb-2">
+<div class="p-2 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+<span class="material-icons text-orange-600 dark:text-orange-400">stars</span>
+</div>
+<span class="text-xs font-medium text-orange-600 dark:text-orange-400 bg-orange-100 dark:bg-orange-900/30 px-2 py-0.5 rounded-full">Hot</span>
+</div>
+<div>
+<h3 class="text-2xl font-bold text-gray-900 dark:text-white">R$ 380,00</h3>
+<p class="text-sm text-gray-500 dark:text-gray-400">Upsell Hoje</p>
+</div>
+</div>
+</div>
+<!-- Charts Section -->
+<div class="px-5 mt-2 space-y-6">
+<!-- Sales Chart Card -->
+<div class="bg-white dark:bg-[#1A1A2E] p-5 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
+<div class="flex items-center justify-between mb-6">
+<div>
+<h3 class="text-base font-bold text-gray-900 dark:text-white">Faturamento</h3>
+<p class="text-xs text-gray-500 dark:text-gray-400">Últimos 7 dias</p>
+</div>
+<button class="text-gray-400 hover:text-gray-600">
+<span class="material-icons">more_horiz</span>
+</button>
+</div>
+<!-- Simulated Chart -->
+<div class="h-40 w-full flex items-end justify-between gap-2 px-1">
+<div class="w-full bg-primary/10 rounded-t-sm relative group h-[40%]">
+<div class="hidden group-hover:block absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded">R$1.2k</div>
+</div>
+<div class="w-full bg-primary/20 rounded-t-sm relative group h-[65%]"></div>
+<div class="w-full bg-primary/10 rounded-t-sm relative group h-[45%]"></div>
+<div class="w-full bg-primary/30 rounded-t-sm relative group h-[80%]"></div>
+<div class="w-full bg-primary/20 rounded-t-sm relative group h-[60%]"></div>
+<div class="w-full bg-primary/40 rounded-t-sm relative group h-[90%]"></div>
+<div class="w-full bg-primary rounded-t-sm relative group h-[100%] shadow-[0_0_10px_rgba(196,28,42,0.5)]">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs font-bold px-2 py-1 rounded">Hoje</div>
+</div>
+</div>
+<div class="flex justify-between mt-3 text-xs text-gray-400 font-medium">
+<span>Seg</span>
+<span>Ter</span>
+<span>Qua</span>
+<span>Qui</span>
+<span>Sex</span>
+<span>Sáb</span>
+<span class="text-primary font-bold">Dom</span>
+</div>
+</div>
+<!-- Categories Chart Card -->
+<div class="bg-white dark:bg-[#1A1A2E] p-5 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
+<h3 class="text-base font-bold text-gray-900 dark:text-white mb-4">Vendas por Categoria</h3>
+<div class="space-y-4">
+<!-- Category 1 -->
+<div>
+<div class="flex justify-between text-sm mb-1">
+<span class="text-gray-600 dark:text-gray-300">Espetinhos</span>
+<span class="font-bold text-gray-900 dark:text-white">65%</span>
+</div>
+<div class="h-2 w-full bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[65%] rounded-full"></div>
+</div>
+</div>
+<!-- Category 2 -->
+<div>
+<div class="flex justify-between text-sm mb-1">
+<span class="text-gray-600 dark:text-gray-300">Bebidas</span>
+<span class="font-bold text-gray-900 dark:text-white">25%</span>
+</div>
+<div class="h-2 w-full bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+<div class="h-full bg-blue-500 w-[25%] rounded-full"></div>
+</div>
+</div>
+<!-- Category 3 -->
+<div>
+<div class="flex justify-between text-sm mb-1">
+<span class="text-gray-600 dark:text-gray-300">Acompanhamentos</span>
+<span class="font-bold text-gray-900 dark:text-white">10%</span>
+</div>
+<div class="h-2 w-full bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+<div class="h-full bg-orange-400 w-[10%] rounded-full"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Recent Orders & Top Products -->
+<div class="px-5 mt-6 space-y-6">
+<!-- Últimos Pedidos -->
+<div>
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-lg font-bold text-gray-900 dark:text-white">Últimos Pedidos</h3>
+<a class="text-sm font-medium text-primary hover:text-primary/80" href="#">Ver tudo</a>
+</div>
+<div class="flex flex-col gap-3">
+<!-- Order Item 1 -->
+<div class="bg-white dark:bg-[#1A1A2E] p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center text-yellow-600 dark:text-yellow-400">
+<span class="material-icons text-sm">outdoor_grill</span>
+</div>
+<div>
+<h4 class="text-sm font-bold text-gray-900 dark:text-white">João Silva</h4>
+<p class="text-xs text-gray-500">#1023 • 2 mins atrás</p>
+</div>
+</div>
+<div class="text-right">
+<div class="text-sm font-bold text-gray-900 dark:text-white">R$ 45,00</div>
+<span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-400">
+                                Em Preparo
+                            </span>
+</div>
+</div>
+<!-- Order Item 2 -->
+<div class="bg-white dark:bg-[#1A1A2E] p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+<span class="material-icons text-sm">delivery_dining</span>
+</div>
+<div>
+<h4 class="text-sm font-bold text-gray-900 dark:text-white">Maria Souza</h4>
+<p class="text-xs text-gray-500">#1022 • 15 mins atrás</p>
+</div>
+</div>
+<div class="text-right">
+<div class="text-sm font-bold text-gray-900 dark:text-white">R$ 98,00</div>
+<span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400">
+                                Saiu p/ Entrega
+                            </span>
+</div>
+</div>
+<!-- Order Item 3 -->
+<div class="bg-white dark:bg-[#1A1A2E] p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600 dark:text-green-400">
+<span class="material-icons text-sm">check_circle</span>
+</div>
+<div>
+<h4 class="text-sm font-bold text-gray-900 dark:text-white">Carlos Andre</h4>
+<p class="text-xs text-gray-500">#1021 • 32 mins atrás</p>
+</div>
+</div>
+<div class="text-right">
+<div class="text-sm font-bold text-gray-900 dark:text-white">R$ 112,50</div>
+<span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400">
+                                Entregue
+                            </span>
+</div>
+</div>
+</div>
+</div>
+<!-- Top Products -->
+<div>
+<h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Mais Vendidos</h3>
+<div class="bg-white dark:bg-[#1A1A2E] rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 divide-y divide-gray-100 dark:divide-gray-800">
+<!-- Product 1 -->
+<div class="flex items-center p-4 gap-4">
+<div class="w-12 h-12 rounded-lg bg-gray-100 dark:bg-gray-800 overflow-hidden shrink-0">
+<img alt="Meat skewer detail" class="w-full h-full object-cover" data-alt="Grilled meat skewer close up" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAtXhcVvg4rNYr9WLuh-cRDZVHIM4s1lQ3AaSEwDUdQYuXPxeQp3W1ikPwmt8kaJtvbecpvTMWzoSEWvHlSuUkZTXA3-sknNYGAdbs8rg_EOuufmOy8utIo-MJarKlOoCJMNYLWZwAm1Nrv5Pvs5UXTXJaz_2KM5sAZlk48tEvGHyczpi4SwqDCYZNedBlLH3psHNE2V5EAMta93pqGRp5U4SV-H43fZfTRFnJxKTnKo7uWynEMHAEyFNC0rhA1zJuzzZgf5b83QbYb"/>
+</div>
+<div class="flex-1 min-w-0">
+<h4 class="text-sm font-bold text-gray-900 dark:text-white truncate">Espetinho de Picanha</h4>
+<p class="text-xs text-gray-500">Carne Bovina</p>
+</div>
+<div class="text-right">
+<div class="text-sm font-bold text-primary">120</div>
+<div class="text-[10px] text-gray-400">unid.</div>
+</div>
+</div>
+<!-- Product 2 -->
+<div class="flex items-center p-4 gap-4">
+<div class="w-12 h-12 rounded-lg bg-gray-100 dark:bg-gray-800 overflow-hidden shrink-0">
+<img alt="Garlic bread close up" class="w-full h-full object-cover" data-alt="Golden toasted garlic bread" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC81ocalPN0AbMSUJUuUXQhHyWdVcdJhbil_W4VS5oRH_MYYc7WPpSh0t8i0OFChEnKzXjl6k1e-PukjwBTchN1cGn9L7j2yNBrfqWyb4C4J-yaOlVYEaz8VR5LFz0mVCqBpOTlm4O3DkHMpHN4PmBzxQ_wz_rJ4ATG3YxRggIJbRTZKal_gv09_ULJNIDkf_v8crQwx4ZaL3qlXFVZkZkk3kW31xmPcS4QBhcLlf1JKH1NxHhL_5udekXR9np5uehsGfhdmTuj4B6L"/>
+</div>
+<div class="flex-1 min-w-0">
+<h4 class="text-sm font-bold text-gray-900 dark:text-white truncate">Pão de Alho</h4>
+<p class="text-xs text-gray-500">Acompanhamento</p>
+</div>
+<div class="text-right">
+<div class="text-sm font-bold text-primary">95</div>
+<div class="text-[10px] text-gray-400">unid.</div>
+</div>
+</div>
+<!-- Product 3 -->
+<div class="flex items-center p-4 gap-4">
+<div class="w-12 h-12 rounded-lg bg-gray-100 dark:bg-gray-800 overflow-hidden shrink-0">
+<img alt="Chicken skewer close up" class="w-full h-full object-cover" data-alt="Grilled chicken skewer pieces" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA7fisUQSCK4Nob8oTNwAsngxi3wlAOhrTVgcHo7x4AgeechPzIL5IP8wJ0yksanP_Ne99XsNsRmRTwAN0KjjM46qdMRIL0ua7KZAEzpTmjJizW2zO2Q2cU508zeT3YPxqDCLGcuhOYXG0Q-2gYKHHt0X4L7t5Lu90vdMGI83xWT3otkXtcCzYqS2JAktq9L7vLYKYGnhqsRKAaofxNbwtrK-oofSLR71xPO-ZKX5vhf8R5vsLJ3DbwVSaVIkzvUXDwm1_zHQlml3sS"/>
+</div>
+<div class="flex-1 min-w-0">
+<h4 class="text-sm font-bold text-gray-900 dark:text-white truncate">Espetinho de Frango</h4>
+<p class="text-xs text-gray-500">Aves</p>
+</div>
+<div class="text-right">
+<div class="text-sm font-bold text-primary">82</div>
+<div class="text-[10px] text-gray-400">unid.</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Bar (Mobile specific addition for easier navigation) -->
+<nav class="fixed bottom-0 w-full bg-white dark:bg-[#1A1A2E] border-t border-gray-100 dark:border-gray-800 flex justify-around py-3 px-2 z-40 pb-safe">
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<span class="material-icons">dashboard</span>
+<span class="text-[10px] font-medium">Dash</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" href="#">
+<span class="material-icons">receipt_long</span>
+<span class="text-[10px] font-medium">Pedidos</span>
+</a>
+<div class="relative -top-6">
+<button class="w-12 h-12 rounded-full bg-primary text-white shadow-lg shadow-primary/40 flex items-center justify-center">
+<span class="material-icons">add</span>
+</button>
+</div>
+<a class="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" href="#">
+<span class="material-icons">restaurant_menu</span>
+<span class="text-[10px] font-medium">Cardápio</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" href="#">
+<span class="material-icons">settings</span>
+<span class="text-[10px] font-medium">Config</span>
+</a>
+</nav>
+<!-- Safe area padding for bottom nav -->
+<div class="h-20"></div>
+</body></html>

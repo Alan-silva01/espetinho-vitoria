@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Checkout de Pedido - Espetinho Vitória</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#D90429", // Red from the logo/food theme
+                        "primary-dark": "#9D021D",
+                        "background-light": "#F9FAFB",
+                        "background-dark": "#121212",
+                        "surface-light": "#FFFFFF",
+                        "surface-dark": "#1E1E1E",
+                        "text-light": "#1F2937",
+                        "text-dark": "#F3F4F6",
+                        "text-muted-light": "#6B7280",
+                        "text-muted-dark": "#9CA3AF",
+                    },
+                    fontFamily: {
+                        display: ["Poppins", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "12px",
+                        'xl': "16px",
+                        '2xl': "24px",
+                    },
+                },
+            },
+        };
+    </script>
+<style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        .gradient-primary {
+            background: linear-gradient(135deg, #D90429 0%, #EF233C 100%);
+        }.hide-scroll::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scroll {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark min-h-screen pb-24 relative transition-colors duration-200">
+<header class="sticky top-0 z-50 bg-surface-light/95 dark:bg-surface-dark/95 backdrop-blur-sm px-4 py-4 flex items-center shadow-sm dark:shadow-none border-b border-gray-100 dark:border-gray-800">
+<button class="p-2 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+<span class="material-icons-round text-text-light dark:text-text-dark">arrow_back</span>
+</button>
+<h1 class="flex-1 text-center text-lg font-bold">Checkout</h1>
+<div class="w-10"></div> 
+</header>
+<main class="p-4 space-y-6 max-w-lg mx-auto">
+<div class="bg-gray-100 dark:bg-gray-800 p-1 rounded-xl flex relative">
+<button class="flex-1 py-2 px-4 rounded-lg bg-surface-light dark:bg-surface-dark shadow-sm text-primary font-semibold text-sm flex items-center justify-center gap-2 transition-all">
+<span class="material-icons-round text-lg">moped</span>
+                Entrega
+            </button>
+<button class="flex-1 py-2 px-4 rounded-lg text-text-muted-light dark:text-text-muted-dark font-medium text-sm flex items-center justify-center gap-2 hover:text-text-light dark:hover:text-text-dark transition-all">
+<span class="material-icons-round text-lg">storefront</span>
+                Retirada
+            </button>
+</div>
+<section class="space-y-3">
+<h2 class="font-bold text-lg flex items-center gap-2">
+<span class="material-icons-round text-primary">location_on</span>
+                Endereço de Entrega
+            </h2>
+<div class="bg-surface-light dark:bg-surface-dark p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 space-y-3">
+<div class="flex gap-3">
+<div class="flex-1">
+<label class="block text-xs font-medium text-text-muted-light dark:text-text-muted-dark mb-1">Rua</label>
+<input class="w-full bg-gray-50 dark:bg-gray-800 border-none rounded-lg text-sm text-text-light dark:text-text-dark focus:ring-2 focus:ring-primary/50 placeholder-gray-400" type="text" value="Av. das Américas"/>
+</div>
+<div class="w-20">
+<label class="block text-xs font-medium text-text-muted-light dark:text-text-muted-dark mb-1">Número</label>
+<input class="w-full bg-gray-50 dark:bg-gray-800 border-none rounded-lg text-sm text-text-light dark:text-text-dark focus:ring-2 focus:ring-primary/50 text-center" type="text" value="420"/>
+</div>
+</div>
+<div>
+<label class="block text-xs font-medium text-text-muted-light dark:text-text-muted-dark mb-1">Bairro</label>
+<input class="w-full bg-gray-50 dark:bg-gray-800 border-none rounded-lg text-sm text-text-light dark:text-text-dark focus:ring-2 focus:ring-primary/50" type="text" value="Barra da Tijuca"/>
+</div>
+<div>
+<label class="block text-xs font-medium text-text-muted-light dark:text-text-muted-dark mb-1">Complemento (Opcional)</label>
+<input class="w-full bg-gray-50 dark:bg-gray-800 border-none rounded-lg text-sm text-text-light dark:text-text-dark focus:ring-2 focus:ring-primary/50" placeholder="Apto, Bloco, Referência" type="text"/>
+</div>
+</div>
+</section>
+<section class="space-y-3">
+<h2 class="font-bold text-lg flex items-center gap-2">
+<span class="material-icons-round text-primary">payments</span>
+                Forma de Pagamento
+            </h2>
+<div class="bg-surface-light dark:bg-surface-dark p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 space-y-4">
+<div class="space-y-3">
+<label class="flex items-center gap-3 p-3 rounded-lg border border-primary bg-primary/5 dark:bg-primary/10 cursor-pointer transition-all">
+<input checked="" class="w-5 h-5 text-primary border-gray-300 focus:ring-primary" name="payment" type="radio"/>
+<div class="flex-1 flex items-center justify-between">
+<span class="font-medium text-sm flex items-center gap-2">
+<span class="material-icons-round text-primary">pix</span>
+                                PIX
+                            </span>
+<span class="text-xs font-semibold text-green-600 bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded">-5% OFF</span>
+</div>
+</label>
+<label class="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-all">
+<input class="w-5 h-5 text-primary border-gray-300 focus:ring-primary" name="payment" type="radio"/>
+<span class="font-medium text-sm flex items-center gap-2">
+<span class="material-icons-round text-gray-500">credit_card</span>
+                            Cartão (Entrega)
+                        </span>
+</label>
+<label class="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-all group">
+<input class="w-5 h-5 text-primary border-gray-300 focus:ring-primary" name="payment" type="radio"/>
+<span class="font-medium text-sm flex items-center gap-2">
+<span class="material-icons-round text-gray-500">attach_money</span>
+                            Dinheiro
+                        </span>
+</label>
+</div>
+<div class="pt-2 border-t border-gray-100 dark:border-gray-800">
+<label class="flex items-center gap-2 text-sm text-text-muted-light dark:text-text-muted-dark mb-2">
+<input class="rounded text-primary focus:ring-primary border-gray-300" type="checkbox"/>
+                        Precisa de troco?
+                    </label>
+<input class="w-full bg-gray-50 dark:bg-gray-800 border-none rounded-lg text-sm text-text-light dark:text-text-dark focus:ring-2 focus:ring-primary/50 disabled:opacity-50" placeholder="Troco para quanto?" type="text"/>
+</div>
+</div>
+</section>
+<section class="space-y-3">
+<h2 class="font-bold text-lg flex items-center gap-2">
+<span class="material-icons-round text-primary">receipt_long</span>
+                Resumo do Pedido
+            </h2>
+<div class="bg-surface-light dark:bg-surface-dark p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
+<div class="space-y-4 mb-4">
+<div class="flex gap-3">
+<div class="h-14 w-14 rounded-lg bg-gray-200 dark:bg-gray-700 overflow-hidden flex-shrink-0">
+<img alt="Espetinho de Carne" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBeJ5FQ_KmtJfFGaLa8UGK5fniqqxGT56sz-KzE1QsW_kUd1K2cyemcscWU5fzZwcOK6nUftsmfnkq-r2Zproe1cFzGbQrvRGTL3ER45s9sXtVswfNErKn-be6orCpXjP0ZzsS8MjRpV6-_9JeRj3iZ_icY_xBoFR5XeC0flYOzjrq99Va9heviLTfa2sUEdYsjQiPiC9y7V_o5fFonovRV18KXQWif4vOfAJJPDFaXtk1Xk2Iv6Z6mmSvI_EvKloNA0DpMNcP4qzDd"/>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<h4 class="font-medium text-sm text-text-light dark:text-text-dark">Espetinho de Carne</h4>
+<span class="font-semibold text-sm">R$ 12,00</span>
+</div>
+<p class="text-xs text-text-muted-light dark:text-text-muted-dark line-clamp-1">Com farofa e vinagrete</p>
+<div class="mt-1 flex items-center gap-2 text-xs font-bold text-text-light dark:text-text-dark">
+<span class="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded text-text-muted-light dark:text-text-muted-dark">1x</span>
+</div>
+</div>
+</div>
+<div class="flex gap-3">
+<div class="h-14 w-14 rounded-lg bg-gray-200 dark:bg-gray-700 overflow-hidden flex-shrink-0">
+<img alt="Açaí 500ml" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBPyf-FQGpasLR_t1UnjT_gZw0CVhyQAUuRqPdV2wo_8WZaTv2KnBYhrhlV12q3pCMtFODjUAEGxyZkETRzVf12fDRyddccXbOCVsEjkzGUGbx48SFxz8Cg7pNnfR5odMU6vzoIJGHULyD8MjEWXLB1k-4K4lBXH9ZE4t7mhngtsG95_UlgmBuGEE4C1jKplEqVINjsXskQ-a5Nuv6IjE1JYv52dOrIe97HnHjMFEcrFdaYDdB2lkakVizlj4bJJSt1xYQIZ1ZL4ZN5"/>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<h4 class="font-medium text-sm text-text-light dark:text-text-dark">Açaí 500ml</h4>
+<span class="font-semibold text-sm">R$ 18,00</span>
+</div>
+<p class="text-xs text-text-muted-light dark:text-text-muted-dark line-clamp-1">Leite condensado, Paçoca</p>
+<div class="mt-1 flex items-center gap-2 text-xs font-bold text-text-light dark:text-text-dark">
+<span class="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded text-text-muted-light dark:text-text-muted-dark">1x</span>
+</div>
+</div>
+</div>
+</div>
+<div class="mb-4">
+<label class="block text-xs font-medium text-text-muted-light dark:text-text-muted-dark mb-1">Observações do pedido</label>
+<textarea class="w-full bg-gray-50 dark:bg-gray-800 border-none rounded-lg text-sm text-text-light dark:text-text-dark focus:ring-2 focus:ring-primary/50 resize-none" placeholder="Ex: Carne bem passada, sem cebola..." rows="2"></textarea>
+</div>
+<div class="border-t border-gray-100 dark:border-gray-800 pt-3 space-y-2">
+<div class="flex justify-between text-sm text-text-muted-light dark:text-text-muted-dark">
+<span>Subtotal</span>
+<span>R$ 30,00</span>
+</div>
+<div class="flex justify-between text-sm text-text-muted-light dark:text-text-muted-dark">
+<span>Taxa de Entrega</span>
+<span>R$ 5,00</span>
+</div>
+<div class="flex justify-between text-base font-bold text-text-light dark:text-text-dark pt-1">
+<span>Total</span>
+<span class="text-primary">R$ 35,00</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<div class="fixed bottom-0 left-0 right-0 bg-surface-light dark:bg-surface-dark border-t border-gray-100 dark:border-gray-800 p-4 pb-8 z-40 max-w-lg mx-auto">
+<button class="w-full bg-primary hover:bg-primary-dark text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/30 flex items-center justify-between px-6 transition-transform active:scale-[0.98]">
+<span>Confirmar Pedido</span>
+<span class="text-white/90">R$ 35,00</span>
+</button>
+</div>
+
+</body></html>

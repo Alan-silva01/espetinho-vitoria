@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Carrinho - Espetinho Vitória</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#D90429", // Red from the reference image logo/buttons
+                        secondary: "#8D0801", // Darker red for gradients
+                        "background-light": "#F9F9F9",
+                        "background-dark": "#18181B",
+                        "card-light": "#FFFFFF",
+                        "card-dark": "#27272A",
+                        "text-light": "#1F2937",
+                        "text-dark": "#F3F4F6",
+                        "text-muted-light": "#6B7280",
+                        "text-muted-dark": "#9CA3AF",
+                    },
+                    fontFamily: {
+                        display: ["Poppins", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "1rem",
+                    },
+                },
+            },
+        };
+    </script>
+<style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark min-h-screen flex justify-center items-start pt-4 pb-4">
+<div class="w-full max-w-md bg-white dark:bg-black overflow-hidden shadow-2xl relative min-h-[90vh] rounded-[2rem]">
+<div class="h-12 w-full flex justify-between items-center px-6 pt-2">
+<span class="text-sm font-semibold">9:41</span>
+<div class="flex items-center space-x-2">
+<span class="material-icons-round text-sm">signal_cellular_alt</span>
+<span class="material-icons-round text-sm">wifi</span>
+<span class="material-icons-round text-sm">battery_full</span>
+</div>
+</div>
+<div class="px-6 pb-4 flex items-center justify-between sticky top-0 bg-white/80 dark:bg-black/80 backdrop-blur-md z-10">
+<button class="p-2 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+<span class="material-icons-round text-2xl">arrow_back</span>
+</button>
+<h1 class="text-lg font-bold">Seu Carrinho</h1>
+<button class="p-2 -mr-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition text-primary">
+<span class="text-sm font-semibold">Limpar</span>
+</button>
+</div>
+<div class="pb-32 h-[calc(100vh-200px)] overflow-y-auto scrollbar-hide">
+<div class="px-6 mb-6">
+<div class="flex items-center justify-between bg-primary/10 dark:bg-primary/20 p-4 rounded-2xl">
+<div class="flex items-center space-x-3">
+<div class="bg-primary text-white p-2 rounded-full">
+<span class="material-icons-round text-lg">location_on</span>
+</div>
+<div>
+<p class="text-xs text-text-muted-light dark:text-text-muted-dark font-medium">Entregar em</p>
+<p class="text-sm font-bold truncate max-w-[180px]">Rua das Palmeiras, 123 - Centro</p>
+</div>
+</div>
+<span class="text-primary font-semibold text-sm">Alterar</span>
+</div>
+</div>
+<div class="px-6 space-y-6">
+<div class="flex gap-4">
+<div class="w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0 shadow-sm relative bg-gray-100 dark:bg-gray-800">
+<img alt="Espetinho de Carne" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCLE9chuhgXXcvsv7B5UbJhmI1wM9cz3wOPG6N0AOn2HFzxtC-zhHytrNyDPGMxu8G34p_WlMNHdREPQadMh0pHA2xIWC3kgKaiol3hD3TAENr1322o4Suw0Dz769zgzhlYB_2lxpiEXTBFzUAuNCxWyULGF2ZbqsNCKhvqYn5tXw5DuU_EMcyhdBDe_7mMgN9BOpkiFQf6r6UZyMoJlTY0geHienp98DAkz8-5nElMKUFUAeNfBfQU2UhkahvE_lhOon0Qgt5qhIe1"/>
+</div>
+<div class="flex-1 flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-start">
+<h3 class="font-bold text-base line-clamp-1">Espetinho de Carne</h3>
+<button class="text-text-muted-light dark:text-text-muted-dark hover:text-red-500">
+<span class="material-icons-round text-lg">close</span>
+</button>
+</div>
+<p class="text-xs text-text-muted-light dark:text-text-muted-dark">Com farofa e vinagrete</p>
+</div>
+<div class="flex justify-between items-center mt-2">
+<span class="font-bold text-primary">R$ 12,00</span>
+<div class="flex items-center bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+<button class="w-6 h-6 flex items-center justify-center rounded-md bg-white dark:bg-gray-700 shadow-sm text-text-light dark:text-text-dark hover:text-primary transition">
+<span class="material-icons-round text-xs font-bold">remove</span>
+</button>
+<span class="px-3 text-sm font-semibold">2</span>
+<button class="w-6 h-6 flex items-center justify-center rounded-md bg-primary shadow-sm text-white hover:bg-red-700 transition">
+<span class="material-icons-round text-xs font-bold">add</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0 shadow-sm relative bg-gray-100 dark:bg-gray-800">
+<img alt="Açaí Tradicional" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBWwGmQi9-aVJyPNT_Vd7xWMZwxMskEaE7z29sciAXp_uEnrP3MAIzjMZIb7shyz_EA56nzBDc3Smf-b2NDBGeeAQud2XBW-VtP9a6wEZ_Hv8CGjOVSCc4bZa_kk0E2tjYMhoq1GM6aVQKF6N9BFy4Vy7Draq82udd1mucD0mwpfWXufxzOMWEIUsJbY3qKsSKQrgW7ybxLL1h6nFhGjd8e5PMeTm2xnvuHD2ZMNaqiGhJUbpNlMB9eXSa8TCKs5CEZGTZWBMAMNMR_"/>
+</div>
+<div class="flex-1 flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-start">
+<h3 class="font-bold text-base line-clamp-1">Açaí Tradicional 500ml</h3>
+<button class="text-text-muted-light dark:text-text-muted-dark hover:text-red-500">
+<span class="material-icons-round text-lg">close</span>
+</button>
+</div>
+<p class="text-xs text-text-muted-light dark:text-text-muted-dark">Morango, Leite Ninho</p>
+</div>
+<div class="flex justify-between items-center mt-2">
+<span class="font-bold text-primary">R$ 18,50</span>
+<div class="flex items-center bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+<button class="w-6 h-6 flex items-center justify-center rounded-md bg-white dark:bg-gray-700 shadow-sm text-text-light dark:text-text-dark hover:text-primary transition">
+<span class="material-icons-round text-xs font-bold">remove</span>
+</button>
+<span class="px-3 text-sm font-semibold">1</span>
+<button class="w-6 h-6 flex items-center justify-center rounded-md bg-primary shadow-sm text-white hover:bg-red-700 transition">
+<span class="material-icons-round text-xs font-bold">add</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-8 pt-6 pb-6 bg-gray-50 dark:bg-gray-900 border-t border-b border-gray-100 dark:border-gray-800">
+<div class="px-6 mb-4 flex justify-between items-center">
+<h3 class="text-sm font-bold flex items-center">
+<span class="mr-2 text-base">🔥</span> Que tal uma bebida gelada?
+                    </h3>
+</div>
+<div class="flex overflow-x-auto space-x-4 px-6 pb-2 scrollbar-hide">
+<div class="flex-shrink-0 w-32 bg-white dark:bg-card-dark rounded-xl p-3 shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-center relative">
+<button class="absolute top-2 right-2 bg-primary text-white w-6 h-6 rounded-full flex items-center justify-center shadow-md">
+<span class="material-icons-round text-sm">add</span>
+</button>
+<img alt="Coca-Cola" class="h-16 object-contain mb-2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDBra5a5CRNmCRSgNIRImKnMb3P9Scsz5ZgGf1FPmzVnF2DA3o86LUNfUynv-b_frEUn8BTGmnl2c7hQNWISbny3cIG3_HCvrlKW24VnxGQLcivti4-v1Cal5RJIsXAhxFJtJ7UVttvHeCo_FjHwIh7i8tFZRaWfU5F3IO0QgjuNPMcn38nGsQXnWb5BQtP7WXFiAHR3Uv6YnqvjhADy-VUdv1rGVkQhcJGop0DgevAibPMpIu-4Rq4Zlx1mf4cJyyIHqzRekX9bGa9"/>
+<p class="text-xs font-semibold text-center mb-1">Coca-Cola Lata</p>
+<p class="text-xs font-bold text-primary">R$ 5,00</p>
+</div>
+<div class="flex-shrink-0 w-32 bg-white dark:bg-card-dark rounded-xl p-3 shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-center relative">
+<button class="absolute top-2 right-2 bg-gray-200 dark:bg-gray-600 text-text-light dark:text-text-dark w-6 h-6 rounded-full flex items-center justify-center">
+<span class="material-icons-round text-sm">add</span>
+</button>
+<img alt="Guaraná" class="h-16 object-contain mb-2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAVXZsZYBLIDFnk4nzfUbYST-F_tGQ-lvhJuxSq2xAkOyDJ-bVSHkFLlw_xTYbJwN6uYQPCwiORbqh8XDTJzK7ITKANjHPYD_Cu96PmVX953iAvcvja8fof1GWn3AKBhJRFGetaetZ5IpdbVYv1ViJndDsjYX5HqWVcSMFL3clNA5vogvmVnxeHalDAA9woQA-4Cd62Ofs6u0fvpzmiOE8Ur3mamb-7BakKmhM3hyzDyOXTJRNaaeN50DKj6AUsjWfmJ8awM_jC0waH"/>
+<p class="text-xs font-semibold text-center mb-1">Guaraná Lata</p>
+<p class="text-xs font-bold text-primary">R$ 4,50</p>
+</div>
+<div class="flex-shrink-0 w-32 bg-white dark:bg-card-dark rounded-xl p-3 shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-center relative">
+<button class="absolute top-2 right-2 bg-gray-200 dark:bg-gray-600 text-text-light dark:text-text-dark w-6 h-6 rounded-full flex items-center justify-center">
+<span class="material-icons-round text-sm">add</span>
+</button>
+<img alt="Suco de Laranja" class="h-16 object-contain mb-2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCKp7DiphmwEeM7DBWizpLOAFwE_bqyGD8BAFqPOvjeCh2bCqM7ULWiHejryZz1yqDcaREmHYLevMws-bCOENpGsedg8bMrx_hwR5b-0u479spI42qJLIlIN-3eyo03pGulrVb5q_SBDq7bAwi6KZf69G50rDNNoWhKgHWetodiKzARyQsY32tm8Nh8IBPQTQ_tINiUyx92f13X3-aSnme278oQlAkFp2PB3bM92RK0x54MMklgr05BTxoFUL7-Lhf2adoS1qZRUBEE"/>
+<p class="text-xs font-semibold text-center mb-1">Suco Natural</p>
+<p class="text-xs font-bold text-primary">R$ 8,00</p>
+</div>
+</div>
+</div>
+<div class="px-6 mt-6 space-y-3">
+<div class="flex justify-between text-sm">
+<span class="text-text-muted-light dark:text-text-muted-dark">Subtotal</span>
+<span class="font-medium">R$ 42,50</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-text-muted-light dark:text-text-muted-dark">Taxa de entrega</span>
+<span class="font-medium">R$ 5,00</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-text-muted-light dark:text-text-muted-dark">Desconto</span>
+<span class="text-green-500 font-medium">- R$ 0,00</span>
+</div>
+<div class="h-px bg-gray-200 dark:bg-gray-800 my-2"></div>
+<div class="flex justify-between items-end">
+<span class="font-bold text-lg">Total</span>
+<span class="font-bold text-xl text-primary">R$ 47,50</span>
+</div>
+</div>
+<div class="h-6"></div>
+</div>
+<div class="absolute bottom-0 left-0 w-full bg-white dark:bg-card-dark border-t border-gray-100 dark:border-gray-800 p-6 pb-8 shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1)] rounded-t-[2rem]">
+<button class="w-full bg-gradient-to-r from-primary to-secondary text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/30 flex justify-between items-center px-6 hover:shadow-xl transition transform active:scale-[0.98]">
+<span>Finalizar Pedido</span>
+<span class="bg-white/20 px-3 py-1 rounded-lg text-sm">R$ 47,50</span>
+</button>
+</div>
+</div>
+
+</body></html>

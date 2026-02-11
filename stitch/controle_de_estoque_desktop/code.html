@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Controle de Estoque - Espetinho Vitória</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+            extend: {
+                colors: {
+                    "primary": "#c41c2a",
+                    "primary-light": "#fce7e9",
+                    "primary-dark": "#8a131d",
+                    "background-light": "#f8f6f6",
+                    "background-dark": "#211113",
+                    "neutral-surface": "#ffffff",
+                    "neutral-border": "#e5e5e5",
+                },
+                fontFamily: {
+                    "display": ["Work Sans", "sans-serif"]
+                },
+                borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+            },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for horizontal categories */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* Smooth transitions */
+        .card-transition {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .card-transition:active {
+            transform: scale(0.98);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-100 min-h-screen flex flex-col md:flex-row overflow-hidden">
+<!-- Mobile Header / Top Bar -->
+<header class="md:hidden bg-white dark:bg-[#2a1a1c] border-b border-gray-200 dark:border-gray-800 p-4 sticky top-0 z-20 shadow-sm flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="bg-primary/10 p-2 rounded-lg">
+<span class="material-icons text-primary text-xl">inventory_2</span>
+</div>
+<div>
+<h1 class="text-lg font-bold text-gray-900 dark:text-white leading-tight">Estoque do Dia</h1>
+<p class="text-xs text-gray-500 dark:text-gray-400">Espetinho Vitória Admin</p>
+</div>
+</div>
+<button class="p-2 text-gray-500 hover:text-primary transition-colors">
+<span class="material-icons">menu</span>
+</button>
+</header>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col h-screen overflow-hidden relative">
+<!-- Desktop Header & Controls -->
+<div class="p-4 md:p-6 bg-white dark:bg-[#2a1a1c] border-b border-gray-200 dark:border-gray-800 flex flex-col md:flex-row md:items-center justify-between gap-4 z-10 shadow-sm">
+<!-- Title & Date (Desktop) -->
+<div class="hidden md:flex items-center gap-4">
+<div class="bg-primary text-white p-3 rounded-xl shadow-lg shadow-primary/30">
+<span class="material-icons text-2xl">bar_chart</span>
+</div>
+<div>
+<h1 class="text-2xl font-bold text-gray-900 dark:text-white">Gerenciamento de Estoque</h1>
+<div class="flex items-center text-sm text-gray-500 dark:text-gray-400 mt-1">
+<span class="w-2 h-2 rounded-full bg-green-500 mr-2"></span>
+                        Loja Aberta • Atualizado há 2 min
+                    </div>
+</div>
+</div>
+<!-- Date Picker & Global Actions -->
+<div class="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+<div class="relative group w-full md:w-64">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-icons text-primary text-lg">calendar_today</span>
+</div>
+<input class="block w-full pl-10 pr-3 py-2.5 border-gray-200 dark:border-gray-700 rounded-lg text-sm bg-gray-50 dark:bg-gray-800 focus:ring-primary focus:border-primary transition-shadow font-medium cursor-pointer" type="date" value="2023-10-24"/>
+</div>
+<button class="md:hidden w-full bg-primary hover:bg-red-700 text-white font-medium py-2.5 px-4 rounded-lg shadow-lg shadow-primary/30 flex items-center justify-center gap-2 transition-all active:scale-95">
+<span class="material-icons text-sm">add_circle</span>
+                    Cadastrar Item
+                </button>
+</div>
+</div>
+<!-- Filter Tabs -->
+<div class="px-4 pt-4 md:px-6 md:pt-6 bg-background-light dark:bg-background-dark">
+<div class="flex space-x-2 overflow-x-auto hide-scrollbar pb-2">
+<button class="whitespace-nowrap px-4 py-2 bg-primary text-white rounded-full text-sm font-semibold shadow-md shadow-primary/20 transition-transform active:scale-95">
+                    Todos
+                </button>
+<button class="whitespace-nowrap px-4 py-2 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:border-primary/30 hover:text-primary rounded-full text-sm font-medium transition-all active:scale-95">
+                    🍢 Espetos
+                </button>
+<button class="whitespace-nowrap px-4 py-2 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:border-primary/30 hover:text-primary rounded-full text-sm font-medium transition-all active:scale-95">
+                    🥣 Caldos
+                </button>
+<button class="whitespace-nowrap px-4 py-2 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:border-primary/30 hover:text-primary rounded-full text-sm font-medium transition-all active:scale-95">
+                    🍇 Açaí
+                </button>
+<button class="whitespace-nowrap px-4 py-2 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:border-primary/30 hover:text-primary rounded-full text-sm font-medium transition-all active:scale-95">
+                    🥤 Bebidas
+                </button>
+</div>
+</div>
+<!-- Scrollable Grid Content -->
+<div class="flex-1 overflow-y-auto p-4 md:p-6 pb-24 md:pb-6">
+<!-- Category Section: ESPETOS -->
+<div class="mb-8">
+<div class="flex items-center justify-between mb-4">
+<h2 class="text-lg font-bold text-gray-800 dark:text-gray-200 flex items-center gap-2">
+<span class="w-1 h-5 bg-primary rounded-full"></span>
+                        Espetos Tradicionais
+                    </h2>
+<span class="text-xs font-medium bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded text-gray-600 dark:text-gray-400">8 Itens</span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4">
+<!-- Product Card 1: Healthy Stock -->
+<div class="bg-white dark:bg-[#2a1a1c] rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-800 relative overflow-hidden group hover:shadow-md transition-all">
+<div class="flex justify-between items-start mb-3">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-orange-600 dark:text-orange-400">
+<span class="material-icons">kebab_dining</span>
+</div>
+<div>
+<h3 class="font-bold text-gray-900 dark:text-white leading-tight">Carne Bovina</h3>
+<p class="text-xs text-gray-500 dark:text-gray-400">Espeto simples</p>
+</div>
+</div>
+<div class="flex items-center">
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox" value=""/>
+<div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/20 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+</div>
+<!-- Stats Grid -->
+<div class="grid grid-cols-3 gap-2 mb-4">
+<div class="bg-gray-50 dark:bg-gray-800/50 p-2 rounded-lg text-center">
+<span class="block text-xs text-gray-400 uppercase tracking-wide">Inicial</span>
+<span class="font-bold text-gray-700 dark:text-gray-200">50</span>
+</div>
+<div class="bg-primary/5 dark:bg-primary/10 p-2 rounded-lg text-center border border-primary/10">
+<span class="block text-xs text-primary/70 uppercase tracking-wide">Atual</span>
+<span class="font-bold text-primary text-lg">32</span>
+</div>
+<div class="bg-gray-50 dark:bg-gray-800/50 p-2 rounded-lg text-center">
+<span class="block text-xs text-gray-400 uppercase tracking-wide">Vendido</span>
+<span class="font-bold text-gray-700 dark:text-gray-200">18</span>
+</div>
+</div>
+<!-- Progress Bar (Green) -->
+<div class="mb-4">
+<div class="flex justify-between text-xs mb-1">
+<span class="text-gray-500">Disponibilidade</span>
+<span class="font-semibold text-green-600">64%</span>
+</div>
+<div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
+<div class="bg-green-500 h-2 rounded-full" style="width: 64%"></div>
+</div>
+</div>
+<!-- Action Footer -->
+<div class="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-800">
+<span class="text-xs font-medium text-gray-400">Ajuste Rápido</span>
+<div class="flex items-center gap-3">
+<button class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 flex items-center justify-center transition-colors">
+<span class="material-icons text-base">remove</span>
+</button>
+<span class="font-bold w-6 text-center text-gray-800 dark:text-white">32</span>
+<button class="w-8 h-8 rounded-full bg-primary text-white hover:bg-red-700 flex items-center justify-center shadow-md shadow-primary/30 transition-colors">
+<span class="material-icons text-base">add</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Product Card 2: Low Stock Warning -->
+<div class="bg-white dark:bg-[#2a1a1c] rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-800 relative overflow-hidden group hover:shadow-md transition-all">
+<div class="flex justify-between items-start mb-3">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-orange-600 dark:text-orange-400">
+<span class="material-icons">kebab_dining</span>
+</div>
+<div>
+<h3 class="font-bold text-gray-900 dark:text-white leading-tight">Frango c/ Bacon</h3>
+<p class="text-xs text-gray-500 dark:text-gray-400">Medalhão</p>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox" value=""/>
+<div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/20 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<!-- Stats Grid -->
+<div class="grid grid-cols-3 gap-2 mb-4">
+<div class="bg-gray-50 dark:bg-gray-800/50 p-2 rounded-lg text-center">
+<span class="block text-xs text-gray-400 uppercase tracking-wide">Inicial</span>
+<span class="font-bold text-gray-700 dark:text-gray-200">40</span>
+</div>
+<div class="bg-red-50 dark:bg-red-900/20 p-2 rounded-lg text-center border border-red-100 dark:border-red-900/30">
+<span class="block text-xs text-red-500 uppercase tracking-wide">Atual</span>
+<span class="font-bold text-red-600 dark:text-red-400 text-lg">5</span>
+</div>
+<div class="bg-gray-50 dark:bg-gray-800/50 p-2 rounded-lg text-center">
+<span class="block text-xs text-gray-400 uppercase tracking-wide">Vendido</span>
+<span class="font-bold text-gray-700 dark:text-gray-200">35</span>
+</div>
+</div>
+<!-- Progress Bar (Red) -->
+<div class="mb-4">
+<div class="flex justify-between text-xs mb-1">
+<span class="text-gray-500">Disponibilidade</span>
+<span class="font-bold text-primary animate-pulse">Crítico (12%)</span>
+</div>
+<div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
+<div class="bg-primary h-2 rounded-full" style="width: 12%"></div>
+</div>
+</div>
+<!-- Action Footer -->
+<div class="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-800">
+<span class="text-xs font-medium text-gray-400">Ajuste Rápido</span>
+<div class="flex items-center gap-3">
+<button class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 flex items-center justify-center transition-colors">
+<span class="material-icons text-base">remove</span>
+</button>
+<span class="font-bold w-6 text-center text-gray-800 dark:text-white">5</span>
+<button class="w-8 h-8 rounded-full bg-primary text-white hover:bg-red-700 flex items-center justify-center shadow-md shadow-primary/30 transition-colors">
+<span class="material-icons text-base">add</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Product Card 3: Sold Out -->
+<div class="bg-gray-50 dark:bg-[#1a1011] rounded-xl p-4 shadow-inner border border-gray-200 dark:border-gray-800 relative overflow-hidden opacity-90">
+<div class="absolute inset-0 bg-gray-100/50 dark:bg-black/20 pointer-events-none z-10 flex items-center justify-center">
+<!-- Overlay content if needed, but styling handles the "disabled" look -->
+</div>
+<div class="flex justify-between items-start mb-3 opacity-60">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-500">
+<span class="material-icons">kebab_dining</span>
+</div>
+<div>
+<h3 class="font-bold text-gray-700 dark:text-gray-300 leading-tight decoration-slice line-through">Pão de Alho</h3>
+<p class="text-xs text-gray-400">Tradicional</p>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer z-20">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/20 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<!-- Stats Grid -->
+<div class="grid grid-cols-3 gap-2 mb-4 opacity-60">
+<div class="bg-white dark:bg-gray-800 p-2 rounded-lg text-center">
+<span class="block text-xs text-gray-400 uppercase tracking-wide">Inicial</span>
+<span class="font-bold text-gray-600 dark:text-gray-400">20</span>
+</div>
+<div class="bg-white dark:bg-gray-800 p-2 rounded-lg text-center">
+<span class="block text-xs text-gray-400 uppercase tracking-wide">Atual</span>
+<span class="font-bold text-gray-600 dark:text-gray-400 text-lg">0</span>
+</div>
+<div class="bg-white dark:bg-gray-800 p-2 rounded-lg text-center">
+<span class="block text-xs text-gray-400 uppercase tracking-wide">Vendido</span>
+<span class="font-bold text-gray-600 dark:text-gray-400">20</span>
+</div>
+</div>
+<!-- Badge -->
+<div class="mb-4 flex justify-center">
+<span class="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-bold rounded-full uppercase tracking-wider">
+                                 Esgotado
+                             </span>
+</div>
+<!-- Action Footer (Disabled Look) -->
+<div class="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-800 opacity-40 grayscale pointer-events-none">
+<span class="text-xs font-medium text-gray-400">Ajuste Rápido</span>
+<div class="flex items-center gap-3">
+<button class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+<span class="material-icons text-base text-gray-500">remove</span>
+</button>
+<span class="font-bold w-6 text-center text-gray-500">0</span>
+<button class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+<span class="material-icons text-base text-gray-500">add</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Category Section: CALDOS -->
+<div class="mb-8">
+<div class="flex items-center justify-between mb-4">
+<h2 class="text-lg font-bold text-gray-800 dark:text-gray-200 flex items-center gap-2">
+<span class="w-1 h-5 bg-orange-500 rounded-full"></span>
+                        Caldos &amp; Sopas
+                    </h2>
+<span class="text-xs font-medium bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded text-gray-600 dark:text-gray-400">4 Itens</span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4">
+<!-- Product Card 4 -->
+<div class="bg-white dark:bg-[#2a1a1c] rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-800 group hover:shadow-md transition-all">
+<div class="flex justify-between items-start mb-3">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center text-yellow-700 dark:text-yellow-500">
+<span class="material-icons">soup_kitchen</span>
+</div>
+<div>
+<h3 class="font-bold text-gray-900 dark:text-white leading-tight">Caldo de Feijão</h3>
+<p class="text-xs text-gray-500 dark:text-gray-400">500ml</p>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox" value=""/>
+<div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/20 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="grid grid-cols-3 gap-2 mb-4">
+<div class="bg-gray-50 dark:bg-gray-800/50 p-2 rounded-lg text-center">
+<span class="block text-xs text-gray-400 uppercase tracking-wide">Inicial</span>
+<span class="font-bold text-gray-700 dark:text-gray-200">15</span>
+</div>
+<div class="bg-orange-50 dark:bg-orange-900/10 p-2 rounded-lg text-center border border-orange-100 dark:border-orange-900/30">
+<span class="block text-xs text-orange-500 uppercase tracking-wide">Atual</span>
+<span class="font-bold text-orange-600 dark:text-orange-400 text-lg">6</span>
+</div>
+<div class="bg-gray-50 dark:bg-gray-800/50 p-2 rounded-lg text-center">
+<span class="block text-xs text-gray-400 uppercase tracking-wide">Vendido</span>
+<span class="font-bold text-gray-700 dark:text-gray-200">9</span>
+</div>
+</div>
+<div class="mb-4">
+<div class="flex justify-between text-xs mb-1">
+<span class="text-gray-500">Disponibilidade</span>
+<span class="font-semibold text-orange-500">40%</span>
+</div>
+<div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
+<div class="bg-orange-500 h-2 rounded-full" style="width: 40%"></div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-800">
+<span class="text-xs font-medium text-gray-400">Ajuste Rápido</span>
+<div class="flex items-center gap-3">
+<button class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 flex items-center justify-center transition-colors">
+<span class="material-icons text-base">remove</span>
+</button>
+<span class="font-bold w-6 text-center text-gray-800 dark:text-white">6</span>
+<button class="w-8 h-8 rounded-full bg-primary text-white hover:bg-red-700 flex items-center justify-center shadow-md shadow-primary/30 transition-colors">
+<span class="material-icons text-base">add</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="h-12 md:hidden"></div> <!-- Spacer for mobile fab -->
+</div>
+</main>
+<!-- Right Sidebar (Desktop: Visible | Mobile: Hidden) -->
+<!-- We'll make this a permanent sidebar on desktop to match the "Desktop version" context, 
+         but it will behave responsively on mobile (hidden) -->
+<aside class="hidden md:flex flex-col w-96 bg-white dark:bg-[#2a1a1c] border-l border-gray-200 dark:border-gray-800 h-screen z-20 shadow-xl overflow-y-auto">
+<div class="p-6">
+<h2 class="text-xl font-bold text-gray-900 dark:text-white mb-1">Novo Item</h2>
+<p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Cadastrar entrada de estoque do dia</p>
+<form class="space-y-5">
+<!-- Category Select -->
+<div class="space-y-2">
+<label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Categoria</label>
+<div class="grid grid-cols-2 gap-2">
+<label class="cursor-pointer">
+<input checked="" class="peer sr-only" name="category" type="radio"/>
+<div class="text-center py-2 px-3 border border-gray-200 dark:border-gray-700 rounded-lg peer-checked:bg-primary peer-checked:text-white peer-checked:border-primary text-gray-600 dark:text-gray-400 text-sm font-medium transition-all hover:bg-gray-50 dark:hover:bg-gray-800">
+                                Espetos
+                            </div>
+</label>
+<label class="cursor-pointer">
+<input class="peer sr-only" name="category" type="radio"/>
+<div class="text-center py-2 px-3 border border-gray-200 dark:border-gray-700 rounded-lg peer-checked:bg-primary peer-checked:text-white peer-checked:border-primary text-gray-600 dark:text-gray-400 text-sm font-medium transition-all hover:bg-gray-50 dark:hover:bg-gray-800">
+                                Caldos
+                            </div>
+</label>
+<label class="cursor-pointer">
+<input class="peer sr-only" name="category" type="radio"/>
+<div class="text-center py-2 px-3 border border-gray-200 dark:border-gray-700 rounded-lg peer-checked:bg-primary peer-checked:text-white peer-checked:border-primary text-gray-600 dark:text-gray-400 text-sm font-medium transition-all hover:bg-gray-50 dark:hover:bg-gray-800">
+                                Açaí
+                            </div>
+</label>
+<label class="cursor-pointer">
+<input class="peer sr-only" name="category" type="radio"/>
+<div class="text-center py-2 px-3 border border-gray-200 dark:border-gray-700 rounded-lg peer-checked:bg-primary peer-checked:text-white peer-checked:border-primary text-gray-600 dark:text-gray-400 text-sm font-medium transition-all hover:bg-gray-50 dark:hover:bg-gray-800">
+                                Bebidas
+                            </div>
+</label>
+</div>
+</div>
+<!-- Product Name -->
+<div class="space-y-2">
+<label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Produto</label>
+<div class="relative">
+<span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+<span class="material-icons text-lg">search</span>
+</span>
+<input class="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none text-gray-900 dark:text-white placeholder-gray-400" placeholder="Ex: Carne com Queijo" type="text"/>
+</div>
+</div>
+<!-- Quantity -->
+<div class="space-y-2">
+<label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Quantidade Inicial</label>
+<div class="flex items-center border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 p-1">
+<button class="w-10 h-10 flex items-center justify-center text-gray-500 hover:text-primary rounded hover:bg-white dark:hover:bg-gray-700 transition-colors" type="button">
+<span class="material-icons">remove</span>
+</button>
+<input class="flex-1 text-center bg-transparent border-none text-gray-900 dark:text-white font-bold text-lg focus:ring-0" type="number" value="10"/>
+<button class="w-10 h-10 flex items-center justify-center text-gray-500 hover:text-primary rounded hover:bg-white dark:hover:bg-gray-700 transition-colors" type="button">
+<span class="material-icons">add</span>
+</button>
+</div>
+</div>
+<!-- Extra Info -->
+<div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg flex gap-3">
+<span class="material-icons text-blue-500 text-sm mt-0.5">info</span>
+<p class="text-xs text-blue-700 dark:text-blue-300 leading-relaxed">
+                        Ao adicionar um novo item, ele aparecerá imediatamente na grade de 'Estoque do Dia' com o status 100% disponível.
+                    </p>
+</div>
+<div class="pt-4">
+<button class="w-full bg-primary hover:bg-red-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg shadow-primary/30 transform transition hover:-translate-y-0.5 active:translate-y-0" type="button">
+                        Adicionar ao Estoque
+                    </button>
+</div>
+</form>
+<div class="mt-8 pt-8 border-t border-gray-200 dark:border-gray-800">
+<h3 class="text-sm font-bold text-gray-800 dark:text-gray-200 mb-4">Resumo Rápido</h3>
+<div class="space-y-3">
+<div class="flex justify-between items-center text-sm">
+<span class="text-gray-500 dark:text-gray-400">Total Itens (Hoje)</span>
+<span class="font-semibold text-gray-900 dark:text-white">142</span>
+</div>
+<div class="flex justify-between items-center text-sm">
+<span class="text-gray-500 dark:text-gray-400">Total Vendidos</span>
+<span class="font-semibold text-green-600">89</span>
+</div>
+<div class="flex justify-between items-center text-sm">
+<span class="text-gray-500 dark:text-gray-400">Itens Críticos</span>
+<span class="px-2 py-0.5 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-xs rounded font-bold">4</span>
+</div>
+</div>
+</div>
+</div>
+</aside>
+<!-- Mobile FAB (Floating Action Button) -->
+<button class="md:hidden fixed bottom-6 right-6 w-14 h-14 bg-primary text-white rounded-full shadow-xl shadow-primary/40 flex items-center justify-center z-50 hover:bg-red-700 transition-colors active:scale-95">
+<span class="material-icons text-2xl">add</span>
+</button>
+</body></html>

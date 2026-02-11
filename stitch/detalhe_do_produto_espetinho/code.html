@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Detalhe do Produto - Espetinho Vitória</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind Config -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#c41c2a",
+              "background-light": "#f8f6f6",
+              "background-dark": "#211113",
+            },
+            fontFamily: {
+              "display": ["Inter", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+            boxShadow: {
+              'float': '0 10px 40px -10px rgba(0,0,0,0.1)',
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        /* Custom scrollbar hiding for clean UI */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* Custom radio and checkbox styles to match theme */
+        input[type="radio"]:checked, input[type="checkbox"]:checked {
+            background-color: #c41c2a;
+            border-color: #c41c2a;
+        }
+        input[type="radio"]:focus, input[type="checkbox"]:focus {
+            ring-color: #c41c2a;
+            --tw-ring-color: #c41c2a;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-100 antialiased selection:bg-primary selection:text-white">
+<!-- Main Container - Mobile Sized -->
+<div class="mx-auto max-w-md bg-white dark:bg-[#1a0d0f] min-h-screen relative shadow-2xl overflow-hidden flex flex-col">
+<!-- Hero Section -->
+<header class="relative h-80 w-full shrink-0">
+<!-- Background Image with Overlay -->
+<div class="absolute inset-0 z-0">
+<img alt="Grilled meat skewer on a wooden board" class="w-full h-full object-cover" data-alt="Grilled meat skewer on a wooden board" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAV3RJuMqEQ-qp7-kirY0EekKoEvRYq9UardCdYAneks2Bwc1FnECAzfZq0rdT-JVvMh7aS1RbLmPqTGV6dcNsnrwB0sFWSr7MbTysRZLru-ZwsaVtn_N-Wcq9Qo0gLZBNGhvkP6mA6w0caKunW1D8jUQ5ilnUqaULsyCPf-6yvQL247gBY2mKtCuLOMGKUNjmL1_Y7cRlk4cBktihETHs8a78NhlMyEE_u2Rmj3me3XJqvTP9Zwd8km2ay_3FN1kG693NH1b6Qv1kf"/>
+<!-- Gradient Overlay for text readability and theme -->
+<div class="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60"></div>
+<!-- Red theme hint at bottom -->
+<div class="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background-light dark:from-[#1a0d0f] to-transparent"></div>
+</div>
+<!-- Top Navigation Bar -->
+<div class="absolute top-0 left-0 w-full p-6 z-20 flex justify-between items-center pt-12">
+<button class="w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-colors">
+<span class="material-icons-round">arrow_back</span>
+</button>
+<div class="flex gap-3">
+<button class="w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-colors">
+<span class="material-icons-round">favorite_border</span>
+</button>
+<button class="w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-colors">
+<span class="material-icons-round">share</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Content Body (Scrollable) -->
+<main class="flex-1 px-6 pb-32 -mt-10 relative z-10 overflow-y-auto no-scrollbar">
+<!-- Product Header -->
+<div class="mb-8">
+<div class="flex justify-between items-start mb-2">
+<h1 class="text-3xl font-bold text-gray-900 dark:text-white leading-tight">Espetinho de Carne</h1>
+</div>
+<div class="flex items-center gap-2 mb-4">
+<span class="px-2 py-1 bg-primary/10 text-primary text-xs font-bold rounded uppercase tracking-wider">Mais Vendido</span>
+<div class="flex items-center text-yellow-500 text-sm font-medium">
+<span class="material-icons-round text-base mr-1">star</span>
+                        4.8 (120+)
+                    </div>
+</div>
+<p class="text-gray-500 dark:text-gray-400 text-sm leading-relaxed mb-4">
+                    Suculento espetinho de alcatra selecionada, grelhado na brasa para manter o sabor defumado perfeito. Acompanha farofa da casa.
+                </p>
+<div class="text-2xl font-bold text-primary">
+                    R$ 8,00
+                </div>
+</div>
+<!-- Divider -->
+<div class="h-px bg-gray-100 dark:bg-white/10 w-full mb-8"></div>
+<!-- Customization Section 1: Ponto da Carne -->
+<section class="mb-8">
+<div class="flex justify-between items-center mb-4">
+<h3 class="font-bold text-lg text-gray-900 dark:text-white">Ponto da Carne</h3>
+<span class="text-xs font-medium text-white bg-gray-400 px-2 py-0.5 rounded">Obrigatório</span>
+</div>
+<div class="space-y-3">
+<label class="flex items-center justify-between p-4 border border-gray-100 dark:border-white/10 rounded-lg has-[:checked]:border-primary/50 has-[:checked]:bg-primary/5 dark:has-[:checked]:bg-primary/20 cursor-pointer transition-all">
+<div class="flex items-center gap-3">
+<input checked="" class="w-5 h-5 text-primary border-gray-300 focus:ring-primary" name="ponto" type="radio"/>
+<span class="text-gray-700 dark:text-gray-200 font-medium">Ao Ponto</span>
+</div>
+<span class="text-primary text-sm font-medium">Recomendado</span>
+</label>
+<label class="flex items-center justify-between p-4 border border-gray-100 dark:border-white/10 rounded-lg has-[:checked]:border-primary/50 has-[:checked]:bg-primary/5 dark:has-[:checked]:bg-primary/20 cursor-pointer transition-all">
+<div class="flex items-center gap-3">
+<input class="w-5 h-5 text-primary border-gray-300 focus:ring-primary" name="ponto" type="radio"/>
+<span class="text-gray-700 dark:text-gray-200 font-medium">Bem Passado</span>
+</div>
+</label>
+<label class="flex items-center justify-between p-4 border border-gray-100 dark:border-white/10 rounded-lg has-[:checked]:border-primary/50 has-[:checked]:bg-primary/5 dark:has-[:checked]:bg-primary/20 cursor-pointer transition-all">
+<div class="flex items-center gap-3">
+<input class="w-5 h-5 text-primary border-gray-300 focus:ring-primary" name="ponto" type="radio"/>
+<span class="text-gray-700 dark:text-gray-200 font-medium">Mal Passado</span>
+</div>
+</label>
+</div>
+</section>
+<!-- Customization Section 2: Acompanhamentos -->
+<section class="mb-8">
+<div class="flex justify-between items-center mb-4">
+<h3 class="font-bold text-lg text-gray-900 dark:text-white">Acompanhamentos</h3>
+<span class="text-xs font-medium text-gray-400 bg-gray-100 dark:bg-white/10 px-2 py-0.5 rounded">Opcional</span>
+</div>
+<p class="text-sm text-gray-500 mb-4">Escolha até 3 opções sem custo adicional.</p>
+<div class="space-y-3">
+<label class="flex items-center justify-between p-4 border border-gray-100 dark:border-white/10 rounded-lg has-[:checked]:border-primary/50 has-[:checked]:bg-primary/5 dark:has-[:checked]:bg-primary/20 cursor-pointer transition-all">
+<div class="flex items-center gap-3">
+<input checked="" class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary" name="sides" type="checkbox"/>
+<span class="text-gray-700 dark:text-gray-200 font-medium">Farofa Crocante</span>
+</div>
+<span class="text-green-600 dark:text-green-400 text-sm font-medium">Grátis</span>
+</label>
+<label class="flex items-center justify-between p-4 border border-gray-100 dark:border-white/10 rounded-lg has-[:checked]:border-primary/50 has-[:checked]:bg-primary/5 dark:has-[:checked]:bg-primary/20 cursor-pointer transition-all">
+<div class="flex items-center gap-3">
+<input checked="" class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary" name="sides" type="checkbox"/>
+<span class="text-gray-700 dark:text-gray-200 font-medium">Vinagrete</span>
+</div>
+<span class="text-green-600 dark:text-green-400 text-sm font-medium">Grátis</span>
+</label>
+<label class="flex items-center justify-between p-4 border border-gray-100 dark:border-white/10 rounded-lg has-[:checked]:border-primary/50 has-[:checked]:bg-primary/5 dark:has-[:checked]:bg-primary/20 cursor-pointer transition-all">
+<div class="flex items-center gap-3">
+<input class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary" name="sides" type="checkbox"/>
+<span class="text-gray-700 dark:text-gray-200 font-medium">Macarrão Alho e Óleo</span>
+</div>
+<span class="text-green-600 dark:text-green-400 text-sm font-medium">Grátis</span>
+</label>
+<label class="flex items-center justify-between p-4 border border-gray-100 dark:border-white/10 rounded-lg has-[:checked]:border-primary/50 has-[:checked]:bg-primary/5 dark:has-[:checked]:bg-primary/20 cursor-pointer transition-all">
+<div class="flex items-center gap-3">
+<input class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary" name="sides" type="checkbox"/>
+<span class="text-gray-700 dark:text-gray-200 font-medium">Molho de Alho</span>
+</div>
+<span class="text-green-600 dark:text-green-400 text-sm font-medium">Grátis</span>
+</label>
+</div>
+</section>
+<!-- Observations -->
+<section class="mb-4">
+<div class="flex justify-between items-center mb-2">
+<h3 class="font-bold text-lg text-gray-900 dark:text-white">Alguma observação?</h3>
+</div>
+<textarea class="w-full p-4 border border-gray-200 dark:border-white/10 rounded-lg text-sm bg-gray-50 dark:bg-white/5 focus:ring-primary focus:border-primary resize-none placeholder-gray-400 dark:placeholder-gray-500" placeholder="Ex: Tirar a cebola, caprichar no sal..." rows="3"></textarea>
+</section>
+</main>
+<!-- Sticky Footer Action Bar -->
+<div class="absolute bottom-0 left-0 right-0 bg-white/95 dark:bg-[#1a0d0f]/95 backdrop-blur-md border-t border-gray-100 dark:border-white/5 p-6 z-30 shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1)]">
+<div class="flex items-center gap-6">
+<!-- Quantity Selector -->
+<div class="flex items-center gap-3 bg-gray-100 dark:bg-white/5 rounded-full p-1.5 border border-gray-200 dark:border-white/10">
+<button class="w-8 h-8 rounded-full bg-white dark:bg-white/10 shadow-sm flex items-center justify-center text-gray-600 dark:text-white active:scale-95 transition-transform">
+<span class="material-icons-round text-base">remove</span>
+</button>
+<span class="font-bold text-lg w-4 text-center text-gray-900 dark:text-white">1</span>
+<button class="w-8 h-8 rounded-full bg-primary text-white shadow-sm flex items-center justify-center active:scale-95 transition-transform">
+<span class="material-icons-round text-base">add</span>
+</button>
+</div>
+<!-- Add Button -->
+<button class="flex-1 bg-primary hover:bg-red-700 text-white font-bold py-4 px-6 rounded-full shadow-lg shadow-primary/30 flex justify-between items-center active:scale-[0.98] transition-all group">
+<span>Adicionar</span>
+<div class="flex items-center gap-2">
+<span class="text-white/80 text-sm font-normal">Total</span>
+<span>R$ 8,00</span>
+</div>
+</button>
+</div>
+<!-- Bottom safe area spacing for iOS -->
+<div class="h-4"></div>
+</div>
+</div>
+</body></html>
