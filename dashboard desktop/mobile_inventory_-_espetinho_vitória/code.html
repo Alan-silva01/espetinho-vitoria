@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Espetinho Vitória - Estoque</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#C31522", // Red form the screenshot
+                        secondary: "#F9FAFB",
+                        "background-light": "#F3F4F6",
+                        "background-dark": "#111827",
+                        "surface-light": "#FFFFFF",
+                        "surface-dark": "#1F2937",
+                        "text-light": "#1F2937",
+                        "text-dark": "#F9FAFB",
+                        "muted-light": "#6B7280",
+                        "muted-dark": "#9CA3AF",
+                    },
+                    fontFamily: {
+                        sans: ["Inter", "sans-serif"],
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
+                        'glow': '0 10px 25px -5px rgba(195, 21, 34, 0.3)',
+                    }
+                },
+            },
+        };
+    </script>
+<style>::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #D1D5DB; 
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #9CA3AF; 
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #374151; 
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-sans text-text-light dark:text-text-dark min-h-screen transition-colors duration-200">
+<div class="max-w-md mx-auto min-h-screen bg-secondary dark:bg-black shadow-2xl relative flex flex-col overflow-hidden border-x border-gray-200 dark:border-gray-800">
+<header class="px-6 pt-8 pb-4 bg-surface-light dark:bg-surface-dark sticky top-0 z-20 shadow-sm dark:shadow-gray-900/50">
+<div class="flex justify-between items-center mb-6">
+<button class="p-2 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+<span class="material-icons-round text-gray-800 dark:text-white">menu</span>
+</button>
+<div class="flex flex-col items-center">
+<span class="text-xs font-semibold tracking-wider text-primary uppercase">Admin</span>
+<h1 class="text-lg font-bold text-gray-900 dark:text-white">Espetinho Vitória</h1>
+</div>
+<div class="relative">
+<button class="p-2 -mr-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors relative">
+<span class="material-icons-round text-gray-800 dark:text-white">notifications_none</span>
+<span class="absolute top-2 right-2 w-2.5 h-2.5 bg-primary rounded-full border-2 border-surface-light dark:border-surface-dark"></span>
+</button>
+</div>
+</div>
+<div class="relative mt-2">
+<span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-icons-round text-muted-light dark:text-muted-dark">search</span>
+</span>
+<input class="block w-full pl-10 pr-3 py-3 border-none rounded-xl bg-gray-100 dark:bg-gray-800 text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary dark:text-white transition-shadow" placeholder="Buscar produto..." type="text"/>
+<button class="absolute inset-y-0 right-1 pr-1 flex items-center">
+<div class="bg-surface-light dark:bg-gray-700 p-1.5 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+<span class="material-icons-round text-primary text-sm">tune</span>
+</div>
+</button>
+</div>
+</header>
+<main class="flex-1 overflow-y-auto px-6 py-6 pb-28 space-y-6">
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface-light dark:bg-surface-dark p-4 rounded-2xl shadow-soft flex flex-col justify-between">
+<div class="flex items-start justify-between">
+<div class="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+<span class="material-icons-round text-blue-600 dark:text-blue-400 text-xl">inventory_2</span>
+</div>
+<span class="text-xs font-medium text-green-500 bg-green-100 dark:bg-green-900/30 px-2 py-0.5 rounded-full">Ok</span>
+</div>
+<div class="mt-3">
+<span class="text-2xl font-bold block text-gray-900 dark:text-white">842</span>
+<span class="text-xs text-muted-light dark:text-muted-dark">Itens totais</span>
+</div>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark p-4 rounded-2xl shadow-soft flex flex-col justify-between">
+<div class="flex items-start justify-between">
+<div class="p-2 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
+<span class="material-icons-round text-orange-600 dark:text-orange-400 text-xl">warning</span>
+</div>
+<span class="text-xs font-medium text-primary bg-red-100 dark:bg-red-900/30 px-2 py-0.5 rounded-full">Baixo</span>
+</div>
+<div class="mt-3">
+<span class="text-2xl font-bold block text-gray-900 dark:text-white">12</span>
+<span class="text-xs text-muted-light dark:text-muted-dark">Repor estoque</span>
+</div>
+</div>
+</div>
+<div class="flex space-x-3 overflow-x-auto pb-2 -mx-6 px-6 scrollbar-hide">
+<button class="bg-primary text-white px-5 py-2 rounded-full text-sm font-medium whitespace-nowrap shadow-lg shadow-red-500/30">Todos</button>
+<button class="bg-white dark:bg-surface-dark text-muted-light dark:text-muted-dark hover:text-primary dark:hover:text-primary px-5 py-2 rounded-full text-sm font-medium whitespace-nowrap shadow-sm border border-gray-100 dark:border-gray-800 transition-colors">Espetinhos</button>
+<button class="bg-white dark:bg-surface-dark text-muted-light dark:text-muted-dark hover:text-primary dark:hover:text-primary px-5 py-2 rounded-full text-sm font-medium whitespace-nowrap shadow-sm border border-gray-100 dark:border-gray-800 transition-colors">Bebidas</button>
+<button class="bg-white dark:bg-surface-dark text-muted-light dark:text-muted-dark hover:text-primary dark:hover:text-primary px-5 py-2 rounded-full text-sm font-medium whitespace-nowrap shadow-sm border border-gray-100 dark:border-gray-800 transition-colors">Acompanhamentos</button>
+</div>
+<div class="space-y-4">
+<h3 class="text-lg font-bold text-gray-900 dark:text-white">Controle de Estoque</h3>
+<div class="bg-surface-light dark:bg-surface-dark p-4 rounded-2xl shadow-soft flex gap-4 items-center group relative overflow-hidden">
+<div class="h-full absolute left-0 top-0 w-1 bg-green-500 rounded-l-2xl"></div>
+<div class="w-16 h-16 rounded-xl bg-gray-100 dark:bg-gray-700 flex-shrink-0 overflow-hidden">
+<img alt="Espetinho de Carne" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBgX56x3iifdxF5pIXU9z9w-qI__jf1M0xThH-xVJrPKsseCz7lFIyI_PKT-P8_BDlP2NNf9PL2Nvarxo1ghZCoA65-stCsn-AuXu_SXmUi3jJYRbHB5HAfWki9d3ZyUP8wXfQnmRDmBtcPeMA3P9STjoDQaa-rkM1lrku9fWtsyy2bostx-pQLJiGIsNIbpXdpImtl6vu6he9rFr3LYMGU-uzwaR0DxLG1vUlufgdfRWaaZdLuGgrMAvWm7EOZY2MdncJpg5Vs6Qx4"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start mb-1">
+<h4 class="text-sm font-bold text-gray-900 dark:text-white truncate">Espetinho de Picanha</h4>
+<span class="text-xs font-semibold text-green-600 bg-green-100 dark:bg-green-900/30 dark:text-green-400 px-2 py-0.5 rounded">120 un</span>
+</div>
+<p class="text-xs text-muted-light dark:text-muted-dark mb-2">Carne Bovina</p>
+<div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-1.5 mb-1">
+<div class="bg-green-500 h-1.5 rounded-full" style="width: 85%"></div>
+</div>
+<div class="flex justify-between text-[10px] text-muted-light dark:text-muted-dark">
+<span>Estoque Ideal</span>
+<span>85%</span>
+</div>
+</div>
+<div class="flex flex-col items-center justify-center pl-2 border-l border-gray-100 dark:border-gray-700">
+<button class="w-8 h-8 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-primary hover:text-white dark:hover:bg-primary transition-colors flex items-center justify-center text-gray-400">
+<span class="material-icons-round text-lg">edit</span>
+</button>
+</div>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark p-4 rounded-2xl shadow-soft flex gap-4 items-center relative overflow-hidden">
+<div class="h-full absolute left-0 top-0 w-1 bg-primary rounded-l-2xl"></div>
+<div class="w-16 h-16 rounded-xl bg-gray-100 dark:bg-gray-700 flex-shrink-0 overflow-hidden">
+<img alt="Pão de Alho" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJtG37vIAKQDcfFpRuZSltMlkeK_CFKTFAvuIdTxbT3eCuYHzkM8plqZzKXRCMMDtv7JDQzAoRzI5w4HFKbBDr9ihJbKRbVJavtGGiHyV0gvh4PQBe-iVUVBrPJBRB0-M1YSy0GHIHY9ef1WUNXLtz7oX9FyzIF25zir20k2c4m_dX_UlQZoldT6pDWh2tKBcLZeO-2TkU77xC-vLHOGKeSEa3RtbzEdesDem-fqwdI72q57Rmd8xLrFLPTH2B3IPT07V5aXBitZkT"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start mb-1">
+<h4 class="text-sm font-bold text-gray-900 dark:text-white truncate">Pão de Alho</h4>
+<span class="text-xs font-semibold text-primary bg-red-100 dark:bg-red-900/30 dark:text-red-400 px-2 py-0.5 rounded">8 un</span>
+</div>
+<p class="text-xs text-muted-light dark:text-muted-dark mb-2">Acompanhamento</p>
+<div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-1.5 mb-1">
+<div class="bg-primary h-1.5 rounded-full" style="width: 15%"></div>
+</div>
+<div class="flex justify-between text-[10px] text-muted-light dark:text-muted-dark">
+<span class="text-primary font-medium">Repor Urgente</span>
+<span class="text-primary font-medium">15%</span>
+</div>
+</div>
+<div class="flex flex-col items-center justify-center pl-2 border-l border-gray-100 dark:border-gray-700">
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+</label>
+<span class="text-[10px] text-muted-light dark:text-muted-dark mt-1">Ativo</span>
+</div>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark p-4 rounded-2xl shadow-soft flex gap-4 items-center relative overflow-hidden">
+<div class="h-full absolute left-0 top-0 w-1 bg-yellow-400 rounded-l-2xl"></div>
+<div class="w-16 h-16 rounded-xl bg-gray-100 dark:bg-gray-700 flex-shrink-0 overflow-hidden">
+<img alt="Espetinho de Frango" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBT-WphrJ1db6LNshpNapBpEVuW4HFKSBm1yAIRlt64kEYLfHwnzGIAkMJilnG8f_h-zK9xq9TboMEtuIeXXnmD-RIIicl18bAWR8bFvKB5dMNuDk8jBJYQ8envY6qCoZ952sSmyou3S-_ndJWwILLK9dyflx8PzYSwDFfBkND0rnbSIOHW0GaJqoFvDlxeDclKqMIw3aEehau21q9O9111g5D4Fghoms7jDZd3OzIcJKjcr_uEV1_dTd_HtDwjXBWMA5mvK04Pa203"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start mb-1">
+<h4 class="text-sm font-bold text-gray-900 dark:text-white truncate">Espetinho de Frango</h4>
+<span class="text-xs font-semibold text-yellow-600 bg-yellow-100 dark:bg-yellow-900/30 dark:text-yellow-400 px-2 py-0.5 rounded">45 un</span>
+</div>
+<p class="text-xs text-muted-light dark:text-muted-dark mb-2">Aves</p>
+<div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-1.5 mb-1">
+<div class="bg-yellow-400 h-1.5 rounded-full" style="width: 45%"></div>
+</div>
+<div class="flex justify-between text-[10px] text-muted-light dark:text-muted-dark">
+<span>Atenção</span>
+<span>45%</span>
+</div>
+</div>
+<div class="flex flex-col items-center justify-center pl-2 border-l border-gray-100 dark:border-gray-700">
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+</label>
+<span class="text-[10px] text-muted-light dark:text-muted-dark mt-1">Ativo</span>
+</div>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark p-4 rounded-2xl shadow-soft flex gap-4 items-center relative overflow-hidden opacity-70">
+<div class="h-full absolute left-0 top-0 w-1 bg-gray-300 dark:bg-gray-600 rounded-l-2xl"></div>
+<div class="w-16 h-16 rounded-xl bg-gray-100 dark:bg-gray-700 flex-shrink-0 overflow-hidden grayscale">
+<img alt="Coca Cola" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBgyFfGBuFtX4aXetaVCccSkA1lAdH0bNbt3FrlePKXNBDbVAw5S_xXPbe6oRXHsdHrKOc4edCy17Cf3Kb-G0hqPRpBox_2fsE2yIVXhi9flu8eq6rTZrwdOjHQI8NlOzXb0Jk1hsxMoLgXWbXbsL6dlYGNNUihPZ8FhJewxE8KX5czzVKLUCkvCboHo05ijPBkh2VERmp8CBAv_bnFrHV_iGTZY8iV_kgfHNP9_RY5dCjrWr77swUjTkX1NFhJ7FQUgWX69to2NMlx"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start mb-1">
+<h4 class="text-sm font-bold text-gray-900 dark:text-white truncate">Coca Cola 350ml</h4>
+<span class="text-xs font-semibold text-gray-500 bg-gray-100 dark:bg-gray-700 dark:text-gray-300 px-2 py-0.5 rounded">0 un</span>
+</div>
+<p class="text-xs text-muted-light dark:text-muted-dark mb-2">Bebidas</p>
+<div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-1.5 mb-1">
+<div class="bg-gray-400 h-1.5 rounded-full" style="width: 0%"></div>
+</div>
+<div class="flex justify-between text-[10px] text-muted-light dark:text-muted-dark">
+<span>Esgotado</span>
+<span>0%</span>
+</div>
+</div>
+<div class="flex flex-col items-center justify-center pl-2 border-l border-gray-100 dark:border-gray-700">
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox" value=""/>
+<div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+</label>
+<span class="text-[10px] text-muted-light dark:text-muted-dark mt-1">Inativo</span>
+</div>
+</div>
+</div>
+</main>
+<div class="absolute bottom-24 right-6 z-30">
+<button class="w-14 h-14 bg-primary rounded-full shadow-glow flex items-center justify-center text-white hover:bg-red-700 transition-colors transform hover:scale-105 active:scale-95">
+<span class="material-icons-round text-2xl">add</span>
+</button>
+</div>
+<nav class="bg-surface-light dark:bg-surface-dark border-t border-gray-100 dark:border-gray-800 px-6 py-3 fixed bottom-0 left-0 right-0 max-w-md mx-auto z-40">
+<ul class="flex justify-between items-center">
+<li>
+<a class="flex flex-col items-center text-muted-light dark:text-muted-dark hover:text-primary dark:hover:text-primary transition-colors group" href="#">
+<div class="p-1 rounded-xl group-hover:bg-red-50 dark:group-hover:bg-red-900/20 transition-colors">
+<span class="material-icons-round text-2xl">dashboard</span>
+</div>
+<span class="text-[10px] font-medium mt-1">Dash</span>
+</a>
+</li>
+<li>
+<a class="flex flex-col items-center text-muted-light dark:text-muted-dark hover:text-primary dark:hover:text-primary transition-colors group" href="#">
+<div class="p-1 rounded-xl group-hover:bg-red-50 dark:group-hover:bg-red-900/20 transition-colors">
+<span class="material-icons-round text-2xl">receipt_long</span>
+</div>
+<span class="text-[10px] font-medium mt-1">Pedidos</span>
+</a>
+</li>
+<li>
+<div class="w-12"></div> 
+</li>
+<li>
+<a class="flex flex-col items-center text-primary transition-colors group" href="#">
+<div class="p-1 rounded-xl bg-red-50 dark:bg-red-900/20 transition-colors">
+<span class="material-icons-round text-2xl">inventory</span>
+</div>
+<span class="text-[10px] font-bold mt-1">Estoque</span>
+</a>
+</li>
+<li>
+<a class="flex flex-col items-center text-muted-light dark:text-muted-dark hover:text-primary dark:hover:text-primary transition-colors group" href="#">
+<div class="p-1 rounded-xl group-hover:bg-red-50 dark:group-hover:bg-red-900/20 transition-colors">
+<span class="material-icons-round text-2xl">settings</span>
+</div>
+<span class="text-[10px] font-medium mt-1">Ajustes</span>
+</a>
+</li>
+</ul>
+<div class="absolute bottom-[35px] left-1/2 transform -translate-x-1/2 w-20 h-20 bg-secondary dark:bg-black rounded-full -z-10"></div>
+</nav>
+</div>
+
+</body></html>

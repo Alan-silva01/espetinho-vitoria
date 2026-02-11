@@ -1,0 +1,112 @@
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: var(--fonte-corpo);
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all var(--transicao-normal);
+    white-space: nowrap;
+    position: relative;
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Sizes */
+.btn-sm {
+    font-size: 13px;
+    padding: 8px 16px;
+    border-radius: var(--raio-sm);
+}
+
+.btn-md {
+    font-size: 15px;
+    padding: 14px 24px;
+    border-radius: var(--raio-full);
+}
+
+.btn-lg {
+    font-size: 16px;
+    padding: 16px 32px;
+    border-radius: var(--raio-full);
+}
+
+/* Variants */
+.btn-primary {
+    background: var(--gradiente-primario);
+    color: var(--texto-branco);
+    box-shadow: 0 4px 12px rgba(196, 30, 46, 0.3);
+}
+
+.btn-primary:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(196, 30, 46, 0.4);
+}
+
+.btn-primary:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.btn-secondary {
+    background: var(--fundo-secao);
+    color: var(--texto-principal);
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background: #E8E8EA;
+}
+
+.btn-outline {
+    background: transparent;
+    color: var(--cor-primaria);
+    border: 1.5px solid var(--cor-primaria);
+}
+
+.btn-outline:hover:not(:disabled) {
+    background: rgba(196, 30, 46, 0.05);
+}
+
+.btn-ghost {
+    background: transparent;
+    color: var(--texto-secundario);
+}
+
+.btn-ghost:hover:not(:disabled) {
+    background: var(--fundo-secao);
+    color: var(--texto-principal);
+}
+
+.btn-danger {
+    background: var(--status-cancelado);
+    color: var(--texto-branco);
+}
+
+.btn-danger:hover:not(:disabled) {
+    background: #DC2626;
+}
+
+/* Full width */
+.btn-full {
+    width: 100%;
+}
+
+/* Icon */
+.btn-icon {
+    display: flex;
+    align-items: center;
+}
+
+/* Spinner */
+.btn-spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}

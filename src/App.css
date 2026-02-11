@@ -1,0 +1,20 @@
+/* ===== App Root ===== */
+#root {
+  width: 100%;
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: var(--fundo-pagina);
+  position: relative;
+}
+
+/* Desktop: center the mobile app with a subtle frame */
+@media (min-width: 431px) {
+  body {
+    background: #e5e7eb;
+  }
+
+  #root {
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.1);
+  }
+}

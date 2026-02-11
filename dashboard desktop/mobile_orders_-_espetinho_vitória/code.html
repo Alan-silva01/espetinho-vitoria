@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Pedidos Mobile - Espetinho Vitória</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#C1272D", // Deep red from screenshot
+              "primary-dark": "#991b1b",
+              "background-light": "#F5F5F7",
+              "background-dark": "#121212",
+              "card-light": "#FFFFFF",
+              "card-dark": "#1E1E1E",
+              "text-light": "#1F2937",
+              "text-dark": "#E5E7EB",
+              "subtext-light": "#6B7280",
+              "subtext-dark": "#9CA3AF",
+            },
+            fontFamily: {
+              display: ["Inter", "sans-serif"],
+              sans: ["Inter", "sans-serif"],
+            },
+            borderRadius: {
+              DEFAULT: "0.75rem",
+              'xl': '1rem',
+              '2xl': '1.5rem',
+              '3xl': '2rem',
+            },
+            boxShadow: {
+              'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
+              'glow': '0 0 15px rgba(193, 39, 45, 0.3)',
+            }
+          },
+        },
+      };
+    </script>
+<style>.hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-sans text-text-light dark:text-text-dark transition-colors duration-300 min-h-screen flex justify-center items-start pt-4 pb-4">
+<div class="w-full max-w-[390px] bg-background-light dark:bg-background-dark min-h-[844px] relative shadow-2xl overflow-hidden rounded-[40px] border-8 border-white dark:border-gray-800 flex flex-col">
+<header class="pt-12 pb-4 px-6 flex items-center justify-between sticky top-0 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-sm z-20">
+<div class="flex flex-col">
+<span class="text-xs font-semibold text-subtext-light dark:text-subtext-dark uppercase tracking-wider">Admin</span>
+<h1 class="text-xl font-bold text-gray-900 dark:text-white">Espetinho Vitória</h1>
+</div>
+<div class="relative">
+<button class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+<span class="material-icons-round text-gray-600 dark:text-gray-300">notifications_none</span>
+<span class="absolute top-2 right-2 w-2.5 h-2.5 bg-primary rounded-full border-2 border-background-light dark:border-background-dark"></span>
+</button>
+</div>
+</header>
+<main class="flex-1 overflow-y-auto pb-24 hide-scrollbar">
+<div class="px-6 mb-6">
+<div class="bg-primary rounded-2xl p-6 text-white shadow-glow relative overflow-hidden group">
+<div class="absolute -right-4 -top-4 w-24 h-24 bg-white opacity-10 rounded-full blur-xl group-hover:scale-110 transition-transform"></div>
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center space-x-2 bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full">
+<span class="material-icons-round text-sm">calendar_today</span>
+<span class="text-xs font-medium">Vendas Hoje</span>
+</div>
+<button class="text-white/80 hover:text-white">
+<span class="material-icons-round text-xl">more_horiz</span>
+</button>
+</div>
+<div class="mb-2">
+<h2 class="text-3xl font-bold">R$ 3.450,00</h2>
+</div>
+<div class="flex items-center space-x-2 text-sm">
+<span class="bg-white/20 px-2 py-0.5 rounded text-xs font-medium flex items-center">
+<span class="material-icons-round text-[10px] mr-1">trending_up</span> +15%
+                        </span>
+<span class="text-white/80 text-xs">vs. ontem</span>
+</div>
+</div>
+</div>
+<div class="px-6 mb-6">
+<h3 class="text-lg font-bold mb-3 flex items-center justify-between">
+                    Pedidos
+                    <span class="text-xs font-normal text-primary bg-primary/10 px-2 py-1 rounded-full">12 novos</span>
+</h3>
+<div class="flex space-x-3 overflow-x-auto hide-scrollbar pb-2 -mx-6 px-6">
+<button class="flex-shrink-0 bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-5 py-2 rounded-full text-sm font-medium shadow-md transition-transform active:scale-95">
+                        Todos
+                    </button>
+<button class="flex-shrink-0 bg-white dark:bg-card-dark text-subtext-light dark:text-subtext-dark border border-gray-100 dark:border-gray-700 px-5 py-2 rounded-full text-sm font-medium whitespace-nowrap shadow-sm hover:shadow-md transition-all">
+                        Na Cozinha
+                        <span class="ml-1 bg-yellow-100 text-yellow-800 text-[10px] px-1.5 py-0.5 rounded-full">4</span>
+</button>
+<button class="flex-shrink-0 bg-white dark:bg-card-dark text-subtext-light dark:text-subtext-dark border border-gray-100 dark:border-gray-700 px-5 py-2 rounded-full text-sm font-medium whitespace-nowrap shadow-sm hover:shadow-md transition-all">
+                        Para Entrega
+                        <span class="ml-1 bg-blue-100 text-blue-800 text-[10px] px-1.5 py-0.5 rounded-full">2</span>
+</button>
+<button class="flex-shrink-0 bg-white dark:bg-card-dark text-subtext-light dark:text-subtext-dark border border-gray-100 dark:border-gray-700 px-5 py-2 rounded-full text-sm font-medium whitespace-nowrap shadow-sm hover:shadow-md transition-all">
+                        Finalizados
+                    </button>
+</div>
+</div>
+<div class="px-6 space-y-4">
+<div class="bg-card-light dark:bg-card-dark p-4 rounded-2xl shadow-soft hover:shadow-md transition-shadow cursor-pointer relative overflow-hidden group border border-transparent dark:border-gray-800">
+<div class="absolute top-0 left-0 w-1 h-full bg-yellow-400"></div>
+<div class="flex justify-between items-start mb-3">
+<div class="flex items-center space-x-3">
+<div class="w-10 h-10 rounded-full bg-yellow-50 dark:bg-yellow-900/20 flex items-center justify-center text-yellow-600 dark:text-yellow-400">
+<span class="material-icons-round text-lg">restaurant</span>
+</div>
+<div>
+<h4 class="font-bold text-gray-900 dark:text-white">Mesa 08</h4>
+<span class="text-xs text-subtext-light dark:text-subtext-dark font-mono">#PED-4829</span>
+</div>
+</div>
+<span class="bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-400 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wide">
+                            Na Cozinha
+                        </span>
+</div>
+<div class="flex justify-between items-end border-t border-gray-100 dark:border-gray-700 pt-3 mt-1">
+<div class="flex items-center text-xs text-subtext-light dark:text-subtext-dark">
+<span class="material-icons-round text-sm mr-1">schedule</span>
+                            2 min atrás
+                        </div>
+<div class="text-right">
+<span class="block text-xs text-subtext-light dark:text-subtext-dark mb-0.5">Total</span>
+<span class="font-bold text-lg text-gray-900 dark:text-white">R$ 145,90</span>
+</div>
+</div>
+</div>
+<div class="bg-card-light dark:bg-card-dark p-4 rounded-2xl shadow-soft hover:shadow-md transition-shadow cursor-pointer relative overflow-hidden border border-transparent dark:border-gray-800">
+<div class="absolute top-0 left-0 w-1 h-full bg-green-500"></div>
+<div class="flex justify-between items-start mb-3">
+<div class="flex items-center space-x-3">
+<div class="w-10 h-10 rounded-full bg-green-50 dark:bg-green-900/20 flex items-center justify-center text-green-600 dark:text-green-400">
+<span class="material-icons-round text-lg">moped</span>
+</div>
+<div>
+<h4 class="font-bold text-gray-900 dark:text-white">João Silva</h4>
+<span class="text-xs text-subtext-light dark:text-subtext-dark font-mono">#PED-4828</span>
+</div>
+</div>
+<span class="bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wide">
+                            Enviado
+                        </span>
+</div>
+<div class="flex justify-between items-end border-t border-gray-100 dark:border-gray-700 pt-3 mt-1">
+<div class="flex items-center text-xs text-subtext-light dark:text-subtext-dark">
+<span class="material-icons-round text-sm mr-1">schedule</span>
+                            15 min atrás
+                        </div>
+<div class="text-right">
+<span class="block text-xs text-subtext-light dark:text-subtext-dark mb-0.5">Total</span>
+<span class="font-bold text-lg text-gray-900 dark:text-white">R$ 82,50</span>
+</div>
+</div>
+</div>
+<div class="bg-card-light dark:bg-card-dark p-4 rounded-2xl shadow-soft hover:shadow-md transition-shadow cursor-pointer relative overflow-hidden border border-transparent dark:border-gray-800 opacity-80 hover:opacity-100">
+<div class="absolute top-0 left-0 w-1 h-full bg-gray-400 dark:bg-gray-600"></div>
+<div class="flex justify-between items-start mb-3">
+<div class="flex items-center space-x-3">
+<div class="w-10 h-10 rounded-full bg-gray-50 dark:bg-gray-800 flex items-center justify-center text-gray-500 dark:text-gray-400">
+<span class="material-icons-round text-lg">storefront</span>
+</div>
+<div>
+<h4 class="font-bold text-gray-900 dark:text-white">Balcão</h4>
+<span class="text-xs text-subtext-light dark:text-subtext-dark font-mono">#PED-4827</span>
+</div>
+</div>
+<span class="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wide">
+                            Finalizado
+                        </span>
+</div>
+<div class="flex justify-between items-end border-t border-gray-100 dark:border-gray-700 pt-3 mt-1">
+<div class="flex items-center text-xs text-subtext-light dark:text-subtext-dark">
+<span class="material-icons-round text-sm mr-1">schedule</span>
+                            22 min atrás
+                        </div>
+<div class="text-right">
+<span class="block text-xs text-subtext-light dark:text-subtext-dark mb-0.5">Total</span>
+<span class="font-bold text-lg text-gray-900 dark:text-white">R$ 24,00</span>
+</div>
+</div>
+</div>
+<div class="bg-card-light dark:bg-card-dark p-4 rounded-2xl shadow-soft hover:shadow-md transition-shadow cursor-pointer relative overflow-hidden border border-transparent dark:border-gray-800">
+<div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
+<div class="flex justify-between items-start mb-3">
+<div class="flex items-center space-x-3">
+<div class="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 dark:text-blue-400">
+<span class="material-icons-round text-lg">person</span>
+</div>
+<div>
+<h4 class="font-bold text-gray-900 dark:text-white">Maria Souza</h4>
+<span class="text-xs text-subtext-light dark:text-subtext-dark font-mono">#PED-4826</span>
+</div>
+</div>
+<span class="bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wide">
+                            Saiu p/ Entrega
+                        </span>
+</div>
+<div class="flex justify-between items-end border-t border-gray-100 dark:border-gray-700 pt-3 mt-1">
+<div class="flex items-center text-xs text-subtext-light dark:text-subtext-dark">
+<span class="material-icons-round text-sm mr-1">schedule</span>
+                            35 min atrás
+                        </div>
+<div class="text-right">
+<span class="block text-xs text-subtext-light dark:text-subtext-dark mb-0.5">Total</span>
+<span class="font-bold text-lg text-gray-900 dark:text-white">R$ 98,00</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<nav class="absolute bottom-0 left-0 right-0 bg-white dark:bg-card-dark border-t border-gray-100 dark:border-gray-800 px-6 py-2 flex justify-between items-center z-30">
+<button class="flex flex-col items-center justify-center w-12 h-12 text-primary">
+<span class="material-icons-round text-2xl">grid_view</span>
+<span class="text-[10px] font-medium mt-1">Home</span>
+</button>
+<button class="flex flex-col items-center justify-center w-12 h-12 text-subtext-light dark:text-subtext-dark hover:text-primary dark:hover:text-primary transition-colors">
+<span class="material-icons-round text-2xl">receipt_long</span>
+<span class="text-[10px] font-medium mt-1">Pedidos</span>
+</button>
+<div class="relative -top-6">
+<button class="w-14 h-14 bg-primary rounded-full shadow-lg shadow-primary/40 flex items-center justify-center text-white transform hover:scale-105 transition-transform active:scale-95">
+<span class="material-icons-round text-3xl">add</span>
+</button>
+</div>
+<button class="flex flex-col items-center justify-center w-12 h-12 text-subtext-light dark:text-subtext-dark hover:text-primary dark:hover:text-primary transition-colors">
+<span class="material-icons-round text-2xl">inventory_2</span>
+<span class="text-[10px] font-medium mt-1">Estoque</span>
+</button>
+<button class="flex flex-col items-center justify-center w-12 h-12 text-subtext-light dark:text-subtext-dark hover:text-primary dark:hover:text-primary transition-colors">
+<span class="material-icons-round text-2xl">settings</span>
+<span class="text-[10px] font-medium mt-1">Ajustes</span>
+</button>
+</nav>
+<button class="absolute top-16 right-4 z-40 bg-gray-200 dark:bg-gray-700 p-2 rounded-full opacity-50 hover:opacity-100 transition-opacity" onclick="document.documentElement.classList.toggle('dark')">
+<span class="material-icons-round text-sm">brightness_6</span>
+</button>
+</div>
+
+</body></html>

@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Espetinho Vitória - Controle de Estoque</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
+<script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#b91c1c", // Deep red from screenshots
+              "primary-hover": "#991b1b",
+              "background-light": "#f3f4f6", // Light gray background
+              "background-dark": "#111827", // Dark gray background
+              "card-light": "#ffffff",
+              "card-dark": "#1f2937",
+              "text-light": "#1f2937",
+              "text-dark": "#f3f4f6",
+              "muted-light": "#6b7280",
+              "muted-dark": "#9ca3af",
+            },
+            fontFamily: {
+              display: ["Inter", "sans-serif"],
+              sans: ["Inter", "sans-serif"],
+            },
+            borderRadius: {
+              DEFAULT: "0.75rem", // Consistent rounded corners
+            },
+          },
+        },
+      };
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-sans text-text-light dark:text-text-dark antialiased transition-colors duration-200">
+<div class="flex h-screen overflow-hidden">
+<aside class="hidden w-64 flex-col bg-card-light dark:bg-card-dark border-r border-gray-200 dark:border-gray-700 md:flex transition-colors duration-200">
+<div class="flex items-center justify-center h-20 border-b border-gray-200 dark:border-gray-700">
+<div class="flex items-center space-x-2">
+<span class="material-icons text-primary text-3xl">local_fire_department</span>
+<h1 class="text-xl font-bold text-gray-800 dark:text-white">Espetinho Vitória</h1>
+</div>
+</div>
+<nav class="flex-1 overflow-y-auto py-4">
+<ul class="space-y-1 px-2">
+<li>
+<a class="flex items-center px-4 py-3 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors group" href="#">
+<span class="material-icons-outlined text-gray-500 dark:text-gray-400 group-hover:text-primary mr-3">dashboard</span>
+<span class="font-medium">Dashboard</span>
+</a>
+</li>
+<li>
+<a class="flex items-center px-4 py-3 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors group" href="#">
+<span class="material-icons-outlined text-gray-500 dark:text-gray-400 group-hover:text-primary mr-3">receipt_long</span>
+<span class="font-medium">Pedidos</span>
+</a>
+</li>
+<li>
+<a class="flex items-center px-4 py-3 bg-red-50 dark:bg-red-900/20 text-primary dark:text-red-400 rounded-lg transition-colors group" href="#">
+<span class="material-icons-outlined text-primary dark:text-red-400 mr-3">inventory_2</span>
+<span class="font-medium">Estoque Diário</span>
+</a>
+</li>
+<li>
+<a class="flex items-center px-4 py-3 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors group" href="#">
+<span class="material-icons-outlined text-gray-500 dark:text-gray-400 group-hover:text-primary mr-3">restaurant_menu</span>
+<span class="font-medium">Cardápio</span>
+</a>
+</li>
+<li>
+<a class="flex items-center px-4 py-3 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors group" href="#">
+<span class="material-icons-outlined text-gray-500 dark:text-gray-400 group-hover:text-primary mr-3">people</span>
+<span class="font-medium">Clientes</span>
+</a>
+</li>
+<li>
+<a class="flex items-center px-4 py-3 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors group" href="#">
+<span class="material-icons-outlined text-gray-500 dark:text-gray-400 group-hover:text-primary mr-3">settings</span>
+<span class="font-medium">Ajustes</span>
+</a>
+</li>
+</ul>
+</nav>
+<div class="p-4 border-t border-gray-200 dark:border-gray-700">
+<a class="flex items-center w-full px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 transition-colors" href="#">
+<span class="material-icons-outlined mr-3">logout</span>
+                    Sair
+                </a>
+</div>
+</aside>
+<div class="flex-1 flex flex-col overflow-hidden relative">
+<header class="h-20 bg-card-light dark:bg-card-dark flex items-center justify-between px-8 border-b border-gray-200 dark:border-gray-700 transition-colors duration-200">
+<div class="flex items-center md:hidden">
+<button class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 focus:outline-none">
+<span class="material-icons">menu</span>
+</button>
+<span class="ml-4 font-bold text-lg text-gray-800 dark:text-white">Espetinho Vitória</span>
+</div>
+<div class="hidden md:flex flex-col">
+<h2 class="text-2xl font-bold text-gray-800 dark:text-white">Controle de Estoque</h2>
+<p class="text-sm text-muted-light dark:text-muted-dark">Gerenciamento diário de produtos</p>
+</div>
+<div class="flex items-center space-x-6">
+<div class="hidden md:flex items-center bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+<button class="p-1 hover:bg-white dark:hover:bg-gray-700 rounded-md shadow-sm transition-all text-gray-500 dark:text-gray-400">
+<span class="material-icons text-sm">chevron_left</span>
+</button>
+<div class="flex items-center px-4 space-x-2 text-sm font-medium text-gray-700 dark:text-gray-200">
+<span class="material-icons-outlined text-gray-500 dark:text-gray-400 text-base">calendar_today</span>
+<span>Hoje, 24 Out</span>
+</div>
+<button class="p-1 hover:bg-white dark:hover:bg-gray-700 rounded-md shadow-sm transition-all text-gray-500 dark:text-gray-400">
+<span class="material-icons text-sm">chevron_right</span>
+</button>
+</div>
+<button class="relative p-2 text-gray-400 hover:text-gray-500 dark:hover:text-gray-300">
+<span class="material-icons-outlined">notifications</span>
+<span class="absolute top-2 right-2 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white dark:ring-gray-800"></span>
+</button>
+<div class="flex items-center space-x-3 cursor-pointer">
+<div class="text-right hidden sm:block">
+<p class="text-sm font-medium text-gray-900 dark:text-white">Admin</p>
+<p class="text-xs text-muted-light dark:text-muted-dark">Gerente</p>
+</div>
+<img alt="Admin avatar" class="h-10 w-10 rounded-full object-cover border-2 border-primary" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAh63vX_dpHZTakeR6MCR8FFypSdNcYTYdTa5Jly4TggoctOuaydLre13BQBBRvJHKUTAUvdz7So-34EksDeU7rwZfo2hg_D7u_EHnsDvU6zGsudjDZYAgCAEtwYAkMH6AeQJtfkgmaVhfcxjjw35a7TvibYJ4yh_LKbt_KmyvBb-u2MH1XthWcQwzv4pbMctXb3rYNtYduIrtlXIKLQu0P1xtLmvSyjRhG90ea8RYt5h9H8lTk7flvayEzZv5BE0iXNXEAPiYD1q6A"/>
+</div>
+</div>
+</header>
+<main class="flex-1 overflow-y-auto p-4 md:p-8 space-y-8 bg-background-light dark:bg-background-dark">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div class="relative w-full md:w-96">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-icons text-gray-400 dark:text-gray-500">search</span>
+</div>
+<input class="block w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg leading-5 bg-white dark:bg-card-dark text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm shadow-sm transition-colors" placeholder="Buscar produto..." type="text"/>
+</div>
+<button class="inline-flex items-center justify-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors">
+<span class="material-icons-outlined mr-2">add_circle</span>
+                        Registrar Entrada
+                    </button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="bg-card-light dark:bg-card-dark p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-between">
+<div>
+<p class="text-sm font-medium text-muted-light dark:text-muted-dark">Total em Estoque</p>
+<p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">1,248 <span class="text-xs font-normal text-muted-light dark:text-muted-dark">unid.</span></p>
+</div>
+<div class="p-3 bg-blue-50 dark:bg-blue-900/30 rounded-full">
+<span class="material-icons text-blue-600 dark:text-blue-400">inventory</span>
+</div>
+</div>
+<div class="bg-card-light dark:bg-card-dark p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-between">
+<div>
+<p class="text-sm font-medium text-muted-light dark:text-muted-dark">Saídas Hoje</p>
+<p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">342 <span class="text-xs font-normal text-muted-light dark:text-muted-dark">unid.</span></p>
+</div>
+<div class="p-3 bg-green-50 dark:bg-green-900/30 rounded-full">
+<span class="material-icons text-green-600 dark:text-green-400">shopping_cart</span>
+</div>
+</div>
+<div class="bg-card-light dark:bg-card-dark p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-between">
+<div>
+<p class="text-sm font-medium text-muted-light dark:text-muted-dark">Alertas de Baixa</p>
+<p class="text-2xl font-bold text-red-600 dark:text-red-400 mt-1">4 <span class="text-xs font-normal text-muted-light dark:text-muted-dark">produtos</span></p>
+</div>
+<div class="p-3 bg-red-50 dark:bg-red-900/30 rounded-full">
+<span class="material-icons text-red-600 dark:text-red-400">warning</span>
+</div>
+</div>
+</div>
+<section>
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-lg font-bold text-gray-800 dark:text-white flex items-center">
+<span class="material-icons-outlined mr-2 text-primary">kebab_dining</span>
+                            Espetos Tradicionais
+                        </h3>
+<a class="text-sm font-medium text-primary hover:text-primary-hover" href="#">Ver todos</a>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+<div class="bg-card-light dark:bg-card-dark rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow">
+<div class="relative h-32 bg-gray-100 dark:bg-gray-800">
+<img alt="Espetinho de Carne" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXzAYn709R8BT-el763-VG5GAsXj4LAsxv4V0T-Fyr2BX41ufjNS6E0KFryt5xYS7CXMaJzHiZkxql9lgXyc4eh13iWR0naHIoosxpapfWV89FCRK_g0fLi-BzKx9gyUEcGgTuHr-lwwyyRqmyhixB-muvFU02XbXviqXjbm1ITk6VpXS7IhYkgGh1l3d5na7Acnok5K7eWEaGa-j9L3gMqZU3G5U8rdcP5kDXJK_IlQXFUzREwvFSJ3KBXEFfMJv7h2i_B7GEh02A"/>
+<div class="absolute top-2 right-2 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs px-2 py-1 rounded-full font-medium">Em Estoque</div>
+</div>
+<div class="p-5">
+<div class="flex justify-between items-start mb-2">
+<h4 class="font-bold text-gray-900 dark:text-white text-lg">Carne Bovina</h4>
+<span class="text-xs font-mono bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 py-1 rounded">#ESP-01</span>
+</div>
+<div class="grid grid-cols-3 gap-2 text-center mb-4">
+<div class="bg-gray-50 dark:bg-gray-800/50 p-2 rounded-lg">
+<p class="text-xs text-gray-500 dark:text-gray-400">Inicial</p>
+<p class="font-bold text-gray-800 dark:text-gray-200">150</p>
+</div>
+<div class="bg-blue-50 dark:bg-blue-900/20 p-2 rounded-lg border border-blue-100 dark:border-blue-800/30">
+<p class="text-xs text-blue-600 dark:text-blue-400">Vendidos</p>
+<p class="font-bold text-blue-700 dark:text-blue-300">45</p>
+</div>
+<div class="bg-green-50 dark:bg-green-900/20 p-2 rounded-lg border border-green-100 dark:border-green-800/30">
+<p class="text-xs text-green-600 dark:text-green-400">Atual</p>
+<p class="font-bold text-green-700 dark:text-green-300">105</p>
+</div>
+</div>
+<div class="mb-4">
+<div class="flex justify-between text-xs mb-1 text-gray-500 dark:text-gray-400">
+<span>Status do Estoque</span>
+<span>70%</span>
+</div>
+<div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+<div class="bg-gradient-to-r from-green-500 to-green-400 h-2 rounded-full" style="width: 70%"></div>
+</div>
+</div>
+<button class="w-full py-2 px-4 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex items-center justify-center group">
+<span class="material-icons-outlined text-base mr-2 group-hover:text-red-500 dark:group-hover:text-red-400">block</span>
+                                    Marcar Esgotado
+                                </button>
+</div>
+</div>
+<div class="bg-card-light dark:bg-card-dark rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow">
+<div class="relative h-32 bg-gray-100 dark:bg-gray-800">
+<img alt="Espetinho de Frango" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCFNO9bJ_2PV2HkWIdixfJ1NRCLPVxpvXyk1bcIeKJEIXwCzAs5h6w96GRT_PWN6bCZMILwSn84eKxhon72FWThHrgeInSuWIJ5bXvOZUpadJQkcMBj8Yq5fIvPGeQFZsfUk02Dw4h47aPZ-ELtQB8r6AO0wxl1AJJmOiv579WmZbxz_PRDcaTTztSdlu-0nY-AdY7hghtXlo-JJg5SFUIxEZntFKWH2oz-C6YS_7oGMwSUklx3zNUqa4ZHMoRpURMkS8ph2y3ZIKYX"/>
+<div class="absolute top-2 right-2 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 text-xs px-2 py-1 rounded-full font-medium">Baixo Estoque</div>
+</div>
+<div class="p-5">
+<div class="flex justify-between items-start mb-2">
+<h4 class="font-bold text-gray-900 dark:text-white text-lg">Frango com Bacon</h4>
+<span class="text-xs font-mono bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 py-1 rounded">#ESP-02</span>
+</div>
+<div class="grid grid-cols-3 gap-2 text-center mb-4">
+<div class="bg-gray-50 dark:bg-gray-800/50 p-2 rounded-lg">
+<p class="text-xs text-gray-500 dark:text-gray-400">Inicial</p>
+<p class="font-bold text-gray-800 dark:text-gray-200">100</p>
+</div>
+<div class="bg-blue-50 dark:bg-blue-900/20 p-2 rounded-lg border border-blue-100 dark:border-blue-800/30">
+<p class="text-xs text-blue-600 dark:text-blue-400">Vendidos</p>
+<p class="font-bold text-blue-700 dark:text-blue-300">88</p>
+</div>
+<div class="bg-yellow-50 dark:bg-yellow-900/20 p-2 rounded-lg border border-yellow-100 dark:border-yellow-800/30">
+<p class="text-xs text-yellow-600 dark:text-yellow-400">Atual</p>
+<p class="font-bold text-yellow-700 dark:text-yellow-300">12</p>
+</div>
+</div>
+<div class="mb-4">
+<div class="flex justify-between text-xs mb-1 text-gray-500 dark:text-gray-400">
+<span>Status do Estoque</span>
+<span>12%</span>
+</div>
+<div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+<div class="bg-gradient-to-r from-yellow-500 to-yellow-400 h-2 rounded-full" style="width: 12%"></div>
+</div>
+</div>
+<button class="w-full py-2 px-4 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex items-center justify-center group">
+<span class="material-icons-outlined text-base mr-2 group-hover:text-red-500 dark:group-hover:text-red-400">block</span>
+                                    Marcar Esgotado
+                                </button>
+</div>
+</div>
+<div class="bg-card-light dark:bg-card-dark rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow opacity-75">
+<div class="relative h-32 bg-gray-100 dark:bg-gray-800">
+<img alt="Espetinho de Coração" class="w-full h-full object-cover grayscale" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBTlrg2ypFV96ryXEXaNGrivDEDFan-B5jj6fUDJLN9vao-r8pSrb3-jkvorcpm5-fQl3zon2WnhJnsM2I3nL3yUYoi_Ptb-BAyI1DZowMN8hJ35e8teocgB5_t-q7sYoQZAmeFWEkixCCXKllxoXToBirmrgNNj7rZ5giZ3YDNFrfc5B_TsVnhKMPavN79q1McUXmNUsQVvrjEBOxWMjHIzYy1HWjf8YgUElDIO6a6IjpViPyN2J1SZ9UXsb4aBKO1RTIhzth4MKJF"/>
+<div class="absolute inset-0 bg-white/60 dark:bg-black/60 flex items-center justify-center">
+<div class="bg-red-600 text-white px-3 py-1 rounded-full font-bold text-sm shadow-lg">Esgotado</div>
+</div>
+</div>
+<div class="p-5">
+<div class="flex justify-between items-start mb-2">
+<h4 class="font-bold text-gray-600 dark:text-gray-400 text-lg">Coração</h4>
+<span class="text-xs font-mono bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 py-1 rounded">#ESP-03</span>
+</div>
+<div class="grid grid-cols-3 gap-2 text-center mb-4 opacity-50">
+<div class="bg-gray-50 dark:bg-gray-800/50 p-2 rounded-lg">
+<p class="text-xs text-gray-500 dark:text-gray-400">Inicial</p>
+<p class="font-bold text-gray-800 dark:text-gray-200">80</p>
+</div>
+<div class="bg-blue-50 dark:bg-blue-900/20 p-2 rounded-lg">
+<p class="text-xs text-blue-600 dark:text-blue-400">Vendidos</p>
+<p class="font-bold text-blue-700 dark:text-blue-300">80</p>
+</div>
+<div class="bg-red-50 dark:bg-red-900/20 p-2 rounded-lg">
+<p class="text-xs text-red-600 dark:text-red-400">Atual</p>
+<p class="font-bold text-red-700 dark:text-red-300">0</p>
+</div>
+</div>
+<div class="mb-4">
+<div class="flex justify-between text-xs mb-1 text-gray-400 dark:text-gray-500">
+<span>Status do Estoque</span>
+<span>0%</span>
+</div>
+<div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+<div class="bg-red-500 h-2 rounded-full" style="width: 0%"></div>
+</div>
+</div>
+<button class="w-full py-2 px-4 border border-dashed border-primary text-primary rounded-lg text-sm font-medium hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors flex items-center justify-center">
+<span class="material-icons-outlined text-base mr-2">add</span>
+                                    Repor Estoque
+                                </button>
+</div>
+</div>
+<div class="bg-card-light dark:bg-card-dark rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow">
+<div class="relative h-32 bg-gray-100 dark:bg-gray-800">
+<img alt="Pão de Alho" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC8DKJea8DhSFdxY3Fd2NuzV8uFyPIhhKsZP7WWdw-n9QWQA2SBb13d_hbgLKd3o-f2RTG0_9leurXNL0jAA1yclKYzYXJH1hO3s6LjvaleeMcXJGRzWQbBCU9zhmxSNAEAC9z5VvSUX70iMB9H0PhA98hY75HOA2Z6Izjf0ytWI0UykbaiZKpaXsBeP78X6-OEj5CwcS8yCWF24mSjtB19l529NZaP9rce7iZTufhsqYHAd5y81s2v0TSMZmxETl3u6VrDuSK6_T-P"/>
+<div class="absolute top-2 right-2 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs px-2 py-1 rounded-full font-medium">Em Estoque</div>
+</div>
+<div class="p-5">
+<div class="flex justify-between items-start mb-2">
+<h4 class="font-bold text-gray-900 dark:text-white text-lg">Pão de Alho</h4>
+<span class="text-xs font-mono bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 py-1 rounded">#ACO-01</span>
+</div>
+<div class="grid grid-cols-3 gap-2 text-center mb-4">
+<div class="bg-gray-50 dark:bg-gray-800/50 p-2 rounded-lg">
+<p class="text-xs text-gray-500 dark:text-gray-400">Inicial</p>
+<p class="font-bold text-gray-800 dark:text-gray-200">200</p>
+</div>
+<div class="bg-blue-50 dark:bg-blue-900/20 p-2 rounded-lg border border-blue-100 dark:border-blue-800/30">
+<p class="text-xs text-blue-600 dark:text-blue-400">Vendidos</p>
+<p class="font-bold text-blue-700 dark:text-blue-300">50</p>
+</div>
+<div class="bg-green-50 dark:bg-green-900/20 p-2 rounded-lg border border-green-100 dark:border-green-800/30">
+<p class="text-xs text-green-600 dark:text-green-400">Atual</p>
+<p class="font-bold text-green-700 dark:text-green-300">150</p>
+</div>
+</div>
+<div class="mb-4">
+<div class="flex justify-between text-xs mb-1 text-gray-500 dark:text-gray-400">
+<span>Status do Estoque</span>
+<span>75%</span>
+</div>
+<div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+<div class="bg-gradient-to-r from-green-500 to-green-400 h-2 rounded-full" style="width: 75%"></div>
+</div>
+</div>
+<button class="w-full py-2 px-4 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex items-center justify-center group">
+<span class="material-icons-outlined text-base mr-2 group-hover:text-red-500 dark:group-hover:text-red-400">block</span>
+                                    Marcar Esgotado
+                                </button>
+</div>
+</div>
+</div>
+</section>
+<section>
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-lg font-bold text-gray-800 dark:text-white flex items-center">
+<span class="material-icons-outlined mr-2 text-blue-500">local_drink</span>
+                            Bebidas
+                        </h3>
+<a class="text-sm font-medium text-primary hover:text-primary-hover" href="#">Ver todos</a>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+<div class="bg-card-light dark:bg-card-dark rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow">
+<div class="relative h-32 bg-gray-100 dark:bg-gray-800 flex items-center justify-center bg-blue-50 dark:bg-blue-900/10">
+<span class="material-icons text-6xl text-blue-200 dark:text-blue-800">sports_bar</span>
+<div class="absolute top-2 right-2 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs px-2 py-1 rounded-full font-medium">Em Estoque</div>
+</div>
+<div class="p-5">
+<div class="flex justify-between items-start mb-2">
+<h4 class="font-bold text-gray-900 dark:text-white text-lg">Cerveja Lata</h4>
+<span class="text-xs font-mono bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 py-1 rounded">#BEB-01</span>
+</div>
+<div class="grid grid-cols-3 gap-2 text-center mb-4">
+<div class="bg-gray-50 dark:bg-gray-800/50 p-2 rounded-lg">
+<p class="text-xs text-gray-500 dark:text-gray-400">Inicial</p>
+<p class="font-bold text-gray-800 dark:text-gray-200">400</p>
+</div>
+<div class="bg-blue-50 dark:bg-blue-900/20 p-2 rounded-lg border border-blue-100 dark:border-blue-800/30">
+<p class="text-xs text-blue-600 dark:text-blue-400">Vendidos</p>
+<p class="font-bold text-blue-700 dark:text-blue-300">120</p>
+</div>
+<div class="bg-green-50 dark:bg-green-900/20 p-2 rounded-lg border border-green-100 dark:border-green-800/30">
+<p class="text-xs text-green-600 dark:text-green-400">Atual</p>
+<p class="font-bold text-green-700 dark:text-green-300">280</p>
+</div>
+</div>
+<div class="mb-4">
+<div class="flex justify-between text-xs mb-1 text-gray-500 dark:text-gray-400">
+<span>Status do Estoque</span>
+<span>70%</span>
+</div>
+<div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+<div class="bg-gradient-to-r from-green-500 to-green-400 h-2 rounded-full" style="width: 70%"></div>
+</div>
+</div>
+<button class="w-full py-2 px-4 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex items-center justify-center group">
+<span class="material-icons-outlined text-base mr-2 group-hover:text-red-500 dark:group-hover:text-red-400">block</span>
+                                    Marcar Esgotado
+                                </button>
+</div>
+</div>
+<div class="bg-card-light dark:bg-card-dark rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-md transition-shadow">
+<div class="relative h-32 bg-gray-100 dark:bg-gray-800 flex items-center justify-center bg-orange-50 dark:bg-orange-900/10">
+<span class="material-icons text-6xl text-orange-200 dark:text-orange-800">local_drink</span>
+<div class="absolute top-2 right-2 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 text-xs px-2 py-1 rounded-full font-medium">Baixo</div>
+</div>
+<div class="p-5">
+<div class="flex justify-between items-start mb-2">
+<h4 class="font-bold text-gray-900 dark:text-white text-lg">Refrigerante KS</h4>
+<span class="text-xs font-mono bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 py-1 rounded">#BEB-02</span>
+</div>
+<div class="grid grid-cols-3 gap-2 text-center mb-4">
+<div class="bg-gray-50 dark:bg-gray-800/50 p-2 rounded-lg">
+<p class="text-xs text-gray-500 dark:text-gray-400">Inicial</p>
+<p class="font-bold text-gray-800 dark:text-gray-200">100</p>
+</div>
+<div class="bg-blue-50 dark:bg-blue-900/20 p-2 rounded-lg border border-blue-100 dark:border-blue-800/30">
+<p class="text-xs text-blue-600 dark:text-blue-400">Vendidos</p>
+<p class="font-bold text-blue-700 dark:text-blue-300">82</p>
+</div>
+<div class="bg-yellow-50 dark:bg-yellow-900/20 p-2 rounded-lg border border-yellow-100 dark:border-yellow-800/30">
+<p class="text-xs text-yellow-600 dark:text-yellow-400">Atual</p>
+<p class="font-bold text-yellow-700 dark:text-yellow-300">18</p>
+</div>
+</div>
+<div class="mb-4">
+<div class="flex justify-between text-xs mb-1 text-gray-500 dark:text-gray-400">
+<span>Status do Estoque</span>
+<span>18%</span>
+</div>
+<div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+<div class="bg-gradient-to-r from-yellow-500 to-yellow-400 h-2 rounded-full" style="width: 18%"></div>
+</div>
+</div>
+<button class="w-full py-2 px-4 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex items-center justify-center group">
+<span class="material-icons-outlined text-base mr-2 group-hover:text-red-500 dark:group-hover:text-red-400">block</span>
+                                    Marcar Esgotado
+                                </button>
+</div>
+</div>
+</div>
+</section>
+</main>
+</div>
+<aside class="hidden xl:flex w-80 flex-col bg-card-light dark:bg-card-dark border-l border-gray-200 dark:border-gray-700 p-6 overflow-y-auto">
+<h3 class="text-lg font-bold text-gray-800 dark:text-white mb-6">Atividades Recentes</h3>
+<div class="relative pl-6 space-y-8 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-gray-200 dark:before:bg-gray-700">
+<div class="relative">
+<div class="absolute -left-6 bg-white dark:bg-card-dark p-1">
+<div class="h-2.5 w-2.5 bg-green-500 rounded-full ring-4 ring-white dark:ring-card-dark"></div>
+</div>
+<p class="text-sm text-muted-light dark:text-muted-dark"><span class="font-bold text-gray-800 dark:text-white">Admin</span> registrou entrada</p>
+<p class="text-xs text-muted-light dark:text-muted-dark mt-1">20x Espeto Carne</p>
+<span class="text-xs text-gray-400 mt-1 block">10 min atrás</span>
+</div>
+<div class="relative">
+<div class="absolute -left-6 bg-white dark:bg-card-dark p-1">
+<div class="h-2.5 w-2.5 bg-blue-500 rounded-full ring-4 ring-white dark:ring-card-dark"></div>
+</div>
+<p class="text-sm text-muted-light dark:text-muted-dark"><span class="font-bold text-gray-800 dark:text-white">Venda #1042</span> confirmada</p>
+<p class="text-xs text-muted-light dark:text-muted-dark mt-1">3x Espetos + 1x Refri</p>
+<span class="text-xs text-gray-400 mt-1 block">22 min atrás</span>
+</div>
+<div class="relative">
+<div class="absolute -left-6 bg-white dark:bg-card-dark p-1">
+<div class="h-2.5 w-2.5 bg-red-500 rounded-full ring-4 ring-white dark:ring-card-dark"></div>
+</div>
+<p class="text-sm text-muted-light dark:text-muted-dark"><span class="font-bold text-gray-800 dark:text-white">Coração</span> esgotou!</p>
+<span class="text-xs text-gray-400 mt-1 block">45 min atrás</span>
+</div>
+</div>
+<div class="mt-auto bg-gray-50 dark:bg-gray-800 rounded-xl p-4 mt-8">
+<h4 class="font-bold text-sm text-gray-800 dark:text-white mb-2">Relatório do Dia</h4>
+<p class="text-xs text-muted-light dark:text-muted-dark mb-4">Exportar o controle de estoque de hoje em PDF.</p>
+<button class="w-full py-2 bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center justify-center">
+<span class="material-icons-outlined text-sm mr-2">download</span>
+                    Baixar PDF
+                </button>
+</div>
+</aside>
+</div>
+<button class="fixed bottom-6 right-6 md:hidden h-14 w-14 rounded-full bg-primary hover:bg-primary-hover shadow-lg flex items-center justify-center text-white z-50 transition-transform active:scale-95">
+<span class="material-icons">add</span>
+</button>
+
+</body></html>

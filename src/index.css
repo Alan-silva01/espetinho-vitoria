@@ -1,0 +1,213 @@
+/* ===== DESIGN SYSTEM — Espetinho Vitória ===== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap');
+
+/* ---------- Reset & Base ---------- */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 15px;
+  color: var(--texto-principal);
+  background: var(--fundo-principal);
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+/* ---------- CSS Variables ---------- */
+:root {
+  /* Cores Primárias */
+  --cor-primaria: #C41E2E;
+  --cor-primaria-hover: #A31825;
+  --cor-primaria-light: #E8353F;
+  --gradiente-primario: linear-gradient(180deg, #E8353F 0%, #8B1A2B 100%);
+
+  /* Secundária e Acento */
+  --cor-secundaria: #7B2D6E;
+  --cor-secundaria-hover: #5E2254;
+  --cor-secundaria-light: #9B3D8E;
+  --cor-acento: #F5741E;
+  --cor-acento-hover: #D96218;
+  --cor-acento-light: #FF8C3A;
+
+  /* Fundos */
+  --fundo-principal: #FFFFFF;
+  --fundo-cards: #FFFFFF;
+  --fundo-secao: #F5F5F7;
+  --fundo-input: #F0F0F2;
+  --fundo-overlay: rgba(0, 0, 0, 0.5);
+
+  /* Texto */
+  --texto-principal: #1A1A1A;
+  --texto-secundario: #6B7280;
+  --texto-terciario: #9CA3AF;
+  --texto-branco: #FFFFFF;
+  --texto-preco: #C41E2E;
+
+  /* Status */
+  --status-pendente: #F59E0B;
+  --status-confirmado: #3B82F6;
+  --status-preparando: #8B5CF6;
+  --status-pronto: #10B981;
+  --status-saiu: #F97316;
+  --status-entregue: #22C55E;
+  --status-cancelado: #EF4444;
+  --status-esgotado: #6B7280;
+
+  /* Admin */
+  --admin-sidebar: #1A1A2E;
+  --admin-fundo: #F5F5F7;
+  --admin-card: #FFFFFF;
+
+  /* Tipografia */
+  --fonte-corpo: 'Inter', -apple-system, sans-serif;
+  --fonte-destaque: 'Poppins', sans-serif;
+
+  /* Espaçamento */
+  --espaco-xs: 4px;
+  --espaco-sm: 8px;
+  --espaco-md: 12px;
+  --espaco-lg: 16px;
+  --espaco-xl: 24px;
+  --espaco-2xl: 32px;
+  --espaco-3xl: 48px;
+  --padding-pagina: 16px;
+  --padding-card: 12px;
+  --gap-grid: 12px;
+
+  /* Bordas */
+  --raio-sm: 8px;
+  --raio-md: 12px;
+  --raio-lg: 16px;
+  --raio-xl: 20px;
+  --raio-full: 9999px;
+
+  /* Sombras */
+  --sombra-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --sombra-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --sombra-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --sombra-card: 0 2px 8px rgba(0, 0, 0, 0.06);
+
+  /* Transições */
+  --transicao-rapida: 150ms ease;
+  --transicao-normal: 250ms ease;
+  --transicao-suave: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ---------- Typography ---------- */
+h1, h2, h3 { font-family: var(--fonte-destaque); }
+h1 { font-weight: 800; font-size: 28px; }
+h2 { font-weight: 700; font-size: 22px; }
+h3 { font-weight: 600; font-size: 18px; }
+
+/* ---------- Links & Buttons Reset ---------- */
+a { color: inherit; text-decoration: none; }
+button {
+  font-family: inherit;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: inherit;
+}
+input, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+  border: none;
+  outline: none;
+}
+
+/* ---------- Scrollbar Hide ---------- */
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ---------- Animations ---------- */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes press {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.96); }
+  100% { transform: scale(1); }
+}
+
+@keyframes addToCart {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s var(--transicao-suave) both;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s var(--transicao-suave) both;
+}
+
+/* ---------- Utility Classes ---------- */
+.container { max-width: 430px; margin: 0 auto; }
+.page-padding { padding: 0 var(--padding-pagina); }
+
+.text-price {
+  font-family: var(--fonte-destaque);
+  font-weight: 700;
+  color: var(--texto-preco);
+}
+
+.text-label {
+  font-family: var(--fonte-corpo);
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--texto-secundario);
+}
+
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- Skeleton Loading ---------- */
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--raio-md);
+}

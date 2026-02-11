@@ -1,0 +1,407 @@
+<html lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Espetinho Vitória - Gestão de Cardápio</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#C81E1E", // Deep red from screenshots
+                        "primary-dark": "#991B1B",
+                        "background-light": "#F3F4F6",
+                        "background-dark": "#111827",
+                        "surface-light": "#FFFFFF",
+                        "surface-dark": "#1F2937",
+                        "text-main-light": "#111827",
+                        "text-main-dark": "#F9FAFB",
+                        "text-secondary-light": "#6B7280",
+                        "text-secondary-dark": "#9CA3AF",
+                    },
+                    fontFamily: {
+                        display: ["Inter", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "1rem", // 16px
+                    },
+                },
+            },
+        };
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #D1D5DB; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #9CA3AF; 
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #4B5563;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-text-main-light dark:text-text-main-dark transition-colors duration-200 min-h-screen flex font-display">
+<aside class="w-64 bg-surface-light dark:bg-surface-dark border-r border-gray-200 dark:border-gray-700 hidden md:flex flex-col fixed h-full z-10 transition-colors duration-200">
+<div class="p-6 flex items-center justify-center border-b border-gray-100 dark:border-gray-800">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold text-xl">
+<span class="material-icons-round">restaurant</span>
+</div>
+<div>
+<h1 class="font-bold text-lg leading-tight">Espetinho<br/>Vitória</h1>
+</div>
+</div>
+</div>
+<nav class="flex-1 overflow-y-auto py-6 px-4 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-text-secondary-light dark:text-text-secondary-dark hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-primary rounded-xl transition-colors group" href="#">
+<span class="material-icons-round group-hover:text-primary transition-colors">dashboard</span>
+<span class="font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-text-secondary-light dark:text-text-secondary-dark hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-primary rounded-xl transition-colors group" href="#">
+<span class="material-icons-round group-hover:text-primary transition-colors">receipt_long</span>
+<span class="font-medium">Pedidos</span>
+<span class="ml-auto bg-red-100 dark:bg-red-900 text-primary text-xs font-bold px-2 py-0.5 rounded-full">4</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 bg-red-50 dark:bg-red-900/20 text-primary rounded-xl transition-colors" href="#">
+<span class="material-icons-round">restaurant_menu</span>
+<span class="font-medium">Cardápio</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-text-secondary-light dark:text-text-secondary-dark hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-primary rounded-xl transition-colors group" href="#">
+<span class="material-icons-round group-hover:text-primary transition-colors">inventory_2</span>
+<span class="font-medium">Estoque</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-text-secondary-light dark:text-text-secondary-dark hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-primary rounded-xl transition-colors group" href="#">
+<span class="material-icons-round group-hover:text-primary transition-colors">people</span>
+<span class="font-medium">Clientes</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-text-secondary-light dark:text-text-secondary-dark hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-primary rounded-xl transition-colors group" href="#">
+<span class="material-icons-round group-hover:text-primary transition-colors">bar_chart</span>
+<span class="font-medium">Relatórios</span>
+</a>
+</nav>
+<div class="p-4 border-t border-gray-100 dark:border-gray-800">
+<a class="flex items-center gap-3 px-4 py-3 text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition-colors" href="#">
+<span class="material-icons-round">settings</span>
+<span class="font-medium">Configurações</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors mt-1" href="#">
+<span class="material-icons-round">logout</span>
+<span class="font-medium">Sair</span>
+</a>
+</div>
+</aside>
+<main class="flex-1 md:ml-64 transition-all duration-300">
+<header class="bg-surface-light dark:bg-surface-dark sticky top-0 z-20 px-6 py-4 flex items-center justify-between border-b border-gray-200 dark:border-gray-700 shadow-sm">
+<div class="flex items-center gap-4">
+<button class="md:hidden text-text-secondary-light dark:text-text-secondary-dark hover:text-primary">
+<span class="material-icons-round text-2xl">menu</span>
+</button>
+<div>
+<h2 class="text-xl font-bold text-text-main-light dark:text-text-main-dark">Gestão de Cardápio</h2>
+<p class="text-sm text-text-secondary-light dark:text-text-secondary-dark hidden sm:block">Gerencie seus produtos, preços e disponibilidade.</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden sm:block">
+<input class="pl-10 pr-4 py-2 rounded-xl border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-sm focus:ring-primary focus:border-primary w-64 transition-colors dark:text-white dark:placeholder-gray-400" placeholder="Buscar produto..." type="text"/>
+<span class="material-icons-round absolute left-3 top-2.5 text-gray-400 text-sm">search</span>
+</div>
+<button class="relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-text-secondary-light dark:text-text-secondary-dark">
+<span class="material-icons-round">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full border-2 border-white dark:border-surface-dark"></span>
+</button>
+<div class="flex items-center gap-3 pl-4 border-l border-gray-200 dark:border-gray-700">
+<div class="text-right hidden md:block">
+<p class="text-sm font-semibold text-text-main-light dark:text-text-main-dark">Admin</p>
+<p class="text-xs text-text-secondary-light dark:text-text-secondary-dark">Gerente</p>
+</div>
+<img alt="Admin Profile" class="w-10 h-10 rounded-full border-2 border-white dark:border-gray-600 shadow-sm object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXTXdTmhb69da_aKDY9TbVs0VKfPqi1UpI1M5DBUSmy5WShgG8ZvhBpFex7CYpRUwxwYVcpU_ypesBzcLhUepmb6Wk9XqR23PYkRgp6sGudgxWzEdM0lfnJ8V_1xcsBAwQOQw1fkNa7pPWzMqe2Z1QD7oR7WxO-EgCc8csaL5qEkIcdmDO8bsnleA9M_MkpzmKF-rnFaiPIzIqg7JbSZfaeEPl-BsFcdf-8FbFpZgjUIIjLnD1gRiRbHtdKrjW42lDbkelohu7MHS1"/>
+</div>
+</div>
+</header>
+<div class="p-6 max-w-7xl mx-auto space-y-8">
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+<div class="flex gap-2 overflow-x-auto pb-2 sm:pb-0 w-full sm:w-auto scrollbar-hide">
+<button class="bg-primary text-white px-5 py-2 rounded-full text-sm font-medium whitespace-nowrap shadow-md shadow-red-200 dark:shadow-none transition-transform hover:-translate-y-0.5">
+                        Todos
+                    </button>
+<button class="bg-white dark:bg-surface-dark text-text-secondary-light dark:text-text-secondary-dark hover:text-primary dark:hover:text-primary px-5 py-2 rounded-full text-sm font-medium whitespace-nowrap border border-gray-200 dark:border-gray-700 hover:border-primary dark:hover:border-primary transition-colors">
+                        Espetinhos
+                    </button>
+<button class="bg-white dark:bg-surface-dark text-text-secondary-light dark:text-text-secondary-dark hover:text-primary dark:hover:text-primary px-5 py-2 rounded-full text-sm font-medium whitespace-nowrap border border-gray-200 dark:border-gray-700 hover:border-primary dark:hover:border-primary transition-colors">
+                        Bebidas
+                    </button>
+<button class="bg-white dark:bg-surface-dark text-text-secondary-light dark:text-text-secondary-dark hover:text-primary dark:hover:text-primary px-5 py-2 rounded-full text-sm font-medium whitespace-nowrap border border-gray-200 dark:border-gray-700 hover:border-primary dark:hover:border-primary transition-colors">
+                        Acompanhamentos
+                    </button>
+<button class="bg-white dark:bg-surface-dark text-text-secondary-light dark:text-text-secondary-dark hover:text-primary dark:hover:text-primary px-5 py-2 rounded-full text-sm font-medium whitespace-nowrap border border-gray-200 dark:border-gray-700 hover:border-primary dark:hover:border-primary transition-colors">
+                        Combos
+                    </button>
+</div>
+<button class="flex items-center gap-2 bg-gradient-to-r from-primary to-red-600 hover:from-red-600 hover:to-red-700 text-white px-6 py-2.5 rounded-full shadow-lg shadow-red-200 dark:shadow-red-900/20 transition-all hover:-translate-y-0.5 font-medium text-sm w-full sm:w-auto justify-center">
+<span class="material-icons-round text-lg">add</span>
+                    Novo Produto
+                </button>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+<div class="bg-surface-light dark:bg-surface-dark rounded-2xl shadow-sm hover:shadow-md border border-gray-100 dark:border-gray-700 transition-all duration-300 group flex flex-col h-full">
+<div class="relative h-48 rounded-t-2xl overflow-hidden">
+<img alt="Espetinho de Carne" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCzVon83AsxsKEJOE-umLqVpEWHtYH3Vj_nxue0WZK4rsuMtHVtAkqs_CavXgcy2ha3iJ348nKoAWW5wqXdFZNwl7J2R04Ftqa31F-CxfiADXaHP8Lx-ownuemWQj609h_6AwN5qcnzwZ4CXBApwZKFAh5fFOt8VrfTycEtpktK4WeKa9NlfzIrarEvl3_UIM7XCL8ANyWm1uuF9PGZOBPRWlWgeY9MdDQpMe5cr9OOjUnsp1eUcKEvb_VUhBcR-uaOUeEziD4MJ0ZB"/>
+<div class="absolute top-3 right-3 bg-white dark:bg-gray-800 rounded-full p-1.5 shadow-md cursor-pointer hover:text-primary transition-colors">
+<span class="material-icons-round text-gray-400 text-sm block">more_vert</span>
+</div>
+<div class="absolute top-3 left-3 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 text-xs font-bold px-2.5 py-1 rounded-full border border-green-200 dark:border-green-800">
+                            Em Estoque
+                        </div>
+</div>
+<div class="p-5 flex-1 flex flex-col">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-bold text-lg text-text-main-light dark:text-text-main-dark leading-tight">Espetinho de Picanha</h3>
+</div>
+<p class="text-sm text-text-secondary-light dark:text-text-secondary-dark mb-4 line-clamp-2">Carne bovina selecionada, temperada com sal grosso e grelhada.</p>
+<div class="mt-auto flex items-end justify-between">
+<div>
+<p class="text-xs text-text-secondary-light dark:text-text-secondary-dark mb-1">Preço</p>
+<p class="text-xl font-bold text-primary">R$ 18,00</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-red-300 dark:peer-focus:ring-red-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-500"></div>
+</label>
+</div>
+</div>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark rounded-2xl shadow-sm hover:shadow-md border border-gray-100 dark:border-gray-700 transition-all duration-300 group flex flex-col h-full">
+<div class="relative h-48 rounded-t-2xl overflow-hidden">
+<img alt="Espetinho de Frango" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAqzz5XyCxC36AWa_JS9ptch_P8_TnCC8neNOneYMkeBtupX2PWdigx-ZM-yWFVrtURAek_ebDcJfikwjoyDRhTrbFx5tzhHoF_FfE6tWLkzpi5yEWxAJW3OVC0O7D7EbrrxotG8ADCgpVCuwEzXAWnpxLn_vtRDXfPgcRL17nBvWVZhQW_hCY6SyyNSp4AeyACvbW-R3CsAm4f9cXlA9Nl9eb0RPawGfZWWezV-CyouOtlfczG8_8Wn5WMfpgSV_F-6nqyb4N3jBlP"/>
+<div class="absolute top-3 right-3 bg-white dark:bg-gray-800 rounded-full p-1.5 shadow-md cursor-pointer hover:text-primary transition-colors">
+<span class="material-icons-round text-gray-400 text-sm block">more_vert</span>
+</div>
+</div>
+<div class="p-5 flex-1 flex flex-col">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-bold text-lg text-text-main-light dark:text-text-main-dark leading-tight">Espetinho de Frango</h3>
+</div>
+<p class="text-sm text-text-secondary-light dark:text-text-secondary-dark mb-4 line-clamp-2">Cubos de peito de frango suculentos com bacon.</p>
+<div class="mt-auto flex items-end justify-between">
+<div>
+<p class="text-xs text-text-secondary-light dark:text-text-secondary-dark mb-1">Preço</p>
+<p class="text-xl font-bold text-primary">R$ 12,00</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-red-300 dark:peer-focus:ring-red-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-500"></div>
+</label>
+</div>
+</div>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark rounded-2xl shadow-sm hover:shadow-md border border-gray-100 dark:border-gray-700 transition-all duration-300 group flex flex-col h-full opacity-80">
+<div class="relative h-48 rounded-t-2xl overflow-hidden">
+<img alt="Pão de Alho" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 grayscale" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmzpWhS_hySekn6UDme1KXmUKwUo_y3w0HLcL7XKse1vYFkb3TQPgYfrfXs6c_u85zPradvj98CshLlDPsw9H6jYxvuSLf0MWC-JiTC5gb08kQvlNYDE-XXhfISaFJP3b2oD4zNwjkXv087H2zlUhHAs4c5l8dQTAsVNGi_w-vYNc0okXYwY69zFEpCkZNiPJ9ioc-Ed-JR0piAXJlirJvgHYKtrLb3BsaCnyBp4AbCKOwPvWVBO_hlcelR-VYOVt-OZIU7unoSHRx"/>
+<div class="absolute top-3 right-3 bg-white dark:bg-gray-800 rounded-full p-1.5 shadow-md cursor-pointer hover:text-primary transition-colors">
+<span class="material-icons-round text-gray-400 text-sm block">more_vert</span>
+</div>
+<div class="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-[1px]">
+<span class="bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">Esgotado</span>
+</div>
+</div>
+<div class="p-5 flex-1 flex flex-col">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-bold text-lg text-text-main-light dark:text-text-main-dark leading-tight">Pão de Alho Tradicional</h3>
+</div>
+<p class="text-sm text-text-secondary-light dark:text-text-secondary-dark mb-4 line-clamp-2">Pão francês recheado com pasta de alho especial da casa.</p>
+<div class="mt-auto flex items-end justify-between">
+<div>
+<p class="text-xs text-text-secondary-light dark:text-text-secondary-dark mb-1">Preço</p>
+<p class="text-xl font-bold text-text-secondary-light dark:text-text-secondary-dark line-through decoration-red-500">R$ 8,00</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-red-300 dark:peer-focus:ring-red-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-500"></div>
+</label>
+</div>
+</div>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark rounded-2xl shadow-sm hover:shadow-md border border-gray-100 dark:border-gray-700 transition-all duration-300 group flex flex-col h-full">
+<div class="relative h-48 rounded-t-2xl overflow-hidden">
+<img alt="Espetinho Misto" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmSerpOEHE0I9RQxPfBiOnUda6QbsHHqtAhRGVTaYFkAWVyZIUcHXsolfjm-FzSy_Lqj4COv8dh19x5Aakr67V59qc2GALIEjs_3E2VQJUpmnKSOFaI0RvdI7YrkL0Ip4VqqPMC-6fmiIXbpdUjIct3xvUzIy1K2I4P2VfedhGBZuWhIfqv6vKzTKSTYU7jS8XgmYpJKGQgJpOMNYxUPEj5dIsG8H1UgGJ4LDh75KKkXV2bFOt2d1w2flgZQBMv_lPMLpEYyRdl9KY"/>
+<div class="absolute top-3 right-3 bg-white dark:bg-gray-800 rounded-full p-1.5 shadow-md cursor-pointer hover:text-primary transition-colors">
+<span class="material-icons-round text-gray-400 text-sm block">more_vert</span>
+</div>
+<div class="absolute top-3 left-3 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs font-bold px-2.5 py-1 rounded-full border border-blue-200 dark:border-blue-800">
+                            Mais Vendido
+                        </div>
+</div>
+<div class="p-5 flex-1 flex flex-col">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-bold text-lg text-text-main-light dark:text-text-main-dark leading-tight">Espetinho Misto</h3>
+</div>
+<p class="text-sm text-text-secondary-light dark:text-text-secondary-dark mb-4 line-clamp-2">Carne e linguiça intercaladas com pimentão e cebola.</p>
+<div class="mt-auto flex items-end justify-between">
+<div>
+<p class="text-xs text-text-secondary-light dark:text-text-secondary-dark mb-1">Preço</p>
+<p class="text-xl font-bold text-primary">R$ 15,00</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-red-300 dark:peer-focus:ring-red-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-500"></div>
+</label>
+</div>
+</div>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark rounded-2xl shadow-sm hover:shadow-md border border-gray-100 dark:border-gray-700 transition-all duration-300 group flex flex-col h-full">
+<div class="relative h-48 rounded-t-2xl overflow-hidden">
+<img alt="Refrigerante" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAewsBF71xFKlw0XI-wYbMJMfTFnpeI8Z6dRm8SJSM_jeHtpUrNKrIdxc8alu-XNLSZnayox44yujSKFWQSp78WWnMPUdX5HyjJecmB0l2QZ_LBFgv07ajZChNOKw59v9txOj7XN4Z_Rho5AwJyWCrn01BMhNUZc4h-XpKx41EHAneXzFHdWjVc1CFTLGsnI9SyWJDCuJ42gTOgJAJVdpVAwO7tmkeV0BbfJu5GkJ7Mt1S1YkipnQH3to6kNTX5iP9YFw1FsI2YIQ8T"/>
+<div class="absolute top-3 right-3 bg-white dark:bg-gray-800 rounded-full p-1.5 shadow-md cursor-pointer hover:text-primary transition-colors">
+<span class="material-icons-round text-gray-400 text-sm block">more_vert</span>
+</div>
+</div>
+<div class="p-5 flex-1 flex flex-col">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-bold text-lg text-text-main-light dark:text-text-main-dark leading-tight">Coca-Cola Lata</h3>
+</div>
+<p class="text-sm text-text-secondary-light dark:text-text-secondary-dark mb-4 line-clamp-2">Lata 350ml gelada.</p>
+<div class="mt-auto flex items-end justify-between">
+<div>
+<p class="text-xs text-text-secondary-light dark:text-text-secondary-dark mb-1">Preço</p>
+<p class="text-xl font-bold text-primary">R$ 6,00</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-red-300 dark:peer-focus:ring-red-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-500"></div>
+</label>
+</div>
+</div>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark rounded-2xl shadow-sm hover:shadow-md border border-gray-100 dark:border-gray-700 transition-all duration-300 group flex flex-col h-full">
+<div class="relative h-48 rounded-t-2xl overflow-hidden">
+<img alt="Batata Frita" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBY0GHToOaO9PyLHP7xt2kD63p_2kLSjV_-F6vwAnYZMU9mvYaZsb2dp7SECv0FoaTZAH9FFX8LH1_U1InDWf-I9FbgeEGZzic8Nvwa_10eyye2V3yR9vrb14AXPb9VrSwXljtO0JGScZKqlZeZPKik6UZFWGwkZCYurmF4TZhkvEr-JkWoyowqPLKqY-IyY0V73FQ1bw4h14P0b6si0g6Hh2CM2mlicsWnFWhapl65HpxViBKHcQ4tCnhqqd6eJ2eK4_0dUvbT6qVI"/>
+<div class="absolute top-3 right-3 bg-white dark:bg-gray-800 rounded-full p-1.5 shadow-md cursor-pointer hover:text-primary transition-colors">
+<span class="material-icons-round text-gray-400 text-sm block">more_vert</span>
+</div>
+<div class="absolute top-3 left-3 bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300 text-xs font-bold px-2.5 py-1 rounded-full border border-yellow-200 dark:border-yellow-800">
+                            Promoção
+                        </div>
+</div>
+<div class="p-5 flex-1 flex flex-col">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-bold text-lg text-text-main-light dark:text-text-main-dark leading-tight">Batata Frita</h3>
+</div>
+<p class="text-sm text-text-secondary-light dark:text-text-secondary-dark mb-4 line-clamp-2">Porção individual de batatas fritas crocantes.</p>
+<div class="mt-auto flex items-end justify-between">
+<div>
+<p class="text-xs text-text-secondary-light dark:text-text-secondary-dark mb-1">Preço</p>
+<div class="flex items-center gap-2">
+<p class="text-xl font-bold text-primary">R$ 10,00</p>
+<p class="text-sm text-text-secondary-light dark:text-text-secondary-dark line-through">R$ 14,00</p>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-red-300 dark:peer-focus:ring-red-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-500"></div>
+</label>
+</div>
+</div>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark rounded-2xl shadow-sm hover:shadow-md border border-gray-100 dark:border-gray-700 transition-all duration-300 group flex flex-col h-full">
+<div class="relative h-48 rounded-t-2xl overflow-hidden">
+<img alt="Espetinho Queijo" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuArvr_98WNGGl20ft2MSogFlhWyjXtFHgxpajaABq10BGhYc5faMp7KtsUfx9dZpd-OG7aXheN_YsPs7tHYuUMwmxnMWCz3LUdhoL1XCdq-WNcPEsb1RSE3UjTUOCjS_M8pNddqTcOqrKxb8cPF6s8z4NQCeL4zRp2H2T_muAheNbe37y0XA6STu22VOOHavs081TmvtWOGl-CpyMtfiTLrAQE_QyHyKuEViN5suBSeKpTaw8ub-RN_t8AYuLbMVKaBrXxPRZCya1cI"/>
+<div class="absolute top-3 right-3 bg-white dark:bg-gray-800 rounded-full p-1.5 shadow-md cursor-pointer hover:text-primary transition-colors">
+<span class="material-icons-round text-gray-400 text-sm block">more_vert</span>
+</div>
+</div>
+<div class="p-5 flex-1 flex flex-col">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-bold text-lg text-text-main-light dark:text-text-main-dark leading-tight">Espetinho de Queijo</h3>
+</div>
+<p class="text-sm text-text-secondary-light dark:text-text-secondary-dark mb-4 line-clamp-2">Queijo coalho grelhado com orégano.</p>
+<div class="mt-auto flex items-end justify-between">
+<div>
+<p class="text-xs text-text-secondary-light dark:text-text-secondary-dark mb-1">Preço</p>
+<p class="text-xl font-bold text-primary">R$ 14,00</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-red-300 dark:peer-focus:ring-red-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-500"></div>
+</label>
+</div>
+</div>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark rounded-2xl shadow-sm hover:shadow-md border border-gray-100 dark:border-gray-700 transition-all duration-300 group flex flex-col h-full">
+<div class="relative h-48 rounded-t-2xl overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+<span class="material-icons-round text-6xl text-gray-300 dark:text-gray-600">image</span>
+<div class="absolute top-3 right-3 bg-white dark:bg-gray-800 rounded-full p-1.5 shadow-md cursor-pointer hover:text-primary transition-colors">
+<span class="material-icons-round text-gray-400 text-sm block">more_vert</span>
+</div>
+</div>
+<div class="p-5 flex-1 flex flex-col">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-bold text-lg text-text-main-light dark:text-text-main-dark leading-tight">Farofa Especial</h3>
+</div>
+<p class="text-sm text-text-secondary-light dark:text-text-secondary-dark mb-4 line-clamp-2">Farofa crocante com bacon e ovos (sem foto).</p>
+<div class="mt-auto flex items-end justify-between">
+<div>
+<p class="text-xs text-text-secondary-light dark:text-text-secondary-dark mb-1">Preço</p>
+<p class="text-xl font-bold text-primary">R$ 5,00</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-red-300 dark:peer-focus:ring-red-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-500"></div>
+</label>
+</div>
+</div>
+</div>
+</div>
+<div class="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-700">
+<span class="text-sm text-text-secondary-light dark:text-text-secondary-dark">
+                    Mostrando <span class="font-semibold text-text-main-light dark:text-text-main-dark">1-8</span> de <span class="font-semibold text-text-main-light dark:text-text-main-dark">24</span> produtos
+                </span>
+<div class="flex gap-2">
+<button class="px-4 py-2 text-sm font-medium text-text-secondary-light dark:text-text-secondary-dark bg-white dark:bg-surface-dark border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled="">
+                        Anterior
+                    </button>
+<button class="px-4 py-2 text-sm font-medium text-text-secondary-light dark:text-text-secondary-dark bg-white dark:bg-surface-dark border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                        Próximo
+                    </button>
+</div>
+</div>
+</div>
+</main>
+<button class="fixed bottom-6 right-6 p-3 rounded-full bg-primary text-white shadow-lg shadow-red-500/30 hover:shadow-red-500/50 transition-all hover:scale-110 z-50" id="theme-toggle">
+<span class="material-icons-round text-xl dark:hidden">dark_mode</span>
+<span class="material-icons-round text-xl hidden dark:block">light_mode</span>
+</button>
+<script>
+        // Check local storage for theme preference
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+        // Toggle theme function
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        themeToggleBtn.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            if (document.documentElement.classList.contains('dark')) {
+                localStorage.theme = 'dark';
+            } else {
+                localStorage.theme = 'light';
+            }
+        });
+    </script>
+
+</body></html>

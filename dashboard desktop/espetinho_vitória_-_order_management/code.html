@@ -1,0 +1,372 @@
+<html lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Espetinho Vitória - Order Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#B91C1C", // Deep red from screenshot
+                        "primary-hover": "#991B1B",
+                        "background-light": "#F3F4F6", // Light gray background
+                        "background-dark": "#1F2937", // Dark gray background
+                        "surface-light": "#FFFFFF",
+                        "surface-dark": "#374151",
+                    },
+                    fontFamily: {
+                        display: ["Inter", "sans-serif"],
+                        body: ["Inter", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.75rem", // 12px
+                    },
+                },
+            },
+        };
+    </script>
+<style>.scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .kanban-column {
+            min-width: 280px;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-body text-gray-800 dark:text-gray-100 h-screen overflow-hidden flex transition-colors duration-200">
+<aside class="w-64 bg-surface-light dark:bg-surface-dark border-r border-gray-200 dark:border-gray-700 flex flex-col justify-between hidden md:flex shrink-0 transition-colors duration-200">
+<div>
+<div class="h-20 flex items-center px-6 border-b border-gray-100 dark:border-gray-600">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white font-bold text-lg">E</div>
+<span class="font-bold text-lg tracking-tight text-gray-900 dark:text-white">Espetinho Vitória</span>
+</div>
+</div>
+<nav class="p-4 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-primary dark:hover:text-primary rounded-lg transition-colors group" href="#">
+<span class="material-icons-outlined group-hover:text-primary">dashboard</span>
+<span class="font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 bg-red-50 dark:bg-red-900/20 text-primary rounded-lg transition-colors" href="#">
+<span class="material-icons-outlined">view_kanban</span>
+<span class="font-medium">Pedidos</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-primary dark:hover:text-primary rounded-lg transition-colors group" href="#">
+<span class="material-icons-outlined group-hover:text-primary">restaurant_menu</span>
+<span class="font-medium">Cardápio</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-primary dark:hover:text-primary rounded-lg transition-colors group" href="#">
+<span class="material-icons-outlined group-hover:text-primary">people</span>
+<span class="font-medium">Clientes</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-primary dark:hover:text-primary rounded-lg transition-colors group" href="#">
+<span class="material-icons-outlined group-hover:text-primary">inventory_2</span>
+<span class="font-medium">Estoque</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-primary dark:hover:text-primary rounded-lg transition-colors group" href="#">
+<span class="material-icons-outlined group-hover:text-primary">receipt_long</span>
+<span class="font-medium">Financeiro</span>
+</a>
+</nav>
+</div>
+<div class="p-4 border-t border-gray-200 dark:border-gray-700 space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-primary dark:hover:text-primary rounded-lg transition-colors group" href="#">
+<span class="material-icons-outlined group-hover:text-primary">settings</span>
+<span class="font-medium">Configurações</span>
+</a>
+<div class="flex items-center gap-3 px-4 py-3 mt-4">
+<img alt="Admin Avatar" class="w-10 h-10 rounded-full border-2 border-white dark:border-gray-600 shadow-sm" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCSXaJfVWS68_ktf6JBE7aguRxWBf3VyPA1JTkZRotRluyOfEQRQ1ijXm0cQagO2OYSUZLG5-CZcbobH8Fg5WBjKATopm-mDneU5buh2ZBe2nZghbPdaj6gbCvu6BtGqDfKs628To-G7XAz5JVp9mFU7dQfmnGoB-zu2EHDv_SgpUQzRio7wY6rtz5c1EnluHXmqCJqRgwHlb2RxH1ssrP6bdKuUr0DCzFok6WbGsUvQaBKECFrvjJyoVDb-kUVWKL4KniGNeTWHHlA"/>
+<div class="flex flex-col">
+<span class="text-sm font-semibold text-gray-900 dark:text-white">Admin</span>
+<span class="text-xs text-gray-500 dark:text-gray-400">Gerente</span>
+</div>
+</div>
+</div>
+</aside>
+<main class="flex-1 flex flex-col h-full overflow-hidden relative">
+<header class="h-20 bg-surface-light dark:bg-surface-dark border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-6 md:px-8 shrink-0 transition-colors duration-200">
+<h1 class="text-2xl font-bold text-gray-800 dark:text-white">Gerenciamento de Pedidos</h1>
+<div class="flex items-center gap-4">
+<div class="relative hidden sm:block">
+<span class="material-icons-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">search</span>
+<input class="pl-10 pr-4 py-2 bg-gray-100 dark:bg-gray-700 border-none rounded-lg text-sm text-gray-700 dark:text-gray-200 w-64 focus:ring-2 focus:ring-primary focus:outline-none transition-colors" placeholder="Buscar pedido, cliente..." type="text"/>
+</div>
+<button class="flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
+<span class="material-icons-outlined text-gray-500 dark:text-gray-400 text-lg">calendar_today</span>
+<span>Hoje, 24 Out</span>
+<span class="material-icons-outlined text-gray-400 text-lg">expand_more</span>
+</button>
+<button class="relative p-2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+<span class="material-icons-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full border border-white dark:border-gray-800"></span>
+</button>
+</div>
+</header>
+<div class="flex-1 overflow-x-auto overflow-y-hidden p-6 md:p-8 bg-background-light dark:bg-background-dark">
+<div class="flex gap-6 h-full min-w-max pb-4">
+<div class="kanban-column w-80 flex flex-col h-full">
+<div class="flex items-center justify-between mb-4 px-2">
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-yellow-400"></span>
+<h3 class="font-semibold text-gray-700 dark:text-gray-200">Pendente</h3>
+<span class="px-2 py-0.5 bg-gray-200 dark:bg-gray-700 text-xs font-bold rounded-md text-gray-600 dark:text-gray-300">4</span>
+</div>
+<button class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+<span class="material-icons-outlined text-lg">more_horiz</span>
+</button>
+</div>
+<div class="flex-1 overflow-y-auto pr-2 space-y-4">
+<div class="bg-surface-light dark:bg-surface-dark p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow cursor-pointer">
+<div class="flex justify-between items-start mb-3">
+<span class="text-xs font-bold text-gray-500 dark:text-gray-400">#PED-4830</span>
+<span class="bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wide">Novo</span>
+</div>
+<div class="flex items-center gap-3 mb-3">
+<div class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold text-xs">JS</div>
+<h4 class="font-semibold text-gray-800 dark:text-white">João Silva</h4>
+</div>
+<div class="space-y-1 mb-4">
+<p class="text-sm text-gray-600 dark:text-gray-300 flex items-center justify-between">
+<span>2x Espeto Picanha</span>
+</p>
+<p class="text-sm text-gray-600 dark:text-gray-300 flex items-center justify-between">
+<span>1x Pão de Alho</span>
+</p>
+<p class="text-xs text-gray-400 italic mt-1">+ Coca-Cola 2L</p>
+</div>
+<div class="border-t border-gray-100 dark:border-gray-600 pt-3 flex justify-between items-center">
+<div class="flex items-center gap-1 text-gray-400 text-xs">
+<span class="material-icons-outlined text-sm">schedule</span>
+<span>2 min</span>
+</div>
+<span class="font-bold text-primary">R$ 68,00</span>
+</div>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow cursor-pointer">
+<div class="flex justify-between items-start mb-3">
+<span class="text-xs font-bold text-gray-500 dark:text-gray-400">#PED-4829</span>
+<span class="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wide flex items-center gap-1">
+<span class="material-icons-outlined text-[10px]">delivery_dining</span> Delivery
+                                </span>
+</div>
+<div class="flex items-center gap-3 mb-3">
+<img alt="User" class="w-8 h-8 rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBle9yRXKiEp-KYuQqVZZf70HwMk9lsS5qNwRED2Mvv0NOYFCCvqmZGffd0UOQ7g1o4XIdHUZMJXHba9WIGg1tNC_xQeEivTEDds4n6izWDba-jLcDJp7BJmw5Pb1cDJC2HEJpyp0d589g2TrBUU9cVTj0bbOCfflLDDkO9qClWI-INZvYGBzhmAFg17KEHHhY4Se2YOazpNq8LkZ882hvjZS6t8CXSeLU6dFarwp7YFc56I7kU8GN-d2ptbY-SAVWJGmM_zfVX35ci"/>
+<h4 class="font-semibold text-gray-800 dark:text-white">Maria Souza</h4>
+</div>
+<div class="space-y-1 mb-4">
+<p class="text-sm text-gray-600 dark:text-gray-300">1x Combo Família</p>
+</div>
+<div class="border-t border-gray-100 dark:border-gray-600 pt-3 flex justify-between items-center">
+<div class="flex items-center gap-1 text-gray-400 text-xs">
+<span class="material-icons-outlined text-sm">schedule</span>
+<span>5 min</span>
+</div>
+<span class="font-bold text-primary">R$ 145,90</span>
+</div>
+</div>
+</div>
+</div>
+<div class="kanban-column w-80 flex flex-col h-full">
+<div class="flex items-center justify-between mb-4 px-2">
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-blue-500"></span>
+<h3 class="font-semibold text-gray-700 dark:text-gray-200">Confirmado</h3>
+<span class="px-2 py-0.5 bg-gray-200 dark:bg-gray-700 text-xs font-bold rounded-md text-gray-600 dark:text-gray-300">2</span>
+</div>
+<button class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+<span class="material-icons-outlined text-lg">more_horiz</span>
+</button>
+</div>
+<div class="flex-1 overflow-y-auto pr-2 space-y-4">
+<div class="bg-surface-light dark:bg-surface-dark p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow cursor-pointer border-l-4 border-l-blue-500">
+<div class="flex justify-between items-start mb-3">
+<span class="text-xs font-bold text-gray-500 dark:text-gray-400">#PED-4828</span>
+<span class="bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wide flex items-center gap-1">
+<span class="material-icons-outlined text-[10px]">storefront</span> Retirada
+                                </span>
+</div>
+<div class="flex items-center gap-3 mb-3">
+<div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-bold text-xs">CA</div>
+<h4 class="font-semibold text-gray-800 dark:text-white">Carlos Andre</h4>
+</div>
+<div class="space-y-1 mb-4">
+<p class="text-sm text-gray-600 dark:text-gray-300">3x Espetinho de Frango</p>
+<p class="text-sm text-gray-600 dark:text-gray-300">2x Queijo Coalho</p>
+</div>
+<div class="border-t border-gray-100 dark:border-gray-600 pt-3 flex justify-between items-center">
+<div class="flex items-center gap-1 text-gray-400 text-xs">
+<span class="material-icons-outlined text-sm">schedule</span>
+<span>12 min</span>
+</div>
+<span class="font-bold text-primary">R$ 42,00</span>
+</div>
+</div>
+</div>
+</div>
+<div class="kanban-column w-80 flex flex-col h-full">
+<div class="flex items-center justify-between mb-4 px-2">
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-purple-500"></span>
+<h3 class="font-semibold text-gray-700 dark:text-gray-200">Na Cozinha</h3>
+<span class="px-2 py-0.5 bg-gray-200 dark:bg-gray-700 text-xs font-bold rounded-md text-gray-600 dark:text-gray-300">3</span>
+</div>
+<button class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+<span class="material-icons-outlined text-lg">more_horiz</span>
+</button>
+</div>
+<div class="flex-1 overflow-y-auto pr-2 space-y-4">
+<div class="bg-surface-light dark:bg-surface-dark p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow cursor-pointer border-l-4 border-l-purple-500">
+<div class="flex justify-between items-start mb-3">
+<span class="text-xs font-bold text-gray-500 dark:text-gray-400">#PED-4825</span>
+<span class="text-xs text-gray-400 font-medium">Mesa 08</span>
+</div>
+<div class="flex items-center gap-3 mb-3">
+<img alt="User" class="w-8 h-8 rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCMjP8T_t4wD6CQRmHK0iUOclgA3xc4WzucDkgik7gdIIGAwokMkrWJjvzDwhoof52cfHMwTx0B6Y3Hqu664Pw9PivzaO9r91p7J5OqwZEe3C-IXwU3Wx3s_ZqYiOnSIcsYj7rDE6DHJqt71I_Sz2z1uW1XyPRWGeuMNRGWn0VAB3GsWN0V9piGeNd165GtoS48q9i72tmS3lpXI5JLHUbjdT61SDrJgmOlNrPomFlKr1Hvtj7MYQRXw2e1J_DNbJ-HsVbVn2Jncui4"/>
+<h4 class="font-semibold text-gray-800 dark:text-white">Fernanda Lima</h4>
+</div>
+<div class="space-y-1 mb-4">
+<p class="text-sm text-gray-600 dark:text-gray-300">1x Medalhão</p>
+<p class="text-sm text-gray-600 dark:text-gray-300">1x Batata Frita G</p>
+</div>
+<div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-1.5 mb-4">
+<div class="bg-purple-500 h-1.5 rounded-full" style="width: 70%"></div>
+</div>
+<div class="border-t border-gray-100 dark:border-gray-600 pt-3 flex justify-between items-center">
+<div class="flex items-center gap-1 text-yellow-600 dark:text-yellow-500 text-xs font-medium">
+<span class="material-icons-outlined text-sm">timer</span>
+<span>22 min (Atrasado)</span>
+</div>
+<span class="font-bold text-primary">R$ 55,00</span>
+</div>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow cursor-pointer border-l-4 border-l-purple-500 opacity-90">
+<div class="flex justify-between items-start mb-3">
+<span class="text-xs font-bold text-gray-500 dark:text-gray-400">#PED-4824</span>
+<span class="text-xs text-gray-400 font-medium">Mesa 02</span>
+</div>
+<div class="flex items-center gap-3 mb-3">
+<div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 font-bold text-xs">RO</div>
+<h4 class="font-semibold text-gray-800 dark:text-white">Roberto Oliveira</h4>
+</div>
+<div class="space-y-1 mb-4">
+<p class="text-sm text-gray-600 dark:text-gray-300">4x Cerveja Heineken</p>
+<p class="text-sm text-gray-600 dark:text-gray-300">2x Espetinho Misto</p>
+</div>
+<div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-1.5 mb-4">
+<div class="bg-purple-500 h-1.5 rounded-full" style="width: 40%"></div>
+</div>
+<div class="border-t border-gray-100 dark:border-gray-600 pt-3 flex justify-between items-center">
+<div class="flex items-center gap-1 text-gray-400 text-xs">
+<span class="material-icons-outlined text-sm">schedule</span>
+<span>15 min</span>
+</div>
+<span class="font-bold text-primary">R$ 92,00</span>
+</div>
+</div>
+</div>
+</div>
+<div class="kanban-column w-80 flex flex-col h-full">
+<div class="flex items-center justify-between mb-4 px-2">
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+<h3 class="font-semibold text-gray-700 dark:text-gray-200">Pronto</h3>
+<span class="px-2 py-0.5 bg-gray-200 dark:bg-gray-700 text-xs font-bold rounded-md text-gray-600 dark:text-gray-300">1</span>
+</div>
+<button class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+<span class="material-icons-outlined text-lg">more_horiz</span>
+</button>
+</div>
+<div class="flex-1 overflow-y-auto pr-2 space-y-4">
+<div class="bg-surface-light dark:bg-surface-dark p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow cursor-pointer border-l-4 border-l-emerald-500 relative overflow-hidden">
+<div class="absolute top-0 right-0 p-2">
+<span class="flex h-3 w-3">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+</span>
+</div>
+<div class="flex justify-between items-start mb-3">
+<span class="text-xs font-bold text-gray-500 dark:text-gray-400">#PED-4822</span>
+<span class="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wide flex items-center gap-1">
+<span class="material-icons-outlined text-[10px]">delivery_dining</span> Delivery
+                                </span>
+</div>
+<div class="flex items-center gap-3 mb-3">
+<img alt="User" class="w-8 h-8 rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAoxUO4qMuq-0rQJ-v7_Ud0r3oM98pAzn1VkG2AgIWz55Dfrh3W4l9_s0D0FZUrchg4jgQgXbSf4a3lZgS2TJNJkCDIIOPX6L311Kg0Zf_xm6uk6JoKzvnu0gi-JbfxXE5rwY1bFB05h_X826KI_LZ6bY8x9NXfPUBPRKgYxhqD9xLPc6AT4ht87SLyUwUlOyxOgJH05qMWl6rIKSleeDU5OCIdE3WcX1J_1rQACjc7uqF1k0YFbbEVBFNnt_b98Z5n0Ck7wHG3xOv5"/>
+<h4 class="font-semibold text-gray-800 dark:text-white">Lucas Mendes</h4>
+</div>
+<div class="space-y-1 mb-4">
+<p class="text-sm text-gray-600 dark:text-gray-300">1x Jantinha Completa</p>
+</div>
+<button class="w-full mt-2 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 py-2 rounded-lg text-sm font-medium hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-colors flex items-center justify-center gap-2">
+<span class="material-icons-outlined text-sm">check_circle</span>
+                                Despachar
+                            </button>
+<div class="border-t border-gray-100 dark:border-gray-600 mt-3 pt-3 flex justify-between items-center">
+<div class="flex items-center gap-1 text-gray-400 text-xs">
+<span class="material-icons-outlined text-sm">schedule</span>
+<span>28 min</span>
+</div>
+<span class="font-bold text-primary">R$ 35,00</span>
+</div>
+</div>
+</div>
+</div>
+<div class="kanban-column w-80 flex flex-col h-full">
+<div class="flex items-center justify-between mb-4 px-2">
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-orange-500"></span>
+<h3 class="font-semibold text-gray-700 dark:text-gray-200">Saiu p/ Entrega</h3>
+<span class="px-2 py-0.5 bg-gray-200 dark:bg-gray-700 text-xs font-bold rounded-md text-gray-600 dark:text-gray-300">1</span>
+</div>
+<button class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+<span class="material-icons-outlined text-lg">more_horiz</span>
+</button>
+</div>
+<div class="flex-1 overflow-y-auto pr-2 space-y-4">
+<div class="bg-surface-light dark:bg-surface-dark p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow cursor-pointer border-l-4 border-l-orange-500 opacity-70 hover:opacity-100">
+<div class="flex justify-between items-start mb-3">
+<span class="text-xs font-bold text-gray-500 dark:text-gray-400">#PED-4820</span>
+<div class="flex items-center gap-1 text-orange-600 dark:text-orange-400 text-xs">
+<span class="material-icons-outlined text-sm">two_wheeler</span>
+<span>Moto 03</span>
+</div>
+</div>
+<div class="flex items-center gap-3 mb-3">
+<div class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center text-gray-500 dark:text-gray-300 font-bold text-xs">AM</div>
+<h4 class="font-semibold text-gray-800 dark:text-white">Ana Maria</h4>
+</div>
+<div class="space-y-1 mb-4">
+<p class="text-sm text-gray-600 dark:text-gray-300">2x Espeto Carne</p>
+<p class="text-sm text-gray-600 dark:text-gray-300">2x Suco Laranja</p>
+</div>
+<div class="border-t border-gray-100 dark:border-gray-600 pt-3 flex justify-between items-center">
+<div class="flex items-center gap-1 text-gray-400 text-xs">
+<span class="material-icons-outlined text-sm">schedule</span>
+<span>45 min</span>
+</div>
+<span class="font-bold text-primary">R$ 58,00</span>
+</div>
+</div>
+</div>
+</div>
+<div class="w-12 h-full flex items-start pt-2 opacity-50 hover:opacity-100 transition-opacity cursor-pointer">
+<div class="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+<span class="material-icons-outlined">add</span>
+</div>
+</div>
+</div>
+</div>
+<button class="absolute bottom-8 right-8 w-14 h-14 bg-primary hover:bg-primary-hover text-white rounded-full shadow-lg flex items-center justify-center transform hover:scale-105 transition-all z-10">
+<span class="material-icons-outlined text-2xl">add</span>
+</button>
+</main>
+
+</body></html>

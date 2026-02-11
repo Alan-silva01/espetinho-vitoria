@@ -1,0 +1,410 @@
+<html lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Espetinho Vitória - Dashboard Admin</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#B91C1C", // Deep red from screenshot
+                        secondary: "#FCA5A5", // Lighter red for accents
+                        "background-light": "#F3F4F6", // Light gray background
+                        "background-dark": "#111827", // Dark gray background
+                        "surface-light": "#FFFFFF",
+                        "surface-dark": "#1F2937",
+                        "text-light": "#1F2937",
+                        "text-dark": "#F9FAFB",
+                        "muted-light": "#6B7280",
+                        "muted-dark": "#9CA3AF",
+                    },
+                    fontFamily: {
+                        display: ["Inter", "sans-serif"],
+                        body: ["Inter", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "1rem",
+                        'xl': '1.5rem',
+                        '2xl': '2rem',
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
+                        'glow': '0 4px 20px -2px rgba(185, 28, 28, 0.25)',
+                    }
+                },
+            },
+        };
+    </script>
+<style>::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 3px;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #374151;
+        }
+        .bottom-nav-shadow {
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-text-light dark:text-text-dark transition-colors duration-300 min-h-screen pb-24 md:pb-0">
+<div class="flex h-screen overflow-hidden">
+<aside class="hidden md:flex flex-col w-64 bg-surface-light dark:bg-surface-dark border-r border-gray-200 dark:border-gray-700 h-full">
+<div class="p-6 flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-primary font-bold text-xl">
+                    E
+                </div>
+<div>
+<h1 class="font-bold text-lg leading-tight">Espetinho<br/>Vitória</h1>
+</div>
+</div>
+<nav class="flex-1 px-4 py-4 space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 bg-red-50 dark:bg-red-900/20 text-primary rounded-xl font-medium transition-colors" href="#">
+<span class="material-icons-round">dashboard</span>
+                    Dashboard
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 text-muted-light dark:text-muted-dark hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl font-medium transition-colors" href="#">
+<span class="material-icons-round">receipt_long</span>
+                    Pedidos
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 text-muted-light dark:text-muted-dark hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl font-medium transition-colors" href="#">
+<span class="material-icons-round">inventory_2</span>
+                    Estoque
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 text-muted-light dark:text-muted-dark hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl font-medium transition-colors" href="#">
+<span class="material-icons-round">restaurant_menu</span>
+                    Cardápio
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 text-muted-light dark:text-muted-dark hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl font-medium transition-colors" href="#">
+<span class="material-icons-round">settings</span>
+                    Ajustes
+                </a>
+</nav>
+<div class="p-4 border-t border-gray-200 dark:border-gray-700">
+<div class="flex items-center gap-3 px-4 py-3">
+<img alt="Admin Profile" class="w-10 h-10 rounded-full object-cover border-2 border-white dark:border-gray-600 shadow-sm" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDrm67XlGPKhm1ZZO7UKrZ89iJw8L9Tu4q6zI6NufZezk2lwepydurfwOQGca0YkiNd0twMBIF_tgKSZs3J2_UbqaVI-AzcWCPfnGbziogRKSEsisJrChu3wW8CwmA8Q77Hc-HBdK66E_FuJ72jRvwnlM775olEPRHhEcsxSKqZTPd-nhOIcve_NYn5K5JMxy2_U2L7jxfuPGO5pF4EItriDwfLYsrSJgkjEMOeMdnSlDMGXMZqVP2_Ak98_nVQk7r6Rej7f8EP2l4O"/>
+<div>
+<p class="text-sm font-semibold">Admin</p>
+<p class="text-xs text-muted-light dark:text-muted-dark">Gerente</p>
+</div>
+</div>
+</div>
+</aside>
+<main class="flex-1 overflow-y-auto relative w-full">
+<header class="md:hidden flex justify-between items-center p-6 bg-background-light dark:bg-background-dark sticky top-0 z-20">
+<button class="p-2 -ml-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+<span class="material-icons-round text-2xl">menu</span>
+</button>
+<div class="text-center">
+<p class="text-xs font-bold text-primary tracking-widest uppercase">ADMIN</p>
+<h1 class="text-xl font-bold">Espetinho Vitória</h1>
+</div>
+<button class="relative p-2 -mr-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors" onclick="toggleDarkMode()">
+<span class="material-icons-round text-2xl">notifications_none</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-background-light dark:border-background-dark"></span>
+</button>
+</header>
+<header class="hidden md:flex justify-between items-center px-8 py-6 bg-surface-light dark:bg-surface-dark border-b border-gray-200 dark:border-gray-700">
+<div>
+<h2 class="text-2xl font-bold">Visão Geral</h2>
+<p class="text-sm text-muted-light dark:text-muted-dark">Terça-feira, 24 Out</p>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" onclick="toggleDarkMode()">
+<span class="material-icons-round dark:hidden">dark_mode</span>
+<span class="material-icons-round hidden dark:block">light_mode</span>
+</button>
+<button class="relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+<span class="material-icons-round">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
+</button>
+</div>
+</header>
+<div class="p-6 md:p-8 max-w-7xl mx-auto space-y-6">
+<div class="w-full bg-gradient-to-br from-primary to-red-900 rounded-[2rem] p-6 text-white shadow-glow relative overflow-hidden">
+<div class="absolute -right-10 -top-10 w-64 h-64 bg-white opacity-5 rounded-full blur-3xl pointer-events-none"></div>
+<div class="relative z-10">
+<div class="flex justify-between items-start mb-6">
+<div class="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-3 py-1.5 rounded-lg">
+<span class="material-icons-round text-sm">calendar_today</span>
+<span class="text-sm font-medium">Vendas Hoje</span>
+</div>
+<button class="text-white/80 hover:text-white">
+<span class="material-icons-round">more_horiz</span>
+</button>
+</div>
+<div class="mb-6">
+<h2 class="text-4xl md:text-5xl font-bold tracking-tight mb-2">R$ 3.450,00</h2>
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-1 bg-white/20 backdrop-blur-sm px-2 py-1 rounded-md text-xs font-semibold">
+<span class="material-icons-round text-sm">trending_up</span>
+<span>+15%</span>
+</div>
+<span class="text-sm text-white/80">vs. ontem</span>
+</div>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+<div class="bg-surface-light dark:bg-surface-dark p-5 rounded-[1.5rem] shadow-soft flex flex-col justify-between">
+<div class="flex items-center gap-2 mb-3">
+<div class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+<span class="material-icons-round text-lg">receipt</span>
+</div>
+<span class="text-xs font-bold text-muted-light dark:text-muted-dark uppercase tracking-wide">Pedidos</span>
+</div>
+<div>
+<p class="text-2xl font-bold">42</p>
+<p class="text-xs text-green-500 font-medium flex items-center gap-1 mt-1">
+<span class="material-icons-round text-sm">arrow_drop_up</span>
+                                8 novos
+                            </p>
+</div>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark p-5 rounded-[1.5rem] shadow-soft flex flex-col justify-between">
+<div class="flex items-center gap-2 mb-3">
+<div class="w-8 h-8 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-orange-600 dark:text-orange-400">
+<span class="material-icons-round text-lg">payments</span>
+</div>
+<span class="text-xs font-bold text-muted-light dark:text-muted-dark uppercase tracking-wide">Ticket M.</span>
+</div>
+<div>
+<p class="text-2xl font-bold">R$ 82</p>
+<p class="text-xs text-muted-light dark:text-muted-dark mt-1">Estável</p>
+</div>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark p-5 rounded-[1.5rem] shadow-soft flex flex-col justify-between col-span-2 md:col-span-2">
+<div class="flex justify-between items-start">
+<div class="flex flex-col h-full justify-between">
+<div class="flex items-center gap-2 mb-3">
+<div class="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400">
+<span class="material-icons-round text-lg">stars</span>
+</div>
+<span class="text-xs font-bold text-muted-light dark:text-muted-dark uppercase tracking-wide">Taxa de Upsell</span>
+</div>
+<div>
+<div class="flex items-baseline gap-2">
+<p class="text-2xl font-bold">12.5%</p>
+<span class="text-sm text-muted-light dark:text-muted-dark">conversão</span>
+</div>
+</div>
+</div>
+<div class="relative w-16 h-16 flex items-center justify-center">
+<svg class="transform -rotate-90 w-16 h-16">
+<circle class="text-gray-200 dark:text-gray-700" cx="32" cy="32" fill="transparent" r="28" stroke="currentColor" stroke-width="4"></circle>
+<circle class="text-primary" cx="32" cy="32" fill="transparent" r="28" stroke="currentColor" stroke-dasharray="175.9" stroke-dashoffset="153.9" stroke-linecap="round" stroke-width="4"></circle>
+</svg>
+<span class="absolute text-xs font-bold text-muted-light dark:text-muted-dark">OK</span>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark p-6 rounded-[2rem] shadow-soft">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-bold text-lg">Vendas (7 dias)</h3>
+<div class="flex items-center gap-1 text-xs text-muted-light dark:text-muted-dark bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition">
+<span>Última semana</span>
+<span class="material-icons-round text-sm">expand_more</span>
+</div>
+</div>
+<div class="h-48 w-full">
+<canvas id="salesChart"></canvas>
+</div>
+<div class="flex justify-between mt-4 px-2 text-xs text-muted-light dark:text-muted-dark">
+<span>Seg</span>
+<span>Ter</span>
+<span>Qua</span>
+<span>Qui</span>
+<span>Sex</span>
+<span>Sab</span>
+<span>Dom</span>
+</div>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between items-center px-1">
+<h3 class="font-bold text-lg">Últimos Pedidos</h3>
+<a class="text-sm text-primary font-semibold hover:text-red-700" href="#">Ver todos</a>
+</div>
+<div class="flex flex-col gap-3">
+<div class="bg-surface-light dark:bg-surface-dark p-4 rounded-2xl shadow-soft flex items-center gap-4 transition hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer">
+<div class="w-12 h-12 rounded-full bg-orange-100 dark:bg-orange-900/20 flex items-center justify-center text-orange-600 dark:text-orange-400 shrink-0">
+<span class="material-icons-round">table_restaurant</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start mb-1">
+<h4 class="font-bold text-sm truncate">Mesa 08</h4>
+<span class="text-xs font-bold bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 px-2 py-0.5 rounded-md whitespace-nowrap">NA COZINHA</span>
+</div>
+<div class="flex justify-between items-end">
+<p class="text-xs text-muted-light dark:text-muted-dark truncate">#PED-4829 • 2 min atrás</p>
+<p class="font-bold text-sm">R$ 145,90</p>
+</div>
+</div>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark p-4 rounded-2xl shadow-soft flex items-center gap-4 transition hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer">
+<div class="w-12 h-12 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center text-green-600 dark:text-green-400 shrink-0">
+<span class="material-icons-round">moped</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start mb-1">
+<h4 class="font-bold text-sm truncate">Delivery (João)</h4>
+<span class="text-xs font-bold bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-0.5 rounded-md whitespace-nowrap">ENVIADO</span>
+</div>
+<div class="flex justify-between items-end">
+<p class="text-xs text-muted-light dark:text-muted-dark truncate">#PED-4828 • 15 min atrás</p>
+<p class="font-bold text-sm">R$ 82,50</p>
+</div>
+</div>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark p-4 rounded-2xl shadow-soft flex items-center gap-4 transition hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer opacity-80">
+<div class="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700/50 flex items-center justify-center text-gray-500 dark:text-gray-400 shrink-0">
+<span class="material-icons-round">check</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start mb-1">
+<h4 class="font-bold text-sm truncate">Balcão</h4>
+<span class="text-xs font-bold bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 px-2 py-0.5 rounded-md whitespace-nowrap">FINALIZADO</span>
+</div>
+<div class="flex justify-between items-end">
+<p class="text-xs text-muted-light dark:text-muted-dark truncate">#PED-4827 • 22 min atrás</p>
+<p class="font-bold text-sm">R$ 24,00</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="h-20 md:h-0"></div>
+</div>
+</main>
+</div>
+<nav class="md:hidden fixed bottom-0 w-full bg-surface-light dark:bg-surface-dark bottom-nav-shadow px-6 pb-6 pt-2 z-50 rounded-t-2xl">
+<div class="flex justify-between items-end relative">
+<a class="flex flex-col items-center gap-1 w-12 text-primary" href="#">
+<span class="material-icons-round text-2xl">dashboard</span>
+<span class="text-[10px] font-medium">Home</span>
+</a>
+<a class="flex flex-col items-center gap-1 w-12 text-muted-light dark:text-muted-dark hover:text-primary dark:hover:text-primary transition-colors" href="#">
+<span class="material-icons-round text-2xl">receipt_long</span>
+<span class="text-[10px] font-medium">Pedidos</span>
+</a>
+<div class="relative -top-6">
+<button class="w-14 h-14 bg-primary rounded-full shadow-lg shadow-red-500/40 flex items-center justify-center text-white transform transition active:scale-95 hover:scale-105">
+<span class="material-icons-round text-3xl">add</span>
+</button>
+</div>
+<a class="flex flex-col items-center gap-1 w-12 text-muted-light dark:text-muted-dark hover:text-primary dark:hover:text-primary transition-colors" href="#">
+<span class="material-icons-round text-2xl">inventory_2</span>
+<span class="text-[10px] font-medium">Estoque</span>
+</a>
+<a class="flex flex-col items-center gap-1 w-12 text-muted-light dark:text-muted-dark hover:text-primary dark:hover:text-primary transition-colors" href="#">
+<span class="material-icons-round text-2xl">settings</span>
+<span class="text-[10px] font-medium">Ajustes</span>
+</a>
+</div>
+</nav>
+<script>
+        // Check for Dark Mode Preference
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        } else {
+            document.documentElement.classList.remove('dark')
+        }
+        function toggleDarkMode() {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.theme = 'light';
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.theme = 'dark';
+            }
+            updateChartColor();
+        }
+        // Chart Configuration
+        const ctx = document.getElementById('salesChart').getContext('2d');
+        let chartInstance;
+        function initChart() {
+            const isDark = document.documentElement.classList.contains('dark');
+            const gridColor = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)';
+            // Create gradient
+            const gradient = ctx.createLinearGradient(0, 0, 0, 200);
+            gradient.addColorStop(0, 'rgba(185, 28, 28, 0.2)'); // Primary color low opacity
+            gradient.addColorStop(1, 'rgba(185, 28, 28, 0)');
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab', 'Dom'],
+                    datasets: [{
+                        label: 'Vendas',
+                        data: [1200, 1900, 1500, 2200, 1800, 2800, 3450],
+                        borderColor: '#B91C1C', // Primary Color
+                        backgroundColor: gradient,
+                        tension: 0.4,
+                        borderWidth: 3,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#B91C1C',
+                        pointBorderColor: isDark ? '#1F2937' : '#FFFFFF',
+                        pointBorderWidth: 2,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: isDark ? '#374151' : '#FFFFFF',
+                            titleColor: isDark ? '#F9FAFB' : '#1F2937',
+                            bodyColor: isDark ? '#F9FAFB' : '#1F2937',
+                            titleFont: { family: 'Inter', size: 12 },
+                            bodyFont: { family: 'Inter', size: 14, weight: 'bold' },
+                            padding: 10,
+                            borderColor: isDark ? '#4B5563' : '#E5E7EB',
+                            borderWidth: 1,
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return 'R$ ' + context.parsed.y;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            display: false,
+                            grid: { display: false }
+                        },
+                        y: {
+                            display: false,
+                            min: 0,
+                            grid: { display: false }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index',
+                    },
+                }
+            });
+        }
+        function updateChartColor() {
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+            initChart();
+        }
+        initChart();
+    </script>
+
+</body></html>
