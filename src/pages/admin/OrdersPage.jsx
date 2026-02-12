@@ -70,7 +70,8 @@ export default function OrdersPage() {
                 itens:itens_pedido(
                     *,
                     produtos(nome)
-                )
+                ),
+                clientes(telefone, nome, whatsapp)
             `)
             .gte('criado_em', brMidnightAsUTC.toISOString())
             .order('criado_em', { ascending: true })
@@ -106,6 +107,42 @@ export default function OrdersPage() {
                 .eq('id', orderId)
 
             if (error) throw error
+
+            // Webhook notification for "Saiu para Entrega"
+            if (newStatus === 'saiu_entrega') {
+                const order = orders.find(o => o.id === orderId)
+                if (order) {
+                    try {
+                        await fetch('https://rapidus-n8n-webhook.b7bsm5.easypanel.host/webhook/saiu_entrega', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                order_id: order.id,
+                                numero_pedido: order.numero_pedido,
+                                status: newStatus,
+                                tipo_pedido: order.tipo_pedido,
+                                telefone_contato: order.telefone_cliente || order.clientes?.telefone,
+                                cliente: {
+                                    id: order.cliente_id,
+                                    nome: order.clientes?.nome || order.nome_cliente,
+                                    telefone_db: order.clientes?.telefone,
+                                    whatsapp_contato: order.clientes?.whatsapp || order.telefone_cliente,
+                                },
+                                endereco: order.endereco,
+                                valor_total: order.valor_total,
+                                itens: order.itens?.map(item => ({
+                                    quantidade: item.quantidade,
+                                    nome: item.produtos?.nome,
+                                    preco: item.preco_unitario,
+                                    observacoes: item.observacoes
+                                }))
+                            })
+                        })
+                    } catch (webhookErr) {
+                        console.error('Erro ao enviar webhook saiu_entrega:', webhookErr)
+                    }
+                }
+            }
         } catch (error) {
             console.error('Erro ao atualizar status:', error)
             // 2. Rollback on Error
