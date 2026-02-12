@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, MapPin, CreditCard, Receipt, Edit3, CheckCircle } from 'lucide-react'
+import { ArrowLeft, MapPin, CreditCard, Receipt, Edit3, CheckCircle, User } from 'lucide-react'
 import { useCart } from '../../hooks/useCart'
 import { useOrders } from '../../hooks/useOrders'
 import { formatCurrency, getImageUrl } from '../../lib/utils'
@@ -25,6 +25,7 @@ export default function CheckoutPage() {
     const [precisaTroco, setPrecisaTroco] = useState(false)
     const [trocoPara, setTrocoPara] = useState('')
     const [observacoes, setObservacoes] = useState('')
+    const [nomeRetirada, setNomeRetirada] = useState('')
 
     const taxaEntrega = tipoPedido === 'entrega' ? 5.0 : 0
     const total = subtotal + taxaEntrega
@@ -43,7 +44,7 @@ export default function CheckoutPage() {
 
         try {
             const pedido = await createOrder({
-                nome_cliente: savedData?.receiverName || '',
+                nome_cliente: tipoPedido === 'retirada' ? nomeRetirada : (savedData?.receiverName || ''),
                 telefone_cliente: savedData?.receiverPhone || '',
                 tipo_pedido: tipoPedido,
                 subtotal,
@@ -102,6 +103,26 @@ export default function CheckoutPage() {
                         <span>🏪</span> Retirada
                     </button>
                 </div>
+
+                {/* Pickup Name */}
+                {tipoPedido === 'retirada' && (
+                    <section className="checkout-section">
+                        <h2 className="checkout-section__title">
+                            <User size={20} color="var(--cor-primaria)" /> Quem vai retirar?
+                        </h2>
+                        <div className="checkout-card">
+                            <div className="checkout-field">
+                                <input
+                                    type="text"
+                                    placeholder="Nome de quem vai buscar"
+                                    value={nomeRetirada}
+                                    onChange={e => setNomeRetirada(e.target.value)}
+                                    className="checkout-input"
+                                />
+                            </div>
+                        </div>
+                    </section>
+                )}
 
                 {/* Delivery Address Review (read-only, from localStorage) */}
                 {tipoPedido === 'entrega' && (
@@ -240,7 +261,7 @@ export default function CheckoutPage() {
                 <button
                     className="checkout-footer__btn"
                     onClick={handleConfirm}
-                    disabled={loading || (tipoPedido === 'entrega' && !hasAddress)}
+                    disabled={loading || (tipoPedido === 'entrega' && !hasAddress) || (tipoPedido === 'retirada' && !nomeRetirada.trim())}
                 >
                     {loading ? (
                         <span className="btn-spinner" />
