@@ -4,6 +4,7 @@ import { ArrowLeft, Heart, Share2, Minus, Plus, Check } from 'lucide-react'
 import { useProduct } from '../../hooks/useProducts'
 import { useCart } from '../../hooks/useCart'
 import { formatCurrency, getImageUrl } from '../../lib/utils'
+import { optimizeUrl } from '../../lib/cloudinary'
 import Loading from '../../components/ui/Loading'
 import './ProductPage.css'
 
@@ -215,7 +216,12 @@ export default function ProductPage() {
                                         >
                                             <div className="product-addon-item__left">
                                                 {img ? (
-                                                    <img src={getImageUrl(img)} alt={name} className="product-addon-item__img" />
+                                                    <img
+                                                        src={optimizeUrl(getImageUrl(img), { width: 100, height: 100 })}
+                                                        alt={name}
+                                                        className="product-addon-item__img"
+                                                        loading="lazy"
+                                                    />
                                                 ) : (
                                                     <div className="product-addon-item__img-placeholder">
                                                         <span>{name.charAt(0)}</span>
