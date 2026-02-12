@@ -48,7 +48,11 @@ export default function OrdersPage() {
     }, [])
 
     async function fetchOrders() {
-        const { data } = await supabase
+        setLoading(true)
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+
+        const { data, error } = await supabase
             .from('pedidos')
             .select(`
                 *,
@@ -57,32 +61,37 @@ export default function OrdersPage() {
                     produtos(nome)
                 )
             `)
+            .gte('criado_em', today.toISOString())
             .order('criado_em', { ascending: false })
 
-        setOrders(data || [])
+        if (!error) {
+            setOrders(data || [])
+        }
         setLoading(false)
     }
 
     const handleStatusChange = async (orderId, newStatus) => {
         // 1. Optimistic Update
         const previousOrders = [...orders]
+        const now = new Date().toISOString()
+
         setOrders(prev => prev.map(order =>
             order.id === orderId ? {
                 ...order,
                 status: newStatus,
-                confirmado_em: newStatus === 'preparando' ? new Date().toISOString() : order.confirmado_em,
-                entregue_em: newStatus === 'entregue' ? new Date().toISOString() : order.entregue_em
+                confirmado_em: newStatus === 'preparando' ? now : order.confirmado_em,
+                entregue_em: newStatus === 'entregue' ? now : order.entregue_em
             } : order
         ))
 
         try {
+            const updateData = { status: newStatus }
+            if (newStatus === 'preparando') updateData.confirmado_em = now
+            if (newStatus === 'entregue') updateData.entregue_em = now
+
             const { error } = await supabase
                 .from('pedidos')
-                .update({
-                    status: newStatus,
-                    confirmado_em: newStatus === 'preparando' ? new Date().toISOString() : undefined,
-                    entregue_em: newStatus === 'entregue' ? new Date().toISOString() : undefined
-                })
+                .update(updateData)
                 .eq('id', orderId)
 
             if (error) throw error
