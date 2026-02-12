@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import {
     Plus, Search, MoreVertical, Edit2,
     Trash2, Image as ImageIcon, Check, X,
-    ChevronRight, Filter, Tag, Flame, Award
+    ChevronRight, Filter, Tag, Flame, Award, Settings
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { uploadImage, isCloudinaryConfigured } from '../../lib/cloudinary'
@@ -26,8 +26,10 @@ export default function MenuPage() {
         categoria_id: '',
         imagem_url: '',
         disponivel: true,
-        item_upsell: false
+        item_upsell: false,
+        opcoes_personalizacao: []
     })
+    const [newOptionText, setNewOptionText] = useState({})
     const [uploading, setUploading] = useState(false)
     const [uploadProgress, setUploadProgress] = useState(0)
 
@@ -60,8 +62,10 @@ export default function MenuPage() {
             categoria_id: product.categoria_id,
             imagem_url: product.imagem_url,
             disponivel: product.disponivel,
-            item_upsell: product.item_upsell || false
+            item_upsell: product.item_upsell || false,
+            opcoes_personalizacao: product.opcoes_personalizacao || []
         })
+        setNewOptionText({})
         setIsModalOpen(true)
     }
 
@@ -130,13 +134,60 @@ export default function MenuPage() {
                 categoria_id: '',
                 imagem_url: '',
                 disponivel: true,
-                item_upsell: false
+                item_upsell: false,
+                opcoes_personalizacao: []
             })
+            setNewOptionText({})
             fetchData()
         } else {
             alert('Erro ao salvar produto: ' + error.message)
         }
         setUploading(false)
+    }
+
+    // --- Customization Group Management ---
+    const addGroup = () => {
+        setFormData(prev => ({
+            ...prev,
+            opcoes_personalizacao: [
+                ...prev.opcoes_personalizacao,
+                { grupo: '', tipo: 'checkbox', opcoes: [] }
+            ]
+        }))
+    }
+
+    const removeGroup = (idx) => {
+        setFormData(prev => ({
+            ...prev,
+            opcoes_personalizacao: prev.opcoes_personalizacao.filter((_, i) => i !== idx)
+        }))
+    }
+
+    const updateGroup = (idx, field, value) => {
+        setFormData(prev => {
+            const updated = [...prev.opcoes_personalizacao]
+            updated[idx] = { ...updated[idx], [field]: value }
+            return { ...prev, opcoes_personalizacao: updated }
+        })
+    }
+
+    const addOptionToGroup = (gIdx) => {
+        const text = (newOptionText[gIdx] || '').trim()
+        if (!text) return
+        setFormData(prev => {
+            const updated = [...prev.opcoes_personalizacao]
+            updated[gIdx] = { ...updated[gIdx], opcoes: [...updated[gIdx].opcoes, text] }
+            return { ...prev, opcoes_personalizacao: updated }
+        })
+        setNewOptionText(prev => ({ ...prev, [gIdx]: '' }))
+    }
+
+    const removeOptionFromGroup = (gIdx, oIdx) => {
+        setFormData(prev => {
+            const updated = [...prev.opcoes_personalizacao]
+            updated[gIdx] = { ...updated[gIdx], opcoes: updated[gIdx].opcoes.filter((_, i) => i !== oIdx) }
+            return { ...prev, opcoes_personalizacao: updated }
+        })
     }
 
     const handleToggleDisponivel = async (product) => {
@@ -325,6 +376,78 @@ export default function MenuPage() {
                                             placeholder="Descreva os detalhes do produto..."
                                             rows={4}
                                         />
+                                    </div>
+
+                                    {/* Customization Options Editor */}
+                                    <div className="input-group-premium">
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                                            <label style={{ margin: 0 }}>
+                                                <Settings size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 6 }} />
+                                                Opções de Personalização
+                                            </label>
+                                            <button
+                                                type="button"
+                                                className="btn-add-group"
+                                                onClick={addGroup}
+                                            >
+                                                <Plus size={14} /> Adicionar Grupo
+                                            </button>
+                                        </div>
+
+                                        {formData.opcoes_personalizacao.length === 0 && (
+                                            <p style={{ fontSize: 13, color: '#9ca3af', fontStyle: 'italic' }}>
+                                                Nenhuma opção ainda. Adicione grupos como "Acompanhamento" ou "Ponto da Carne".
+                                            </p>
+                                        )}
+
+                                        {formData.opcoes_personalizacao.map((group, gIdx) => (
+                                            <div key={gIdx} className="custom-group-editor">
+                                                <div className="custom-group-editor__header">
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Nome do grupo (ex: Acompanhamento)"
+                                                        value={group.grupo}
+                                                        onChange={e => updateGroup(gIdx, 'grupo', e.target.value)}
+                                                        className="custom-group-editor__name"
+                                                    />
+                                                    <select
+                                                        value={group.tipo}
+                                                        onChange={e => updateGroup(gIdx, 'tipo', e.target.value)}
+                                                        className="custom-group-editor__type"
+                                                    >
+                                                        <option value="checkbox">Múltipla escolha</option>
+                                                        <option value="radio">Escolha única</option>
+                                                    </select>
+                                                    <button type="button" className="custom-group-editor__remove" onClick={() => removeGroup(gIdx)}>
+                                                        <Trash2 size={14} />
+                                                    </button>
+                                                </div>
+
+                                                <div className="custom-group-editor__options">
+                                                    {group.opcoes.map((opt, oIdx) => (
+                                                        <span key={oIdx} className="custom-option-tag">
+                                                            {opt}
+                                                            <button type="button" onClick={() => removeOptionFromGroup(gIdx, oIdx)}>
+                                                                <X size={12} />
+                                                            </button>
+                                                        </span>
+                                                    ))}
+                                                </div>
+
+                                                <div className="custom-group-editor__add-row">
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Nova opção..."
+                                                        value={newOptionText[gIdx] || ''}
+                                                        onChange={e => setNewOptionText(prev => ({ ...prev, [gIdx]: e.target.value }))}
+                                                        onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addOptionToGroup(gIdx) } }}
+                                                    />
+                                                    <button type="button" onClick={() => addOptionToGroup(gIdx)}>
+                                                        <Plus size={14} />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
                                     </div>
 
                                     <div className="modal-actions">

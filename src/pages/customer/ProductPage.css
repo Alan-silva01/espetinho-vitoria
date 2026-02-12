@@ -73,7 +73,7 @@
 /* Content */
 .product-content {
     flex: 1;
-    padding: 0 24px 160px;
+    padding: 0 24px 200px;
     margin-top: -40px;
     position: relative;
     z-index: 10;
@@ -325,4 +325,42 @@
     opacity: 0.8;
     font-weight: 400;
     font-size: 14px;
+}
+
+/* Customization Chips */
+.product-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.product-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    background: #f3f4f6;
+    border: 2px solid #e5e7eb;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--texto-principal);
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.product-chip:active {
+    transform: scale(0.96);
+}
+
+.product-chip--selected {
+    background: rgba(196, 30, 46, 0.1);
+    border-color: var(--cor-primaria);
+    color: var(--cor-primaria);
+    font-weight: 600;
+}
+
+.product-chip__check {
+    color: var(--cor-primaria);
+    flex-shrink: 0;
 }

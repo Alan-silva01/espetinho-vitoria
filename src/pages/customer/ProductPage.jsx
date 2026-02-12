@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, Heart, Share2, Minus, Plus } from 'lucide-react'
+import { ArrowLeft, Heart, Share2, Minus, Plus, Check } from 'lucide-react'
 import { useProduct } from '../../hooks/useProducts'
 import { useCart } from '../../hooks/useCart'
 import { formatCurrency, getImageUrl } from '../../lib/utils'
@@ -15,6 +15,7 @@ export default function ProductPage() {
     const [qty, setQty] = useState(1)
     const [notes, setNotes] = useState('')
     const [selectedVariation, setSelectedVariation] = useState(null)
+    const [selectedOptions, setSelectedOptions] = useState({})
 
     const totalPrice = useMemo(() => {
         const basePrice = selectedVariation?.preco || product?.preco || 0
@@ -24,7 +25,39 @@ export default function ProductPage() {
     if (loading) return <Loading fullScreen />
     if (!product) return <div className="page-padding" style={{ paddingTop: 80 }}>Produto não encontrado</div>
 
+    const customizations = product.opcoes_personalizacao || []
+
+    function handleOptionToggle(groupName, option, tipo) {
+        setSelectedOptions(prev => {
+            const current = prev[groupName] || (tipo === 'radio' ? '' : [])
+
+            if (tipo === 'radio') {
+                return { ...prev, [groupName]: current === option ? '' : option }
+            }
+
+            // checkbox
+            const arr = Array.isArray(current) ? current : []
+            if (arr.includes(option)) {
+                return { ...prev, [groupName]: arr.filter(o => o !== option) }
+            } else {
+                return { ...prev, [groupName]: [...arr, option] }
+            }
+        })
+    }
+
+    function isOptionSelected(groupName, option, tipo) {
+        const current = selectedOptions[groupName]
+        if (tipo === 'radio') return current === option
+        return Array.isArray(current) && current.includes(option)
+    }
+
     function handleAdd() {
+        // Build options summary for display
+        const optionsSummary = Object.entries(selectedOptions)
+            .filter(([, val]) => (Array.isArray(val) ? val.length > 0 : val))
+            .map(([grupo, val]) => `${grupo}: ${Array.isArray(val) ? val.join(', ') : val}`)
+            .join(' | ')
+
         addItem({
             produto_id: product.id,
             variacao_id: selectedVariation?.id,
@@ -32,7 +65,8 @@ export default function ProductPage() {
             preco: selectedVariation?.preco || product.preco,
             imagem_url: product.imagem_url,
             quantidade: qty,
-            observacoes: notes,
+            observacoes: [optionsSummary, notes].filter(Boolean).join(' — '),
+            personalizacao: selectedOptions,
             eh_upsell: false,
         })
         navigate('/carrinho')
@@ -107,6 +141,33 @@ export default function ProductPage() {
                         </div>
                     </section>
                 )}
+
+                {/* Customization Options */}
+                {customizations.map((group, gIdx) => (
+                    <section key={gIdx} className="product-section">
+                        <div className="product-section__header">
+                            <h3>{group.grupo}</h3>
+                            <span className="product-section__badge">
+                                {group.tipo === 'radio' ? 'Escolha 1' : 'Opcional'}
+                            </span>
+                        </div>
+                        <div className="product-chips">
+                            {group.opcoes.map((opt, oIdx) => {
+                                const selected = isOptionSelected(group.grupo, opt, group.tipo)
+                                return (
+                                    <button
+                                        key={oIdx}
+                                        className={`product-chip ${selected ? 'product-chip--selected' : ''}`}
+                                        onClick={() => handleOptionToggle(group.grupo, opt, group.tipo)}
+                                    >
+                                        {selected && <Check size={14} className="product-chip__check" />}
+                                        <span>{opt}</span>
+                                    </button>
+                                )
+                            })}
+                        </div>
+                    </section>
+                ))}
 
                 {/* Observations */}
                 <section className="product-section">
