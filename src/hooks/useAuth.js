@@ -8,40 +8,34 @@ export function useAuth() {
     const mounted = useRef(true)
 
     useEffect(() => {
-        // 0. CHECK BYPASS (MAGIC KEY)
-        const checkBypass = () => {
-            const bypass = localStorage.getItem('espetinho_admin_bypass')
-            if (bypass === 'true') {
-                console.log('[useAuth] ☢️ BYPASS ATIVADO: Acesso forçado via localStorage')
-                if (mounted.current) {
-                    setUser({ id: 'bypass-id', email: 'teste@gmail.com' })
-                    setAdminInfo({
-                        id: 'bypass-id',
-                        nome: 'Admin Teste (Bypass)',
-                        email: 'teste@gmail.com',
-                        cargo: 'dono',
-                        permissoes: { all: true }
-                    })
-                    setLoading(false)
-                }
-                return true
-            }
-            return false
-        }
-
-        if (checkBypass()) {
-            return
-        }
-
         let subscription = null
 
-        async function initializeAuth() {
+        async function bootstrap() {
+            // 0. CHECK BYPASS (MAGIC KEY) — actually sign in with stored creds
+            const bypass = localStorage.getItem('espetinho_admin_bypass')
+            if (bypass === 'true') {
+                console.log('[useAuth] ☢️ BYPASS ATIVADO: Tentando login real com credenciais salvas')
+                const email = localStorage.getItem('espetinho_admin_email') || 'teste@gmail.com'
+                const password = localStorage.getItem('espetinho_admin_password') || '123321'
+                try {
+                    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+                    if (error) throw error
+                    if (data?.user) {
+                        await handleUserSession(data.user)
+                    }
+                    return // bypass handled, skip normal init
+                } catch (err) {
+                    console.error('[useAuth] Bypass login failed:', err.message)
+                    localStorage.removeItem('espetinho_admin_bypass')
+                    if (mounted.current) setLoading(false)
+                    return
+                }
+            }
+
+            // 1. Normal auth init
             try {
                 if (mounted.current) setLoading(true)
-
-                // 1. Get initial session
                 const { data: { session }, error } = await supabase.auth.getSession()
-
                 if (error) throw error
 
                 if (session?.user) {
@@ -59,7 +53,7 @@ export function useAuth() {
             }
         }
 
-        initializeAuth()
+        bootstrap()
 
         // 2. Subscribe to changes
         const { data: subData } = supabase.auth.onAuthStateChange(async (event, session) => {
