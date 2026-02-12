@@ -27,12 +27,24 @@ export default function OrdersPage() {
 
         const channel = supabase
             .channel('orders_realtime')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'pedidos' }, () => {
-                fetchOrders()
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'pedidos' }, (payload) => {
+                if (payload.eventType === 'UPDATE') {
+                    setOrders(prev => prev.map(order =>
+                        order.id === payload.new.id ? { ...order, ...payload.new } : order
+                    ))
+                } else if (payload.eventType === 'INSERT') {
+                    // For new orders, we might still need a fetch to get joined relations (itens)
+                    // but we can prepend the new order optimistically if payload has enough info
+                    fetchOrders()
+                } else if (payload.eventType === 'DELETE') {
+                    setOrders(prev => prev.filter(order => order.id !== payload.old.id))
+                }
             })
             .subscribe()
 
-        return () => supabase.removeChannel(channel)
+        return () => {
+            supabase.removeChannel(channel)
+        }
     }, [])
 
     async function fetchOrders() {
@@ -52,6 +64,17 @@ export default function OrdersPage() {
     }
 
     const handleStatusChange = async (orderId, newStatus) => {
+        // 1. Optimistic Update
+        const previousOrders = [...orders]
+        setOrders(prev => prev.map(order =>
+            order.id === orderId ? {
+                ...order,
+                status: newStatus,
+                confirmado_em: newStatus === 'preparando' ? new Date().toISOString() : order.confirmado_em,
+                entregue_em: newStatus === 'entregue' ? new Date().toISOString() : order.entregue_em
+            } : order
+        ))
+
         try {
             const { error } = await supabase
                 .from('pedidos')
@@ -63,10 +86,11 @@ export default function OrdersPage() {
                 .eq('id', orderId)
 
             if (error) throw error
-            fetchOrders() // Refresh orders after successful update
         } catch (error) {
             console.error('Erro ao atualizar status:', error)
-            alert('Erro ao atualizar status do pedido')
+            // 2. Rollback on Error
+            setOrders(previousOrders)
+            alert('Erro ao atualizar status do pedido. Tente novamente.')
         }
     }
 

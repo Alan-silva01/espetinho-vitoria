@@ -132,6 +132,7 @@
     background: #EFF6FF;
     border-color: #3B82F6;
     box-shadow: 0 0 0 2px #3B82F6 inset;
+    transform: scale(1.01);
 }
 
 .col-header {
@@ -204,13 +205,15 @@
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     border: 1px solid #E5E7EB;
     border-left: 4px solid #FBBF24;
-    transition: all 0.2s ease;
+    transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.2s, border-color 0.2s, opacity 0.2s;
     user-select: none;
+    will-change: transform, opacity;
 }
 
 .order-card-v2.dragging {
-    opacity: 0.4;
-    transform: scale(0.95);
+    opacity: 0.5;
+    transform: scale(1.05) rotate(2deg);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
 .order-card-v2:hover {
