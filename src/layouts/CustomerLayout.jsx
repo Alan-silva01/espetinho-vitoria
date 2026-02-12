@@ -18,7 +18,7 @@ export default function CustomerLayout() {
             {!hideNav && <BottomNav />}
 
             {!loading && !isOpen && !isProfilePage && (
-                <StoreClosedOverlay config={config} />
+                <StoreClosedOverlay config={config} closureInfo={closureInfo} />
             )}
         </div>
     )
