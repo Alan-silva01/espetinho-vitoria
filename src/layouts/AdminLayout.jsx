@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Outlet, Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import AdminSidebar from '../components/admin/AdminSidebar'
@@ -7,6 +8,17 @@ import './AdminLayout.css'
 export default function AdminLayout() {
     const { isAuthenticated, loading, adminInfo, logout } = useAuth()
     const location = useLocation()
+    const [isCollapsed, setIsCollapsed] = useState(() => {
+        return localStorage.getItem('admin_sidebar_collapsed') === 'true'
+    })
+
+    const toggleSidebar = () => {
+        setIsCollapsed(prev => {
+            const next = !prev
+            localStorage.setItem('admin_sidebar_collapsed', next)
+            return next
+        })
+    }
 
     if (loading) {
         return (
@@ -33,11 +45,13 @@ export default function AdminLayout() {
     if (!isAuthenticated) return <Navigate to="/admin/login" replace />
 
     return (
-        <div className="admin-layout">
+        <div className={`admin-layout ${isCollapsed ? 'sidebar-collapsed' : ''}`}>
             <AdminSidebar
                 adminInfo={adminInfo}
                 currentPath={location.pathname}
                 onLogout={logout}
+                isCollapsed={isCollapsed}
+                onToggle={toggleSidebar}
             />
             <main className="admin-main">
                 <Outlet />

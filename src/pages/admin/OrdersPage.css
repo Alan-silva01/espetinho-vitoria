@@ -11,6 +11,28 @@
     background: #111827;
 }
 
+.order-card-v2 .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    gap: 8px;
+}
+
+.order-card-v2 .order-id {
+    font-size: 13px;
+    font-weight: 800;
+    color: #111827;
+    white-space: nowrap;
+}
+
+.order-card-v2 .order-total {
+    font-size: 14px;
+    font-weight: 800;
+    color: #059669;
+    white-space: nowrap;
+}
+
 .orders-header-premium {
     display: flex;
     justify-content: space-between;
@@ -62,18 +84,46 @@
     padding-bottom: 20px;
 }
 
-.kanban-board-premium {
+.kanban-board {
     display: flex;
-    gap: 24px;
-    height: 100%;
-    min-width: max-content;
+    gap: 20px;
+    height: calc(100vh - 180px);
+    overflow-x: auto;
+    padding-bottom: 20px;
+    /* Custom Scrollbar for better look */
+    scrollbar-width: thin;
+    scrollbar-color: #CBD5E1 transparent;
+}
+
+.kanban-board::-webkit-scrollbar {
+    height: 6px;
+}
+
+.kanban-board::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.kanban-board::-webkit-scrollbar-thumb {
+    background-color: #CBD5E1;
+    border-radius: 20px;
 }
 
 .kanban-col {
-    width: 300px;
+    min-width: 320px;
+    width: 320px;
+    flex-shrink: 0;
     display: flex;
     flex-direction: column;
     height: 100%;
+    background: #F8FAFC;
+    border-radius: 16px;
+    padding: 12px;
+    transition: all 0.2s;
+}
+
+.kanban-col.drag-over {
+    background: #F1F5F9;
+    box-shadow: inset 0 0 0 2px #3B82F6;
 }
 
 .col-header {
@@ -140,11 +190,31 @@
 
 .order-card-v2 {
     background: white;
-    border-radius: 20px;
+    border-radius: 16px;
     padding: 16px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-    border: 1px solid #F3F4F6;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border: 1px solid #E5E7EB;
+    border-left: 4px solid #FBBF24;
     transition: all 0.2s;
+}
+
+.order-card-v2.dragging {
+    opacity: 0.5;
+    cursor: grabbing;
+}
+
+.order-card-v2:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.cursor-grab {
+    cursor: grab;
+}
+
+.cursor-grab:active {
+    cursor: grabbing;
 }
 
 .dark .order-card-v2 {
@@ -152,13 +222,12 @@
     border-color: #374151;
 }
 
-.order-card-v2:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-}
-
 .order-card-v2.border-purple {
     border-left: 4px solid #8B5CF6;
+}
+
+.order-card-v2.border-orange {
+    border-left: 4px solid #F59E0B;
 }
 
 .order-card-v2.border-green {
@@ -232,16 +301,38 @@
     margin-bottom: 16px;
 }
 
-.items-preview p {
+.items-preview p.item-line {
     font-size: 13px;
-    color: #6B7280;
-    margin-bottom: 2px;
+    color: #4B5563;
+    margin-bottom: 4px;
+    display: flex;
+    gap: 8px;
+    line-height: 1.4;
 }
 
-.more-items {
-    font-size: 11px;
-    font-style: italic;
-    color: #9CA3AF;
+.items-preview .qnt {
+    font-weight: 800;
+    color: var(--cor-primaria);
+    min-width: 24px;
+}
+
+.items-preview .name {
+    font-weight: 500;
+}
+
+.item-count-badge {
+    font-size: 10px;
+    background: #F3F4F6;
+    color: #6B7280;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 700;
+}
+
+.customer-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
 }
 
 .progress-bar-small {
@@ -288,10 +379,10 @@
 .quick-action {
     width: 100%;
     margin-top: 12px;
-    padding: 8px;
-    border-radius: 10px;
+    padding: 10px;
+    border-radius: 12px;
     border: none;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 700;
     cursor: pointer;
     display: flex;
@@ -301,19 +392,31 @@
     transition: all 0.2s;
 }
 
-.quick-action.confirm {
-    background: #FEF3C7;
-    color: #D97706;
+.quick-action.stage-preparando {
+    background: #E0E7FF;
+    color: #4338CA;
 }
 
-.quick-action.dispatch {
+.quick-action.stage-saiu_entrega {
+    background: #F3E8FF;
+    color: #7E22CE;
+}
+
+.quick-action.stage-entregue {
     background: #D1FAE5;
-    color: #059669;
+    color: #065F46;
 }
 
 .quick-action:hover {
-    opacity: 0.8;
+    opacity: 0.9;
     transform: scale(1.02);
+}
+
+.kanban-col {
+    width: 320px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
 /* Modal V2 */

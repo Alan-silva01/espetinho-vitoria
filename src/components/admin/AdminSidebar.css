@@ -2,7 +2,6 @@
     width: 260px;
     height: 100vh;
     background-color: #1A1A2E;
-    /* Dark blue/black from reference */
     color: white;
     position: fixed;
     top: 0;
@@ -11,16 +10,25 @@
     flex-direction: column;
     z-index: 100;
     box-shadow: 4px 0 20px rgba(0, 0, 0, 0.2);
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.admin-sidebar.collapsed {
+    width: 80px;
 }
 
 .sidebar-brand {
     height: 80px;
-    padding: 0 24px;
+    padding: 0 16px;
     display: flex;
     align-items: center;
-    gap: 12px;
+    justify-content: space-between;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.collapsed .sidebar-brand {
+    justify-content: center;
+    padding: 0;
 }
 
 .brand-icon {
@@ -71,6 +79,39 @@
     font-size: 14px;
     font-weight: 600;
     transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.collapsed .nav-item {
+    justify-content: center;
+    padding: 12px;
+}
+
+.sidebar-toggle {
+    background: rgba(255, 255, 255, 0.05);
+    border: none;
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.sidebar-toggle:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.collapsed .sidebar-toggle {
+    position: absolute;
+    bottom: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #B91C1C;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
 .nav-item:hover {
@@ -149,14 +190,21 @@
     background: rgba(255, 255, 255, 0.03);
     padding: 12px;
     border-radius: 12px;
+    transition: all 0.3s;
+}
+
+.collapsed .admin-profile-card {
+    padding: 8px;
+    justify-content: center;
 }
 
 .admin-profile-card img {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     border: 2px solid #B91C1C;
     object-fit: cover;
+    flex-shrink: 0;
 }
 
 .profile-info {

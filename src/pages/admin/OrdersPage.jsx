@@ -10,11 +10,10 @@ import { formatCurrency } from '../../lib/utils'
 import './OrdersPage.css'
 
 const STAGES = [
-    { id: 'pendente', label: 'Pendente', icon: AlertCircle, color: '#FBBF24', countBg: '#F3F4F6' },
-    { id: 'confirmado', label: 'Confirmado', icon: CheckCircle2, color: '#3B82F6', countBg: '#F3F4F6' },
-    { id: 'preparando', label: 'Na Cozinha', icon: Utensils, color: '#8B5CF6', countBg: '#F3F4F6' },
-    { id: 'pronto', label: 'Pronto', icon: Check, color: '#10B981', countBg: '#F3F4F6' },
-    { id: 'entrega', label: 'Saiu p/ Entrega', icon: Bike, color: '#F59E0B', countBg: '#F3F4F6' }
+    { id: 'pendente', label: 'Novos', icon: AlertCircle, color: '#FBBF24', next: 'preparando', nextLabel: 'Iniciar Preparo' },
+    { id: 'preparando', label: 'Em Preparação', icon: Utensils, color: '#8B5CF6', next: 'saiu_entrega', nextLabel: 'Entregador a caminho' },
+    { id: 'saiu_entrega', label: 'Em Entrega', icon: Bike, color: '#F59E0B', next: 'entregue', nextLabel: 'Entregue / Finalizar' },
+    { id: 'entregue', label: 'Concluídos', icon: CheckCircle2, color: '#10B981' }
 ]
 
 export default function OrdersPage() {
@@ -52,15 +51,74 @@ export default function OrdersPage() {
         setLoading(false)
     }
 
-    async function updateStatus(id, newStatus) {
-        await supabase.from('pedidos').update({ status: newStatus }).eq('id', id)
-        fetchOrders()
+    const handleStatusChange = async (orderId, newStatus) => {
+        try {
+            const { error } = await supabase
+                .from('pedidos')
+                .update({
+                    status: newStatus,
+                    confirmado_em: newStatus === 'preparando' ? new Date().toISOString() : undefined,
+                    entregue_em: newStatus === 'entregue' ? new Date().toISOString() : undefined
+                })
+                .eq('id', orderId)
+
+            if (error) throw error
+            fetchOrders() // Refresh orders after successful update
+        } catch (error) {
+            console.error('Erro ao atualizar status:', error)
+            alert('Erro ao atualizar status do pedido')
+        }
+    }
+
+    const onDragStart = (e, orderId) => {
+        e.dataTransfer.setData('orderId', orderId)
+        e.currentTarget.classList.add('dragging')
+    }
+
+    const onDragEnd = (e) => {
+        e.currentTarget.classList.remove('dragging')
+    }
+
+    const onDragOver = (e) => {
+        e.preventDefault()
+        e.currentTarget.classList.add('drag-over')
+    }
+
+    const onDragLeave = (e) => {
+        e.currentTarget.classList.remove('drag-over')
+    }
+
+    const onDrop = (e, targetStage) => {
+        e.preventDefault()
+        e.currentTarget.classList.remove('drag-over')
+        const orderId = e.dataTransfer.getData('orderId')
+        if (orderId) {
+            handleStatusChange(orderId, targetStage)
+        }
     }
 
     const getMinutesAgo = (date) => {
+        if (!date) return 0
         const diff = new Date() - new Date(date)
         return Math.floor(diff / 60000)
     }
+
+    const getStatusStage = (status) => {
+        if (status === 'confirmado') return 'pendente'
+        if (status === 'pronto') return 'preparando'
+        if (status === 'entrega') return 'saiu_entrega'
+        return status
+    }
+
+    const filteredOrders = orders.filter(order => {
+        const matchesStatus = (stageId) => getStatusStage(order.status) === stageId
+        const matchesSearch = !searchTerm ||
+            order.nome_cliente?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            order.numero_pedido?.toString().includes(searchTerm) ||
+            order.itens?.some(item => item.produtos?.nome?.toLowerCase().includes(searchTerm.toLowerCase()))
+
+        return matchesSearch
+    })
 
     if (loading) return <div className="admin-loading">Carregando pedidos...</div>
 
@@ -89,25 +147,34 @@ export default function OrdersPage() {
             </header>
 
             <div className="kanban-scroller hide-scrollbar">
-                <div className="kanban-board-premium">
-                    {STAGES.map(stage => (
-                        <div key={stage.id} className="kanban-col">
-                            <div className="col-header">
-                                <div className="title-row">
-                                    <span className="dot" style={{ backgroundColor: stage.color }} />
-                                    <h3>{stage.label}</h3>
-                                    <span className="count-tag">{orders.filter(o => o.status === stage.id).length}</span>
-                                </div>
-                                <button className="more-btn"><MoreHorizontal size={18} /></button>
-                            </div>
+                <div className="kanban-board">
+                    {STAGES.map(stage => {
+                        const stageOrders = filteredOrders.filter(o => getStatusStage(o.status) === stage.id)
 
-                            <div className="cards-stack">
-                                {orders
-                                    .filter(o => o.status === stage.id)
-                                    .map(order => (
+                        return (
+                            <div
+                                key={stage.id}
+                                className="kanban-col"
+                                onDragOver={onDragOver}
+                                onDragLeave={onDragLeave}
+                                onDrop={(e) => onDrop(e, stage.id)}
+                            >
+                                <div className="col-header" style={{ borderTop: `4px solid ${stage.color}` }}>
+                                    <div className="header-label">
+                                        <stage.icon size={18} color={stage.color} />
+                                        <h3>{stage.label}</h3>
+                                    </div>
+                                    <span className="order-count">{stageOrders.length}</span>
+                                </div>
+
+                                <div className="cards-stack">
+                                    {stageOrders.map(order => (
                                         <div
                                             key={order.id}
-                                            className={`order-card-v2 cursor-pointer ${stage.id === 'preparando' ? 'border-purple' : stage.id === 'pronto' ? 'border-green' : ''}`}
+                                            draggable
+                                            onDragStart={(e) => onDragStart(e, order.id)}
+                                            onDragEnd={onDragEnd}
+                                            className={`order-card-v2 cursor-grab ${stage.id === 'preparando' ? 'border-purple' : stage.id === 'saiu_entrega' ? 'border-orange' : stage.id === 'entregue' ? 'border-green' : ''}`}
                                             onClick={() => setSelectedOrder(order)}
                                         >
                                             <div className="card-top">
@@ -119,24 +186,25 @@ export default function OrdersPage() {
                                             </div>
 
                                             <div className="customer-row">
-                                                <div className="avatar-circle">
+                                                <div className="avatar-circle" style={{ backgroundColor: stage.color + '15', color: stage.color }}>
                                                     {(order.nome_cliente || 'Cliente').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
                                                 </div>
-                                                <h4>{order.nome_cliente || 'Sem nome'}</h4>
+                                                <div className="customer-info">
+                                                    <h4>{order.nome_cliente || 'Sem nome'}</h4>
+                                                    <span className="item-count-badge">
+                                                        {order.itens?.reduce((acc, i) => acc + i.quantidade, 0)} itens
+                                                    </span>
+                                                </div>
                                             </div>
 
                                             <div className="items-preview">
-                                                {order.itens?.slice(0, 2).map((item, idx) => (
-                                                    <p key={idx}>{item.quantidade}x {item.produtos?.nome}</p>
+                                                {order.itens?.map((item, idx) => (
+                                                    <p key={idx} className="item-line">
+                                                        <span className="qnt">{item.quantidade}x</span>
+                                                        <span className="name">{item.produtos?.nome}</span>
+                                                    </p>
                                                 ))}
-                                                {order.itens?.length > 2 && <p className="more-items">+{order.itens.length - 2} itens...</p>}
                                             </div>
-
-                                            {stage.id === 'preparando' && (
-                                                <div className="progress-bar-small">
-                                                    <div className="fill" style={{ width: '65%' }} />
-                                                </div>
-                                            )}
 
                                             <div className="card-footer">
                                                 <div className="time-ago">
@@ -146,27 +214,20 @@ export default function OrdersPage() {
                                                 <span className="price">{formatCurrency(order.valor_total)}</span>
                                             </div>
 
-                                            {stage.id === 'pendente' && (
+                                            {stage.next && (
                                                 <button
-                                                    className="quick-action confirm"
-                                                    onClick={(e) => { e.stopPropagation(); updateStatus(order.id, 'confirmado'); }}
+                                                    className={`quick-action stage-${stage.next}`}
+                                                    onClick={(e) => { e.stopPropagation(); handleStatusChange(order.id, stage.next); }}
                                                 >
-                                                    Confirmar
-                                                </button>
-                                            )}
-                                            {stage.id === 'pronto' && (
-                                                <button
-                                                    className="quick-action dispatch"
-                                                    onClick={(e) => { e.stopPropagation(); updateStatus(order.id, 'entrega'); }}
-                                                >
-                                                    <CheckCircle2 size={14} /> Despachar
+                                                    {stage.nextLabel}
                                                 </button>
                                             )}
                                         </div>
                                     ))}
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        )
+                    })}
                 </div>
             </div>
 

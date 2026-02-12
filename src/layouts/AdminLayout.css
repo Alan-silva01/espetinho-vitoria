@@ -12,6 +12,10 @@
     transition: all 0.3s ease;
 }
 
+.sidebar-collapsed .admin-main {
+    margin-left: 80px;
+}
+
 /* Dark mode support */
 .dark .admin-layout {
     background-color: #111827;

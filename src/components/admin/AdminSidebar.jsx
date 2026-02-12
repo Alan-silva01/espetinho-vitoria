@@ -14,13 +14,15 @@ import {
     Bell,
     Moon,
     Sun,
-    Clock
+    Clock,
+    ChevronLeft,
+    ChevronRight
 } from 'lucide-react'
 import './AdminSidebar.css'
 
 const navItems = [
     { to: '/admin', icon: LayoutDashboard, label: 'Dashboard', end: true },
-    { to: '/admin/pedidos', icon: ClipboardList, label: 'Pedidos', badge: 4 },
+    { to: '/admin/pedidos', icon: ClipboardList, label: 'Pedidos' },
     { to: '/admin/cardapio', icon: UtensilsCrossed, label: 'Cardápio' },
     { to: '/admin/estoque', icon: Package, label: 'Estoque' },
     { to: '/admin/promocoes', icon: Megaphone, label: 'Promoções' },
@@ -31,21 +33,26 @@ const navItems = [
     { to: '/admin/configuracoes', icon: Settings, label: 'Configurações' },
 ]
 
-export default function AdminSidebar({ adminInfo, currentPath, onLogout }) {
+export default function AdminSidebar({ adminInfo, currentPath, onLogout, isCollapsed, onToggle }) {
     const toggleTheme = () => {
         document.documentElement.classList.toggle('dark')
     }
 
     return (
-        <aside className="admin-sidebar">
+        <aside className={`admin-sidebar ${isCollapsed ? 'collapsed' : ''}`}>
             <div className="sidebar-brand">
                 <div className="brand-icon">
                     <UtensilsCrossed size={20} />
                 </div>
-                <div className="brand-text">
-                    <h1>Espetinho Vitória</h1>
-                    <span>Admin Dashboard</span>
-                </div>
+                {!isCollapsed && (
+                    <div className="brand-text">
+                        <h1>Espetinho Vitória</h1>
+                        <span>Admin Dashboard</span>
+                    </div>
+                )}
+                <button className="sidebar-toggle" onClick={onToggle}>
+                    {isCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+                </button>
             </div>
 
             <nav className="sidebar-nav">
@@ -57,9 +64,10 @@ export default function AdminSidebar({ adminInfo, currentPath, onLogout }) {
                         className={({ isActive }) =>
                             `nav-item ${isActive ? 'active' : ''}`
                         }
+                        title={isCollapsed ? item.label : ''}
                     >
                         <item.icon size={20} />
-                        <span className="nav-label">{item.label}</span>
+                        {!isCollapsed && <span className="nav-label">{item.label}</span>}
                         {item.badge && <span className="nav-badge">{item.badge}</span>}
                     </NavLink>
                 ))}
@@ -70,7 +78,7 @@ export default function AdminSidebar({ adminInfo, currentPath, onLogout }) {
                     <button className="theme-toggle-btn" onClick={toggleTheme}>
                         <Sun size={18} className="icon-light" />
                         <Moon size={18} className="icon-dark" />
-                        <span>Alternar Tema</span>
+                        {!isCollapsed && <span>Alternar Tema</span>}
                     </button>
                 </div>
 
@@ -79,10 +87,12 @@ export default function AdminSidebar({ adminInfo, currentPath, onLogout }) {
                         src={adminInfo?.avatar_url || 'https://via.placeholder.com/40'}
                         alt="Admin"
                     />
-                    <div className="profile-info">
-                        <span className="profile-name">{adminInfo?.nome || 'Admin'}</span>
-                        <span className="profile-role">Gerente</span>
-                    </div>
+                    {!isCollapsed && (
+                        <div className="profile-info">
+                            <span className="profile-name">{adminInfo?.nome || 'Admin'}</span>
+                            <span className="profile-role">Gerente</span>
+                        </div>
+                    )}
                     <button className="logout-btn" onClick={onLogout} title="Sair">
                         <LogOut size={18} />
                     </button>
