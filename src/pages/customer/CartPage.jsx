@@ -1,3 +1,8 @@
+import { useState, useRef, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { ArrowLeft, X, Minus, Plus, MapPin, Truck, Store } from 'lucide-react'
+import { useCart } from '../../hooks/useCart'
+import { useProducts } from '../../hooks/useProducts'
 import { useCustomer } from '../../context/CustomerContext'
 import { formatCurrency, getImageUrl } from '../../lib/utils'
 import './CartPage.css'
@@ -26,14 +31,17 @@ export default function CartPage() {
 
     // Sync addressData if customer changes and has saved info
     useEffect(() => {
-        if (customer?.dados?.endereco && !addressData.street) {
-            const newData = {
-                receiverName: customer.dados.nome || customer.nome,
-                receiverPhone: customer.dados.whatsapp || customer.telefone,
-                ...customer.dados.endereco
+        if (customer && customer.dados?.endereco) {
+            // If local data is empty OR doesn't match the customer's identified name, sync it
+            if (!addressData.street || (addressData.receiverName !== customer.nome && !localStorage.getItem('espetinho_manual_address'))) {
+                const newData = {
+                    receiverName: customer.dados.nome || customer.nome,
+                    receiverPhone: customer.dados.whatsapp || customer.telefone,
+                    ...customer.dados.endereco
+                }
+                setAddressData(newData)
+                localStorage.setItem('espetinho_delivery_data', JSON.stringify(newData))
             }
-            setAddressData(newData)
-            localStorage.setItem('espetinho_delivery_data', JSON.stringify(newData))
         }
     }, [customer])
 
@@ -72,6 +80,7 @@ export default function CartPage() {
         }
         setAddressData(tempData)
         localStorage.setItem('espetinho_delivery_data', JSON.stringify(tempData))
+        localStorage.setItem('espetinho_manual_address', 'true') // Flag to prevent auto-syncing over manual edits
 
         const fullAddress = `${tempData.street}, ${tempData.number} - ${tempData.neighborhood}`
         localStorage.setItem('espetinho_delivery_address', fullAddress)

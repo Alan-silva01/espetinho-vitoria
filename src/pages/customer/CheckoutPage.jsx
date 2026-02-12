@@ -1,3 +1,8 @@
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { ArrowLeft, MapPin, CreditCard, Receipt, Edit3, CheckCircle, User } from 'lucide-react'
+import { useCart } from '../../hooks/useCart'
+import { useOrders } from '../../hooks/useOrders'
 import { useCustomer } from '../../context/CustomerContext'
 import { formatCurrency, getImageUrl } from '../../lib/utils'
 import './CheckoutPage.css'
@@ -23,6 +28,13 @@ export default function CheckoutPage() {
     const [trocoPara, setTrocoPara] = useState('')
     const [observacoes, setObservacoes] = useState('')
     const [nomeRetirada, setNomeRetirada] = useState(customer?.nome || '')
+
+    // Sync nomeRetirada when customer loads
+    useEffect(() => {
+        if (customer?.nome && !nomeRetirada) {
+            setNomeRetirada(customer.nome)
+        }
+    }, [customer])
 
     const taxaEntrega = tipoPedido === 'entrega' ? 5.0 : 0
     const total = subtotal + taxaEntrega

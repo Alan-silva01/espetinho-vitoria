@@ -1,3 +1,4 @@
+import { useState, useCallback, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Search, Bell, Flame, IceCream, GlassWater, Soup, Plus, Heart } from 'lucide-react'
 import { useProducts } from '../../hooks/useProducts'
