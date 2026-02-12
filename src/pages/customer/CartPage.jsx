@@ -46,19 +46,32 @@ export default function CartPage() {
 
     // Sync addressData if customer changes and has saved info
     useEffect(() => {
-        if (customer && customer.dados?.endereco) {
-            // If local data is empty OR doesn't match the customer's identified name, sync it
-            if (!addressData.street || (addressData.receiverName !== customer.nome && !localStorage.getItem('espetinho_manual_address'))) {
+        if (customer) {
+            const currentLocal = localStorage.getItem('espetinho_delivery_data')
+            const noManualOverride = !localStorage.getItem('espetinho_manual_address')
+            const isEmpty = !addressData.street || !currentLocal
+
+            if (isEmpty || noManualOverride) {
+                const dbAddr = customer.dados?.endereco || {}
                 const newData = {
-                    receiverName: customer.dados.nome || customer.nome,
-                    receiverPhone: customer.dados.whatsapp || customer.telefone,
-                    ...customer.dados.endereco
+                    receiverName: customer.dados?.nome || customer.nome || '',
+                    receiverPhone: customer.dados?.whatsapp || customer.telefone || '',
+                    street: dbAddr.street || dbAddr.rua || '',
+                    number: dbAddr.number || dbAddr.numero || '',
+                    neighborhood: dbAddr.neighborhood || dbAddr.bairro || '',
+                    reference: dbAddr.reference || dbAddr.referencia || ''
                 }
-                setAddressData(newData)
-                localStorage.setItem('espetinho_delivery_data', JSON.stringify(newData))
+
+                // Only set if we actually have data to add or if it's different
+                if (newData.street || newData.receiverName) {
+                    if (JSON.stringify(newData) !== JSON.stringify(addressData)) {
+                        setAddressData(newData)
+                        localStorage.setItem('espetinho_delivery_data', JSON.stringify(newData))
+                    }
+                }
             }
         }
-    }, [customer])
+    }, [customer, addressData])
 
     // Temp state for editing
     const [tempData, setTempData] = useState(addressData)
@@ -291,28 +304,29 @@ export default function CartPage() {
 
             {/* ADDRESS BOTTOM SHEET MODAL */}
             {isAddressModalOpen && (
-                <div className="modal-overlay" onClick={() => setIsAddressModalOpen(false)}>
-                    <div className="modal-content animate-slide-up" onClick={e => e.stopPropagation()}>
-                        <div className="modal-header">
-                            <h2>Endereço de Entrega</h2>
-                            <button className="modal-close" onClick={() => setIsAddressModalOpen(false)}>
-                                <X size={24} />
+                <div className="modal-backdrop" onClick={() => setIsAddressModalOpen(false)}>
+                    <div className="bottom-sheet expanded" onClick={e => e.stopPropagation()}>
+                        <div className="bottom-sheet__handle" />
+                        <div className="bottom-sheet__header">
+                            <h3>Endereço de Entrega</h3>
+                            <button className="close-btn" onClick={() => setIsAddressModalOpen(false)}>
+                                <X size={20} />
                             </button>
                         </div>
 
-                        <div className="address-form">
-                            <div className="form-group">
-                                <label>Rua / Logradouro *</label>
-                                <input
-                                    type="text"
-                                    value={tempData.street}
-                                    onChange={e => setTempData({ ...tempData, street: e.target.value })}
-                                    placeholder="Ex: Rua das Flores"
-                                />
-                            </div>
+                        <div className="bottom-sheet__content">
+                            <div className="form-grid">
+                                <div className="input-modern-group full">
+                                    <label>Rua / Logradouro *</label>
+                                    <input
+                                        type="text"
+                                        value={tempData.street}
+                                        onChange={e => setTempData({ ...tempData, street: e.target.value })}
+                                        placeholder="Ex: Rua das Flores"
+                                    />
+                                </div>
 
-                            <div className="form-row">
-                                <div className="form-group">
+                                <div className="input-modern-group half">
                                     <label>Número *</label>
                                     <input
                                         type="text"
@@ -321,7 +335,7 @@ export default function CartPage() {
                                         placeholder="Ex: 123"
                                     />
                                 </div>
-                                <div className="form-group">
+                                <div className="input-modern-group half">
                                     <label>Bairro *</label>
                                     <input
                                         type="text"
@@ -330,41 +344,43 @@ export default function CartPage() {
                                         placeholder="Ex: Centro"
                                     />
                                 </div>
-                            </div>
 
-                            <div className="form-group">
-                                <label>Ponto de Referência</label>
-                                <input
-                                    type="text"
-                                    value={tempData.reference}
-                                    onChange={e => setTempData({ ...tempData, reference: e.target.value })}
-                                    placeholder="Ex: Próximo à padaria"
-                                />
-                            </div>
+                                <div className="input-modern-group full">
+                                    <label>Ponto de Referência</label>
+                                    <input
+                                        type="text"
+                                        value={tempData.reference}
+                                        onChange={e => setTempData({ ...tempData, reference: e.target.value })}
+                                        placeholder="Ex: Próximo à padaria"
+                                    />
+                                </div>
 
-                            <div className="form-group">
-                                <label>Nome de quem recebe *</label>
-                                <input
-                                    type="text"
-                                    value={tempData.receiverName}
-                                    onChange={e => setTempData({ ...tempData, receiverName: e.target.value })}
-                                    placeholder="Seu nome"
-                                />
-                            </div>
+                                <div className="divider-label">Dados do Recebedor</div>
 
-                            <div className="form-group">
-                                <label>WhatsApp para contato *</label>
-                                <input
-                                    type="tel"
-                                    value={tempData.receiverPhone}
-                                    onChange={e => setTempData({ ...tempData, receiverPhone: formatPhone(e.target.value) })}
-                                    placeholder="(00) 00000-0000"
-                                />
-                            </div>
+                                <div className="input-modern-group full">
+                                    <label>Nome de quem recebe *</label>
+                                    <input
+                                        type="text"
+                                        value={tempData.receiverName}
+                                        onChange={e => setTempData({ ...tempData, receiverName: e.target.value })}
+                                        placeholder="Seu nome"
+                                    />
+                                </div>
 
-                            <button className="btn btn-primary btn-full" onClick={handleSaveAddress}>
-                                Salvar Endereço
-                            </button>
+                                <div className="input-modern-group full">
+                                    <label>WhatsApp para contato *</label>
+                                    <input
+                                        type="tel"
+                                        value={tempData.receiverPhone}
+                                        onChange={e => setTempData({ ...tempData, receiverPhone: formatPhone(e.target.value) })}
+                                        placeholder="(00) 00000-0000"
+                                    />
+                                </div>
+
+                                <button className="btn-save-address btn btn-primary full" onClick={handleSaveAddress}>
+                                    Salvar Endereço
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

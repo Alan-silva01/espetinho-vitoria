@@ -35,17 +35,22 @@ export default function CheckoutPage() {
             if (!nomeRetirada) setNomeRetirada(customer.nome)
 
             // Update delivery data if we have it in DB and local is empty or mismatch
-            if (customer.dados?.endereco) {
-                const currentLocal = localStorage.getItem('espetinho_delivery_data')
-                const hasNoLocal = !currentLocal
-                const noManual = !localStorage.getItem('espetinho_manual_address')
+            const dbAddr = customer.dados?.endereco
+            const currentLocal = localStorage.getItem('espetinho_delivery_data')
+            const hasNoLocal = !currentLocal
+            const noManual = !localStorage.getItem('espetinho_manual_address')
 
-                if (hasNoLocal || noManual) {
-                    const newData = {
-                        receiverName: customer.dados.nome || customer.nome,
-                        receiverPhone: customer.dados.whatsapp || customer.telefone,
-                        ...customer.dados.endereco
-                    }
+            if (dbAddr && (hasNoLocal || noManual)) {
+                const newData = {
+                    receiverName: customer.dados?.nome || customer.nome || '',
+                    receiverPhone: customer.dados?.whatsapp || customer.telefone || '',
+                    street: dbAddr.street || dbAddr.rua || '',
+                    number: dbAddr.number || dbAddr.numero || '',
+                    neighborhood: dbAddr.neighborhood || dbAddr.bairro || '',
+                    reference: dbAddr.reference || dbAddr.referencia || ''
+                }
+
+                if (newData.street || newData.receiverName) {
                     localStorage.setItem('espetinho_delivery_data', JSON.stringify(newData))
                     setSavedData(newData)
                 }
