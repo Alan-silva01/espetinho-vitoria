@@ -54,7 +54,7 @@ export default function AdminSidebar({ adminInfo, currentPath, onLogout, isColla
                 </div>
                 {isExpanded && (
                     <div className="brand-text animate-fade-in">
-                        <h1>Espetinho Vitória</h1>
+                        <h1>Espetinho</h1>
                         <span>Admin Dashboard</span>
                     </div>
                 )}

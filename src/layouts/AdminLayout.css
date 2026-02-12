@@ -6,11 +6,11 @@
 
 .admin-main {
     flex: 1;
-    margin-left: 220px;
+    margin-left: 200px;
     min-height: 100vh;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    width: calc(100% - 220px);
-    max-width: calc(100% - 220px);
+    width: calc(100% - 200px);
+    max-width: calc(100% - 200px);
     box-sizing: border-box;
     overflow-x: hidden;
     /* Prevent page-level horizontal scroll */
