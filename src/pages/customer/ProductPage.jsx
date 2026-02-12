@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, Heart, Share2, Minus, Plus, Check } from 'lucide-react'
 import { useProduct } from '../../hooks/useProducts'
@@ -16,6 +16,22 @@ export default function ProductPage() {
     const [notes, setNotes] = useState('')
     const [selectedVariation, setSelectedVariation] = useState(null)
     const [selectedOptions, setSelectedOptions] = useState({})
+
+    // Initialize defaults from product customization data
+    useEffect(() => {
+        if (!product?.opcoes_personalizacao) return
+        const defaults = {}
+        product.opcoes_personalizacao.forEach(group => {
+            if (group.padrao) {
+                defaults[group.grupo] = group.padrao
+            } else if (group.tipo === 'checkbox') {
+                defaults[group.grupo] = []
+            } else {
+                defaults[group.grupo] = ''
+            }
+        })
+        setSelectedOptions(defaults)
+    }, [product])
 
     const totalPrice = useMemo(() => {
         const basePrice = selectedVariation?.preco || product?.preco || 0
@@ -148,7 +164,7 @@ export default function ProductPage() {
                         <div className="product-section__header">
                             <h3>{group.grupo}</h3>
                             <span className="product-section__badge">
-                                {group.tipo === 'radio' ? 'Escolha 1' : 'Opcional'}
+                                {group.tipo === 'radio' ? 'Escolha 1' : 'Incluso'}
                             </span>
                         </div>
                         <div className="product-chips">
@@ -160,7 +176,7 @@ export default function ProductPage() {
                                         className={`product-chip ${selected ? 'product-chip--selected' : ''}`}
                                         onClick={() => handleOptionToggle(group.grupo, opt, group.tipo)}
                                     >
-                                        {selected && <Check size={14} className="product-chip__check" />}
+                                        {selected && <Check size={12} className="product-chip__check" />}
                                         <span>{opt}</span>
                                     </button>
                                 )

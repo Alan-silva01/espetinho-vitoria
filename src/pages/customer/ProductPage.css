@@ -337,12 +337,12 @@
 .product-chip {
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 10px 16px;
+    gap: 5px;
+    padding: 7px 14px;
     background: #f3f4f6;
-    border: 2px solid #e5e7eb;
+    border: 1.5px solid #e5e7eb;
     border-radius: 999px;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
     color: var(--texto-principal);
     transition: all 0.2s;

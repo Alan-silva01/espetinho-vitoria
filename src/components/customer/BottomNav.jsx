@@ -8,9 +8,9 @@ export default function BottomNav() {
     const navigate = useNavigate()
     const { totalItems } = useCart()
 
-    // Hide BottomNav on cart/checkout/tracking pages
+    // Hide BottomNav on cart/checkout/tracking/product detail pages
     const hideOn = ['/carrinho', '/checkout']
-    if (hideOn.includes(location.pathname) || location.pathname.startsWith('/pedido/')) {
+    if (hideOn.includes(location.pathname) || location.pathname.startsWith('/pedido/') || location.pathname.startsWith('/produto/')) {
         return null
     }
 
