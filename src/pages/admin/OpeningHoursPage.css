@@ -370,7 +370,9 @@
     color: #1E293B;
     outline: none;
     font-family: inherit;
-    width: 65px;
+    width: 95px;
+    /* Even more width for safety */
+    padding: 0;
 }
 
 .dark .time-group input {

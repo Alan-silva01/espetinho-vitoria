@@ -30,22 +30,33 @@ export default function OpeningHoursPage() {
             if (configRes.data) setConfig(configRes.data)
 
             if (horariosRes.data && horariosRes.data.length > 0) {
-                setHorarios(horariosRes.data)
-            } else {
-                const defaultHours = Array.from({ length: 7 }, (_, i) => ({
-                    id: `temp-${i}`,
-                    dia_semana: i,
-                    aberto: i !== 0,
-                    horario_abertura: '18:00:00',
-                    horario_fechamento: '23:30:00'
+                // Ensure all times are HH:MM:SS
+                const formatted = horariosRes.data.map(h => ({
+                    ...h,
+                    horario_abertura: h.horario_abertura || '18:00:00',
+                    horario_fechamento: h.horario_fechamento || '22:00:00'
                 }))
-                setHorarios(defaultHours)
+                setHorarios(formatted)
+            } else {
+                handleResetDefaults()
             }
         } catch (err) {
             console.error('Erro ao carregar horários:', err)
         } finally {
             setLoading(false)
         }
+    }
+
+    const handleResetDefaults = () => {
+        const defaultHours = Array.from({ length: 7 }, (_, i) => ({
+            id: `temp-${i}`,
+            dia_semana: i,
+            aberto: i !== 6, // Closed on Saturday (6)
+            horario_abertura: '18:00:00',
+            horario_fechamento: '22:00:00'
+        }))
+        setHorarios(defaultHours)
+        setFeedback({ type: 'success', msg: 'Horários redefinidos para o padrão (18h-22h, exceto Sábado)' })
     }
 
     async function handleSave() {
@@ -101,6 +112,42 @@ export default function OpeningHoursPage() {
         </div>
     )
 
+    const calculateStatus = () => {
+        if (!config || horarios.length === 0) return { open: false, label: 'CARREGANDO...' }
+
+        // Manual master switch
+        if (config.esta_aberta === false) return { open: false, label: 'LOJA DESATIVADA' }
+
+        // Exceptional closure
+        if (config.fechar_hoje_excepcionalmente) return { open: false, label: 'FECHADO HOJE' }
+
+        // Get Brasília Time
+        const now = new Date()
+        const brTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }))
+        const day = brTime.getDay()
+        const timeStr = brTime.getHours().toString().padStart(2, '0') + ':' + brTime.getMinutes().toString().padStart(2, '0') + ':00'
+
+        const todaySchedule = horarios.find(h => h.dia_semana === day)
+
+        if (!todaySchedule || !todaySchedule.aberto) return { open: false, label: 'FECHADO HOJE' }
+
+        // Compare times (standard format HH:MM:SS)
+        const openTime = todaySchedule.horario_abertura
+        const closeTime = todaySchedule.horario_fechamento
+
+        if (timeStr >= openTime && timeStr <= closeTime) {
+            return { open: true, label: 'LOJA ABERTA' }
+        }
+
+        if (timeStr < openTime) {
+            return { open: false, label: `ABRIREMOS ÀS ${openTime.slice(0, 5)}` }
+        }
+
+        return { open: false, label: 'JÁ ENCERRADO' }
+    }
+
+    const currentStatus = calculateStatus()
+
     return (
         <div className="hours-page-wrapper animate-fade-in">
             <header className="page-header-premium">
@@ -133,7 +180,7 @@ export default function OpeningHoursPage() {
                         <div className="card-header">
                             <div className="title">
                                 <AlertCircle size={20} className="icon-warning" />
-                                <h3>Fechamento Excepcional</h3>
+                                <h3>Fechar hoje?</h3>
                             </div>
                             <label className="premium-toggle red">
                                 <input
@@ -145,28 +192,28 @@ export default function OpeningHoursPage() {
                             </label>
                         </div>
 
-                        {config.fechar_hoje_excepcionalmente && (
-                            <div className="exception-body animate-slide-down">
-                                <p>Informe aos seus clientes por que a loja não abrirá hoje.</p>
-                                <textarea
-                                    placeholder="Ex: Hoje o sistema está em manutenção..."
-                                    value={config.motivo_fechamento_hoje || ''}
-                                    onChange={e => setConfig({ ...config, motivo_fechamento_hoje: e.target.value })}
-                                />
-                                <div className="warning-info">
+                        <div className="exception-body">
+                            <p>Use isto para dias que você costuma abrir, mas por algum motivo hoje não vai (ex: feriado, manutenção).</p>
+                            <textarea
+                                placeholder="Pq não vão abrir? Ex: Hoje estaremos fechados devido ao feriado. Voltamos amanhã!"
+                                value={config.motivo_fechamento_hoje || ''}
+                                onChange={e => setConfig({ ...config, motivo_fechamento_hoje: e.target.value })}
+                            />
+                            {config.fechar_hoje_excepcionalmente && (
+                                <div className="warning-info animate-pulse">
                                     <AlertCircle size={14} />
-                                    <span>Esta mensagem aparecerá como prioridade no APP.</span>
+                                    <span>AVISO ATIVO: A loja aparecerá fechada no App.</span>
                                 </div>
-                            </div>
-                        )}
+                            )}
+                        </div>
                     </div>
 
                     <div className="glass-card status-card">
-                        <div className={`status-indicator-big ${config.esta_aberta && !config.fechar_hoje_excepcionalmente ? 'open' : 'closed'}`}>
+                        <div className={`status-indicator-big ${currentStatus.open ? 'open' : 'closed'}`}>
                             <div className="pulsing-dot" />
                             <div className="text">
-                                <strong>{config.esta_aberta && !config.fechar_hoje_excepcionalmente ? 'LOJA ABERTA' : 'LOJA FECHADA'}</strong>
-                                <span>Status atual automático</span>
+                                <strong>{currentStatus.label}</strong>
+                                <span>Status automático (Horário de Brasília)</span>
                             </div>
                         </div>
                     </div>
@@ -179,6 +226,9 @@ export default function OpeningHoursPage() {
                                 <Calendar size={20} />
                                 <h3>Horários Semanais</h3>
                             </div>
+                            <button className="btn-reset-link" onClick={handleResetDefaults}>
+                                Redefinir para Padrão (18h-22h)
+                            </button>
                         </div>
 
                         <div className="days-list">
