@@ -111,16 +111,22 @@ export default function InventoryPage() {
     const updateStock = (id, field, value) => {
         setInventory(prev => prev.map(item => {
             if (item.id === id) {
-                const newValue = Math.max(0, parseInt(value) || 0)
+                // Allow empty string for better UX (so user can clear the input)
+                const rawValue = value === "" ? "" : Math.max(0, parseInt(value) || 0)
+                const numericValue = rawValue === "" ? 0 : rawValue
+
                 const isInitial = field === 'inicial'
-                const newInitial = isInitial ? newValue : item.inicial
-                const newCurrent = isInitial ? newValue : newValue // If updating current directly (manual adjustment)
+
+                // For percentage calculation
+                const calcInitial = isInitial ? numericValue : (parseFloat(item.inicial) || 0)
+                const calcCurrent = field === 'atual' ? numericValue : (isInitial ? numericValue : (parseFloat(item.atual) || 0))
 
                 return {
                     ...item,
-                    [field]: newValue,
-                    atual: isInitial ? newValue : newValue,
-                    percentage: newInitial > 0 ? (newCurrent / newInitial) * 100 : 0,
+                    [field]: rawValue,
+                    // If updating initial, we usually update current as well for the starting point
+                    atual: isInitial ? rawValue : (field === 'atual' ? rawValue : item.atual),
+                    percentage: calcInitial > 0 ? (calcCurrent / calcInitial) * 100 : 0,
                     is_dirty: true
                 }
             }
@@ -134,11 +140,14 @@ export default function InventoryPage() {
         const dirtyItems = inventory.filter(p => p.is_dirty)
 
         for (const item of dirtyItems) {
+            const finalInicial = parseInt(item.inicial) || 0
+            const finalAtual = parseInt(item.atual) || 0
+
             // Update persistent stock in products table
             await supabase
                 .from('produtos')
                 .update({
-                    quantidade_disponivel: item.atual,
+                    quantidade_disponivel: finalAtual,
                     controlar_estoque: true // Auto-enable if saved in inventory page
                 })
                 .eq('id', item.id)
@@ -148,8 +157,8 @@ export default function InventoryPage() {
                 await supabase
                     .from('estoque_diario')
                     .update({
-                        quantidade_inicial: item.inicial,
-                        quantidade_atual: item.atual
+                        quantidade_inicial: finalInicial,
+                        quantidade_atual: finalAtual
                     })
                     .eq('id', item.stock_id)
             } else {
@@ -157,8 +166,8 @@ export default function InventoryPage() {
                     .from('estoque_diario')
                     .insert({
                         produto_id: item.id,
-                        quantidade_inicial: item.inicial,
-                        quantidade_atual: item.atual,
+                        quantidade_inicial: finalInicial,
+                        quantidade_atual: finalAtual,
                         data: today
                     })
             }

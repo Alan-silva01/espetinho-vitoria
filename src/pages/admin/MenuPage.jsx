@@ -134,7 +134,8 @@ export default function MenuPage() {
 
         const payload = {
             ...formData,
-            preco: parseFloat(formData.preco)
+            preco: parseFloat(formData.preco),
+            quantidade_disponivel: parseInt(formData.quantidade_disponivel) || 0
         }
 
         let error
@@ -405,7 +406,7 @@ export default function MenuPage() {
                                                 type="number"
                                                 min="0"
                                                 value={formData.quantidade_disponivel}
-                                                onChange={e => setFormData(prev => ({ ...prev, quantidade_disponivel: parseInt(e.target.value) || 0 }))}
+                                                onChange={e => setFormData(prev => ({ ...prev, quantidade_disponivel: e.target.value === "" ? "" : (parseInt(e.target.value) || 0) }))}
                                                 placeholder="Ex: 50"
                                             />
                                         </div>
