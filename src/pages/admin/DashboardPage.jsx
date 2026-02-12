@@ -46,7 +46,7 @@ export default function DashboardPage() {
                     id, valor_total, criado_em, status,
                     itens:itens_pedido(
                         quantidade,
-                        produtos(id, nome, categoria_id, categorias(nome))
+                        produtos(id, nome, imagem_url, categoria_id, categorias(nome))
                     )
                 `)
                 .gte('criado_em', sevenDaysAgo.toISOString())
@@ -118,6 +118,7 @@ export default function DashboardPage() {
                         prodMap[prodId] = {
                             id: prodId,
                             nome: item.produtos.nome,
+                            imagem_url: item.produtos.imagem_url,
                             categoria: item.produtos.categorias?.nome,
                             vendas: 0
                         }
