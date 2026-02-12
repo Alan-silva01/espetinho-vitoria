@@ -152,17 +152,18 @@
 
 .exception-body textarea {
     width: 100%;
-    min-height: 120px;
+    min-height: 100px;
     background: white;
     border: 1px solid #E2E8F0;
     border-radius: 16px;
     padding: 16px;
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 500;
-    color: #334155;
+    color: #1E293B;
     outline: none;
     transition: all 0.2s;
-    resize: none;
+    resize: vertical;
+    margin-top: 12px;
 }
 
 .dark .exception-body textarea {
@@ -370,9 +371,10 @@
     color: #1E293B;
     outline: none;
     font-family: inherit;
-    width: 95px;
-    /* Even more width for safety */
-    padding: 0;
+    width: 105px;
+    /* Maximum safety width */
+    padding: 4px 0;
+    text-align: center;
 }
 
 .dark .time-group input {

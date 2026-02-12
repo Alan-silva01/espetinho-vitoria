@@ -193,16 +193,16 @@ export default function OpeningHoursPage() {
                         </div>
 
                         <div className="exception-body">
-                            <p>Use isto para dias que você costuma abrir, mas por algum motivo hoje não vai (ex: feriado, manutenção).</p>
+                            <p>Use esta função se hoje for um dia que você normalmente abriria, mas precisou fechar (ex: imprevisto ou feriado).</p>
                             <textarea
-                                placeholder="Pq não vão abrir? Ex: Hoje estaremos fechados devido ao feriado. Voltamos amanhã!"
+                                placeholder="Descreva o motivo (Ex: Hoje não abriremos devido ao feriado de Carnaval. Voltamos amanhã!)"
                                 value={config.motivo_fechamento_hoje || ''}
                                 onChange={e => setConfig({ ...config, motivo_fechamento_hoje: e.target.value })}
                             />
                             {config.fechar_hoje_excepcionalmente && (
                                 <div className="warning-info animate-pulse">
                                     <AlertCircle size={14} />
-                                    <span>AVISO ATIVO: A loja aparecerá fechada no App.</span>
+                                    <span>LOJA FECHADA NO APP: Seus clientes verão o motivo acima.</span>
                                 </div>
                             )}
                         </div>
