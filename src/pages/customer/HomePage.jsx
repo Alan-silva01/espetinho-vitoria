@@ -279,7 +279,6 @@ export default function HomePage() {
                 <div className="store-closed-overlay animate-fade-in">
                     <div className="store-closed-card">
                         <div className="store-closed-header">
-                            <span className="store-closed-icon">🌙</span>
                             <h2>{config?.fechar_hoje_excepcionalmente ? 'Aviso Importante' : 'Estamos Fechados'}</h2>
                         </div>
 
