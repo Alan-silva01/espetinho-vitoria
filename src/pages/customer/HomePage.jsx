@@ -222,6 +222,29 @@ export default function HomePage() {
                                 className="product-card__add"
                                 onClick={e => {
                                     e.stopPropagation()
+
+                                    // --- Fly-to-Cart animation ---
+                                    const btn = e.currentTarget
+                                    const rect = btn.getBoundingClientRect()
+                                    const cart = document.querySelector('.bottom-nav__cart-btn')
+                                    if (cart) {
+                                        const cartRect = cart.getBoundingClientRect()
+                                        const fly = document.createElement('div')
+                                        fly.className = 'fly-to-cart'
+                                        fly.textContent = '🍖'
+                                        fly.style.left = `${rect.left + rect.width / 2}px`
+                                        fly.style.top = `${rect.top + rect.height / 2}px`
+                                        fly.style.setProperty('--dx', `${cartRect.left + cartRect.width / 2 - (rect.left + rect.width / 2)}px`)
+                                        fly.style.setProperty('--dy', `${cartRect.top + cartRect.height / 2 - (rect.top + rect.height / 2)}px`)
+                                        document.body.appendChild(fly)
+                                        fly.addEventListener('animationend', () => {
+                                            fly.remove()
+                                            // Bounce the cart button
+                                            cart.classList.add('cart-bounce')
+                                            setTimeout(() => cart.classList.remove('cart-bounce'), 400)
+                                        })
+                                    }
+
                                     addItem({
                                         produto_id: product.id,
                                         nome: product.nome,

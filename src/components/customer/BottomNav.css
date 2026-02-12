@@ -100,3 +100,26 @@
     background: var(--fundo-principal);
     position: relative;
 }
+
+/* Cart bounce when item arrives */
+.bottom-nav__cart-btn.cart-bounce {
+    animation: cartBounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes cartBounce {
+    0% {
+        transform: scale(1);
+    }
+
+    40% {
+        transform: scale(1.25);
+    }
+
+    70% {
+        transform: scale(0.92);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
