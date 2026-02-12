@@ -1,5 +1,5 @@
 .admin-sidebar {
-    width: 260px;
+    width: 220px;
     height: 100vh;
     background-color: #1A1A2E;
     color: white;
@@ -20,7 +20,7 @@
 }
 
 .admin-sidebar.collapsed.hovered {
-    width: 260px;
+    width: 220px;
 }
 
 .sidebar-brand {

@@ -6,17 +6,20 @@
 
 .admin-main {
     flex: 1;
-    margin-left: 260px;
+    margin-left: 220px;
     min-height: 100vh;
-    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    max-width: calc(100vw - 260px);
-    /* Prevent overflow */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    width: calc(100% - 220px);
+    max-width: calc(100% - 220px);
     box-sizing: border-box;
+    overflow-x: hidden;
+    /* Prevent page-level horizontal scroll */
 }
 
 .sidebar-collapsed .admin-main {
     margin-left: 80px;
-    max-width: calc(100vw - 80px);
+    width: calc(100% - 80px);
+    max-width: calc(100% - 80px);
 }
 
 /* Dark mode support */
