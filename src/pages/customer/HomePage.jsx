@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, Bell, Flame, IceCreamCone, GlassWater, Soup, Plus, Heart } from 'lucide-react'
+import { Search, Bell, Flame, IceCream, GlassWater, Soup, Plus, Heart } from 'lucide-react'
 import { useProducts } from '../../hooks/useProducts'
 import { useCart } from '../../hooks/useCart'
 import { useStore } from '../../hooks/useStore'
@@ -35,7 +35,7 @@ export default function HomePage() {
 
     const categoryIcons = {
         'Espetos': Flame,
-        'Açaí': IceCreamCone,
+        'Açaí': IceCream,
         'Bebidas': GlassWater,
         'Caldos': Soup,
     }
@@ -217,16 +217,33 @@ export default function HomePage() {
 
             {/* Store Closed Overlay */}
             {!isOpen && (
-                <div className="store-closed-overlay">
+                <div className="store-closed-overlay animate-fade-in">
                     <div className="store-closed-card">
-                        <span className="store-closed-icon">🌙</span>
-                        <h2>Estamos Fechados</h2>
-                        <p>Voltamos amanhã! Confira nosso horário de funcionamento.</p>
-                        {config?.horario_abertura && (
-                            <p className="store-closed-hours">
-                                Abrimos às {config.horario_abertura?.slice(0, 5)}
+                        <div className="store-closed-header">
+                            <span className="store-closed-icon">🌙</span>
+                            <h2>{config?.fechar_hoje_excepcionalmente ? 'Aviso Importante' : 'Estamos Fechados'}</h2>
+                        </div>
+
+                        <div className="store-closed-body">
+                            <p className="main-message">
+                                {config?.fechar_hoje_excepcionalmente
+                                    ? (config?.motivo_fechamento_hoje || 'Fechado excepcionalmente hoje.')
+                                    : (config?.mensagem_fechamento || 'Obrigado pela preferência! Voltamos em breve.')}
                             </p>
-                        )}
+
+                            {!config?.fechar_hoje_excepcionalmente && (
+                                <div className="opening-hours-info">
+                                    <p>Confira nossos horários padrão de atendimento.</p>
+                                    <button className="btn-view-hours" onClick={() => navigate('/perfil')}>
+                                        Ver horários de funcionamento
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="store-closed-footer">
+                            <p className="footer-brand">Espetinho Vitória agradece!</p>
+                        </div>
                     </div>
                 </div>
             )}

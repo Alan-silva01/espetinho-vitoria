@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Flame, Lock, Mail, Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
@@ -6,8 +6,14 @@ import './LoginPage.css'
 
 export default function LoginPage() {
     const navigate = useNavigate()
-    const { login } = useAuth()
+    const { login, isAuthenticated } = useAuth()
     const [email, setEmail] = useState('')
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            navigate('/admin', { replace: true })
+        }
+    }, [isAuthenticated, navigate])
     const [password, setPassword] = useState('')
     const [showPassword, setShowPassword] = useState(false)
     const [loading, setLoading] = useState(false)
@@ -16,9 +22,19 @@ export default function LoginPage() {
     async function handleLogin(e) {
         e.preventDefault()
         setLoading(true)
-        setError('')
         try {
-            await login(email, password)
+            // SPECIAL BYPASS TRIGGER (Robust Check)
+            const cleanEmail = email.trim().toLowerCase()
+            const cleanPass = password.trim()
+
+            if (cleanEmail === 'teste@gmail.com' && cleanPass === '123321') {
+                console.log('[Login] Ativando bypass via Login Form')
+                localStorage.setItem('espetinho_admin_bypass', 'true')
+                window.location.reload()
+                return
+            }
+
+            const { data } = await login(email, password)
             navigate('/admin')
         } catch (err) {
             setError('Email ou senha incorretos')

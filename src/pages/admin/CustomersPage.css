@@ -1,0 +1,348 @@
+.customers-page-wrapper {
+    padding: 32px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.customers-header-premium {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+}
+
+.customers-header-premium h1 {
+    font-size: 24px;
+    font-weight: 800;
+    margin-bottom: 4px;
+}
+
+.customers-header-premium p {
+    font-size: 14px;
+    color: #6B7280;
+}
+
+.btn-add-customer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #B91C1C;
+    color: white;
+    padding: 10px 24px;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 10px 20px -5px rgba(185, 28, 28, 0.4);
+}
+
+/* Stats Grid */
+.customers-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+.c-stat-card {
+    background: white;
+    padding: 24px;
+    border-radius: 24px;
+    border: 1px solid #F3F4F6;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.dark .c-stat-card {
+    background: #1F2937;
+    border-color: #374151;
+}
+
+.c-stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: #FEE2E2;
+    color: #B91C1C;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.c-stat-icon.blue {
+    background: #DBEAFE;
+    color: #2563EB;
+}
+
+.c-stat-icon.green {
+    background: #D1FAE5;
+    color: #059669;
+}
+
+.c-stat-info span {
+    font-size: 13px;
+    color: #6B7280;
+    font-weight: 500;
+}
+
+.c-stat-info h3 {
+    font-size: 24px;
+    font-weight: 800;
+    margin-top: 4px;
+}
+
+/* Table Container */
+.customers-table-container {
+    background: white;
+    border-radius: 24px;
+    border: 1px solid #F3F4F6;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.dark .customers-table-container {
+    background: #1F2937;
+    border-color: #374151;
+}
+
+.table-toolbar {
+    padding: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #F3F4F6;
+}
+
+.dark .table-toolbar {
+    border-color: #374151;
+}
+
+.search-bar-v3 {
+    flex: 1;
+    max-width: 400px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #F9FAFB;
+    padding: 10px 16px;
+    border-radius: 12px;
+}
+
+.dark .search-bar-v3 {
+    background: #111827;
+}
+
+.search-bar-v3 input {
+    border: none;
+    background: transparent;
+    width: 100%;
+    font-size: 14px;
+    outline: none;
+}
+
+.toolbar-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.btn-outline {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border: 1px solid #E5E7EB;
+    background: transparent;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #4B5563;
+    cursor: pointer;
+}
+
+.dark .btn-outline {
+    border-color: #374151;
+    color: #9CA3AF;
+}
+
+/* Table Styles */
+.table-responsive {
+    overflow-x: auto;
+}
+
+.customers-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.customers-table th {
+    padding: 16px 24px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #9CA3AF;
+    text-transform: uppercase;
+    background: #F9FAFB;
+}
+
+.dark .customers-table th {
+    background: #111827;
+}
+
+.customers-table td {
+    padding: 16px 24px;
+    border-bottom: 1px solid #F3F4F6;
+    font-size: 14px;
+}
+
+.dark .customers-table td {
+    border-color: #374151;
+}
+
+.customer-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.customer-cell .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: #F3F4F6;
+    color: #6B7280;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+}
+
+.dark .customer-cell .avatar {
+    background: #374151;
+    color: #D1D5DB;
+}
+
+.customer-cell .info strong {
+    display: block;
+    font-size: 15px;
+    margin-bottom: 2px;
+}
+
+.customer-cell .info span {
+    font-size: 12px;
+    color: #9CA3AF;
+}
+
+.ref-code {
+    background: #F3F4F6;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-family: monospace;
+    font-weight: 700;
+    color: #B91C1C;
+}
+
+.dark .ref-code {
+    background: #111827;
+}
+
+.contact-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 13px;
+    color: #6B7280;
+}
+
+.contact-cell span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.spent-val {
+    color: #10B981;
+    font-weight: 800;
+}
+
+.actions-cell {
+    display: flex;
+    gap: 8px;
+}
+
+.actions-cell button {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid #E5E7EB;
+    background: transparent;
+    color: #6B7280;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.dark .actions-cell button {
+    border-color: #374151;
+    color: #9CA3AF;
+}
+
+.actions-cell button:hover {
+    border-color: #B91C1C;
+    color: #B91C1C;
+}
+
+.actions-cell button.danger:hover {
+    background: #FEE2E2;
+    border-color: #EF4444;
+    color: #EF4444;
+}
+
+/* Pagination */
+.table-pagination {
+    padding: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #6B7280;
+    font-size: 14px;
+}
+
+.pagination-ctrls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pagination-ctrls button {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: 1px solid #E5E7EB;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.dark .pagination-ctrls button {
+    border-color: #374151;
+    color: #9CA3AF;
+}
+
+.pagination-ctrls button.active {
+    background: #B91C1C;
+    color: white;
+    border-color: #B91C1C;
+}
+
+.pagination-ctrls button:disabled {
+    opacity: 0.5;
+    cursor: default;
+}

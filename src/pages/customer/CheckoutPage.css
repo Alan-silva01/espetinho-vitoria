@@ -365,3 +365,128 @@
     opacity: 0.5;
     cursor: not-allowed;
 }
+
+/* Empty checkout */
+.checkout-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 80vh;
+    gap: 12px;
+    padding: 24px;
+    text-align: center;
+}
+
+.checkout-empty__icon {
+    font-size: 56px;
+    margin-bottom: 8px;
+}
+
+.checkout-empty h2 {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.checkout-empty p {
+    color: #6B7280;
+    font-size: 14px;
+}
+
+/* Address Review Card */
+.checkout-address-card {
+    background: white;
+    padding: 16px;
+    border-radius: 16px;
+    border: 1px solid #E5E7EB;
+    box-shadow: var(--sombra-sm);
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.checkout-address-card__info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.checkout-address-card__street {
+    font-size: 15px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.checkout-address-card__neighborhood {
+    font-size: 13px;
+    color: #6B7280;
+}
+
+.checkout-address-card__ref {
+    font-size: 13px;
+    color: #6B7280;
+    margin-top: 4px;
+}
+
+.checkout-address-card__receiver {
+    display: flex;
+    gap: 16px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #F3F4F6;
+    font-size: 13px;
+    color: #374151;
+    font-weight: 500;
+}
+
+.checkout-address-card__edit {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--cor-primaria);
+    background: rgba(196, 30, 46, 0.06);
+    padding: 8px 12px;
+    border-radius: 10px;
+    white-space: nowrap;
+    transition: all 0.2s;
+}
+
+.checkout-address-card__edit:active {
+    transform: scale(0.96);
+}
+
+/* Address empty state */
+.checkout-address-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 28px 16px;
+    background: white;
+    border-radius: 16px;
+    border: 2px dashed #D1D5DB;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #9CA3AF;
+}
+
+.checkout-address-empty:active {
+    background: #F9FAFB;
+    border-color: var(--cor-primaria);
+}
+
+.checkout-address-empty p {
+    font-size: 15px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.checkout-address-empty span {
+    font-size: 13px;
+    color: var(--cor-primaria);
+    font-weight: 500;
+}

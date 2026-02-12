@@ -12,6 +12,7 @@ export function useProducts() {
     }, [])
 
     async function fetchAll() {
+        console.log('[useProducts] Iniciando busca de produtos e categorias...')
         setLoading(true)
         try {
             const [catRes, prodRes] = await Promise.all([
@@ -27,12 +28,20 @@ export function useProducts() {
                     .order('ordem_exibicao'),
             ])
 
-            if (catRes.error) throw catRes.error
-            if (prodRes.error) throw prodRes.error
+            if (catRes.error) {
+                console.error('[useProducts] Erro categorias:', catRes.error)
+                throw catRes.error
+            }
+            if (prodRes.error) {
+                console.error('[useProducts] Erro produtos:', prodRes.error)
+                throw prodRes.error
+            }
 
-            setCategories(catRes.data)
-            setProducts(prodRes.data)
+            console.log(`[useProducts] Sucesso: ${catRes.data?.length} categorias, ${prodRes.data?.length} produtos`)
+            setCategories(catRes.data || [])
+            setProducts(prodRes.data || [])
         } catch (err) {
+            console.error('[useProducts] Falha ao carregar dados:', err)
             setError(err.message)
         } finally {
             setLoading(false)
@@ -67,14 +76,20 @@ export function useProduct(id) {
         if (!id) return
         async function fetch() {
             setLoading(true)
-            const { data, error } = await supabase
-                .from('produtos')
-                .select('*, categorias(nome, icone), variacoes_produto(*)')
-                .eq('id', id)
-                .single()
+            try {
+                const { data, error } = await supabase
+                    .from('produtos')
+                    .select('*, categorias(nome, icone), variacoes_produto(*)')
+                    .eq('id', id)
+                    .single()
 
-            if (!error) setProduct(data)
-            setLoading(false)
+                if (error) throw error
+                setProduct(data)
+            } catch (err) {
+                console.error('[useProduct] Erro ao carregar produto:', err.message)
+            } finally {
+                setLoading(false)
+            }
         }
         fetch()
     }, [id])

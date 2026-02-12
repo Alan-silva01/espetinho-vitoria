@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, MapPin, CreditCard, DollarSign, Receipt } from 'lucide-react'
+import { ArrowLeft, MapPin, CreditCard, Receipt, Edit3, CheckCircle } from 'lucide-react'
 import { useCart } from '../../hooks/useCart'
 import { useOrders } from '../../hooks/useOrders'
 import { formatCurrency, getImageUrl } from '../../lib/utils'
@@ -11,32 +11,47 @@ export default function CheckoutPage() {
     const { items, subtotal, clearCart } = useCart()
     const { createOrder, loading } = useOrders()
 
+    // Read saved address data from localStorage (set by CartPage)
+    const savedData = (() => {
+        const raw = localStorage.getItem('espetinho_delivery_data')
+        if (raw) {
+            try { return JSON.parse(raw) } catch { }
+        }
+        return null
+    })()
+
     const [tipoPedido, setTipoPedido] = useState('entrega')
-    const [endereco, setEndereco] = useState({ rua: '', numero: '', bairro: '', complemento: '' })
     const [formaPagamento, setFormaPagamento] = useState('pix')
     const [precisaTroco, setPrecisaTroco] = useState(false)
     const [trocoPara, setTrocoPara] = useState('')
     const [observacoes, setObservacoes] = useState('')
-    const [nomeCliente, setNomeCliente] = useState('')
-    const [telefoneCliente, setTelefoneCliente] = useState('')
 
     const taxaEntrega = tipoPedido === 'entrega' ? 5.0 : 0
     const total = subtotal + taxaEntrega
 
+    const enderecoCompleto = savedData
+        ? `${savedData.street}, ${savedData.number} - ${savedData.neighborhood}${savedData.reference ? ` (${savedData.reference})` : ''}`
+        : null
+
+    const hasAddress = savedData && savedData.street && savedData.receiverName && savedData.receiverPhone
+
     async function handleConfirm() {
+        if (tipoPedido === 'entrega' && !hasAddress) {
+            alert('Volte ao carrinho e preencha o endereço de entrega.')
+            return
+        }
+
         try {
             const pedido = await createOrder({
-                nome_cliente: nomeCliente,
-                telefone_cliente: telefoneCliente,
+                nome_cliente: savedData?.receiverName || '',
+                telefone_cliente: savedData?.receiverPhone || '',
                 tipo_pedido: tipoPedido,
                 subtotal,
                 taxa_entrega: taxaEntrega,
                 valor_total: total,
                 forma_pagamento: formaPagamento,
                 troco_para: precisaTroco ? parseFloat(trocoPara) : null,
-                endereco: tipoPedido === 'entrega'
-                    ? `${endereco.rua}, ${endereco.numero} - ${endereco.bairro}${endereco.complemento ? ` (${endereco.complemento})` : ''}`
-                    : null,
+                endereco: tipoPedido === 'entrega' ? enderecoCompleto : null,
                 observacoes,
                 itens: items,
             })
@@ -47,6 +62,19 @@ export default function CheckoutPage() {
         }
     }
 
+    if (items.length === 0) {
+        return (
+            <div className="checkout-empty animate-fade-in">
+                <span className="checkout-empty__icon">🛒</span>
+                <h2>Nenhum item no carrinho</h2>
+                <p>Adicione itens antes de finalizar o pedido.</p>
+                <button className="btn btn-primary btn-md" onClick={() => navigate('/')}>
+                    Ver Cardápio
+                </button>
+            </div>
+        )
+    }
+
     return (
         <div className="checkout-page animate-fade-in">
             {/* Header */}
@@ -54,29 +82,12 @@ export default function CheckoutPage() {
                 <button className="checkout-header__back" onClick={() => navigate(-1)}>
                     <ArrowLeft size={22} />
                 </button>
-                <h1>Checkout</h1>
+                <h1>Confirmar Pedido</h1>
                 <div style={{ width: 40 }} />
             </header>
 
             <main className="checkout-main">
-                {/* Client Info */}
-                <section className="checkout-section">
-                    <h2 className="checkout-section__title">
-                        <span>👤</span> Seus Dados
-                    </h2>
-                    <div className="checkout-card">
-                        <div className="checkout-field">
-                            <label>Nome</label>
-                            <input type="text" placeholder="Seu nome" value={nomeCliente} onChange={e => setNomeCliente(e.target.value)} />
-                        </div>
-                        <div className="checkout-field">
-                            <label>Telefone (WhatsApp)</label>
-                            <input type="tel" placeholder="(00) 00000-0000" value={telefoneCliente} onChange={e => setTelefoneCliente(e.target.value)} />
-                        </div>
-                    </div>
-                </section>
-
-                {/* Order Type Toggle */}
+                {/* Delivery / Pickup Toggle */}
                 <div className="checkout-toggle">
                     <button
                         className={`checkout-toggle__btn ${tipoPedido === 'entrega' ? 'checkout-toggle__btn--active' : ''}`}
@@ -92,32 +103,46 @@ export default function CheckoutPage() {
                     </button>
                 </div>
 
-                {/* Delivery Address */}
+                {/* Delivery Address Review (read-only, from localStorage) */}
                 {tipoPedido === 'entrega' && (
                     <section className="checkout-section">
                         <h2 className="checkout-section__title">
-                            <MapPin size={20} color="var(--cor-primaria)" /> Endereço de Entrega
+                            <MapPin size={20} color="var(--cor-primaria)" /> Entregar em
                         </h2>
-                        <div className="checkout-card">
-                            <div className="checkout-field-row">
-                                <div className="checkout-field" style={{ flex: 1 }}>
-                                    <label>Rua</label>
-                                    <input type="text" value={endereco.rua} onChange={e => setEndereco({ ...endereco, rua: e.target.value })} />
+                        {hasAddress ? (
+                            <div className="checkout-address-card">
+                                <div className="checkout-address-card__info">
+                                    <p className="checkout-address-card__street">
+                                        {savedData.street}, {savedData.number}
+                                    </p>
+                                    <p className="checkout-address-card__neighborhood">
+                                        {savedData.neighborhood}
+                                    </p>
+                                    {savedData.reference && (
+                                        <p className="checkout-address-card__ref">
+                                            📍 {savedData.reference}
+                                        </p>
+                                    )}
+                                    <div className="checkout-address-card__receiver">
+                                        <span>👤 {savedData.receiverName}</span>
+                                        <span>📱 {savedData.receiverPhone}</span>
+                                    </div>
                                 </div>
-                                <div className="checkout-field" style={{ width: 80 }}>
-                                    <label>Número</label>
-                                    <input type="text" value={endereco.numero} onChange={e => setEndereco({ ...endereco, numero: e.target.value })} style={{ textAlign: 'center' }} />
-                                </div>
+                                <button
+                                    className="checkout-address-card__edit"
+                                    onClick={() => navigate('/carrinho')}
+                                >
+                                    <Edit3 size={16} />
+                                    Editar
+                                </button>
                             </div>
-                            <div className="checkout-field">
-                                <label>Bairro</label>
-                                <input type="text" value={endereco.bairro} onChange={e => setEndereco({ ...endereco, bairro: e.target.value })} />
+                        ) : (
+                            <div className="checkout-address-empty" onClick={() => navigate('/carrinho')}>
+                                <MapPin size={24} />
+                                <p>Nenhum endereço cadastrado</p>
+                                <span>Toque para adicionar</span>
                             </div>
-                            <div className="checkout-field">
-                                <label>Complemento (Opcional)</label>
-                                <input type="text" placeholder="Apto, Bloco, Referência" value={endereco.complemento} onChange={e => setEndereco({ ...endereco, complemento: e.target.value })} />
-                            </div>
-                        </div>
+                        )}
                     </section>
                 )}
 
@@ -215,13 +240,13 @@ export default function CheckoutPage() {
                 <button
                     className="checkout-footer__btn"
                     onClick={handleConfirm}
-                    disabled={loading || !nomeCliente || !telefoneCliente}
+                    disabled={loading || (tipoPedido === 'entrega' && !hasAddress)}
                 >
                     {loading ? (
                         <span className="btn-spinner" />
                     ) : (
                         <>
-                            <span>Confirmar Pedido</span>
+                            <span><CheckCircle size={18} style={{ marginRight: 8 }} />Confirmar Pedido</span>
                             <span>{formatCurrency(total)}</span>
                         </>
                     )}

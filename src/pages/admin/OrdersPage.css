@@ -1,43 +1,82 @@
-.orders-kanban-container {
-    padding: 24px;
-    height: calc(100vh - 64px);
+.orders-kanban-wrapper {
+    padding: 32px;
+    height: 100vh;
     display: flex;
     flex-direction: column;
+    background: #F3F4F6;
+    overflow: hidden;
 }
 
-.admin-page-header {
+.dark .orders-kanban-wrapper {
+    background: #111827;
+}
+
+.orders-header-premium {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 24px;
 }
 
-.admin-page-header h1 {
+.header-left h1 {
     font-size: 24px;
     font-weight: 800;
-    color: #111827;
+    margin-bottom: 4px;
 }
 
-.admin-page-header p {
+.date-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
     color: #6B7280;
-    font-size: 14px;
+    font-weight: 600;
 }
 
-.kanban-board {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
+.header-right {
+    display: flex;
+    gap: 16px;
+}
+
+.icon-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: white;
+    border: 1px solid #E5E7EB;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6B7280;
+    cursor: pointer;
+}
+
+.dark .icon-btn {
+    background: #1F2937;
+    border-color: #374151;
+}
+
+.kanban-scroller {
     flex: 1;
-    min-height: 0;
+    overflow-x: auto;
+    padding-bottom: 20px;
 }
 
-.kanban-column {
-    background: #F3F4F6;
-    border-radius: 20px;
+.kanban-board-premium {
+    display: flex;
+    gap: 24px;
+    height: 100%;
+    min-width: max-content;
+}
+
+.kanban-col {
+    width: 300px;
     display: flex;
     flex-direction: column;
-    padding: 16px;
-    min-width: 280px;
+    height: 100%;
 }
 
-.kanban-column-header {
+.col-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -45,183 +84,263 @@
     padding: 0 4px;
 }
 
-.header-title {
+.title-row {
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
-.header-title h3 {
+.title-row .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.title-row h3 {
     font-size: 15px;
     font-weight: 700;
     color: #374151;
 }
 
-.count-badge {
-    background: white;
-    padding: 2px 8px;
-    border-radius: 99px;
-    font-size: 12px;
-    font-weight: 700;
-    color: #6B7280;
-    border: 1px solid #E5E7EB;
+.dark .title-row h3 {
+    color: #E5E7EB;
 }
 
-.kanban-cards-list {
+.count-tag {
+    background: #E5E7EB;
+    color: #6B7280;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 6px;
+}
+
+.dark .count-tag {
+    background: #374151;
+    color: #9CA3AF;
+}
+
+.cards-stack {
     flex: 1;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 16px;
     padding-right: 4px;
 }
 
-/* Custom scrollbar for kanban lists */
-.kanban-cards-list::-webkit-scrollbar {
-    width: 6px;
+.cards-stack::-webkit-scrollbar {
+    width: 5px;
 }
 
-.kanban-cards-list::-webkit-scrollbar-thumb {
-    background: #D1D5DB;
+.cards-stack::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.1);
     border-radius: 10px;
 }
 
-.order-card {
+.order-card-v2 {
     background: white;
-    border-radius: 14px;
+    border-radius: 20px;
     padding: 16px;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-    border: 1px solid #E5E7EB;
-    cursor: pointer;
+    border: 1px solid #F3F4F6;
     transition: all 0.2s;
 }
 
-.order-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    border-color: #D1D5DB;
+.dark .order-card-v2 {
+    background: #1F2937;
+    border-color: #374151;
 }
 
-.order-card__header {
+.order-card-v2:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.order-card-v2.border-purple {
+    border-left: 4px solid #8B5CF6;
+}
+
+.order-card-v2.border-green {
+    border-left: 4px solid #10B981;
+}
+
+.card-top {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
 }
 
-.order-number {
-    font-size: 13px;
+.order-id {
+    font-size: 11px;
     font-weight: 800;
+    color: #9CA3AF;
+}
+
+.type-tag {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+.type-tag.entrega {
+    background: #DBEAFE;
+    color: #2563EB;
+}
+
+.type-tag.retirada {
+    background: #F3E8FF;
+    color: #9333EA;
+}
+
+.customer-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.avatar-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #FEE2E2;
+    color: #B91C1C;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.customer-row h4 {
+    font-size: 15px;
+    font-weight: 700;
     color: #111827;
 }
 
-.order-time {
+.dark .customer-row h4 {
+    color: white;
+}
+
+.items-preview {
+    margin-bottom: 16px;
+}
+
+.items-preview p {
+    font-size: 13px;
+    color: #6B7280;
+    margin-bottom: 2px;
+}
+
+.more-items {
+    font-size: 11px;
+    font-style: italic;
+    color: #9CA3AF;
+}
+
+.progress-bar-small {
+    height: 6px;
+    background: #F3F4F6;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 16px;
+}
+
+.progress-bar-small .fill {
+    height: 100%;
+    background: #8B5CF6;
+    border-radius: 4px;
+}
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 12px;
+    border-top: 1px solid #F3F4F6;
+}
+
+.dark .card-footer {
+    border-color: #374151;
+}
+
+.time-ago {
+    display: flex;
+    align-items: center;
+    gap: 4px;
     font-size: 11px;
     color: #9CA3AF;
     font-weight: 600;
 }
 
-.customer-name {
+.price {
     font-size: 15px;
-    font-weight: 700;
-    color: #374151;
-    margin-bottom: 4px;
+    font-weight: 800;
+    color: #B91C1C;
 }
 
-.order-summary {
-    font-size: 13px;
-    color: #6B7280;
-    margin-bottom: 12px;
-}
-
-.order-type-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 3px 8px;
-    background: #F9FAFB;
-    border-radius: 6px;
-    font-size: 11px;
-    font-weight: 700;
-    color: #6B7280;
-    text-transform: capitalize;
-    margin-bottom: 12px;
-}
-
-.order-card__actions {
-    display: flex;
-    gap: 8px;
-}
-
-.btn-action {
-    flex: 1;
+.quick-action {
+    width: 100%;
+    margin-top: 12px;
     padding: 8px;
-    border-radius: 8px;
+    border-radius: 10px;
+    border: none;
     font-size: 12px;
     font-weight: 700;
-    border: none;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
     transition: all 0.2s;
 }
 
-.btn-action.start {
+.quick-action.confirm {
     background: #FEF3C7;
     color: #D97706;
 }
 
-.btn-action.start:hover {
-    background: #FDE68A;
-}
-
-.btn-action.delivery {
-    background: #DBEAFE;
-    color: #2563EB;
-}
-
-.btn-action.delivery:hover {
-    background: #BFDBFE;
-}
-
-.btn-action.finish {
+.quick-action.dispatch {
     background: #D1FAE5;
     color: #059669;
 }
 
-.btn-action.finish:hover {
-    background: #A7F3D0;
+.quick-action:hover {
+    opacity: 0.8;
+    transform: scale(1.02);
 }
 
-/* Modal */
-.order-modal-overlay {
+/* Modal V2 */
+.modal-overlay-v2 {
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(4px);
+    backdrop-filter: blur(8px);
+    z-index: 1000;
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1000;
-    padding: 20px;
+    padding: 24px;
 }
 
-.order-modal {
+.modal-content-v2 {
     background: white;
     width: 100%;
     max-width: 500px;
-    border-radius: 24px;
+    border-radius: 32px;
     overflow: hidden;
-    animation: modalScaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.2);
 }
 
-@keyframes modalScaleUp {
-    from {
-        opacity: 0;
-        transform: scale(0.9);
-    }
-
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
+.dark .modal-content-v2 {
+    background: #1F2937;
+    color: white;
 }
 
 .modal-header {
@@ -229,87 +348,48 @@
     border-bottom: 1px solid #F3F4F6;
     display: flex;
     justify-content: space-between;
-    align-items: center;
 }
 
-.modal-header h2 {
-    font-size: 20px;
-    font-weight: 800;
-}
-
-.modal-header button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: #9CA3AF;
-}
-
-.modal-body {
+.modal-body-v2 {
     padding: 24px;
-    max-height: 70vh;
-    overflow-y: auto;
 }
 
-.modal-section {
-    margin-bottom: 24px;
-}
-
-.modal-section h3 {
-    font-size: 14px;
-    font-weight: 800;
-    color: #374151;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-.info-row {
-    display: flex;
-    justify-content: space-between;
-    font-size: 15px;
-    margin-bottom: 6px;
-}
-
-.items-list {
+.items-box {
     background: #F9FAFB;
-    border-radius: 16px;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+    border-radius: 20px;
+    padding: 20px;
+    margin: 20px 0;
 }
 
-.item-row {
-    display: flex;
-    justify-content: space-between;
-    font-size: 14px;
+.dark .items-box {
+    background: #111827;
+}
+
+.modal-actions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.btn-next {
+    padding: 12px;
+    border-radius: 12px;
+    border: none;
+    background: #B91C1C;
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.btn-next.green {
+    background: #10B981;
+}
+
+.btn-print {
+    background: #F3F4F6;
     color: #4B5563;
-}
-
-.total-row {
-    display: flex;
-    justify-content: space-between;
-    padding-top: 16px;
-    margin-top: 12px;
-    border-top: 1px dashed #D1D5DB;
-}
-
-.final-price {
-    font-size: 18px;
-    color: #C41E2E;
-}
-
-@media (max-width: 1200px) {
-    .kanban-board {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 640px) {
-    .kanban-board {
-        grid-template-columns: 1fr;
-    }
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
 }

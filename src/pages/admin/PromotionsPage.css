@@ -1,0 +1,344 @@
+.promotions-page-wrapper {
+    padding: 32px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.promotions-header-premium {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+}
+
+.promotions-header-premium h1 {
+    font-size: 24px;
+    font-weight: 800;
+    margin-bottom: 4px;
+}
+
+.promotions-header-premium p {
+    font-size: 14px;
+    color: #6B7280;
+}
+
+.btn-add-promo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #B91C1C;
+    color: white;
+    padding: 10px 24px;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 10px 20px -5px rgba(185, 28, 28, 0.4);
+}
+
+.promo-filters-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 32px;
+}
+
+.filter-chip {
+    padding: 8px 16px;
+    border-radius: 10px;
+    border: 1px solid #E5E7EB;
+    background: white;
+    font-size: 13px;
+    font-weight: 600;
+    color: #6B7280;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.dark .filter-chip {
+    background: #1F2937;
+    border-color: #374151;
+}
+
+.filter-chip.active {
+    background: #111827;
+    color: white;
+    border-color: #111827;
+}
+
+.dark .filter-chip.active {
+    background: #B91C1C;
+    border-color: #B91C1C;
+}
+
+/* Promo Grid */
+.promotions-grid-v2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
+}
+
+.promo-card-premium {
+    background: white;
+    border-radius: 24px;
+    padding: 24px;
+    border: 1px solid #F3F4F6;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s;
+}
+
+.dark .promo-card-premium {
+    background: #1F2937;
+    border-color: #374151;
+}
+
+.promo-card-premium:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.1);
+}
+
+.promo-badge-status {
+    position: absolute;
+    top: 24px;
+    left: 24px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 99px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    text-transform: uppercase;
+    z-index: 1;
+}
+
+.promo-card-premium.ativo .promo-badge-status {
+    background: #D1FAE5;
+    color: #065F46;
+}
+
+.promo-card-premium.agendado .promo-badge-status {
+    background: #DBEAFE;
+    color: #1E40AF;
+}
+
+.promo-card-premium.pausado .promo-badge-status {
+    background: #F3F4F6;
+    color: #4B5563;
+}
+
+.promo-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-bottom: 24px;
+    border-bottom: 2px dashed #F3F4F6;
+    margin-bottom: 24px;
+}
+
+.dark .promo-card-header {
+    border-color: #374151;
+}
+
+.discount-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.discount-circle h3 {
+    font-size: 20px;
+    font-weight: 900;
+    line-height: 1;
+}
+
+.discount-circle span {
+    font-size: 10px;
+    font-weight: 700;
+    opacity: 0.9;
+}
+
+.promo-actions-menu {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+}
+
+.promo-actions-menu button {
+    background: none;
+    border: none;
+    color: #9CA3AF;
+    cursor: pointer;
+}
+
+.promo-card-body {
+    flex: 1;
+}
+
+.promo-card-body h4 {
+    font-size: 18px;
+    font-weight: 800;
+    margin-bottom: 4px;
+}
+
+.promo-type {
+    font-size: 13px;
+    color: #6B7280;
+    margin-bottom: 20px;
+}
+
+.promo-dates {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding: 12px;
+    background: #F9FAFB;
+    border-radius: 12px;
+}
+
+.dark .promo-dates {
+    background: #111827;
+}
+
+.date-item span {
+    display: block;
+    font-size: 10px;
+    color: #9CA3AF;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.date-item strong {
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.promo-stats-mini {
+    display: flex;
+    gap: 20px;
+    font-size: 12px;
+    color: #6B7280;
+    font-weight: 600;
+    margin-bottom: 24px;
+}
+
+.promo-stats-mini .stat {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.promo-card-footer {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.promo-card-footer button {
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-edit-promo {
+    background: white;
+    border: 1px solid #E5E7EB;
+    color: #4B5563;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.dark .btn-edit-promo {
+    background: #111827;
+    border-color: #374151;
+    color: #D1D5DB;
+}
+
+.btn-toggle-promo {
+    background: #111827;
+    border: none;
+    color: white;
+}
+
+.dark .btn-toggle-promo {
+    background: #B91C1C;
+}
+
+.add-promo-card-dashed {
+    background: transparent;
+    border: 2px dashed #E5E7EB;
+    border-radius: 24px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.dark .add-promo-card-dashed {
+    border-color: #374151;
+}
+
+.add-promo-card-dashed:hover {
+    border-color: #B91C1C;
+    background: rgba(185, 28, 28, 0.02);
+}
+
+.icon-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: #F3F4F6;
+    color: #9CA3AF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    transition: all 0.2s;
+}
+
+.dark .icon-circle {
+    background: #1F2937;
+}
+
+.add-promo-card-dashed:hover .icon-circle {
+    background: #B91C1C;
+    color: white;
+}
+
+.add-promo-card-dashed span {
+    font-size: 16px;
+    font-weight: 800;
+    color: #4B5563;
+    margin-bottom: 4px;
+}
+
+.dark .add-promo-card-dashed span {
+    color: #D1D5DB;
+}
+
+.add-promo-card-dashed p {
+    font-size: 13px;
+    color: #9CA3AF;
+}
