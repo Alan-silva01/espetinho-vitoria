@@ -5,7 +5,7 @@ import { useStore } from '../hooks/useStore'
 
 export default function CustomerLayout() {
     const location = useLocation()
-    const { isOpen, config, loading } = useStore()
+    const { isOpen, config, loading, closureInfo } = useStore()
 
     const hideNav = ['/checkout', '/pedido'].some(p => location.pathname.startsWith(p))
     const isProfilePage = location.pathname === '/perfil'
