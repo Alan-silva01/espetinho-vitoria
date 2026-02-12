@@ -75,13 +75,12 @@ export function CustomerProvider({ children }) {
         }
     }
 
-    async function updateLastOrder(orderSummary, newAddress = null) {
+    async function updateCustomerData(newData) {
         if (!customer) return
 
         const updatedDados = {
             ...customer.dados,
-            ultimos_pedidos: orderSummary,
-            ...(newAddress && { endereco: newAddress })
+            ...newData
         }
 
         const { error } = await supabase
@@ -91,7 +90,23 @@ export function CustomerProvider({ children }) {
 
         if (!error) {
             setCustomer(prev => ({ ...prev, dados: updatedDados }))
+            return true
         }
+        return false
+    }
+
+    async function updateLastOrder(orderSummary, newAddress = null) {
+        if (!customer) return
+
+        const updateObj = {
+            ultimos_pedidos: orderSummary
+        }
+
+        if (newAddress) {
+            updateObj.endereco = newAddress
+        }
+
+        await updateCustomerData(updateObj)
     }
 
     return (
@@ -99,6 +114,8 @@ export function CustomerProvider({ children }) {
             customer,
             loading,
             fetchCustomerByCode,
+            updateCustomerStatus: () => { }, // placeholder if needed
+            updateCustomerData,
             updateLastOrder
         }}>
             {children}

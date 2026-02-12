@@ -51,17 +51,17 @@ export default function OrdersPage() {
         setLoading(true)
 
         // Get current time in Brasília (UTC-3)
-        const nowInBR = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }))
-        const todayBR = new Date(nowInBR)
-        todayBR.setHours(0, 0, 0, 0)
+        // Get Brasília date as string and parse it to avoid timezone offsets issues
+        const brDateStr = new Date().toLocaleDateString('en-US', { timeZone: 'America/Sao_Paulo' })
+        const [month, day, year] = brDateStr.split('/')
 
-        // Convert Brasília midnight back to UTC for Supabase query
-        // Since BR is UTC-3, midnight BR is 03:00 UTC
-        const todayUTC = new Date(todayBR.getTime() - (todayBR.getTimezoneOffset() * 60000))
-        // More reliably, since we know it's BR (UTC-3):
-        const brMidnightAsUTC = new Date(todayBR)
-        // Set to 3am UTC to represent midnight BR
-        brMidnightAsUTC.setUTCHours(3, 0, 0, 0)
+        // This is Midnight in Brasília
+        const todayBR = new Date(year, month - 1, day, 0, 0, 0)
+
+        // Set to 3am UTC to represent midnight BR (UTC-3)
+        const brMidnightAsUTC = new Date(Date.UTC(year, month - 1, day, 3, 0, 0))
+
+        console.log('[fetchOrders] Filtrando após:', brMidnightAsUTC.toISOString())
 
         const { data, error } = await supabase
             .from('pedidos')
@@ -73,7 +73,7 @@ export default function OrdersPage() {
                 )
             `)
             .gte('criado_em', brMidnightAsUTC.toISOString())
-            .order('criado_em', { ascending: false })
+            .order('criado_em', { ascending: true })
 
         if (!error) {
             setOrders(data || [])

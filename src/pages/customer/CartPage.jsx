@@ -12,7 +12,7 @@ export default function CartPage() {
     const { customerCode } = useParams()
     const { items, removeItem, updateQuantity, clearCart, subtotal, addItem } = useCart()
     const { products } = useProducts()
-    const { customer } = useCustomer()
+    const { customer, updateCustomerData } = useCustomer()
 
     // Upsell: products NOT already in cart
     const cartProductIds = items.map(i => i.produto_id)
@@ -49,22 +49,26 @@ export default function CartPage() {
         if (customer) {
             const currentLocal = localStorage.getItem('espetinho_delivery_data')
             const noManualOverride = !localStorage.getItem('espetinho_manual_address')
-            const isEmpty = !addressData.street || !currentLocal
+            const isActuallyEmpty = !addressData.street || !currentLocal
 
-            if (isEmpty || noManualOverride) {
-                const dbAddr = customer.dados?.endereco || {}
+            if (isActuallyEmpty || noManualOverride) {
+                const dados = customer.dados || {}
+                // Support both nested { endereco: { rua: ... } } and flat { rua: ... }
+                const dbAddr = dados.endereco || dados || {}
+
                 const newData = {
-                    receiverName: customer.dados?.nome || customer.nome || '',
-                    receiverPhone: customer.dados?.whatsapp || customer.telefone || '',
-                    street: dbAddr.street || dbAddr.rua || '',
+                    receiverName: dados.nome || customer.nome || '',
+                    receiverPhone: dados.whatsapp || customer.telefone || '',
+                    street: dbAddr.street || dbAddr.rua || dbAddr.logradouro || '',
                     number: dbAddr.number || dbAddr.numero || '',
                     neighborhood: dbAddr.neighborhood || dbAddr.bairro || '',
-                    reference: dbAddr.reference || dbAddr.referencia || ''
+                    reference: dbAddr.reference || dbAddr.referencia || dbAddr.ponto_referencia || ''
                 }
 
-                // Only set if we actually have data to add or if it's different
+                // Only set if we actually have at least something new or better
                 if (newData.street || newData.receiverName) {
-                    if (JSON.stringify(newData) !== JSON.stringify(addressData)) {
+                    const isDifferent = JSON.stringify(newData) !== JSON.stringify(addressData)
+                    if (isDifferent) {
                         setAddressData(newData)
                         localStorage.setItem('espetinho_delivery_data', JSON.stringify(newData))
                     }
@@ -101,17 +105,32 @@ export default function CartPage() {
         setIsAddressModalOpen(true)
     }
 
-    const handleSaveAddress = () => {
+    const handleSaveAddress = async () => {
         if (!tempData.street || !tempData.receiverName || !tempData.receiverPhone) {
             alert('Por favor, preencha os campos obrigatórios.')
             return
         }
+
         setAddressData(tempData)
         localStorage.setItem('espetinho_delivery_data', JSON.stringify(tempData))
-        localStorage.setItem('espetinho_manual_address', 'true') // Flag to prevent auto-syncing over manual edits
+        localStorage.setItem('espetinho_manual_address', 'true')
 
         const fullAddress = `${tempData.street}, ${tempData.number} - ${tempData.neighborhood}`
         localStorage.setItem('espetinho_delivery_address', fullAddress)
+
+        // Persist to database if customer is logged in
+        if (customer) {
+            await updateCustomerData({
+                nome: tempData.receiverName,
+                whatsapp: tempData.receiverPhone,
+                endereco: {
+                    street: tempData.street,
+                    number: tempData.number,
+                    neighborhood: tempData.neighborhood,
+                    reference: tempData.reference
+                }
+            })
+        }
 
         setIsAddressModalOpen(false)
     }

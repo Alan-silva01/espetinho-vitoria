@@ -68,6 +68,14 @@ export const STATUS_COLORS = {
     cancelado: '#EF4444',
 }
 
+export function getStatusLabel(status) {
+    return STATUS_LABELS[status] || status
+}
+
+export function getStatusColor(status) {
+    return STATUS_COLORS[status] || '#999'
+}
+
 /**
  * Debounce function
  */

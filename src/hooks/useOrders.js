@@ -52,6 +52,7 @@ export function useOrders() {
                     troco_para: orderData.troco_para,
                     endereco: orderData.endereco,
                     observacoes: orderData.observacoes,
+                    status: 'confirmado',
                 })
                 .select()
                 .single()

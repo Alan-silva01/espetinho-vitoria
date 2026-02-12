@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, MapPin, CreditCard, Receipt, Edit3, CheckCircle, User } from 'lucide-react'
 import { useCart } from '../../hooks/useCart'
@@ -35,19 +35,21 @@ export default function CheckoutPage() {
             if (!nomeRetirada) setNomeRetirada(customer.nome)
 
             // Update delivery data if we have it in DB and local is empty or mismatch
-            const dbAddr = customer.dados?.endereco
+            const dados = customer.dados || {}
+            const dbAddr = dados.endereco || dados
+
             const currentLocal = localStorage.getItem('espetinho_delivery_data')
             const hasNoLocal = !currentLocal
             const noManual = !localStorage.getItem('espetinho_manual_address')
 
             if (dbAddr && (hasNoLocal || noManual)) {
                 const newData = {
-                    receiverName: customer.dados?.nome || customer.nome || '',
-                    receiverPhone: customer.dados?.whatsapp || customer.telefone || '',
-                    street: dbAddr.street || dbAddr.rua || '',
+                    receiverName: dados.nome || customer.nome || '',
+                    receiverPhone: dados.whatsapp || customer.telefone || '',
+                    street: dbAddr.street || dbAddr.rua || dbAddr.logradouro || '',
                     number: dbAddr.number || dbAddr.numero || '',
                     neighborhood: dbAddr.neighborhood || dbAddr.bairro || '',
-                    reference: dbAddr.reference || dbAddr.referencia || ''
+                    reference: dbAddr.reference || dbAddr.referencia || dbAddr.ponto_referencia || ''
                 }
 
                 if (newData.street || newData.receiverName) {
@@ -91,13 +93,29 @@ export default function CheckoutPage() {
 
             const pedido = await createOrder(orderData)
 
-            // Update customer metadata (last order and address)
             if (customer) {
                 const summary = items.map(i => `${i.quantidade}x ${i.nome}`).join(', ')
                 await updateLastOrder(
                     `Pedido #${pedido.numero_pedido || pedido.id.slice(0, 5)}: ${summary}`,
                     tipoPedido === 'entrega' ? savedData : null
                 )
+            }
+
+            // Webhook notification
+            try {
+                await fetch('https://rapidus-n8n-webhook.b7bsm5.easypanel.host/webhook/pedido_feito', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        ...orderData,
+                        pedido_id: pedido.id,
+                        numero_pedido: pedido.numero_pedido,
+                        cliente_original: customer
+                    })
+                })
+            } catch (webhookErr) {
+                console.error('Erro ao enviar webhook:', webhookErr)
+                // Don't block the user if webhook fails
             }
 
             clearCart()
