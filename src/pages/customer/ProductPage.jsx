@@ -250,7 +250,10 @@ export default function ProductPage() {
                     <h3>Alguma observação?</h3>
                     <textarea
                         className="product-notes"
-                        placeholder="Ex: Tirar a cebola, caprichar no sal..."
+                        placeholder={product.nome.toLowerCase().includes('açaí')
+                            ? "Ex: Acompanhamentos separados, enviar colher..."
+                            : "Ex: Tirar a cebola, caprichar no sal..."
+                        }
                         value={notes}
                         onChange={e => setNotes(e.target.value)}
                         rows={3}
