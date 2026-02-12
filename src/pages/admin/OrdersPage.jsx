@@ -10,9 +10,9 @@ import { formatCurrency } from '../../lib/utils'
 import './OrdersPage.css'
 
 const STAGES = [
-    { id: 'pendente', label: 'Novos', icon: AlertCircle, color: '#FBBF24', next: 'preparando', nextLabel: 'Iniciar Preparo' },
-    { id: 'preparando', label: 'Em Preparação', icon: Utensils, color: '#8B5CF6', next: 'saiu_entrega', nextLabel: 'Entregador a caminho' },
-    { id: 'saiu_entrega', label: 'Em Entrega', icon: Bike, color: '#F59E0B', next: 'entregue', nextLabel: 'Entregue / Finalizar' },
+    { id: 'confirmado', label: 'Novos', icon: AlertCircle, color: '#FBBF24', next: 'pronto', nextLabel: 'Iniciar Preparo' },
+    { id: 'pronto', label: 'Em Preparação', icon: Utensils, color: '#8B5CF6', next: 'entrega', nextLabel: 'Entregador a caminho' },
+    { id: 'entrega', label: 'Em Entrega', icon: Bike, color: '#F59E0B', next: 'entregue', nextLabel: 'Entregue / Finalizar' },
     { id: 'entregue', label: 'Concluídos', icon: CheckCircle2, color: '#10B981' }
 ]
 
@@ -49,8 +49,19 @@ export default function OrdersPage() {
 
     async function fetchOrders() {
         setLoading(true)
-        const today = new Date()
-        today.setHours(0, 0, 0, 0)
+
+        // Get current time in Brasília (UTC-3)
+        const nowInBR = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }))
+        const todayBR = new Date(nowInBR)
+        todayBR.setHours(0, 0, 0, 0)
+
+        // Convert Brasília midnight back to UTC for Supabase query
+        // Since BR is UTC-3, midnight BR is 03:00 UTC
+        const todayUTC = new Date(todayBR.getTime() - (todayBR.getTimezoneOffset() * 60000))
+        // More reliably, since we know it's BR (UTC-3):
+        const brMidnightAsUTC = new Date(todayBR)
+        // Set to 3am UTC to represent midnight BR
+        brMidnightAsUTC.setUTCHours(3, 0, 0, 0)
 
         const { data, error } = await supabase
             .from('pedidos')
@@ -61,7 +72,7 @@ export default function OrdersPage() {
                     produtos(nome)
                 )
             `)
-            .gte('criado_em', today.toISOString())
+            .gte('criado_em', brMidnightAsUTC.toISOString())
             .order('criado_em', { ascending: false })
 
         if (!error) {
@@ -79,14 +90,14 @@ export default function OrdersPage() {
             order.id === orderId ? {
                 ...order,
                 status: newStatus,
-                confirmado_em: newStatus === 'preparando' ? now : order.confirmado_em,
-                entregue_em: newStatus === 'entregue' ? now : order.entregue_em
+                confirmado_em: newStatus === 'pronto' ? now : order.confirmado_em,
+                entregue_em: newStatus === 'concluido' ? now : order.entregue_em
             } : order
         ))
 
         try {
             const updateData = { status: newStatus }
-            if (newStatus === 'preparando') updateData.confirmado_em = now
+            if (newStatus === 'pronto') updateData.confirmado_em = now
             if (newStatus === 'entregue') updateData.entregue_em = now
 
             const { error } = await supabase
@@ -137,16 +148,10 @@ export default function OrdersPage() {
     }
 
     const getStatusStage = (status) => {
-        if (status === 'confirmado') return 'pendente'
-        if (status === 'pronto') return 'preparando'
-        if (status === 'entrega') return 'saiu_entrega'
         return status
     }
 
     const getStageStatus = (stageId) => {
-        if (stageId === 'pendente') return 'confirmado'
-        if (stageId === 'preparando') return 'pronto'
-        if (stageId === 'saiu_entrega') return 'entrega'
         return stageId
     }
 
@@ -214,7 +219,7 @@ export default function OrdersPage() {
                                             draggable
                                             onDragStart={(e) => onDragStart(e, order.id)}
                                             onDragEnd={onDragEnd}
-                                            className={`order-card-v2 cursor-grab ${stage.id === 'preparando' ? 'border-purple' : stage.id === 'saiu_entrega' ? 'border-orange' : stage.id === 'entregue' ? 'border-green' : ''}`}
+                                            className={`order-card-v2 cursor-grab ${stage.id === 'pronto' ? 'border-purple' : stage.id === 'entrega' ? 'border-orange' : stage.id === 'entregue' ? 'border-green' : ''}`}
                                             onClick={() => setSelectedOrder(order)}
                                         >
                                             <div className="card-top">
