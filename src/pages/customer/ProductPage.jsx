@@ -201,7 +201,7 @@ export default function ProductPage() {
                                     {badgeText}
                                 </span>
                             </div>
-                            <div className="product-chips">
+                            <div className="product-addons-list">
                                 {group.opcoes.map((opt, oIdx) => {
                                     const name = optName(opt)
                                     const price = optPreco(opt)
@@ -210,21 +210,27 @@ export default function ProductPage() {
                                     return (
                                         <button
                                             key={oIdx}
-                                            className={`product-chip ${selected ? 'product-chip--selected' : ''} ${img ? 'product-chip--has-img' : ''}`}
+                                            className={`product-addon-item ${selected ? 'product-addon-item--selected' : ''}`}
                                             onClick={() => handleOptionToggle(group.grupo, name, group.tipo)}
                                         >
-                                            {img && (
-                                                <img
-                                                    src={getImageUrl(img)}
-                                                    alt={name}
-                                                    className="product-chip__img"
-                                                />
-                                            )}
-                                            {selected && <Check size={12} className="product-chip__check" />}
-                                            <span>{name}</span>
-                                            {price > 0 && (
-                                                <span className="product-chip__price">+{formatCurrency(price)}</span>
-                                            )}
+                                            <div className="product-addon-item__left">
+                                                {img ? (
+                                                    <img src={getImageUrl(img)} alt={name} className="product-addon-item__img" />
+                                                ) : (
+                                                    <div className="product-addon-item__img-placeholder">
+                                                        <span>{name.charAt(0)}</span>
+                                                    </div>
+                                                )}
+                                                <div className="product-addon-item__info">
+                                                    <span className="product-addon-item__name">{name}</span>
+                                                    {price > 0 && (
+                                                        <span className="product-addon-item__price">+{formatCurrency(price)}</span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div className={`product-addon-item__check ${selected ? 'product-addon-item__check--active' : ''}`}>
+                                                {selected && <Check size={14} />}
+                                            </div>
                                         </button>
                                     )
                                 })}
