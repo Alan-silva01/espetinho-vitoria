@@ -1,8 +1,4 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, MapPin, CreditCard, Receipt, Edit3, CheckCircle, User } from 'lucide-react'
-import { useCart } from '../../hooks/useCart'
-import { useOrders } from '../../hooks/useOrders'
+import { useCustomer } from '../../context/CustomerContext'
 import { formatCurrency, getImageUrl } from '../../lib/utils'
 import './CheckoutPage.css'
 
@@ -10,6 +6,7 @@ export default function CheckoutPage() {
     const navigate = useNavigate()
     const { items, subtotal, clearCart } = useCart()
     const { createOrder, loading } = useOrders()
+    const { customer, updateLastOrder } = useCustomer()
 
     // Read saved address data from localStorage (set by CartPage)
     const savedData = (() => {
@@ -25,7 +22,7 @@ export default function CheckoutPage() {
     const [precisaTroco, setPrecisaTroco] = useState(false)
     const [trocoPara, setTrocoPara] = useState('')
     const [observacoes, setObservacoes] = useState('')
-    const [nomeRetirada, setNomeRetirada] = useState('')
+    const [nomeRetirada, setNomeRetirada] = useState(customer?.nome || '')
 
     const taxaEntrega = tipoPedido === 'entrega' ? 5.0 : 0
     const total = subtotal + taxaEntrega
@@ -43,7 +40,7 @@ export default function CheckoutPage() {
         }
 
         try {
-            const pedido = await createOrder({
+            const orderData = {
                 nome_cliente: tipoPedido === 'retirada' ? nomeRetirada : (savedData?.receiverName || ''),
                 telefone_cliente: savedData?.receiverPhone || '',
                 tipo_pedido: tipoPedido,
@@ -55,7 +52,20 @@ export default function CheckoutPage() {
                 endereco: tipoPedido === 'entrega' ? savedData : null,
                 observacoes,
                 itens: items,
-            })
+                cliente_id: customer?.id || null // Link the order to the customer!
+            }
+
+            const pedido = await createOrder(orderData)
+
+            // Update customer metadata (last order and address)
+            if (customer) {
+                const summary = items.map(i => `${i.quantidade}x ${i.nome}`).join(', ')
+                await updateLastOrder(
+                    `Pedido #${pedido.numero_pedido || pedido.id.slice(0, 5)}: ${summary}`,
+                    tipoPedido === 'entrega' ? savedData : null
+                )
+            }
+
             clearCart()
             navigate(`/pedido/${pedido.id}`)
         } catch (err) {

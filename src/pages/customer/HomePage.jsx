@@ -1,9 +1,9 @@
-import { useState, useCallback, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { Search, Bell, Flame, IceCream, GlassWater, Soup, Plus, Heart } from 'lucide-react'
 import { useProducts } from '../../hooks/useProducts'
 import { useCart } from '../../hooks/useCart'
 import { useStore } from '../../hooks/useStore'
+import { useCustomer } from '../../context/CustomerContext'
 import { formatCurrency, getImageUrl } from '../../lib/utils'
 import { supabase } from '../../lib/supabase'
 import Loading from '../../components/ui/Loading'
@@ -22,7 +22,16 @@ function getSessionId() {
 
 export default function HomePage() {
     const navigate = useNavigate()
+    const { customerCode } = useParams()
+    const { fetchCustomerByCode } = useCustomer()
     const { products, categories, loading } = useProducts()
+
+    // Detect customer code from URL
+    useEffect(() => {
+        if (customerCode && customerCode.startsWith('CLI-')) {
+            fetchCustomerByCode(customerCode)
+        }
+    }, [customerCode])
     const { addItem } = useCart()
     const { isOpen, config } = useStore()
     const [activeCategory, setActiveCategory] = useState(null)

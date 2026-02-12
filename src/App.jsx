@@ -30,43 +30,48 @@ const OpeningHoursPage = lazy(() => import('./pages/admin/OpeningHoursPage'))
 import CustomerLayout from './layouts/CustomerLayout'
 import AdminLayout from './layouts/AdminLayout'
 
+import { CustomerProvider } from './context/CustomerContext'
+
 function App() {
   return (
     <BrowserRouter>
-      <CartProvider>
-        <Suspense fallback={<Loading fullScreen />}>
-          <Routes>
-            {/* ===== App Cliente (Mobile) ===== */}
-            <Route element={<CustomerLayout />}>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/produto/:id" element={<ProductPage />} />
-              <Route path="/carrinho" element={<CartPage />} />
-              <Route path="/checkout" element={<CheckoutPage />} />
-              <Route path="/pedido/:id" element={<TrackingPage />} />
-              <Route path="/pedidos" element={<OrdersListPage />} />
-              <Route path="/favoritos" element={<FavoritesPage />} />
-              <Route path="/perfil" element={<ProfilePage />} />
-            </Route>
+      <CustomerProvider>
+        <CartProvider>
+          <Suspense fallback={<Loading fullScreen />}>
+            <Routes>
+              {/* ===== App Cliente (Mobile) ===== */}
+              <Route element={<CustomerLayout />}>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/:customerCode" element={<HomePage />} />
+                <Route path="/produto/:id" element={<ProductPage />} />
+                <Route path="/carrinho" element={<CartPage />} />
+                <Route path="/checkout" element={<CheckoutPage />} />
+                <Route path="/pedido/:id" element={<TrackingPage />} />
+                <Route path="/pedidos" element={<OrdersListPage />} />
+                <Route path="/favoritos" element={<FavoritesPage />} />
+                <Route path="/perfil" element={<ProfilePage />} />
+              </Route>
 
-            {/* ===== Painel Admin ===== */}
-            <Route path="/admin/login" element={<LoginPage />} />
-            <Route path="/admin" element={<AdminLayout />}>
-              <Route index element={<DashboardPage />} />
-              <Route path="pedidos" element={<OrdersPage />} />
-              <Route path="estoque" element={<InventoryPage />} />
-              <Route path="cardapio" element={<MenuPage />} />
-              <Route path="promocoes" element={<PromotionsPage />} />
-              <Route path="clientes" element={<CustomersPage />} />
-              <Route path="relatorios" element={<ReportsPage />} />
-              <Route path="motoboys" element={<DriversPage />} />
-              <Route path="horarios" element={<OpeningHoursPage />} />
-              <Route path="configuracoes" element={<SettingsPage />} />
-            </Route>
+              {/* ===== Painel Admin ===== */}
+              <Route path="/admin/login" element={<LoginPage />} />
+              <Route path="/admin" element={<AdminLayout />}>
+                <Route index element={<DashboardPage />} />
+                <Route path="pedidos" element={<OrdersPage />} />
+                <Route path="estoque" element={<InventoryPage />} />
+                <Route path="cardapio" element={<MenuPage />} />
+                <Route path="promocoes" element={<PromotionsPage />} />
+                <Route path="clientes" element={<CustomersPage />} />
+                <Route path="relatorios" element={<ReportsPage />} />
+                <Route path="motoboys" element={<DriversPage />} />
+                <Route path="horarios" element={<OpeningHoursPage />} />
+                <Route path="configuracoes" element={<SettingsPage />} />
+              </Route>
 
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </Suspense>
-      </CartProvider>
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </Suspense>
+        </CartProvider>
+      </CustomerProvider>
     </BrowserRouter>
   )
 }
