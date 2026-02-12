@@ -13,8 +13,12 @@
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.admin-sidebar.collapsed {
+.admin-sidebar.collapsed:not(.hovered) {
     width: 80px;
+}
+
+.admin-sidebar.collapsed.hovered {
+    width: 260px;
 }
 
 .sidebar-brand {
@@ -105,11 +109,8 @@
     background: rgba(255, 255, 255, 0.1);
 }
 
-.collapsed .sidebar-toggle {
-    position: absolute;
-    bottom: -14px;
-    left: 50%;
-    transform: translateX(-50%);
+/* Visibility fix: keep toggle button in place or move to brand area */
+.sidebar-toggle.collapsed {
     background: #B91C1C;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import {
     LayoutDashboard,
@@ -34,23 +35,30 @@ const navItems = [
 ]
 
 export default function AdminSidebar({ adminInfo, currentPath, onLogout, isCollapsed, onToggle }) {
+    const [isHovered, setIsHovered] = useState(false)
+    const isExpanded = !isCollapsed || isHovered
+
     const toggleTheme = () => {
         document.documentElement.classList.toggle('dark')
     }
 
     return (
-        <aside className={`admin-sidebar ${isCollapsed ? 'collapsed' : ''}`}>
+        <aside
+            className={`admin-sidebar ${isCollapsed ? 'collapsed' : ''} ${isHovered ? 'hovered' : ''}`}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+        >
             <div className="sidebar-brand">
                 <div className="brand-icon">
                     <UtensilsCrossed size={20} />
                 </div>
-                {!isCollapsed && (
+                {isExpanded && (
                     <div className="brand-text">
                         <h1>Espetinho Vitória</h1>
                         <span>Admin Dashboard</span>
                     </div>
                 )}
-                <button className="sidebar-toggle" onClick={onToggle}>
+                <button className={`sidebar-toggle ${isCollapsed ? 'collapsed' : ''}`} onClick={onToggle}>
                     {isCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
                 </button>
             </div>
@@ -67,8 +75,8 @@ export default function AdminSidebar({ adminInfo, currentPath, onLogout, isColla
                         title={isCollapsed ? item.label : ''}
                     >
                         <item.icon size={20} />
-                        {!isCollapsed && <span className="nav-label">{item.label}</span>}
-                        {item.badge && <span className="nav-badge">{item.badge}</span>}
+                        {isExpanded && <span className="nav-label">{item.label}</span>}
+                        {item.badge && isExpanded && <span className="nav-badge">{item.badge}</span>}
                     </NavLink>
                 ))}
             </nav>
@@ -78,7 +86,7 @@ export default function AdminSidebar({ adminInfo, currentPath, onLogout, isColla
                     <button className="theme-toggle-btn" onClick={toggleTheme}>
                         <Sun size={18} className="icon-light" />
                         <Moon size={18} className="icon-dark" />
-                        {!isCollapsed && <span>Alternar Tema</span>}
+                        {isExpanded && <span>Alternar Tema</span>}
                     </button>
                 </div>
 
@@ -87,7 +95,7 @@ export default function AdminSidebar({ adminInfo, currentPath, onLogout, isColla
                         src={adminInfo?.avatar_url || 'https://via.placeholder.com/40'}
                         alt="Admin"
                     />
-                    {!isCollapsed && (
+                    {isExpanded && (
                         <div className="profile-info">
                             <span className="profile-name">{adminInfo?.nome || 'Admin'}</span>
                             <span className="profile-role">Gerente</span>

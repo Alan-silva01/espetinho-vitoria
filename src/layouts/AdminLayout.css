@@ -6,15 +6,13 @@
 
 .admin-main {
     flex: 1;
-    margin-left: 260px;
-    /* Width of sidebar */
+    margin-left: 80px;
+    /* Fixed margin for collapsed bar */
     min-height: 100vh;
     transition: all 0.3s ease;
 }
 
-.sidebar-collapsed .admin-main {
-    margin-left: 80px;
-}
+/* No change needed for collapsed since margin is now base 80px */
 
 /* Dark mode support */
 .dark .admin-layout {
