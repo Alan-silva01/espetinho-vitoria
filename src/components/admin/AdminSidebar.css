@@ -8,9 +8,11 @@
     left: 0;
     display: flex;
     flex-direction: column;
-    z-index: 100;
+    z-index: 1000;
+    /* High z-index to overlay content */
     box-shadow: 4px 0 20px rgba(0, 0, 0, 0.2);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
 }
 
 .admin-sidebar.collapsed:not(.hovered) {
@@ -22,29 +24,36 @@
 }
 
 .sidebar-brand {
-    height: 80px;
-    padding: 0 16px;
+    height: 90px;
+    padding: 0 20px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    gap: 12px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    position: relative;
 }
 
-.collapsed .sidebar-brand {
-    justify-content: center;
+.admin-sidebar.collapsed:not(.hovered) .sidebar-brand {
     padding: 0;
+    justify-content: center;
 }
 
 .brand-icon {
-    width: 40px;
-    height: 40px;
-    background: #B91C1C;
-    /* Primary Red */
-    border-radius: 12px;
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, #B91C1C 0%, #991B1B 100%);
+    border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 12px rgba(185, 28, 28, 0.4);
+    box-shadow: 0 4px 12px rgba(185, 28, 28, 0.3);
+    flex-shrink: 0;
+}
+
+.brand-text {
+    flex: 1;
+    overflow: hidden;
+    transition: opacity 0.2s;
 }
 
 .brand-text h1 {
@@ -53,6 +62,7 @@
     line-height: 1.2;
     margin: 0;
     letter-spacing: -0.02em;
+    white-space: nowrap;
 }
 
 .brand-text span {
@@ -86,33 +96,57 @@
     white-space: nowrap;
 }
 
-.collapsed .nav-item {
+.admin-sidebar.collapsed:not(.hovered) .nav-item {
     justify-content: center;
     padding: 12px;
 }
 
+.admin-sidebar.hovered .nav-item,
+.admin-sidebar:not(.collapsed) .nav-item {
+    justify-content: flex-start;
+    padding: 12px 16px;
+}
+
 .sidebar-toggle {
-    background: rgba(255, 255, 255, 0.05);
-    border: none;
+    position: absolute;
+    right: -14px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #B91C1C;
+    border: 3px solid #1A1A2E;
     color: white;
     width: 28px;
     height: 28px;
-    border-radius: 8px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     transition: all 0.2s;
+    z-index: 1001;
 }
 
 .sidebar-toggle:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: #EF4444;
+    transform: translateY(-50%) scale(1.1);
 }
 
-/* Visibility fix: keep toggle button in place or move to brand area */
-.sidebar-toggle.collapsed {
-    background: #B91C1C;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+.admin-sidebar.collapsed:not(.hovered) .sidebar-toggle {
+    right: 50%;
+    transform: translate(50%, -50%);
+    /* Move to center when collapsed and not hovered */
+    opacity: 0;
+    /* Hide toggle when truly collapsed to declutter */
+}
+
+.admin-sidebar.collapsed.hovered .sidebar-toggle {
+    right: 10px;
+    opacity: 1;
+}
+
+.admin-sidebar:not(.collapsed) .sidebar-toggle {
+    right: 12px;
+    opacity: 1;
 }
 
 .nav-item:hover {
@@ -145,6 +179,8 @@
     padding: 16px;
     border-top: 1px solid rgba(255, 255, 255, 0.05);
     background: rgba(0, 0, 0, 0.1);
+    width: 100%;
+    /* Ensure footer fills width */
 }
 
 .theme-toggle-container {
@@ -194,9 +230,15 @@
     transition: all 0.3s;
 }
 
-.collapsed .admin-profile-card {
+.admin-sidebar.collapsed:not(.hovered) .admin-profile-card {
     padding: 8px;
     justify-content: center;
+}
+
+.admin-sidebar.hovered .admin-profile-card,
+.admin-sidebar:not(.collapsed) .admin-profile-card {
+    padding: 12px;
+    justify-content: flex-start;
 }
 
 .admin-profile-card img {

@@ -53,13 +53,13 @@ export default function AdminSidebar({ adminInfo, currentPath, onLogout, isColla
                     <UtensilsCrossed size={20} />
                 </div>
                 {isExpanded && (
-                    <div className="brand-text">
+                    <div className="brand-text animate-fade-in">
                         <h1>Espetinho Vitória</h1>
                         <span>Admin Dashboard</span>
                     </div>
                 )}
-                <button className={`sidebar-toggle ${isCollapsed ? 'collapsed' : ''}`} onClick={onToggle}>
-                    {isCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+                <button className="sidebar-toggle" onClick={onToggle}>
+                    {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
                 </button>
             </div>
 
