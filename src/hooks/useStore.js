@@ -69,5 +69,5 @@ export function useStore() {
 
     const isOpen = calculateIsOpen()
 
-    return { config, loading, isOpen }
+    return { config, horarios, loading, isOpen }
 }
