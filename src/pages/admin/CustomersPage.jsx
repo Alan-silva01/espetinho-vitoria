@@ -14,6 +14,9 @@ export default function CustomersPage() {
     const [loading, setLoading] = useState(true)
     const [searchTerm, setSearchTerm] = useState('')
     const [deleteConfirm, setDeleteConfirm] = useState({ open: false, id: null, nome: '' })
+    const [editModal, setEditModal] = useState({ open: false, mode: 'create', customer: null })
+    const [formData, setFormData] = useState({ nome: '', whatsapp: '' })
+    const [saving, setSaving] = useState(false)
 
     useEffect(() => {
         fetchCustomers()
@@ -22,24 +25,20 @@ export default function CustomersPage() {
     async function fetchCustomers() {
         setLoading(true)
         try {
-            // 1. Fetch all customers
             const { data: customersData } = await supabase
                 .from('clientes')
                 .select('*')
                 .order('criado_em', { ascending: false })
 
-            // 2. Fetch all orders to link by telephone (since cliente_id might be null)
             const { data: allOrders } = await supabase
                 .from('pedidos')
                 .select('valor_total, criado_em, telefone_cliente, cliente_id')
 
             if (customersData) {
                 const enriched = customersData.map(c => {
-                    // Extract phone for matching
                     const phoneRaw = c.telefone?.replace(/\D/g, '') || ''
                     const whatsappRaw = c.dados?.whatsapp?.replace(/\D/g, '') || ''
 
-                    // Find linked orders (by ID or sanitized phone)
                     const relatedOrders = allOrders?.filter(p => {
                         if (p.cliente_id === c.id) return true
                         const pPhone = p.telefone_cliente?.replace(/\D/g, '') || ''
@@ -66,6 +65,67 @@ export default function CustomersPage() {
         }
     }
 
+    function openEditModal(customer = null) {
+        if (customer) {
+            setEditModal({ open: true, mode: 'edit', customer })
+            setFormData({
+                nome: customer.nome || '',
+                whatsapp: customer.dados?.whatsapp || customer.telefone || ''
+            })
+        } else {
+            setEditModal({ open: true, mode: 'create', customer: null })
+            setFormData({ nome: '', whatsapp: '' })
+        }
+    }
+
+    async function handleSave() {
+        if (!formData.nome || !formData.whatsapp) {
+            alert('Por favor, preencha nome e whatsapp.')
+            return
+        }
+
+        setSaving(true)
+        try {
+            const isEdit = editModal.mode === 'edit'
+            const customer = editModal.customer
+
+            // Prepare dados JSONB (merge with existing or create new)
+            const baseDados = isEdit ? (customer.dados || {}) : {}
+            const updatedDados = {
+                ...baseDados,
+                nome: formData.nome,
+                whatsapp: formData.whatsapp
+            }
+
+            const payload = {
+                nome: formData.nome,
+                telefone: formData.whatsapp, // Keep both in sync for easier lookup
+                dados: updatedDados
+            }
+
+            if (isEdit) {
+                const { error } = await supabase
+                    .from('clientes')
+                    .update(payload)
+                    .eq('id', customer.id)
+                if (error) throw error
+            } else {
+                // For new customers, we might need a generic code if the schema requires it
+                const { error } = await supabase
+                    .from('clientes')
+                    .insert([{ ...payload, codigo: `CLI-${Math.floor(Math.random() * 900000) + 100000}` }])
+                if (error) throw error
+            }
+
+            setEditModal({ open: false, mode: 'create', customer: null })
+            fetchCustomers()
+        } catch (err) {
+            alert('Erro ao salvar: ' + err.message)
+        } finally {
+            setSaving(false)
+        }
+    }
+
     async function handleDeleteClick(customer) {
         setDeleteConfirm({ open: true, id: customer.id, nome: customer.nome })
     }
@@ -82,8 +142,7 @@ export default function CustomersPage() {
 
     const filteredCustomers = customers.filter(c =>
         c.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        c.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        c.codigo?.toLowerCase().includes(searchTerm.toLowerCase())
+        c.email?.toLowerCase().includes(searchTerm.toLowerCase())
     )
 
     if (loading) return <div className="admin-loading">Carregando clientes...</div>
@@ -96,7 +155,7 @@ export default function CustomersPage() {
                     <p>Gerencie sua base de clientes e programas de fidelidade.</p>
                 </div>
                 <div className="header-actions">
-                    <button className="btn-add-customer">
+                    <button className="btn-add-customer" onClick={() => openEditModal()}>
                         <UserPlus size={18} />
                         <span>Novo Cliente</span>
                     </button>
@@ -133,7 +192,7 @@ export default function CustomersPage() {
                         <Search size={18} />
                         <input
                             type="text"
-                            placeholder="Buscar por nome, email ou código..."
+                            placeholder="Buscar por nome ou email..."
                             value={searchTerm}
                             onChange={e => setSearchTerm(e.target.value)}
                         />
@@ -149,7 +208,6 @@ export default function CustomersPage() {
                         <thead>
                             <tr>
                                 <th>Cliente</th>
-                                <th>Código</th>
                                 <th>WhatsApp / Contato</th>
                                 <th>Qtd. Pedidos</th>
                                 <th>Última Compra</th>
@@ -168,7 +226,6 @@ export default function CustomersPage() {
                                             </div>
                                         </div>
                                     </td>
-                                    <td><code className="ref-code">{customer.codigo}</code></td>
                                     <td>
                                         <div className="contact-cell">
                                             <span className="phone-val"><Phone size={14} /> {customer.displayPhone}</span>
@@ -184,8 +241,8 @@ export default function CustomersPage() {
                                     <td>{customer.lastOrder}</td>
                                     <td>
                                         <div className="actions-cell">
-                                            <button title="Ver Detalhes"><ExternalLink size={16} /></button>
-                                            <button title="Editar"><Edit2 size={16} /></button>
+                                            <button title="Ver Detalhes" onClick={() => window.open(`https://wa.me/${customer.displayPhone.replace(/\D/g, '')}`, '_blank')}><ExternalLink size={16} /></button>
+                                            <button title="Editar" onClick={() => openEditModal(customer)}><Edit2 size={16} /></button>
                                             <button className="danger" title="Excluir" onClick={() => handleDeleteClick(customer)}><Trash2 size={16} /></button>
                                         </div>
                                     </td>
@@ -204,6 +261,56 @@ export default function CustomersPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Modal de Criar/Editar Cliente */}
+            {editModal.open && (
+                <div className="admin-modal-overlay">
+                    <div className="modal-edit-customer animate-scale-in">
+                        <div className="modal-header">
+                            <h2>{editModal.mode === 'edit' ? 'Editar Cliente' : 'Novo Cliente'}</h2>
+                            <p>{editModal.mode === 'edit' ? 'Altere as informações abaixo.' : 'Preencha os dados do novo cliente.'}</p>
+                        </div>
+
+                        <div className="modal-body">
+                            <div className="input-group">
+                                <label>Nome do Cliente</label>
+                                <input
+                                    type="text"
+                                    placeholder="Ex: Alan Silva"
+                                    value={formData.nome}
+                                    onChange={e => setFormData({ ...formData, nome: e.target.value })}
+                                />
+                            </div>
+
+                            <div className="input-group">
+                                <label>WhatsApp / Telefone</label>
+                                <input
+                                    type="text"
+                                    placeholder="Ex: (99) 99999-9999"
+                                    value={formData.whatsapp}
+                                    onChange={e => setFormData({ ...formData, whatsapp: e.target.value })}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="modal-footer">
+                            <button
+                                className="btn-cancel"
+                                onClick={() => setEditModal({ open: false, mode: 'create', customer: null })}
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                className="btn-save"
+                                onClick={handleSave}
+                                disabled={saving}
+                            >
+                                {saving ? 'Salvando...' : 'Salvar Cliente'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Modal de Confirmação de Exclusão */}
             {deleteConfirm.open && (

@@ -352,3 +352,97 @@
     opacity: 0.5;
     cursor: default;
 }
+
+/* Modal Edit Customer */
+.modal-edit-customer {
+    background: white;
+    width: 100%;
+    max-width: 440px;
+    border-radius: 28px;
+    overflow: hidden;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.modal-header {
+    padding: 32px 32px 0;
+}
+
+.modal-header h2 {
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 4px;
+}
+
+.modal-header p {
+    font-size: 14px;
+    color: #64748B;
+}
+
+.modal-body {
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.input-group label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #475569;
+}
+
+.input-group input {
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    padding: 14px 16px;
+    border-radius: 12px;
+    font-size: 15px;
+    transition: all 0.2s;
+}
+
+.input-group input:focus {
+    border-color: #B91C1C;
+    background: white;
+    box-shadow: 0 0 0 4px rgba(185, 28, 28, 0.1);
+}
+
+.modal-footer {
+    padding: 0 32px 32px;
+    display: flex;
+    gap: 12px;
+}
+
+.modal-footer button {
+    flex: 1;
+    padding: 14px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-cancel {
+    background: #F1F5F9;
+    color: #475569;
+}
+
+.btn-save {
+    background: #1A1A1A;
+    color: white;
+}
+
+.btn-save:hover {
+    background: #000;
+}
+
+.btn-save:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
