@@ -249,18 +249,24 @@
     background: #111827;
 }
 
-.contact-cell {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    font-size: 13px;
-    color: #6B7280;
+.phone-val {
+    color: #1A1A1A;
+    font-weight: 700;
 }
 
-.contact-cell span {
-    display: flex;
+.email-val {
+    opacity: 0.7;
+}
+
+.orders-badge {
+    display: inline-flex;
     align-items: center;
     gap: 6px;
+    background: #F1F5F9;
+    padding: 4px 12px;
+    border-radius: 8px;
+    font-weight: 700;
+    color: #475569;
 }
 
 .spent-val {

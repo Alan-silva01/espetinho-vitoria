@@ -21,33 +21,51 @@ export default function CustomersPage() {
 
     async function fetchCustomers() {
         setLoading(true)
-        // Fetch customers with their orders to calculate stats
-        const { data: customersData } = await supabase
-            .from('clientes')
-            .select(`
-                *,
-                pedidos(id, valor_total, criado_em)
-            `)
-            .order('criado_em', { ascending: false })
+        try {
+            // 1. Fetch all customers
+            const { data: customersData } = await supabase
+                .from('clientes')
+                .select('*')
+                .order('criado_em', { ascending: false })
 
-        if (customersData) {
-            const enriched = customersData.map(c => {
-                const totalSpent = c.pedidos?.reduce((sum, p) => sum + Number(p.valor_total), 0) || 0
-                const lastOrderDate = c.pedidos?.length > 0
-                    ? new Date(Math.max(...c.pedidos.map(p => new Date(p.criado_em)))).toLocaleDateString('pt-BR')
-                    : 'Sem pedidos'
+            // 2. Fetch all orders to link by telephone (since cliente_id might be null)
+            const { data: allOrders } = await supabase
+                .from('pedidos')
+                .select('valor_total, criado_em, telefone_cliente, cliente_id')
 
-                return {
-                    ...c,
-                    totalOrders: c.pedidos?.length || 0,
-                    totalSpent: totalSpent,
-                    lastOrder: lastOrderDate
-                }
-            })
-            setCustomers(enriched)
+            if (customersData) {
+                const enriched = customersData.map(c => {
+                    // Extract phone for matching
+                    const phoneRaw = c.telefone?.replace(/\D/g, '') || ''
+                    const whatsappRaw = c.dados?.whatsapp?.replace(/\D/g, '') || ''
+
+                    // Find linked orders (by ID or sanitized phone)
+                    const relatedOrders = allOrders?.filter(p => {
+                        if (p.cliente_id === c.id) return true
+                        const pPhone = p.telefone_cliente?.replace(/\D/g, '') || ''
+                        return pPhone && (pPhone === phoneRaw || pPhone === whatsappRaw)
+                    }) || []
+
+                    const lastOrderDate = relatedOrders.length > 0
+                        ? new Date(Math.max(...relatedOrders.map(p => new Date(p.criado_em)))).toLocaleDateString('pt-BR')
+                        : 'Sem pedidos'
+
+                    return {
+                        ...c,
+                        totalOrders: relatedOrders.length,
+                        lastOrder: lastOrderDate,
+                        displayPhone: c.dados?.whatsapp || c.telefone || 'Não informado'
+                    }
+                })
+                setCustomers(enriched)
+            }
+        } catch (err) {
+            console.error('[fetchCustomers] Erro:', err)
+        } finally {
+            setLoading(false)
         }
-        setLoading(false)
     }
+
     async function handleDeleteClick(customer) {
         setDeleteConfirm({ open: true, id: customer.id, nome: customer.nome })
     }
@@ -65,7 +83,7 @@ export default function CustomersPage() {
     const filteredCustomers = customers.filter(c =>
         c.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
         c.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        c.codigo_indicacao.toLowerCase().includes(searchTerm.toLowerCase())
+        c.codigo?.toLowerCase().includes(searchTerm.toLowerCase())
     )
 
     if (loading) return <div className="admin-loading">Carregando clientes...</div>
@@ -132,9 +150,8 @@ export default function CustomersPage() {
                             <tr>
                                 <th>Cliente</th>
                                 <th>Código</th>
-                                <th>Contato</th>
-                                <th>Pedidos</th>
-                                <th>Total Gasto</th>
+                                <th>WhatsApp / Contato</th>
+                                <th>Qtd. Pedidos</th>
                                 <th>Última Compra</th>
                                 <th>Ações</th>
                             </tr>
@@ -151,15 +168,19 @@ export default function CustomersPage() {
                                             </div>
                                         </div>
                                     </td>
-                                    <td><code className="ref-code">{customer.codigo_indicacao}</code></td>
+                                    <td><code className="ref-code">{customer.codigo}</code></td>
                                     <td>
                                         <div className="contact-cell">
-                                            <span title={customer.email}><Mail size={14} /> Email</span>
-                                            <span><Phone size={14} /> (--) ----- ----</span>
+                                            <span className="phone-val"><Phone size={14} /> {customer.displayPhone}</span>
+                                            {customer.email && <span className="email-val"><Mail size={14} /> {customer.email}</span>}
                                         </div>
                                     </td>
-                                    <td>{customer.totalOrders}</td>
-                                    <td><strong className="spent-val">{formatCurrency(customer.totalSpent)}</strong></td>
+                                    <td>
+                                        <div className="orders-badge">
+                                            <ShoppingBag size={14} />
+                                            <span>{customer.totalOrders}</span>
+                                        </div>
+                                    </td>
                                     <td>{customer.lastOrder}</td>
                                     <td>
                                         <div className="actions-cell">
