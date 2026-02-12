@@ -24,6 +24,7 @@ export default function DashboardPage() {
     const [topProducts, setTopProducts] = useState([])
     const [recentOrders, setRecentOrders] = useState([])
     const [categorySales, setCategorySales] = useState([])
+    const [lowStockProducts, setLowStockProducts] = useState([])
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
@@ -126,6 +127,16 @@ export default function DashboardPage() {
             })
 
             setTopProducts(Object.values(prodMap).sort((a, b) => b.vendas - a.vendas).slice(0, 5))
+
+            // 5. Low Stock Alerts
+            const { data: lowStockData } = await supabase
+                .from('produtos')
+                .select('id, nome, quantidade_disponivel, imagem_url')
+                .eq('controlar_estoque', true)
+                .lte('quantidade_disponivel', 5)
+                .order('quantidade_disponivel', { ascending: true })
+
+            setLowStockProducts(lowStockData || [])
 
         } catch (error) {
             console.error('[Dashboard] Erro ao carregar dados:', error)
@@ -299,6 +310,35 @@ export default function DashboardPage() {
                     </div>
 
                     <div className="sidebar-stats-column">
+                        {/* Stock Alerts Card */}
+                        {lowStockProducts.length > 0 && (
+                            <div className="stats-box-card alerts-card">
+                                <div className="card-header">
+                                    <h3>Alertas de Estoque</h3>
+                                    <span className="dot animate-pulse"></span>
+                                </div>
+                                <div className="category-bars">
+                                    {lowStockProducts.map(p => (
+                                        <div key={p.id} className="progress-item alert-item">
+                                            <div className="progress-info">
+                                                <span>{p.nome}</span>
+                                                <strong className="text-red-600">{p.quantidade_disponivel} rest</strong>
+                                            </div>
+                                            <div className="progress-bg">
+                                                <div
+                                                    className="progress-fill"
+                                                    style={{
+                                                        width: `${(p.quantidade_disponivel / 5) * 100}%`,
+                                                        backgroundColor: '#EF4444'
+                                                    }}
+                                                />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
                         {/* Category Breakdown */}
                         <div className="stats-box-card">
                             <div className="card-header">

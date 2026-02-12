@@ -27,6 +27,8 @@ export default function MenuPage() {
         imagem_url: '',
         disponivel: true,
         item_upsell: false,
+        quantidade_disponivel: 0,
+        controlar_estoque: false,
         opcoes_personalizacao: []
     })
     const [newOptionText, setNewOptionText] = useState({})
@@ -67,6 +69,8 @@ export default function MenuPage() {
             imagem_url: product.imagem_url,
             disponivel: product.disponivel,
             item_upsell: product.item_upsell || false,
+            quantidade_disponivel: product.quantidade_disponivel || 0,
+            controlar_estoque: product.controlar_estoque || false,
             opcoes_personalizacao: product.opcoes_personalizacao || []
         })
         setNewOptionText({})
@@ -158,6 +162,8 @@ export default function MenuPage() {
                 imagem_url: '',
                 disponivel: true,
                 item_upsell: false,
+                quantidade_disponivel: 0,
+                controlar_estoque: false,
                 opcoes_personalizacao: []
             })
             setNewOptionText({})
@@ -322,6 +328,11 @@ export default function MenuPage() {
                                     <span className="label">Preço</span>
                                     <span className="value">{formatCurrency(p.preco)}</span>
                                 </div>
+                                {p.controlar_estoque && (
+                                    <div className={`stock-badge ${p.quantidade_disponivel <= 5 ? 'low' : ''}`}>
+                                        {p.quantidade_disponivel} em estoque
+                                    </div>
+                                )}
                                 <span className="cat-label">{p.categorias?.nome}</span>
                             </div>
                         </div>
@@ -373,6 +384,32 @@ export default function MenuPage() {
                                             <label htmlFor="upsell">Aparecer em "Você também pode gostar"</label>
                                         </div>
                                     </div>
+
+                                    <div className="input-group-premium">
+                                        <label>Controle de Estoque</label>
+                                        <div className="checkbox-wrapper">
+                                            <input
+                                                type="checkbox"
+                                                id="controlar_estoque"
+                                                checked={formData.controlar_estoque}
+                                                onChange={e => setFormData(prev => ({ ...prev, controlar_estoque: e.target.checked }))}
+                                            />
+                                            <label htmlFor="controlar_estoque">Ativar controle de estoque</label>
+                                        </div>
+                                    </div>
+
+                                    {formData.controlar_estoque && (
+                                        <div className="input-group-premium animate-fade-in">
+                                            <label>Quantidade Disponível</label>
+                                            <input
+                                                type="number"
+                                                min="0"
+                                                value={formData.quantidade_disponivel}
+                                                onChange={e => setFormData(prev => ({ ...prev, quantidade_disponivel: parseInt(e.target.value) || 0 }))}
+                                                placeholder="Ex: 50"
+                                            />
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="form-right">

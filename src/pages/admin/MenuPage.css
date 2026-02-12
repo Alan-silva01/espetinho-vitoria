@@ -582,6 +582,21 @@
     color: #B91C1C;
 }
 
+.stock-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    background: #DCFCE7;
+    color: #166534;
+    border-radius: 6px;
+    text-transform: uppercase;
+}
+
+.stock-badge.low {
+    background: #FEE2E2;
+    color: #B91C1C;
+}
+
 .cat-label {
     font-size: 11px;
     font-weight: 700;

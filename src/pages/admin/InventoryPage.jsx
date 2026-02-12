@@ -20,6 +20,21 @@ export default function InventoryPage() {
     })
     const [activities, setActivities] = useState([])
     const [saving, setSaving] = useState(false)
+    const [isFastEntry, setIsFastEntry] = useState(false)
+
+    // Helper to normalize text (remove accents)
+    const normalize = (text) => {
+        return (text || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    }
+
+    // Smart search logic
+    const matchesSearch = (item) => {
+        if (!searchTerm) return true
+        const searchNorm = normalize(searchTerm)
+        const itemNorm = normalize(`${item.nome} ${item.categorias?.nome || ''}`)
+        const queryWords = searchNorm.split(/\s+/).filter(w => w.length > 0)
+        return queryWords.every(word => itemNorm.includes(word))
+    }
 
     useEffect(() => {
         fetchInventory()
@@ -32,7 +47,7 @@ export default function InventoryPage() {
         // 1. Fetch products
         const { data: products } = await supabase
             .from('produtos')
-            .select('id, nome, imagem_url, categorias(nome)')
+            .select('id, nome, imagem_url, quantidade_disponivel, controlar_estoque, categorias(nome)')
             .order('nome')
 
         // 2. Fetch daily stock
@@ -44,9 +59,9 @@ export default function InventoryPage() {
         // Merge data
         const merged = (products || []).map(p => {
             const stock = stockToday?.find(s => s.produto_id === p.id)
-            const initial = stock?.quantidade_inicial || 0
-            const current = stock?.quantidade_atual || 0
-            const sold = initial - current
+            const initial = stock?.quantidade_inicial || p.quantidade_disponivel || 0
+            const current = p.quantidade_disponivel || 0
+            const sold = stock ? stock.quantidade_inicial - stock.quantidade_atual : 0
             const percentage = initial > 0 ? (current / initial) * 100 : 0
 
             return {
@@ -119,6 +134,16 @@ export default function InventoryPage() {
         const dirtyItems = inventory.filter(p => p.is_dirty)
 
         for (const item of dirtyItems) {
+            // Update persistent stock in products table
+            await supabase
+                .from('produtos')
+                .update({
+                    quantidade_disponivel: item.atual,
+                    controlar_estoque: true // Auto-enable if saved in inventory page
+                })
+                .eq('id', item.id)
+
+            // Update or create daily stock record for tracking
             if (item.stock_id) {
                 await supabase
                     .from('estoque_diario')
@@ -164,6 +189,12 @@ export default function InventoryPage() {
                         <RefreshCw size={14} />
                         <span>Última sincronização: Agora</span>
                     </div>
+                    <button
+                        className={`btn-toggle-fast ${isFastEntry ? 'active' : ''}`}
+                        onClick={() => setIsFastEntry(!isFastEntry)}
+                    >
+                        {isFastEntry ? 'Vista Normal' : 'Ajuste Rápido'}
+                    </button>
                     <button
                         className={`btn-save ${inventory.some(i => i.is_dirty) ? 'active' : ''}`}
                         onClick={saveChanges}
@@ -215,76 +246,120 @@ export default function InventoryPage() {
                         </div>
                     </div>
 
-                    {/* Grouped Products Sections */}
-                    <div className="inventory-sections">
-                        {Object.entries(groupedInventory).map(([catName, items]) => (
-                            <section key={catName} className="inventory-group">
-                                <div className="group-header">
-                                    <h3>{catName}</h3>
-                                    <button className="view-all">Ver todos <ChevronRight size={14} /></button>
-                                </div>
-                                <div className="inventory-grid-v2">
-                                    {(items || [])
-                                        .filter(i => (i.nome || '').toLowerCase().includes(searchTerm.toLowerCase()))
+                    {/* Normal View or Fast Entry View */}
+                    {isFastEntry ? (
+                        <div className="fast-entry-container animate-fade-in">
+                            <table className="fast-entry-table">
+                                <thead>
+                                    <tr>
+                                        <th>Produto</th>
+                                        <th>Categoria</th>
+                                        <th style={{ width: '120px' }}>Estoque Atual</th>
+                                        <th style={{ width: '100px' }}>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {inventory
+                                        .filter(matchesSearch)
                                         .map(item => (
-                                            <div key={item.id} className={`inv-item-card ${item.atual === 0 ? 'empty' : item.percentage < 20 ? 'low' : ''}`}>
-                                                <div className="item-img-box">
-                                                    <img src={item.imagem_url || 'https://via.placeholder.com/150'} alt={item.nome} />
-                                                    <div className="stock-label">
-                                                        {item.atual === 0 ? 'Esgotado' : item.percentage < 20 ? 'Baixo Estoque' : 'Em Estoque'}
+                                            <tr key={item.id} className={item.is_dirty ? 'dirty' : ''}>
+                                                <td>
+                                                    <div className="fast-prod-info">
+                                                        <img src={item.imagem_url || 'https://via.placeholder.com/50'} alt="" />
+                                                        <strong>{item.nome}</strong>
                                                     </div>
-                                                </div>
-                                                <div className="item-details">
-                                                    <div className="item-title">
-                                                        <h4>{item.nome}</h4>
-                                                        <span className="sku">#ESP-{item.id.toString().slice(0, 2)}</span>
-                                                    </div>
-
-                                                    <div className="stock-metrics">
-                                                        <div className="metric-box">
-                                                            <span className="label">Inicial</span>
-                                                            <input
-                                                                type="number"
-                                                                value={item.inicial}
-                                                                onChange={e => updateStock(item.id, 'inicial', e.target.value)}
-                                                            />
-                                                        </div>
-                                                        <div className="metric-box blue">
-                                                            <span className="label">Vendidos</span>
-                                                            <span className="val">{item.vendidos}</span>
-                                                        </div>
-                                                        <div className="metric-box green">
-                                                            <span className="label">Atual</span>
-                                                            <span className="val">{item.atual}</span>
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="stock-progress">
-                                                        <div className="progress-info">
-                                                            <span>Status</span>
-                                                            <span>{Math.round(item.percentage)}%</span>
-                                                        </div>
-                                                        <div className="progress-bar">
-                                                            <div
-                                                                className="fill"
-                                                                style={{
-                                                                    width: `${item.percentage}%`,
-                                                                    background: item.percentage < 20 ? '#EF4444' : item.percentage < 50 ? '#F59E0B' : '#10B981'
-                                                                }}
-                                                            />
-                                                        </div>
-                                                    </div>
-
-                                                    <button className="btn-out-manual">
-                                                        <XCircle size={14} /> Marcar Esgotado
-                                                    </button>
-                                                </div>
-                                            </div>
+                                                </td>
+                                                <td><span className="cat-pill">{item.categorias?.nome}</span></td>
+                                                <td>
+                                                    <input
+                                                        type="number"
+                                                        className="fast-input"
+                                                        value={item.atual}
+                                                        onChange={e => updateStock(item.id, 'atual', e.target.value)}
+                                                        min="0"
+                                                    />
+                                                </td>
+                                                <td>
+                                                    <span className={`status-text ${item.atual === 0 ? 'red' : item.percentage < 20 ? 'orange' : 'green'}`}>
+                                                        {item.atual === 0 ? 'Esgotado' : item.percentage < 20 ? 'Baixo' : 'OK'}
+                                                    </span>
+                                                </td>
+                                            </tr>
                                         ))}
-                                </div>
-                            </section>
-                        ))}
-                    </div>
+                                </tbody>
+                            </table>
+                        </div>
+                    ) : (
+                        <div className="inventory-sections">
+                            {Object.entries(groupedInventory).map(([catName, items]) => (
+                                <section key={catName} className="inventory-group">
+                                    <div className="group-header">
+                                        <h3>{catName}</h3>
+                                        <button className="view-all">Ver todos <ChevronRight size={14} /></button>
+                                    </div>
+                                    <div className="inventory-grid-v2">
+                                        {(items || [])
+                                            .filter(matchesSearch)
+                                            .map(item => (
+                                                <div key={item.id} className={`inv-item-card ${item.atual === 0 ? 'empty' : item.percentage < 20 ? 'low' : ''} ${!item.controlar_estoque ? 'no-control' : ''}`}>
+                                                    <div className="item-img-box">
+                                                        <img src={item.imagem_url || 'https://via.placeholder.com/150'} alt={item.nome} />
+                                                        <div className="stock-label">
+                                                            {item.atual === 0 ? 'Esgotado' : item.percentage < 20 ? 'Baixo Estoque' : 'Em Estoque'}
+                                                        </div>
+                                                    </div>
+                                                    <div className="item-details">
+                                                        <div className="item-title">
+                                                            <h4>{item.nome}</h4>
+                                                            <span className="sku">#ESP-{item.id.toString().slice(0, 2)}</span>
+                                                        </div>
+
+                                                        <div className="stock-metrics">
+                                                            <div className="metric-box">
+                                                                <span className="label">Inicial</span>
+                                                                <input
+                                                                    type="number"
+                                                                    value={item.inicial}
+                                                                    onChange={e => updateStock(item.id, 'inicial', e.target.value)}
+                                                                />
+                                                            </div>
+                                                            <div className="metric-box blue">
+                                                                <span className="label">Vendidos</span>
+                                                                <span className="val">{item.vendidos}</span>
+                                                            </div>
+                                                            <div className="metric-box green">
+                                                                <span className="label">Atual</span>
+                                                                <span className="val">{item.atual}</span>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="stock-progress">
+                                                            <div className="progress-info">
+                                                                <span>Status</span>
+                                                                <span>{Math.round(item.percentage)}%</span>
+                                                            </div>
+                                                            <div className="progress-bar">
+                                                                <div
+                                                                    className="fill"
+                                                                    style={{
+                                                                        width: `${item.percentage}%`,
+                                                                        background: item.percentage < 20 ? '#EF4444' : item.percentage < 50 ? '#F59E0B' : '#10B981'
+                                                                    }}
+                                                                />
+                                                            </div>
+                                                        </div>
+
+                                                        <button className="btn-out-manual">
+                                                            <XCircle size={14} /> Marcar Esgotado
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                    </div>
+                                </section>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 {/* Activity Sidebar */}

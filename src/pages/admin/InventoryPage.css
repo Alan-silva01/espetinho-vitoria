@@ -61,6 +61,24 @@
     overflow: hidden;
 }
 
+.btn-toggle-fast {
+    padding: 8px 16px;
+    border: 1px solid #E5E7EB;
+    background: white;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #4B5563;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-toggle-fast.active {
+    background: #EFF6FF;
+    border-color: #3B82F6;
+    color: #2563EB;
+}
+
 .inventory-main-content {
     overflow-y: auto;
     padding-right: 8px;
@@ -510,4 +528,121 @@
     background: #1F2937;
     border-color: #374151;
     color: white;
+}
+/* Fast Entry Mode */
+.fast-entry-container {
+    background: white;
+    border-radius: 20px;
+    border: 1px solid #F3F4F6;
+    overflow: hidden;
+    margin-bottom: 24px;
+}
+
+.dark .fast-entry-container {
+    background: #1F2937;
+    border-color: #374151;
+}
+
+.fast-entry-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.fast-entry-table th {
+    text-align: left;
+    padding: 16px;
+    background: #F9FAFB;
+    font-size: 13px;
+    font-weight: 700;
+    color: #4B5563;
+    border-bottom: 1px solid #F3F4F6;
+}
+
+.dark .fast-entry-table th {
+    background: #111827;
+    color: #9CA3AF;
+    border-bottom-color: #374151;
+}
+
+.fast-entry-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #F3F4F6;
+    font-size: 14px;
+}
+
+.dark .fast-entry-table td {
+    border-bottom-color: #374151;
+}
+
+.fast-entry-table tr.dirty {
+    background: #FFFBEB;
+}
+
+.dark .fast-entry-table tr.dirty {
+    background: #451a0333;
+}
+
+.fast-prod-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.fast-prod-info img {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    object-fit: cover;
+}
+
+.cat-pill {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    background: #F3F4F6;
+    color: #6B7280;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+
+.fast-input {
+    width: 80px;
+    padding: 8px;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    font-weight: 800;
+    text-align: center;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.fast-input:focus {
+    border-color: #B91C1C;
+    box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.1);
+}
+
+.status-text {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.status-text.green { color: #10B981; }
+.status-text.orange { color: #F59E0B; }
+.status-text.red { color: #EF4444; }
+
+/* Non-controlled Items Dimming */
+.inv-item-card.no-control {
+    opacity: 0.7;
+    filter: grayscale(0.5);
+}
+
+.inv-item-card.no-control:hover {
+    opacity: 1;
+    filter: none;
+}
+
+.inv-item-card.no-control .stock-label {
+    background: #F3F4F6;
+    color: #9CA3AF;
 }
