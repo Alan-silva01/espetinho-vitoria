@@ -195,7 +195,7 @@ export default function HomePage() {
                     <div
                         key={product.id}
                         className="product-card"
-                        onClick={() => navigate(`/produto/${product.id}`)}
+                        onClick={() => navigate(customerCode ? `/${customerCode}/produto/${product.id}` : `/produto/${product.id}`)}
                     >
                         <div className="product-card__image-wrapper">
                             <img

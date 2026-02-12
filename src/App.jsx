@@ -41,15 +41,29 @@ function App() {
             <Routes>
               {/* ===== App Cliente (Mobile) ===== */}
               <Route element={<CustomerLayout />}>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/:customerCode" element={<HomePage />} />
-                <Route path="/produto/:id" element={<ProductPage />} />
-                <Route path="/carrinho" element={<CartPage />} />
-                <Route path="/checkout" element={<CheckoutPage />} />
-                <Route path="/pedido/:id" element={<TrackingPage />} />
-                <Route path="/pedidos" element={<OrdersListPage />} />
-                <Route path="/favoritos" element={<FavoritesPage />} />
-                <Route path="/perfil" element={<ProfilePage />} />
+                {/* Support both / and /CLI-XXXXXX */}
+                <Route path="/">
+                  <Route index element={<HomePage />} />
+                  <Route path=":customerCode" element={<HomePage />} />
+                  <Route path="produto/:id" element={<ProductPage />} />
+                  <Route path="carrinho" element={<CartPage />} />
+                  <Route path="checkout" element={<CheckoutPage />} />
+                  <Route path="pedido/:id" element={<TrackingPage />} />
+                  <Route path="pedidos" element={<OrdersListPage />} />
+                  <Route path="favoritos" element={<FavoritesPage />} />
+                  <Route path="perfil" element={<ProfilePage />} />
+                </Route>
+
+                {/* Support /CLI-XXXXXX/carrinho, /CLI-XXXXXX/checkout, etc. */}
+                <Route path="/:customerCode">
+                  <Route path="produto/:id" element={<ProductPage />} />
+                  <Route path="carrinho" element={<CartPage />} />
+                  <Route path="checkout" element={<CheckoutPage />} />
+                  <Route path="pedido/:id" element={<TrackingPage />} />
+                  <Route path="pedidos" element={<OrdersListPage />} />
+                  <Route path="favoritos" element={<FavoritesPage />} />
+                  <Route path="perfil" element={<ProfilePage />} />
+                </Route>
               </Route>
 
               {/* ===== Painel Admin ===== */}

@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { Home, ShoppingCart, ClipboardList, Heart, User } from 'lucide-react'
 import { useCart } from '../../hooks/useCart'
 import './BottomNav.css'
@@ -6,11 +6,19 @@ import './BottomNav.css'
 export default function BottomNav() {
     const location = useLocation()
     const navigate = useNavigate()
+    const { customerCode } = useParams()
     const { totalItems } = useCart()
+
+    // Prefix for routes if customer identified via URL
+    const prefix = customerCode ? `/${customerCode}` : ''
 
     // Hide BottomNav on cart/checkout/tracking/product detail pages
     const hideOn = ['/carrinho', '/checkout']
-    if (hideOn.includes(location.pathname) || location.pathname.startsWith('/pedido/') || location.pathname.startsWith('/produto/')) {
+    const pathWithoutPrefix = customerCode
+        ? location.pathname.replace(`/${customerCode}`, '')
+        : location.pathname
+
+    if (hideOn.includes(pathWithoutPrefix) || location.pathname.includes('/pedido/') || location.pathname.includes('/produto/')) {
         return null
     }
 
@@ -25,7 +33,8 @@ export default function BottomNav() {
     return (
         <nav className="bottom-nav">
             {tabs.map(tab => {
-                const isActive = location.pathname === tab.path
+                const targetPath = prefix + (tab.path === '/' ? '' : tab.path)
+                const isActive = location.pathname === targetPath || (tab.path === '/' && location.pathname === prefix)
                 const Icon = tab.icon
 
                 if (tab.isCenter) {
@@ -33,7 +42,7 @@ export default function BottomNav() {
                         <div key={tab.path} className="bottom-nav__center">
                             <button
                                 className="bottom-nav__cart-btn"
-                                onClick={() => navigate(tab.path)}
+                                onClick={() => navigate(targetPath)}
                             >
                                 <ShoppingCart size={24} />
                                 {totalItems > 0 && (
@@ -48,7 +57,7 @@ export default function BottomNav() {
                     <button
                         key={tab.path}
                         className={`bottom-nav__item ${isActive ? 'bottom-nav__item--active' : ''}`}
-                        onClick={() => navigate(tab.path)}
+                        onClick={() => navigate(targetPath)}
                     >
                         <Icon size={22} />
                         <span className="bottom-nav__label">{tab.label}</span>

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, X, Minus, Plus, MapPin, Truck, Store } from 'lucide-react'
 import { useCart } from '../../hooks/useCart'
 import { useProducts } from '../../hooks/useProducts'
@@ -9,11 +9,26 @@ import './CartPage.css'
 
 export default function CartPage() {
     const navigate = useNavigate()
+    const { customerCode } = useParams()
     const { items, removeItem, updateQuantity, clearCart, subtotal, addItem } = useCart()
     const { products } = useProducts()
     const { customer } = useCustomer()
 
-    // Read saved address data from localStorage (set by CartPage or CustomerContext)
+    // Upsell: products NOT already in cart
+    const cartProductIds = items.map(i => i.produto_id)
+    const upsellProducts = products.filter(p => p.disponivel && !cartProductIds.includes(p.id))
+
+    // Order type
+    const [tipoPedido, setTipoPedido] = useState(() => {
+        return localStorage.getItem('espetinho_tipo_pedido') || 'entrega'
+    })
+
+    // Delivery costs — zero if pickup
+    const taxaEntrega = tipoPedido === 'entrega' ? 5.0 : 0
+    const total = subtotal + taxaEntrega
+
+    // Address State
+    const [isAddressModalOpen, setIsAddressModalOpen] = useState(false)
     const [addressData, setAddressData] = useState(() => {
         const saved = localStorage.getItem('espetinho_delivery_data')
         if (saved) {
@@ -94,7 +109,7 @@ export default function CartPage() {
                 <span className="cart-empty__icon">🛒</span>
                 <h2>Seu carrinho está vazio</h2>
                 <p>Adicione itens do cardápio para fazer um pedido delicioso!</p>
-                <button className="btn btn-primary btn-md" onClick={() => navigate('/')}>
+                <button className="btn btn-primary btn-md" onClick={() => navigate(customerCode ? `/${customerCode}` : '/')}>
                     Ver Cardápio
                 </button>
             </div>
@@ -147,6 +162,7 @@ export default function CartPage() {
                                                 className="cart-item__qty-btn"
                                                 onClick={() => updateQuantity(item.produto_id, item.variacao_id, item.quantidade - 1)}
                                             >
+                                                <u size={12} />
                                                 <Minus size={12} />
                                             </button>
                                             <span className="cart-item__qty-val">{item.quantidade}</span>
@@ -266,7 +282,7 @@ export default function CartPage() {
             <div className="cart-footer">
                 <button
                     className="cart-footer__btn"
-                    onClick={() => navigate('/checkout')}
+                    onClick={() => navigate(customerCode ? `/${customerCode}/checkout` : '/checkout')}
                 >
                     <span>Finalizar Pedido</span>
                     <span className="cart-footer__btn-price">{formatCurrency(total)}</span>
@@ -275,89 +291,83 @@ export default function CartPage() {
 
             {/* ADDRESS BOTTOM SHEET MODAL */}
             {isAddressModalOpen && (
-                <>
-                    <div className="modal-backdrop fade-in" onClick={() => setIsAddressModalOpen(false)} />
-                    <div className="bottom-sheet slide-up expanded">
-                        <div className="bottom-sheet__handle" />
-                        <div className="bottom-sheet__header">
-                            <h3>Endereço de Entrega</h3>
-                            <button className="close-btn" onClick={() => setIsAddressModalOpen(false)}>
-                                <X size={20} />
+                <div className="modal-overlay" onClick={() => setIsAddressModalOpen(false)}>
+                    <div className="modal-content animate-slide-up" onClick={e => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h2>Endereço de Entrega</h2>
+                            <button className="modal-close" onClick={() => setIsAddressModalOpen(false)}>
+                                <X size={24} />
                             </button>
                         </div>
 
-                        <div className="bottom-sheet__content hide-scrollbar">
-                            <div className="form-grid">
-                                <div className="input-modern-group full">
-                                    <label>Rua / Avenida</label>
-                                    <input
-                                        type="text"
-                                        placeholder="Ex: Rua das Flores"
-                                        value={tempData.street}
-                                        onChange={e => setTempData({ ...tempData, street: e.target.value })}
-                                    />
-                                </div>
+                        <div className="address-form">
+                            <div className="form-group">
+                                <label>Rua / Logradouro *</label>
+                                <input
+                                    type="text"
+                                    value={tempData.street}
+                                    onChange={e => setTempData({ ...tempData, street: e.target.value })}
+                                    placeholder="Ex: Rua das Flores"
+                                />
+                            </div>
 
-                                <div className="input-modern-group half">
-                                    <label>Número</label>
+                            <div className="form-row">
+                                <div className="form-group">
+                                    <label>Número *</label>
                                     <input
                                         type="text"
-                                        placeholder="123"
                                         value={tempData.number}
                                         onChange={e => setTempData({ ...tempData, number: e.target.value })}
+                                        placeholder="Ex: 123"
                                     />
                                 </div>
-
-                                <div className="input-modern-group half">
-                                    <label>Bairro</label>
+                                <div className="form-group">
+                                    <label>Bairro *</label>
                                     <input
                                         type="text"
-                                        placeholder="Centro"
                                         value={tempData.neighborhood}
                                         onChange={e => setTempData({ ...tempData, neighborhood: e.target.value })}
-                                    />
-                                </div>
-
-                                <div className="input-modern-group full">
-                                    <label>Ponto de Referência</label>
-                                    <input
-                                        type="text"
-                                        placeholder="Ex: Ao lado da padaria"
-                                        value={tempData.reference}
-                                        onChange={e => setTempData({ ...tempData, reference: e.target.value })}
-                                    />
-                                </div>
-
-                                <div className="divider-label">Quem vai receber?</div>
-
-                                <div className="input-modern-group full">
-                                    <label>Nome do Recebedor</label>
-                                    <input
-                                        type="text"
-                                        placeholder="Seu nome"
-                                        value={tempData.receiverName}
-                                        onChange={e => setTempData({ ...tempData, receiverName: e.target.value })}
-                                    />
-                                </div>
-
-                                <div className="input-modern-group full">
-                                    <label>Celular / WhatsApp</label>
-                                    <input
-                                        type="tel"
-                                        placeholder="(00) 00000-0000"
-                                        value={tempData.receiverPhone}
-                                        onChange={e => setTempData({ ...tempData, receiverPhone: formatPhone(e.target.value) })}
-                                        maxLength={15}
+                                        placeholder="Ex: Centro"
                                     />
                                 </div>
                             </div>
 
-                            <button className="btn-save-address" onClick={handleSaveAddress}>
+                            <div className="form-group">
+                                <label>Ponto de Referência</label>
+                                <input
+                                    type="text"
+                                    value={tempData.reference}
+                                    onChange={e => setTempData({ ...tempData, reference: e.target.value })}
+                                    placeholder="Ex: Próximo à padaria"
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label>Nome de quem recebe *</label>
+                                <input
+                                    type="text"
+                                    value={tempData.receiverName}
+                                    onChange={e => setTempData({ ...tempData, receiverName: e.target.value })}
+                                    placeholder="Seu nome"
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label>WhatsApp para contato *</label>
+                                <input
+                                    type="tel"
+                                    value={tempData.receiverPhone}
+                                    onChange={e => setTempData({ ...tempData, receiverPhone: formatPhone(e.target.value) })}
+                                    placeholder="(00) 00000-0000"
+                                />
+                            </div>
+
+                            <button className="btn btn-primary btn-full" onClick={handleSaveAddress}>
                                 Salvar Endereço
                             </button>
                         </div>
                     </div>
-                </>
+                </div>
             )}
         </div>
     )
