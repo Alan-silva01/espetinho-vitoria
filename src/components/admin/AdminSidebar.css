@@ -139,13 +139,9 @@
     /* Hide toggle when truly collapsed to declutter */
 }
 
-.admin-sidebar.collapsed.hovered .sidebar-toggle {
-    right: 10px;
-    opacity: 1;
-}
-
+.admin-sidebar.collapsed.hovered .sidebar-toggle,
 .admin-sidebar:not(.collapsed) .sidebar-toggle {
-    right: 12px;
+    right: -14px;
     opacity: 1;
 }
 
