@@ -10,9 +10,9 @@ import { formatCurrency } from '../../lib/utils'
 import './OrdersPage.css'
 
 const STAGES = [
-    { id: 'confirmado', label: 'Novos', icon: AlertCircle, color: '#FBBF24', next: 'pronto', nextLabel: 'Iniciar Preparo' },
-    { id: 'pronto', label: 'Em Preparação', icon: Utensils, color: '#8B5CF6', next: 'entrega', nextLabel: 'Entregador a caminho' },
-    { id: 'entrega', label: 'Em Entrega', icon: Bike, color: '#F59E0B', next: 'entregue', nextLabel: 'Entregue / Finalizar' },
+    { id: 'confirmado', label: 'Novos', icon: AlertCircle, color: '#FBBF24', next: 'preparando', nextLabel: 'Iniciar Preparo' },
+    { id: 'preparando', label: 'Em Preparação', icon: Utensils, color: '#8B5CF6', next: 'saiu_entrega', nextLabel: 'Entregador a caminho' },
+    { id: 'saiu_entrega', label: 'Em Entrega', icon: Bike, color: '#F59E0B', next: 'entregue', nextLabel: 'Entregue / Finalizar' },
     { id: 'entregue', label: 'Concluídos', icon: CheckCircle2, color: '#10B981' }
 ]
 
@@ -90,14 +90,14 @@ export default function OrdersPage() {
             order.id === orderId ? {
                 ...order,
                 status: newStatus,
-                confirmado_em: newStatus === 'pronto' ? now : order.confirmado_em,
-                entregue_em: newStatus === 'concluido' ? now : order.entregue_em
+                confirmado_em: (newStatus === 'preparando' || newStatus === 'pronto') ? now : order.confirmado_em,
+                entregue_em: newStatus === 'entregue' ? now : order.entregue_em
             } : order
         ))
 
         try {
             const updateData = { status: newStatus }
-            if (newStatus === 'pronto') updateData.confirmado_em = now
+            if (newStatus === 'preparando' || newStatus === 'pronto') updateData.confirmado_em = now
             if (newStatus === 'entregue') updateData.entregue_em = now
 
             const { error } = await supabase
@@ -219,7 +219,7 @@ export default function OrdersPage() {
                                             draggable
                                             onDragStart={(e) => onDragStart(e, order.id)}
                                             onDragEnd={onDragEnd}
-                                            className={`order-card-v2 cursor-grab ${stage.id === 'pronto' ? 'border-purple' : stage.id === 'entrega' ? 'border-orange' : stage.id === 'entregue' ? 'border-green' : ''}`}
+                                            className={`order-card-v2 cursor-grab ${(stage.id === 'preparando' || stage.id === 'pronto') ? 'border-purple' : stage.id === 'saiu_entrega' ? 'border-orange' : stage.id === 'entregue' ? 'border-green' : ''}`}
                                             onClick={() => setSelectedOrder(order)}
                                         >
                                             <div className="card-top">
