@@ -219,7 +219,7 @@ export default function OrdersPage() {
                                             draggable
                                             onDragStart={(e) => onDragStart(e, order.id)}
                                             onDragEnd={onDragEnd}
-                                            className={`order-card-v2 cursor-grab ${(stage.id === 'preparando' || stage.id === 'pronto') ? 'border-purple' : stage.id === 'saiu_entrega' ? 'border-orange' : stage.id === 'entregue' ? 'border-green' : ''}`}
+                                            className={`order-card-v2 ${(order.status === 'preparando' || order.status === 'pronto') ? 'border-purple' : order.status === 'saiu_entrega' ? 'border-orange' : order.status === 'entregue' ? 'border-green' : ''}`}
                                             onClick={() => setSelectedOrder(order)}
                                         >
                                             <div className="card-top">
