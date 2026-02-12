@@ -136,19 +136,28 @@ export default function PromosPage() {
                 />
             )}
 
-            {/* Delete */}
+            {/* Modal de Confirmação de Exclusão */}
             {deleteConfirm && (
-                <div className="admin-modal-overlay" onClick={() => setDeleteConfirm(null)}>
-                    <div className="admin-confirm" onClick={e => e.stopPropagation()}>
-                        <AlertCircle size={40} color="#EF4444" />
-                        <h3>Excluir Promoção?</h3>
-                        <p>Tem certeza que deseja excluir <strong>"{deleteConfirm.titulo}"</strong>?</p>
-                        <div className="admin-confirm__actions">
-                            <button className="admin-btn admin-btn--ghost" onClick={() => setDeleteConfirm(null)}>
+                <div className="admin-modal-overlay">
+                    <div className="modal-confirm-delete animate-scale-in">
+                        <div className="confirm-icon-box">
+                            <Trash2 size={32} />
+                        </div>
+                        <h2>Excluir Promoção?</h2>
+                        <p>Tem certeza que deseja excluir a promoção <strong>"{deleteConfirm.titulo}"</strong>? Esta ação não pode ser desfeita.</p>
+
+                        <div className="confirm-actions">
+                            <button
+                                className="btn-confirm-cancel"
+                                onClick={() => setDeleteConfirm(null)}
+                            >
                                 Cancelar
                             </button>
-                            <button className="admin-btn admin-btn--danger" onClick={() => handleDelete(deleteConfirm.id)}>
-                                <Trash2 size={16} /> Excluir
+                            <button
+                                className="btn-confirm-delete"
+                                onClick={() => handleDelete(deleteConfirm.id)}
+                            >
+                                Sim, Excluir
                             </button>
                         </div>
                     </div>

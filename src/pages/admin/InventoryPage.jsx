@@ -14,10 +14,11 @@ export default function InventoryPage() {
     const [loading, setLoading] = useState(true)
     const [searchTerm, setSearchTerm] = useState('')
     const [stats, setStats] = useState({
-        total: 1248,
-        sales: 342,
-        alerts: 4
+        total: 0,
+        sales: 0,
+        alerts: 0
     })
+    const [activities, setActivities] = useState([])
     const [saving, setSaving] = useState(false)
 
     useEffect(() => {
@@ -62,9 +63,34 @@ export default function InventoryPage() {
         setInventory(merged)
         setLoading(false)
 
-        // Update stats summary
+        // 3. Update stats summary
+        const totalStock = merged.reduce((acc, i) => acc + i.atual, 0)
+        const totalSold = merged.reduce((acc, i) => acc + i.vendidos, 0)
         const lowStock = merged.filter(i => i.percentage < 20 && i.inicial > 0).length
-        setStats(prev => ({ ...prev, alerts: lowStock }))
+
+        setStats({
+            total: totalStock,
+            sales: totalSold,
+            alerts: lowStock
+        })
+
+        // 4. Fetch real activities (Recent Sales)
+        const { data: recentItems } = await supabase
+            .from('itens_pedido')
+            .select('quantidade, produtos(nome), pedidos(id, numero_pedido, criado_em)')
+            .order('id', { ascending: false })
+            .limit(5)
+
+        if (recentItems) {
+            const formatted = recentItems.map(item => ({
+                id: item.pedidos?.id,
+                title: `Pedido #${item.pedidos?.numero_pedido}`,
+                subtitle: `${item.quantidade}x ${item.produtos?.nome}`,
+                time: new Date(item.pedidos?.criado_em).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                type: 'blue'
+            }))
+            setActivities(formatted)
+        }
     }
 
     const updateStock = (id, field, value) => {
@@ -265,29 +291,18 @@ export default function InventoryPage() {
                 <aside className="inventory-sidebar">
                     <h3>Atividades Recentes</h3>
                     <div className="activity-timeline">
-                        <div className="activity-item green">
-                            <div className="marker" />
-                            <div className="act-content">
-                                <p><strong>Admin</strong> registrou entrada</p>
-                                <span>20x Espeto Carne</span>
-                                <small>10 min atrás</small>
+                        {activities.length > 0 ? activities.map((act, idx) => (
+                            <div key={idx} className={`activity-item ${act.type}`}>
+                                <div className="marker" />
+                                <div className="act-content">
+                                    <p><strong>{act.title}</strong></p>
+                                    <span>{act.subtitle}</span>
+                                    <small>{act.time}</small>
+                                </div>
                             </div>
-                        </div>
-                        <div className="activity-item blue">
-                            <div className="marker" />
-                            <div className="act-content">
-                                <p><strong>Venda #1042</strong> confirmada</p>
-                                <span>3x Espetos + 1x Refri</span>
-                                <small>22 min atrás</small>
-                            </div>
-                        </div>
-                        <div className="activity-item red">
-                            <div className="marker" />
-                            <div className="act-content">
-                                <p><strong>Coração</strong> esgotou!</p>
-                                <small>45 min atrás</small>
-                            </div>
-                        </div>
+                        )) : (
+                            <div className="empty-activities">Nenhuma atividade hoje.</div>
+                        )}
                     </div>
 
                     <div className="report-box">

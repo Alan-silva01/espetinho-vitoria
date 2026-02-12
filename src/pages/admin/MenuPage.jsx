@@ -34,6 +34,9 @@ export default function MenuPage() {
     const [uploading, setUploading] = useState(false)
     const [uploadProgress, setUploadProgress] = useState(0)
 
+    // Delete confirmation state
+    const [deleteConfirm, setDeleteConfirm] = useState({ open: false, id: null, loading: false, error: null })
+
     useEffect(() => {
         fetchData()
     }, [])
@@ -72,9 +75,27 @@ export default function MenuPage() {
     }
 
     const handleDelete = async (id) => {
-        if (!confirm('Deseja realmente excluir este produto?')) return
-        const { error } = await supabase.from('produtos').delete().eq('id', id)
-        if (!error) fetchData()
+        setDeleteConfirm({ open: true, id, loading: false, error: null })
+    }
+
+    const confirmDelete = async () => {
+        setDeleteConfirm(prev => ({ ...prev, loading: true, error: null }))
+
+        try {
+            const { error } = await supabase.from('produtos').delete().eq('id', deleteConfirm.id)
+
+            if (error) {
+                if (error.code === '23503') {
+                    throw new Error('Este produto não pode ser excluído pois já existem pedidos vinculados a ele. Você pode desativar o produto para que ele não apareça mais no cardápio.')
+                }
+                throw error
+            }
+
+            setDeleteConfirm({ open: false, id: null, loading: false, error: null })
+            fetchData()
+        } catch (err) {
+            setDeleteConfirm(prev => ({ ...prev, loading: false, error: err.message }))
+        }
     }
 
     const handleUpload = async (e) => {
@@ -518,6 +539,42 @@ export default function MenuPage() {
                     <button disabled>Próximo</button>
                 </div>
             </div>
+
+            {/* Modal de Confirmação de Exclusão */}
+            {deleteConfirm.open && (
+                <div className="admin-modal-overlay">
+                    <div className="modal-confirm-delete animate-scale-in">
+                        <div className="confirm-icon-box">
+                            <Trash2 size={32} />
+                        </div>
+                        <h2>Excluir Produto?</h2>
+                        <p>Esta ação não pode ser desfeita. O produto será removido permanentemente do cardápio.</p>
+
+                        {deleteConfirm.error && (
+                            <div className="error-message-box">
+                                {deleteConfirm.error}
+                            </div>
+                        )}
+
+                        <div className="confirm-actions">
+                            <button
+                                className="btn-confirm-cancel"
+                                onClick={() => setDeleteConfirm({ open: false, id: null, loading: false, error: null })}
+                                disabled={deleteConfirm.loading}
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                className="btn-confirm-delete"
+                                onClick={confirmDelete}
+                                disabled={deleteConfirm.loading}
+                            >
+                                {deleteConfirm.loading ? 'Excluindo...' : 'Sim, Excluir'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

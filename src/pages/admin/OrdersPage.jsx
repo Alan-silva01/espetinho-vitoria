@@ -93,7 +93,7 @@ export default function OrdersPage() {
         e.currentTarget.classList.remove('drag-over')
         const orderId = e.dataTransfer.getData('orderId')
         if (orderId) {
-            handleStatusChange(orderId, targetStage)
+            handleStatusChange(orderId, getStageStatus(targetStage))
         }
     }
 
@@ -108,6 +108,13 @@ export default function OrdersPage() {
         if (status === 'pronto') return 'preparando'
         if (status === 'entrega') return 'saiu_entrega'
         return status
+    }
+
+    const getStageStatus = (stageId) => {
+        if (stageId === 'pendente') return 'confirmado'
+        if (stageId === 'preparando') return 'pronto'
+        if (stageId === 'saiu_entrega') return 'entrega'
+        return stageId
     }
 
     const filteredOrders = orders.filter(order => {
@@ -199,17 +206,35 @@ export default function OrdersPage() {
 
                                             <div className="items-preview">
                                                 {order.itens?.map((item, idx) => (
-                                                    <p key={idx} className="item-line">
-                                                        <span className="qnt">{item.quantidade}x</span>
-                                                        <span className="name">{item.produtos?.nome}</span>
-                                                    </p>
+                                                    <div key={idx} className="item-detail-row">
+                                                        <div className="item-main">
+                                                            <span className="qnt">{item.quantidade}x</span>
+                                                            <span className="name">{item.produtos?.nome}</span>
+                                                        </div>
+                                                        {(item.observacoes || item.personalizacao) && (
+                                                            <div className="item-addons">
+                                                                {item.observacoes && <p className="notes">{item.observacoes}</p>}
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                 ))}
                                             </div>
 
-                                            <div className="card-footer">
+                                            {order.endereco && (
+                                                <div className="address-preview">
+                                                    <MapPin size={12} />
+                                                    <span>
+                                                        {typeof order.endereco === 'string'
+                                                            ? order.endereco
+                                                            : `${order.endereco.street}, ${order.endereco.number} - ${order.endereco.neighborhood}`}
+                                                    </span>
+                                                </div>
+                                            )}
+
+                                            <div className="card-footer-v2">
                                                 <div className="time-ago">
                                                     <Timer size={14} />
-                                                    <span>{getMinutesAgo(order.criado_em)} min</span>
+                                                    <span>{getMinutesAgo(order.criado_em)}m</span>
                                                 </div>
                                                 <span className="price">{formatCurrency(order.valor_total)}</span>
                                             </div>
@@ -245,9 +270,14 @@ export default function OrdersPage() {
                             <p><strong>Telefone:</strong> {selectedOrder.telefone_cliente}</p>
                             <div className="items-box">
                                 {selectedOrder.itens?.map((item, idx) => (
-                                    <div key={idx} className="item-line">
-                                        <span>{item.quantidade}x {item.produtos?.nome}</span>
-                                        <span>{formatCurrency(item.preco_unitario * item.quantidade)}</span>
+                                    <div key={idx} className="item-line-container">
+                                        <div className="item-line">
+                                            <span>{item.quantidade}x {item.produtos?.nome}</span>
+                                            <span>{formatCurrency(item.preco_unitario * item.quantidade)}</span>
+                                        </div>
+                                        {item.observacoes && (
+                                            <p className="item-obs-modal">{item.observacoes}</p>
+                                        )}
                                     </div>
                                 ))}
                                 <div className="total-line">
@@ -255,6 +285,24 @@ export default function OrdersPage() {
                                     <strong>{formatCurrency(selectedOrder.valor_total)}</strong>
                                 </div>
                             </div>
+
+                            {selectedOrder.endereco && (
+                                <div className="modal-address-box">
+                                    <div className="address-header">
+                                        <MapPin size={16} />
+                                        <strong>Endereço de Entrega</strong>
+                                    </div>
+                                    <p>
+                                        {typeof selectedOrder.endereco === 'string'
+                                            ? selectedOrder.endereco
+                                            : `${selectedOrder.endereco.street}, ${selectedOrder.endereco.number} - ${selectedOrder.endereco.neighborhood}`}
+                                    </p>
+                                    {selectedOrder.endereco.reference && (
+                                        <p className="address-ref">📍 {selectedOrder.endereco.reference}</p>
+                                    )}
+                                </div>
+                            )}
+
                             <div className="modal-actions-grid">
                                 <button className="btn-print">Imprimir Cupom</button>
                                 {selectedOrder.status === 'confirmado' && (

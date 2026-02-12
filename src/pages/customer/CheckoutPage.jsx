@@ -52,7 +52,7 @@ export default function CheckoutPage() {
                 valor_total: total,
                 forma_pagamento: formaPagamento,
                 troco_para: precisaTroco ? parseFloat(trocoPara) : null,
-                endereco: tipoPedido === 'entrega' ? enderecoCompleto : null,
+                endereco: tipoPedido === 'entrega' ? savedData : null,
                 observacoes,
                 itens: items,
             })

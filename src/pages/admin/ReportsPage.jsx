@@ -13,35 +13,89 @@ import { formatCurrency } from '../../lib/utils'
 import './ReportsPage.css'
 
 export default function ReportsPage() {
-    const [period, setPeriod] = useState('Últimos 7 dias')
-    const [loading, setLoading] = useState(true)
     const [stats, setStats] = useState({
-        revenue: 3450,
-        orders: 42,
-        ticket: 82,
-        upsell: 12.5
+        revenue: 0,
+        orders: 0,
+        ticket: 0,
+        upsell: 0
     })
-
-    const chartData = [
-        { name: 'Seg', v: 1200 },
-        { name: 'Ter', v: 1900 },
-        { name: 'Qua', v: 1500 },
-        { name: 'Qui', v: 2200 },
-        { name: 'Sex', v: 2400 },
-        { name: 'Sáb', v: 3100 },
-        { name: 'Dom', v: 3800 },
-    ]
-
-    const paymentData = [
-        { name: 'PIX', value: 58, color: '#22C55E' },
-        { name: 'Crédito', value: 30, color: '#3B82F6' },
-        { name: 'Dinheiro', value: 12, color: '#9CA3AF' },
-    ]
+    const [chartData, setChartData] = useState([])
+    const [paymentData, setPaymentData] = useState([])
+    const [categoryData, setCategoryData] = useState([])
 
     useEffect(() => {
-        // Mocking data for now as per reference
-        setTimeout(() => setLoading(false), 800)
-    }, [])
+        fetchReportsData()
+    }, [period])
+
+    async function fetchReportsData() {
+        setLoading(true)
+        try {
+            let startDate = new Date()
+            if (period === 'Hoje') startDate.setHours(0, 0, 0, 0)
+            else if (period === 'Ontem') {
+                startDate.setDate(startDate.getDate() - 1)
+                startDate.setHours(0, 0, 0, 0)
+            }
+            else if (period === 'Últimos 7 dias') startDate.setDate(startDate.getDate() - 7)
+            else startDate.setDate(1) // Este Mês
+
+            const { data: orders } = await supabase
+                .from('pedidos')
+                .select(`
+                    id, valor_total, forma_pagamento, criado_em,
+                    itens:itens_pedido(quantidade, produtos(categorias(nome)))
+                `)
+                .gte('criado_em', startDate.toISOString())
+
+            if (orders) {
+                const revenue = orders.reduce((sum, o) => sum + Number(o.valor_total), 0)
+                const ticket = orders.length > 0 ? revenue / orders.length : 0
+
+                setStats({
+                    revenue,
+                    orders: orders.length,
+                    ticket,
+                    upsell: 12
+                })
+
+                // Payment distribution
+                const payments = orders.reduce((acc, o) => {
+                    const method = o.forma_pagamento?.toUpperCase() || 'OUTROS'
+                    acc[method] = (acc[method] || 0) + 1
+                    return acc
+                }, {})
+                setPaymentData(Object.entries(payments).map(([name, count]) => ({
+                    name,
+                    value: Math.round((count / orders.length) * 100),
+                    color: name === 'PIX' ? '#22C55E' : name === 'CREDITO' ? '#3B82F6' : '#9CA3AF'
+                })))
+
+                // Category performance
+                const cats = {}
+                let totalItems = 0
+                orders.forEach(o => o.itens?.forEach(i => {
+                    const name = i.produtos?.categorias?.nome || 'Outros'
+                    cats[name] = (cats[name] || 0) + i.quantidade
+                    totalItems += i.quantidade
+                }))
+                setCategoryData(Object.entries(cats).map(([name, count]) => ({
+                    name,
+                    percent: Math.round((count / totalItems) * 100),
+                    color: name === 'Espetinhos' ? '#C62828' : '#3B82F6'
+                })).sort((a, b) => b.percent - a.percent))
+
+                // Chart data (Simplified simple timeline)
+                setChartData(orders.slice(-7).map(o => ({
+                    name: new Date(o.criado_em).toLocaleDateString('pt-BR', { day: '2-digit' }),
+                    v: Number(o.valor_total)
+                })))
+            }
+        } catch (err) {
+            console.error('Reports Error:', err)
+        } finally {
+            setLoading(false)
+        }
+    }
 
     if (loading) return <div className="admin-loading">Gerando relatórios...</div>
 
@@ -158,18 +212,12 @@ export default function ReportsPage() {
                                 <h3>Desempenho por Categoria</h3>
                             </div>
                             <div className="performance-list">
-                                <div className="perf-item">
-                                    <div className="info"><span>Espetinhos</span> <strong>65%</strong></div>
-                                    <div className="bar-bg"><div className="bar-fill" style={{ width: '65%', background: '#C62828' }} /></div>
-                                </div>
-                                <div className="perf-item">
-                                    <div className="info"><span>Bebidas</span> <strong>25%</strong></div>
-                                    <div className="bar-bg"><div className="bar-fill" style={{ width: '25%', background: '#3B82F6' }} /></div>
-                                </div>
-                                <div className="perf-item">
-                                    <div className="info"><span>Acompanhamentos</span> <strong>10%</strong></div>
-                                    <div className="bar-bg"><div className="bar-fill" style={{ width: '10%', background: '#F59E0B' }} /></div>
-                                </div>
+                                {categoryData.map(item => (
+                                    <div key={item.name} className="perf-item">
+                                        <div className="info"><span>{item.name}</span> <strong>{item.percent}%</strong></div>
+                                        <div className="bar-bg"><div className="bar-fill" style={{ width: `${item.percent}%`, background: item.color }} /></div>
+                                    </div>
+                                ))}
                             </div>
                         </div>
 

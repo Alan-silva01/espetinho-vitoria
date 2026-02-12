@@ -32,87 +32,109 @@ export default function DashboardPage() {
 
     async function fetchDashboardData() {
         setLoading(true)
-        console.log('[Dashboard] Iniciando carregamento de métricas...')
-
         try {
             const today = new Date()
             today.setHours(0, 0, 0, 0)
+            const sevenDaysAgo = new Date()
+            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
 
-            // 1. Stats and Metrics
-            try {
-                const { data: ordersToday, error: ordersErr } = await supabase
-                    .from('pedidos')
-                    .select('valor_total, status')
-                    .gte('criado_em', today.toISOString())
+            // 1. Fetch Orders for Stats and Chart
+            const { data: orders, error: ordersErr } = await supabase
+                .from('pedidos')
+                .select(`
+                    id, valor_total, criado_em, status,
+                    itens:itens_pedido(
+                        quantidade,
+                        produtos(id, nome, categoria_id, categorias(nome))
+                    )
+                `)
+                .gte('criado_em', sevenDaysAgo.toISOString())
 
-                if (ordersErr) throw ordersErr
+            if (ordersErr) throw ordersErr
 
-                const totalRevenue = ordersToday?.reduce((acc, curr) => acc + Number(curr.valor_total), 0) || 0
-                const totalOrders = ordersToday?.length || 0
-                const avgTicket = totalOrders > 0 ? totalRevenue / totalOrders : 0
+            // Metrics for TODAY
+            const todayOrders = orders?.filter(o => new Date(o.criado_em) >= today) || []
+            const totalRevenue = todayOrders.reduce((acc, curr) => acc + Number(curr.valor_total), 0)
+            const totalOrdersCount = todayOrders.length
+            const avgTicket = totalOrdersCount > 0 ? totalRevenue / totalOrdersCount : 0
 
-                setStats(prev => ({
-                    ...prev,
-                    revenue: totalRevenue,
-                    orders: totalOrders,
-                    ticket: avgTicket
-                }))
-            } catch (err) {
-                console.warn('[Dashboard] Erro ao buscar pedidos hoje:', err.message)
-            }
+            // 2. Chart Data (7 days)
+            const last7Days = Array.from({ length: 7 }, (_, i) => {
+                const date = new Date()
+                date.setDate(date.getDate() - (6 - i))
+                return {
+                    name: date.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', ''),
+                    fullDate: date.toISOString().split('T')[0],
+                    uv: 0
+                }
+            })
 
-            // 2. Top Products
-            try {
-                const { data: popular, error: prodErr } = await supabase
-                    .from('produtos')
-                    .select('id, nome, imagem_url, categorias(nome)')
-                    .limit(5)
+            orders.forEach(order => {
+                const orderDate = new Date(order.criado_em).toISOString().split('T')[0]
+                const day = last7Days.find(d => d.fullDate === orderDate)
+                if (day) {
+                    day.uv += Number(order.valor_total)
+                }
+            })
 
-                if (prodErr) throw prodErr
-                setTopProducts(popular || [])
-            } catch (err) {
-                console.warn('[Dashboard] Erro ao buscar produtos populares:', err.message)
-            }
+            // Set stats
+            setStats({
+                revenue: totalRevenue,
+                orders: totalOrdersCount,
+                ticket: avgTicket,
+                upsell: 12 // Keep hardcoded for now or calculate if upsell logic exists
+            })
 
-            // 3. Recent Orders
-            try {
-                const { data: recent, error: recentErr } = await supabase
-                    .from('pedidos')
-                    .select('*')
-                    .order('criado_em', { ascending: false })
-                    .limit(4)
+            setRecentOrders(orders.slice(0, 4))
+            setChartData(last7Days)
 
-                if (recentErr) throw recentErr
-                setRecentOrders(recent || [])
-            } catch (err) {
-                console.warn('[Dashboard] Erro ao buscar pedidos recentes:', err.message)
-            }
+            // 3. Category Breakdown
+            const catMap = {}
+            let totalItems = 0
+            orders.forEach(order => {
+                order.itens?.forEach(item => {
+                    const catName = item.produtos?.categorias?.nome || 'Outros'
+                    catMap[catName] = (catMap[catName] || 0) + item.quantidade
+                    totalItems += item.quantidade
+                })
+            })
 
-            // 4. Category Sales (Static for now)
-            setCategorySales([
-                { name: 'Espetinhos', percent: 65, color: '#B91C1C' },
-                { name: 'Bebidas', percent: 25, color: '#3B82F6' },
-                { name: 'Acompanhamentos', percent: 10, color: '#F59E0B' }
-            ])
+            const categoryData = Object.entries(catMap).map(([name, count]) => ({
+                name,
+                percent: Math.round((count / totalItems) * 100),
+                color: name === 'Espetinhos' ? '#B91C1C' : name === 'Bebidas' ? '#3B82F6' : '#F59E0B'
+            })).sort((a, b) => b.percent - a.percent)
+
+            setCategorySales(categoryData)
+
+            // 4. Top Products
+            const prodMap = {}
+            orders.forEach(order => {
+                order.itens?.forEach(item => {
+                    const prodId = item.produtos?.id
+                    if (!prodId) return
+                    if (!prodMap[prodId]) {
+                        prodMap[prodId] = {
+                            id: prodId,
+                            nome: item.produtos.nome,
+                            categoria: item.produtos.categorias?.nome,
+                            vendas: 0
+                        }
+                    }
+                    prodMap[prodId].vendas += item.quantidade
+                })
+            })
+
+            setTopProducts(Object.values(prodMap).sort((a, b) => b.vendas - a.vendas).slice(0, 5))
 
         } catch (error) {
-            console.error('[Dashboard] Erro crítico no carregamento:', error)
+            console.error('[Dashboard] Erro ao carregar dados:', error)
         } finally {
-            console.log('[Dashboard] Carregamento finalizado.')
             setLoading(false)
         }
     }
 
-    // Chart Data (Mocked for 7 days)
-    const chartData = [
-        { name: 'Seg', uv: 2400 },
-        { name: 'Ter', uv: 1398 },
-        { name: 'Qua', uv: 9800 },
-        { name: 'Qui', uv: 3908 },
-        { name: 'Sex', uv: 4800 },
-        { name: 'Sáb', uv: 3800 },
-        { name: 'Dom', uv: 4300 },
-    ]
+    const [chartData, setChartData] = useState([])
 
     if (loading) return <div className="admin-loading">Carregando métricas...</div>
 
@@ -311,10 +333,10 @@ export default function DashboardPage() {
                                         </div>
                                         <div className="product-info">
                                             <h4 className="group-hover:text-primary">{p.nome}</h4>
-                                            <p>{p.categorias?.nome}</p>
+                                            <p>{p.categoria}</p>
                                         </div>
                                         <div className="product-sales">
-                                            <span className="sales-num">120</span>
+                                            <span className="sales-num">{p.vendas}</span>
                                             <span className="sales-unit">unid.</span>
                                         </div>
                                     </div>

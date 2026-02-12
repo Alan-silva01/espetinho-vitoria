@@ -13,6 +13,7 @@ export default function CustomersPage() {
     const [customers, setCustomers] = useState([])
     const [loading, setLoading] = useState(true)
     const [searchTerm, setSearchTerm] = useState('')
+    const [deleteConfirm, setDeleteConfirm] = useState({ open: false, id: null, nome: '' })
 
     useEffect(() => {
         fetchCustomers()
@@ -20,21 +21,45 @@ export default function CustomersPage() {
 
     async function fetchCustomers() {
         setLoading(true)
-        const { data } = await supabase
+        // Fetch customers with their orders to calculate stats
+        const { data: customersData } = await supabase
             .from('clientes')
-            .select('*')
+            .select(`
+                *,
+                pedidos(id, valor_total, criado_em)
+            `)
             .order('criado_em', { ascending: false })
 
-        // Mocking some stats for the table
-        const enriched = data?.map(c => ({
-            ...c,
-            totalOrders: Math.floor(Math.random() * 15) + 1,
-            totalSpent: Math.random() * 1000 + 200,
-            lastOrder: new Date().toLocaleDateString('pt-BR')
-        })) || []
+        if (customersData) {
+            const enriched = customersData.map(c => {
+                const totalSpent = c.pedidos?.reduce((sum, p) => sum + Number(p.valor_total), 0) || 0
+                const lastOrderDate = c.pedidos?.length > 0
+                    ? new Date(Math.max(...c.pedidos.map(p => new Date(p.criado_em)))).toLocaleDateString('pt-BR')
+                    : 'Sem pedidos'
 
-        setCustomers(enriched)
+                return {
+                    ...c,
+                    totalOrders: c.pedidos?.length || 0,
+                    totalSpent: totalSpent,
+                    lastOrder: lastOrderDate
+                }
+            })
+            setCustomers(enriched)
+        }
         setLoading(false)
+    }
+    async function handleDeleteClick(customer) {
+        setDeleteConfirm({ open: true, id: customer.id, nome: customer.nome })
+    }
+
+    async function confirmDelete() {
+        const { error } = await supabase.from('clientes').delete().eq('id', deleteConfirm.id)
+        if (!error) {
+            setCustomers(prev => prev.filter(c => c.id !== deleteConfirm.id))
+            setDeleteConfirm({ open: false, id: null, nome: '' })
+        } else {
+            alert('Erro ao excluir cliente: ' + error.message)
+        }
     }
 
     const filteredCustomers = customers.filter(c =>
@@ -78,8 +103,8 @@ export default function CustomersPage() {
                 <div className="c-stat-card">
                     <div className="c-stat-icon green"><Calendar /></div>
                     <div className="c-stat-info">
-                        <span>Novos (Este Mês)</span>
-                        <h3>12</h3>
+                        <span>Fidelidade</span>
+                        <h3>{customers.filter(c => c.totalOrders > 10).length}</h3>
                     </div>
                 </div>
             </div>
@@ -140,7 +165,7 @@ export default function CustomersPage() {
                                         <div className="actions-cell">
                                             <button title="Ver Detalhes"><ExternalLink size={16} /></button>
                                             <button title="Editar"><Edit2 size={16} /></button>
-                                            <button className="danger" title="Excluir"><Trash2 size={16} /></button>
+                                            <button className="danger" title="Excluir" onClick={() => handleDeleteClick(customer)}><Trash2 size={16} /></button>
                                         </div>
                                     </td>
                                 </tr>
@@ -158,6 +183,34 @@ export default function CustomersPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Modal de Confirmação de Exclusão */}
+            {deleteConfirm.open && (
+                <div className="admin-modal-overlay">
+                    <div className="modal-confirm-delete animate-scale-in">
+                        <div className="confirm-icon-box">
+                            <Trash2 size={32} />
+                        </div>
+                        <h2>Excluir Cliente?</h2>
+                        <p>Tem certeza que deseja excluir <strong>{deleteConfirm.nome}</strong>? Esta ação removerá o histórico deste cliente permanentemente.</p>
+
+                        <div className="confirm-actions">
+                            <button
+                                className="btn-confirm-cancel"
+                                onClick={() => setDeleteConfirm({ open: false, id: null, nome: '' })}
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                className="btn-confirm-delete"
+                                onClick={confirmDelete}
+                            >
+                                Sim, Excluir
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

@@ -58,6 +58,8 @@ export function useOrders() {
                 quantidade: item.quantidade,
                 preco_unitario: item.preco,
                 eh_upsell: item.eh_upsell || false,
+                observacoes: item.observacoes || null,
+                personalizacao: item.personalizacao || null
             }))
 
             const { error: itensErr } = await supabase
