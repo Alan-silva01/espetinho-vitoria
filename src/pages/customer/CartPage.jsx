@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, X, Minus, Plus, MapPin, Truck, Store } from 'lucide-react'
 import { useCart } from '../../hooks/useCart'
@@ -8,7 +8,12 @@ import './CartPage.css'
 
 export default function CartPage() {
     const navigate = useNavigate()
-    const { items, removeItem, updateQuantity, clearCart, subtotal } = useCart()
+    const { items, removeItem, updateQuantity, clearCart, subtotal, addItem } = useCart()
+    const { products } = useProducts()
+
+    // Upsell: products NOT already in cart
+    const cartProductIds = items.map(i => i.produto_id)
+    const upsellProducts = products.filter(p => p.disponivel && !cartProductIds.includes(p.id))
 
     // Order type
     const [tipoPedido, setTipoPedido] = useState(() => {
@@ -150,37 +155,40 @@ export default function CartPage() {
                 </div>
 
                 {/* Upsell Section */}
-                <div className="cart-upsell">
-                    <h3 className="cart-upsell__title">
-                        <span>🔥</span> Que tal uma bebida gelada?
-                    </h3>
-                    <div className="cart-upsell__scroll hide-scrollbar">
-                        <div className="cart-upsell__card">
-                            <button className="cart-upsell__add-btn">
-                                <Plus size={14} />
-                            </button>
-                            <div className="cart-upsell__img-placeholder">🥤</div>
-                            <p className="cart-upsell__name">Coca-Cola Lata</p>
-                            <p className="cart-upsell__price">R$ 5,00</p>
-                        </div>
-                        <div className="cart-upsell__card">
-                            <button className="cart-upsell__add-btn cart-upsell__add-btn--inactive">
-                                <Plus size={14} />
-                            </button>
-                            <div className="cart-upsell__img-placeholder">🥤</div>
-                            <p className="cart-upsell__name">Guaraná Lata</p>
-                            <p className="cart-upsell__price">R$ 4,50</p>
-                        </div>
-                        <div className="cart-upsell__card">
-                            <button className="cart-upsell__add-btn cart-upsell__add-btn--inactive">
-                                <Plus size={14} />
-                            </button>
-                            <div className="cart-upsell__img-placeholder">🍊</div>
-                            <p className="cart-upsell__name">Suco Natural</p>
-                            <p className="cart-upsell__price">R$ 8,00</p>
+                {upsellProducts.length > 0 && (
+                    <div className="cart-upsell">
+                        <h3 className="cart-upsell__title">Adicione também</h3>
+                        <div className="cart-upsell__marquee-wrap hide-scrollbar">
+                            <div className="cart-upsell__marquee">
+                                {[...upsellProducts, ...upsellProducts].map((p, idx) => (
+                                    <div key={`${p.id}-${idx}`} className="cart-upsell__card">
+                                        <div className="cart-upsell__img-wrap">
+                                            <img
+                                                src={getImageUrl(p.imagem_url) || 'https://via.placeholder.com/80x80?text=🍖'}
+                                                alt={p.nome}
+                                                className="cart-upsell__img"
+                                            />
+                                        </div>
+                                        <p className="cart-upsell__name">{p.nome}</p>
+                                        <p className="cart-upsell__price">{formatCurrency(p.preco)}</p>
+                                        <button
+                                            className="cart-upsell__add-btn"
+                                            onClick={() => addItem({
+                                                produto_id: p.id,
+                                                nome: p.nome,
+                                                preco: p.preco,
+                                                imagem_url: p.imagem_url,
+                                                eh_upsell: true,
+                                            })}
+                                        >
+                                            <Plus size={14} />
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     </div>
-                </div>
+                )}
 
                 {/* Delivery or Pickup Toggle */}
                 <div className="cart-order-type">
