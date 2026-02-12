@@ -55,7 +55,7 @@ export default function AdminSidebar({ adminInfo, currentPath, onLogout, isColla
                 {isExpanded && (
                     <div className="brand-text animate-fade-in">
                         <h1>Espetinho</h1>
-                        <span>Admin Dashboard</span>
+                        <span>Vitória</span>
                     </div>
                 )}
                 <button className="sidebar-toggle" onClick={onToggle}>
