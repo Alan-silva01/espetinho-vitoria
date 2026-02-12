@@ -99,7 +99,7 @@ export default function CustomersPage() {
 
             const payload = {
                 nome: formData.nome,
-                telefone: formData.whatsapp, // Keep both in sync for easier lookup
+                // telefone: DO NOT UPDATE THIS FIELD (Per user request)
                 dados: updatedDados
             }
 
@@ -110,10 +110,12 @@ export default function CustomersPage() {
                     .eq('id', customer.id)
                 if (error) throw error
             } else {
-                // For new customers, we might need a generic code if the schema requires it
+                // For new customers, we also don't touch 'telefone' if possible, 
+                // but we might need it for initial identification if dados isn't enough.
+                // However, user said "nunca mexa", so we set it only in dados.
                 const { error } = await supabase
                     .from('clientes')
-                    .insert([{ ...payload, codigo: `CLI-${Math.floor(Math.random() * 900000) + 100000}` }])
+                    .insert([payload])
                 if (error) throw error
             }
 
