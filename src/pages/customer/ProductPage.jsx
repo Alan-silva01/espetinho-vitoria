@@ -7,6 +7,11 @@ import { formatCurrency, getImageUrl } from '../../lib/utils'
 import Loading from '../../components/ui/Loading'
 import './ProductPage.css'
 
+// Helper: normalize option to always get the name string
+const optName = (opt) => (typeof opt === 'string' ? opt : opt.nome)
+const optPreco = (opt) => (typeof opt === 'string' ? 0 : Number(opt.preco) || 0)
+const optImg = (opt) => (typeof opt === 'string' ? null : opt.imagem_url || null)
+
 export default function ProductPage() {
     const { id } = useParams()
     const navigate = useNavigate()
@@ -33,38 +38,63 @@ export default function ProductPage() {
         setSelectedOptions(defaults)
     }, [product])
 
+    // Calculate extras cost from selected add-on options
+    const extrasTotal = useMemo(() => {
+        if (!product?.opcoes_personalizacao) return 0
+        let total = 0
+        product.opcoes_personalizacao.forEach(group => {
+            const selected = selectedOptions[group.grupo]
+            group.opcoes.forEach(opt => {
+                const name = optName(opt)
+                const price = optPreco(opt)
+                if (price <= 0) return
+                if (group.tipo === 'radio' && selected === name) {
+                    total += price
+                } else if (Array.isArray(selected) && selected.includes(name)) {
+                    total += price
+                }
+            })
+        })
+        return total
+    }, [product, selectedOptions])
+
     const totalPrice = useMemo(() => {
         const basePrice = selectedVariation?.preco || product?.preco || 0
-        return basePrice * qty
-    }, [product, selectedVariation, qty])
+        return (basePrice + extrasTotal) * qty
+    }, [product, selectedVariation, qty, extrasTotal])
 
     if (loading) return <Loading fullScreen />
     if (!product) return <div className="page-padding" style={{ paddingTop: 80 }}>Produto não encontrado</div>
 
     const customizations = product.opcoes_personalizacao || []
 
-    function handleOptionToggle(groupName, option, tipo) {
+    function handleOptionToggle(groupName, optionName, tipo) {
         setSelectedOptions(prev => {
             const current = prev[groupName] || (tipo === 'radio' ? '' : [])
 
             if (tipo === 'radio') {
-                return { ...prev, [groupName]: current === option ? '' : option }
+                return { ...prev, [groupName]: current === optionName ? '' : optionName }
             }
 
             // checkbox
             const arr = Array.isArray(current) ? current : []
-            if (arr.includes(option)) {
-                return { ...prev, [groupName]: arr.filter(o => o !== option) }
+            if (arr.includes(optionName)) {
+                return { ...prev, [groupName]: arr.filter(o => o !== optionName) }
             } else {
-                return { ...prev, [groupName]: [...arr, option] }
+                return { ...prev, [groupName]: [...arr, optionName] }
             }
         })
     }
 
-    function isOptionSelected(groupName, option, tipo) {
+    function isOptionSelected(groupName, optionName, tipo) {
         const current = selectedOptions[groupName]
-        if (tipo === 'radio') return current === option
-        return Array.isArray(current) && current.includes(option)
+        if (tipo === 'radio') return current === optionName
+        return Array.isArray(current) && current.includes(optionName)
+    }
+
+    // Check if a group has any paid options
+    function groupHasPaidOptions(group) {
+        return group.opcoes.some(opt => optPreco(opt) > 0)
     }
 
     function handleAdd() {
@@ -78,7 +108,7 @@ export default function ProductPage() {
             produto_id: product.id,
             variacao_id: selectedVariation?.id,
             nome: product.nome + (selectedVariation ? ` - ${selectedVariation.nome}` : ''),
-            preco: selectedVariation?.preco || product.preco,
+            preco: (selectedVariation?.preco || product.preco) + extrasTotal,
             imagem_url: product.imagem_url,
             quantidade: qty,
             observacoes: [optionsSummary, notes].filter(Boolean).join(' — '),
@@ -159,31 +189,49 @@ export default function ProductPage() {
                 )}
 
                 {/* Customization Options */}
-                {customizations.map((group, gIdx) => (
-                    <section key={gIdx} className="product-section">
-                        <div className="product-section__header">
-                            <h3>{group.grupo}</h3>
-                            <span className="product-section__badge">
-                                {group.tipo === 'radio' ? 'Escolha 1' : 'Incluso'}
-                            </span>
-                        </div>
-                        <div className="product-chips">
-                            {group.opcoes.map((opt, oIdx) => {
-                                const selected = isOptionSelected(group.grupo, opt, group.tipo)
-                                return (
-                                    <button
-                                        key={oIdx}
-                                        className={`product-chip ${selected ? 'product-chip--selected' : ''}`}
-                                        onClick={() => handleOptionToggle(group.grupo, opt, group.tipo)}
-                                    >
-                                        {selected && <Check size={12} className="product-chip__check" />}
-                                        <span>{opt}</span>
-                                    </button>
-                                )
-                            })}
-                        </div>
-                    </section>
-                ))}
+                {customizations.map((group, gIdx) => {
+                    const hasPaid = groupHasPaidOptions(group)
+                    const badgeText = hasPaid ? 'Adicional' : (group.tipo === 'radio' ? 'Escolha 1' : 'Incluso')
+
+                    return (
+                        <section key={gIdx} className="product-section">
+                            <div className="product-section__header">
+                                <h3>{group.grupo}</h3>
+                                <span className={`product-section__badge ${hasPaid ? 'product-section__badge--paid' : ''}`}>
+                                    {badgeText}
+                                </span>
+                            </div>
+                            <div className="product-chips">
+                                {group.opcoes.map((opt, oIdx) => {
+                                    const name = optName(opt)
+                                    const price = optPreco(opt)
+                                    const img = optImg(opt)
+                                    const selected = isOptionSelected(group.grupo, name, group.tipo)
+                                    return (
+                                        <button
+                                            key={oIdx}
+                                            className={`product-chip ${selected ? 'product-chip--selected' : ''} ${img ? 'product-chip--has-img' : ''}`}
+                                            onClick={() => handleOptionToggle(group.grupo, name, group.tipo)}
+                                        >
+                                            {img && (
+                                                <img
+                                                    src={getImageUrl(img)}
+                                                    alt={name}
+                                                    className="product-chip__img"
+                                                />
+                                            )}
+                                            {selected && <Check size={12} className="product-chip__check" />}
+                                            <span>{name}</span>
+                                            {price > 0 && (
+                                                <span className="product-chip__price">+{formatCurrency(price)}</span>
+                                            )}
+                                        </button>
+                                    )
+                                })}
+                            </div>
+                        </section>
+                    )
+                })}
 
                 {/* Observations */}
                 <section className="product-section">

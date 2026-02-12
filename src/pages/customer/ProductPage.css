@@ -331,14 +331,14 @@
 .product-chips {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 8px;
 }
 
 .product-chip {
     display: flex;
     align-items: center;
     gap: 5px;
-    padding: 7px 14px;
+    padding: 6px 12px;
     background: #f3f4f6;
     border: 1.5px solid #e5e7eb;
     border-radius: 999px;
@@ -347,6 +347,10 @@
     color: var(--texto-principal);
     transition: all 0.2s;
     cursor: pointer;
+}
+
+.product-chip--has-img {
+    padding-left: 4px;
 }
 
 .product-chip:active {
@@ -363,4 +367,28 @@
 .product-chip__check {
     color: var(--cor-primaria);
     flex-shrink: 0;
+}
+
+.product-chip__img {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.product-chip__price {
+    font-size: 11px;
+    font-weight: 700;
+    color: #059669;
+    white-space: nowrap;
+}
+
+.product-chip--selected .product-chip__price {
+    color: var(--cor-primaria);
+}
+
+.product-section__badge--paid {
+    background: #FFF7ED;
+    color: #EA580C;
 }

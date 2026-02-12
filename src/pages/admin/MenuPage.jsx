@@ -30,6 +30,7 @@ export default function MenuPage() {
         opcoes_personalizacao: []
     })
     const [newOptionText, setNewOptionText] = useState({})
+    const [newOptionPrice, setNewOptionPrice] = useState({})
     const [uploading, setUploading] = useState(false)
     const [uploadProgress, setUploadProgress] = useState(0)
 
@@ -66,6 +67,7 @@ export default function MenuPage() {
             opcoes_personalizacao: product.opcoes_personalizacao || []
         })
         setNewOptionText({})
+        setNewOptionPrice({})
         setIsModalOpen(true)
     }
 
@@ -138,6 +140,7 @@ export default function MenuPage() {
                 opcoes_personalizacao: []
             })
             setNewOptionText({})
+            setNewOptionPrice({})
             fetchData()
         } else {
             alert('Erro ao salvar produto: ' + error.message)
@@ -174,12 +177,15 @@ export default function MenuPage() {
     const addOptionToGroup = (gIdx) => {
         const text = (newOptionText[gIdx] || '').trim()
         if (!text) return
+        const price = parseFloat(newOptionPrice[gIdx] || '0') || 0
+        const newOpt = { nome: text, preco: price, imagem_url: '' }
         setFormData(prev => {
             const updated = [...prev.opcoes_personalizacao]
-            updated[gIdx] = { ...updated[gIdx], opcoes: [...updated[gIdx].opcoes, text] }
+            updated[gIdx] = { ...updated[gIdx], opcoes: [...updated[gIdx].opcoes, newOpt] }
             return { ...prev, opcoes_personalizacao: updated }
         })
         setNewOptionText(prev => ({ ...prev, [gIdx]: '' }))
+        setNewOptionPrice(prev => ({ ...prev, [gIdx]: '' }))
     }
 
     const removeOptionFromGroup = (gIdx, oIdx) => {
@@ -188,6 +194,25 @@ export default function MenuPage() {
             updated[gIdx] = { ...updated[gIdx], opcoes: updated[gIdx].opcoes.filter((_, i) => i !== oIdx) }
             return { ...prev, opcoes_personalizacao: updated }
         })
+    }
+
+    const handleOptionImageUpload = async (gIdx, oIdx, file) => {
+        if (!file || !isCloudinaryConfigured) return
+        try {
+            const result = await uploadImage(file, { folder: 'espetinho-vitoria/opcoes' })
+            setFormData(prev => {
+                const updated = [...prev.opcoes_personalizacao]
+                const opcoes = [...updated[gIdx].opcoes]
+                const opt = typeof opcoes[oIdx] === 'string'
+                    ? { nome: opcoes[oIdx], preco: 0, imagem_url: result.url }
+                    : { ...opcoes[oIdx], imagem_url: result.url }
+                opcoes[oIdx] = opt
+                updated[gIdx] = { ...updated[gIdx], opcoes }
+                return { ...prev, opcoes_personalizacao: updated }
+            })
+        } catch (err) {
+            alert('Erro no upload: ' + err.message)
+        }
     }
 
     const handleToggleDisponivel = async (product) => {
@@ -424,23 +449,45 @@ export default function MenuPage() {
                                                 </div>
 
                                                 <div className="custom-group-editor__options">
-                                                    {group.opcoes.map((opt, oIdx) => (
-                                                        <span key={oIdx} className="custom-option-tag">
-                                                            {opt}
-                                                            <button type="button" onClick={() => removeOptionFromGroup(gIdx, oIdx)}>
-                                                                <X size={12} />
-                                                            </button>
-                                                        </span>
-                                                    ))}
+                                                    {group.opcoes.map((opt, oIdx) => {
+                                                        const name = typeof opt === 'string' ? opt : opt.nome
+                                                        const price = typeof opt === 'string' ? 0 : Number(opt.preco) || 0
+                                                        const img = typeof opt === 'string' ? null : opt.imagem_url
+                                                        return (
+                                                            <span key={oIdx} className="custom-option-tag">
+                                                                {img && <img src={img} alt={name} style={{ width: 20, height: 20, borderRadius: '50%', objectFit: 'cover' }} />}
+                                                                {name}
+                                                                {price > 0 && <span style={{ color: '#059669', fontSize: 11, fontWeight: 700 }}>+R$ {price.toFixed(2)}</span>}
+                                                                <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', color: '#6B7280' }} title="Adicionar imagem">
+                                                                    <ImageIcon size={12} />
+                                                                    <input type="file" accept="image/*" style={{ display: 'none' }} onChange={e => handleOptionImageUpload(gIdx, oIdx, e.target.files[0])} />
+                                                                </label>
+                                                                <button type="button" onClick={() => removeOptionFromGroup(gIdx, oIdx)}>
+                                                                    <X size={12} />
+                                                                </button>
+                                                            </span>
+                                                        )
+                                                    })}
                                                 </div>
 
                                                 <div className="custom-group-editor__add-row">
                                                     <input
                                                         type="text"
-                                                        placeholder="Nova opção..."
+                                                        placeholder="Nome..."
                                                         value={newOptionText[gIdx] || ''}
                                                         onChange={e => setNewOptionText(prev => ({ ...prev, [gIdx]: e.target.value }))}
                                                         onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addOptionToGroup(gIdx) } }}
+                                                        style={{ flex: 2 }}
+                                                    />
+                                                    <input
+                                                        type="number"
+                                                        placeholder="R$ (0 = incluso)"
+                                                        value={newOptionPrice[gIdx] || ''}
+                                                        onChange={e => setNewOptionPrice(prev => ({ ...prev, [gIdx]: e.target.value }))}
+                                                        onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addOptionToGroup(gIdx) } }}
+                                                        style={{ flex: 1, minWidth: 100 }}
+                                                        step="0.50"
+                                                        min="0"
                                                     />
                                                     <button type="button" onClick={() => addOptionToGroup(gIdx)}>
                                                         <Plus size={14} />
