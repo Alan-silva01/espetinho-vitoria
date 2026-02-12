@@ -75,20 +75,25 @@ export default function MenuPage() {
         const file = e.target.files[0]
         if (!file) return
 
-        if (!isCloudinaryConfigured()) {
+        if (!isCloudinaryConfigured) {
             alert('Cloudinary não configurado. Verifique o arquivo .env')
             return
         }
 
         setUploading(true)
+        setUploadProgress(0)
         try {
-            const url = await uploadImage(file)
-            setFormData(prev => ({ ...prev, imagem_url: url }))
+            const result = await uploadImage(file, {
+                folder: 'espetinho-vitoria/produtos',
+                onProgress: (pct) => setUploadProgress(pct)
+            })
+            setFormData(prev => ({ ...prev, imagem_url: result.url }))
         } catch (error) {
             console.error('Upload failed:', error)
-            alert('Erro ao enviar imagem')
+            alert('Erro ao enviar imagem: ' + error.message)
         } finally {
             setUploading(false)
+            setUploadProgress(0)
         }
     }
 
@@ -256,7 +261,7 @@ export default function MenuPage() {
                                                 <input type="file" hidden onChange={handleUpload} accept="image/*" />
                                             </label>
                                         )}
-                                        {uploading && <div className="upload-loader">Enviando...</div>}
+                                        {uploading && <div className="upload-loader">Enviando... {uploadProgress}%</div>}
                                     </div>
 
                                     <div className="input-group-premium">
