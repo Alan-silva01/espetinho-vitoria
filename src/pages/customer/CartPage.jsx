@@ -1,8 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, X, Minus, Plus, MapPin, Truck, Store } from 'lucide-react'
-import { useCart } from '../../hooks/useCart'
-import { useProducts } from '../../hooks/useProducts'
+import { useCustomer } from '../../context/CustomerContext'
 import { formatCurrency, getImageUrl } from '../../lib/utils'
 import './CartPage.css'
 
@@ -10,22 +6,9 @@ export default function CartPage() {
     const navigate = useNavigate()
     const { items, removeItem, updateQuantity, clearCart, subtotal, addItem } = useCart()
     const { products } = useProducts()
+    const { customer } = useCustomer()
 
-    // Upsell: products NOT already in cart
-    const cartProductIds = items.map(i => i.produto_id)
-    const upsellProducts = products.filter(p => p.disponivel && !cartProductIds.includes(p.id))
-
-    // Order type
-    const [tipoPedido, setTipoPedido] = useState(() => {
-        return localStorage.getItem('espetinho_tipo_pedido') || 'entrega'
-    })
-
-    // Delivery costs — zero if pickup
-    const taxaEntrega = tipoPedido === 'entrega' ? 5.0 : 0
-    const total = subtotal + taxaEntrega
-
-    // Address State
-    const [isAddressModalOpen, setIsAddressModalOpen] = useState(false)
+    // Read saved address data from localStorage (set by CartPage or CustomerContext)
     const [addressData, setAddressData] = useState(() => {
         const saved = localStorage.getItem('espetinho_delivery_data')
         if (saved) {
@@ -41,8 +24,26 @@ export default function CartPage() {
         }
     })
 
+    // Sync addressData if customer changes and has saved info
+    useEffect(() => {
+        if (customer?.dados?.endereco && !addressData.street) {
+            const newData = {
+                receiverName: customer.dados.nome || customer.nome,
+                receiverPhone: customer.dados.whatsapp || customer.telefone,
+                ...customer.dados.endereco
+            }
+            setAddressData(newData)
+            localStorage.setItem('espetinho_delivery_data', JSON.stringify(newData))
+        }
+    }, [customer])
+
     // Temp state for editing
     const [tempData, setTempData] = useState(addressData)
+
+    // Update tempData when addressData changes (e.g. after sync)
+    useEffect(() => {
+        setTempData(addressData)
+    }, [addressData])
 
     const hasAddress = addressData.street && addressData.receiverName
 

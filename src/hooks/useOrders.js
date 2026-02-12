@@ -8,24 +8,32 @@ export function useOrders() {
     async function createOrder(orderData) {
         setLoading(true)
         try {
-            /* 1. Create or find client */
-            let clienteId = null
-            const savedClient = localStorage.getItem('espetinho-client')
-            if (savedClient) {
-                const client = JSON.parse(savedClient)
-                clienteId = client.id
-            } else {
-                const { data: newClient, error: clientErr } = await supabase
+            /* 1. Resolve client identify */
+            let clienteId = orderData.cliente_id
+
+            // If no ID provided, try to find an existing client by phone number
+            if (!clienteId && orderData.telefone_cliente) {
+                const { data: existing } = await supabase
                     .from('clientes')
-                    .insert({
-                        nome: orderData.nome_cliente,
-                        telefone: orderData.telefone_cliente,
-                    })
-                    .select()
-                    .single()
-                if (clientErr) throw clientErr
-                clienteId = newClient.id
-                localStorage.setItem('espetinho-client', JSON.stringify(newClient))
+                    .select('id')
+                    .eq('telefone', orderData.telefone_cliente)
+                    .maybeSingle()
+
+                if (existing) {
+                    clienteId = existing.id
+                } else {
+                    // Create new client if not found
+                    const { data: newClient, error: clientErr } = await supabase
+                        .from('clientes')
+                        .insert({
+                            nome: orderData.nome_cliente,
+                            telefone: orderData.telefone_cliente,
+                        })
+                        .select()
+                        .single()
+                    if (clientErr) throw clientErr
+                    clienteId = newClient.id
+                }
             }
 
             /* 2. Create order */
