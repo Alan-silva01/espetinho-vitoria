@@ -274,37 +274,6 @@ export default function HomePage() {
                 </div>
             )}
 
-            {/* Store Closed Overlay */}
-            {!isOpen && (
-                <div className="store-closed-overlay animate-fade-in">
-                    <div className="store-closed-card">
-                        <div className="store-closed-header">
-                            <h2>{config?.fechar_hoje_excepcionalmente ? 'Aviso Importante' : 'Estamos Fechados'}</h2>
-                        </div>
-
-                        <div className="store-closed-body">
-                            <p className="main-message">
-                                {config?.fechar_hoje_excepcionalmente
-                                    ? (config?.motivo_fechamento_hoje || 'Fechado excepcionalmente hoje.')
-                                    : (config?.mensagem_fechamento || 'Obrigado pela preferência! Voltamos em breve.')}
-                            </p>
-
-                            {!config?.fechar_hoje_excepcionalmente && (
-                                <div className="opening-hours-info">
-                                    <p>Confira nossos horários padrão de atendimento.</p>
-                                    <button className="btn-view-hours" onClick={() => navigate('/perfil')}>
-                                        Ver horários de funcionamento
-                                    </button>
-                                </div>
-                            )}
-                        </div>
-
-                        <div className="store-closed-footer">
-                            <p className="footer-brand">Espetinho Vitória agradece!</p>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     )
 }

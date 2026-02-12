@@ -1,10 +1,11 @@
 import { Outlet, useLocation } from 'react-router-dom'
 import BottomNav from '../components/customer/BottomNav'
+import StoreClosedOverlay from '../components/customer/StoreClosedOverlay'
 import { useStore } from '../hooks/useStore'
 
 export default function CustomerLayout() {
     const location = useLocation()
-    const { isOpen } = useStore()
+    const { isOpen, config, loading } = useStore()
 
     const hideNav = ['/checkout', '/pedido'].some(p => location.pathname.startsWith(p))
 
@@ -14,6 +15,10 @@ export default function CustomerLayout() {
                 <Outlet />
             </div>
             {!hideNav && <BottomNav />}
+
+            {!loading && !isOpen && (
+                <StoreClosedOverlay config={config} />
+            )}
         </div>
     )
 }
