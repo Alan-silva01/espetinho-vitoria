@@ -8,6 +8,7 @@ export default function CustomerLayout() {
     const { isOpen, config, loading } = useStore()
 
     const hideNav = ['/checkout', '/pedido'].some(p => location.pathname.startsWith(p))
+    const isProfilePage = location.pathname === '/perfil'
 
     return (
         <div className="customer-layout">
@@ -16,7 +17,7 @@ export default function CustomerLayout() {
             </div>
             {!hideNav && <BottomNav />}
 
-            {!loading && !isOpen && (
+            {!loading && !isOpen && !isProfilePage && (
                 <StoreClosedOverlay config={config} />
             )}
         </div>
