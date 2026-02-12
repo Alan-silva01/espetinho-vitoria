@@ -24,6 +24,7 @@ const DriversPage = lazy(() => import('./pages/admin/DriversPage'))
 const SettingsPage = lazy(() => import('./pages/admin/SettingsPage'))
 const PromotionsPage = lazy(() => import('./pages/admin/PromotionsPage'))
 const CustomersPage = lazy(() => import('./pages/admin/CustomersPage'))
+const OpeningHoursPage = lazy(() => import('./pages/admin/OpeningHoursPage'))
 
 /* Layouts */
 import CustomerLayout from './layouts/CustomerLayout'
@@ -58,6 +59,7 @@ function App() {
               <Route path="clientes" element={<CustomersPage />} />
               <Route path="relatorios" element={<ReportsPage />} />
               <Route path="motoboys" element={<DriversPage />} />
+              <Route path="horarios" element={<OpeningHoursPage />} />
               <Route path="configuracoes" element={<SettingsPage />} />
             </Route>
 

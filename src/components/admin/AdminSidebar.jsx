@@ -30,7 +30,7 @@ const navItems = [
     { to: '/admin/clientes', icon: Users, label: 'Clientes' },
     { to: '/admin/relatorios', icon: BarChart3, label: 'Relatórios' },
     { to: '/admin/motoboys', icon: Truck, label: 'Motoboys' },
-    { to: '/admin/configuracoes?tab=horarios', icon: Clock, label: 'Horários' },
+    { to: '/admin/horarios', icon: Clock, label: 'Horários' },
     { to: '/admin/configuracoes', icon: Settings, label: 'Configurações' },
 ]
 
