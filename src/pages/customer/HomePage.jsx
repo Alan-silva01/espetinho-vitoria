@@ -23,16 +23,10 @@ function getSessionId() {
 
 export default function HomePage() {
     const navigate = useNavigate()
-    const { customerCode } = useParams()
-    const { fetchCustomerByCode } = useCustomer()
     const { products, categories, loading } = useProducts()
+    const { customerCode } = useParams()
 
-    // Detect customer code from URL
-    useEffect(() => {
-        if (customerCode && customerCode.startsWith('CLI-')) {
-            fetchCustomerByCode(customerCode)
-        }
-    }, [customerCode])
+    // Detection is now globally handled in CustomerLayout.jsx!
     const { addItem } = useCart()
     const { isOpen, config } = useStore()
     const [activeCategory, setActiveCategory] = useState(null)

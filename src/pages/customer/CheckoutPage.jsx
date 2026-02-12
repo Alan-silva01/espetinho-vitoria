@@ -13,14 +13,13 @@ export default function CheckoutPage() {
     const { createOrder, loading } = useOrders()
     const { customer, updateLastOrder } = useCustomer()
 
-    // Read saved address data from localStorage (set by CartPage)
-    const savedData = (() => {
+    const [savedData, setSavedData] = useState(() => {
         const raw = localStorage.getItem('espetinho_delivery_data')
         if (raw) {
             try { return JSON.parse(raw) } catch { }
         }
         return null
-    })()
+    })
 
     const [tipoPedido, setTipoPedido] = useState('entrega')
     const [formaPagamento, setFormaPagamento] = useState('pix')
@@ -29,10 +28,28 @@ export default function CheckoutPage() {
     const [observacoes, setObservacoes] = useState('')
     const [nomeRetirada, setNomeRetirada] = useState(customer?.nome || '')
 
-    // Sync nomeRetirada when customer loads
+    // Sync data when customer loads
     useEffect(() => {
-        if (customer?.nome && !nomeRetirada) {
-            setNomeRetirada(customer.nome)
+        if (customer) {
+            // Update name for pickup
+            if (!nomeRetirada) setNomeRetirada(customer.nome)
+
+            // Update delivery data if we have it in DB and local is empty or mismatch
+            if (customer.dados?.endereco) {
+                const currentLocal = localStorage.getItem('espetinho_delivery_data')
+                const hasNoLocal = !currentLocal
+                const noManual = !localStorage.getItem('espetinho_manual_address')
+
+                if (hasNoLocal || noManual) {
+                    const newData = {
+                        receiverName: customer.dados.nome || customer.nome,
+                        receiverPhone: customer.dados.whatsapp || customer.telefone,
+                        ...customer.dados.endereco
+                    }
+                    localStorage.setItem('espetinho_delivery_data', JSON.stringify(newData))
+                    setSavedData(newData)
+                }
+            }
         }
     }, [customer])
 
@@ -43,7 +60,7 @@ export default function CheckoutPage() {
         ? `${savedData.street}, ${savedData.number} - ${savedData.neighborhood}${savedData.reference ? ` (${savedData.reference})` : ''}`
         : null
 
-    const hasAddress = savedData && savedData.street && savedData.receiverName && savedData.receiverPhone
+    const hasAddress = !!(savedData && savedData.street && savedData.receiverName && savedData.receiverPhone)
 
     async function handleConfirm() {
         if (tipoPedido === 'entrega' && !hasAddress) {

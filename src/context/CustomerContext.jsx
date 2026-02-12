@@ -18,6 +18,11 @@ export function CustomerProvider({ children }) {
     }, [])
 
     async function fetchCustomerByCode(code) {
+        if (!code) return
+
+        // If switching customers, clear manual override flag
+        const currentId = localStorage.getItem('espetinho_customer_id')
+
         setLoading(true)
         try {
             const { data, error } = await supabase
@@ -27,6 +32,11 @@ export function CustomerProvider({ children }) {
                 .single()
 
             if (data && !error) {
+                // If it's a DIFFERENT customer than before, reset manual address preference
+                if (currentId !== data.id) {
+                    localStorage.removeItem('espetinho_manual_address')
+                }
+
                 setCustomer(data)
                 localStorage.setItem('espetinho_customer_id', data.id)
 
