@@ -71,7 +71,7 @@ export default function OrdersPage() {
                     *,
                     produtos(nome)
                 ),
-                clientes(telefone, nome, whatsapp)
+                clientes(telefone, nome)
             `)
             .gte('criado_em', brMidnightAsUTC.toISOString())
             .order('criado_em', { ascending: true })
@@ -381,10 +381,10 @@ export default function OrdersPage() {
                             <div className="modal-actions-grid">
                                 <button className="btn-print">Imprimir Cupom</button>
                                 {selectedOrder.status === 'confirmado' && (
-                                    <button className="btn-next" onClick={() => updateStatus(selectedOrder.id, 'preparando')}>Mandar p/ Cozinha</button>
+                                    <button className="btn-next" onClick={() => handleStatusChange(selectedOrder.id, 'preparando')}>Mandar p/ Cozinha</button>
                                 )}
                                 {selectedOrder.status === 'preparando' && (
-                                    <button className="btn-next green" onClick={() => updateStatus(selectedOrder.id, 'pronto')}>Finalizar Preparo</button>
+                                    <button className="btn-next green" onClick={() => handleStatusChange(selectedOrder.id, 'pronto')}>Finalizar Preparo</button>
                                 )}
                             </div>
                         </div>
