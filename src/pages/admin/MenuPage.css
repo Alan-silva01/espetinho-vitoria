@@ -846,3 +846,11 @@
 .custom-group-editor__add-row button:hover {
     background: #059669;
 }
+
+/* CSS for unavailable option tag */
+.custom-option-tag.unavailable {
+    background-color: #FEE2E2;
+    border: 1px dashed #EF4444;
+    color: #991B1B;
+    opacity: 0.8;
+}

@@ -215,6 +215,11 @@ export default function ProductPage() {
                                     const name = optName(opt)
                                     const price = optPreco(opt)
                                     const img = optImg(opt)
+                                    // Check availability (default true if undefined)
+                                    const isAvailable = typeof opt === 'string' ? true : (opt.disponivel !== false)
+
+                                    if (!isAvailable) return null // Hide unavailable options
+
                                     const selected = isOptionSelected(group.grupo, name, group.tipo)
                                     return (
                                         <button
