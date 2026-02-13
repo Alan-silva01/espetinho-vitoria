@@ -10,8 +10,7 @@
     flex-direction: column;
     z-index: 1000;
     box-shadow: 4px 0 20px rgba(0, 0, 0, 0.2);
-    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    /* Removed overflow: hidden to prevent toggle button clipping */
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .admin-sidebar.collapsed:not(.hovered) {
@@ -30,6 +29,7 @@
     gap: 12px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     position: relative;
+    flex-shrink: 0;
 }
 
 .admin-sidebar.collapsed:not(.hovered) .sidebar-brand {
@@ -66,9 +66,7 @@
 
 .brand-text span {
     font-size: 12px;
-    /* Slightly larger for 'Vitória' */
     color: #B91C1C;
-    /* Use primary red for emphasis */
     text-transform: uppercase;
     letter-spacing: 0.15em;
     font-weight: 800;
@@ -83,6 +81,20 @@
     flex-direction: column;
     gap: 4px;
     overflow-y: auto;
+}
+
+/* Scrollbar styling */
+.sidebar-nav::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sidebar-nav::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
 }
 
 .nav-item {
@@ -102,12 +114,6 @@
 .admin-sidebar.collapsed:not(.hovered) .nav-item {
     justify-content: center;
     padding: 12px;
-}
-
-.admin-sidebar.hovered .nav-item,
-.admin-sidebar:not(.collapsed) .nav-item {
-    justify-content: flex-start;
-    padding: 12px 16px;
 }
 
 .sidebar-toggle {
@@ -135,17 +141,8 @@
 }
 
 .admin-sidebar.collapsed:not(.hovered) .sidebar-toggle {
-    right: 50%;
-    transform: translate(50%, -50%);
-    /* Move to center when collapsed and not hovered */
     opacity: 0;
-    /* Hide toggle when truly collapsed to declutter */
-}
-
-.admin-sidebar.collapsed.hovered .sidebar-toggle,
-.admin-sidebar:not(.collapsed) .sidebar-toggle {
-    right: -14px;
-    opacity: 1;
+    pointer-events: none;
 }
 
 .nav-item:hover {
@@ -159,31 +156,11 @@
     box-shadow: 0 8px 16px rgba(185, 28, 28, 0.3);
 }
 
-.nav-badge {
-    margin-left: auto;
-    background: #B91C1C;
-    color: white;
-    font-size: 10px;
-    font-weight: 800;
-    padding: 2px 8px;
-    border-radius: 99px;
-}
-
-.nav-item.active .nav-badge {
-    background: white;
-    color: #B91C1C;
-}
-
 .sidebar-footer {
     padding: 16px;
     border-top: 1px solid rgba(255, 255, 255, 0.05);
     background: rgba(0, 0, 0, 0.1);
     width: 100%;
-    /* Ensure footer fills width */
-}
-
-.theme-toggle-container {
-    margin-bottom: 16px;
 }
 
 .theme-toggle-btn {
@@ -202,21 +179,9 @@
     transition: all 0.2s;
 }
 
-.theme-toggle-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.2);
-}
-
-.icon-dark {
+.dark .icon-light,
+:not(.dark) .icon-dark {
     display: none;
-}
-
-.dark .icon-light {
-    display: none;
-}
-
-.dark .icon-dark {
-    display: block;
 }
 
 .admin-profile-card {
@@ -226,18 +191,7 @@
     background: rgba(255, 255, 255, 0.03);
     padding: 12px;
     border-radius: 12px;
-    transition: all 0.3s;
-}
-
-.admin-sidebar.collapsed:not(.hovered) .admin-profile-card {
-    padding: 8px;
-    justify-content: center;
-}
-
-.admin-sidebar.hovered .admin-profile-card,
-.admin-sidebar:not(.collapsed) .admin-profile-card {
-    padding: 12px;
-    justify-content: flex-start;
+    margin-top: 16px;
 }
 
 .admin-profile-card img {
@@ -246,7 +200,6 @@
     border-radius: 50%;
     border: 2px solid #B91C1C;
     object-fit: cover;
-    flex-shrink: 0;
 }
 
 .profile-info {
@@ -258,6 +211,10 @@
 .profile-name {
     font-size: 13px;
     font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100px;
 }
 
 .profile-role {
@@ -271,15 +228,47 @@
     color: rgba(255, 255, 255, 0.4);
     cursor: pointer;
     padding: 4px;
-    transition: color 0.2s;
 }
 
-.logout-btn:hover {
-    color: #EF4444;
-}
-
+/* Mobile Sidebar Overrides */
 @media (max-width: 1024px) {
     .admin-sidebar {
+        width: 280px !important;
+        /* Fixed width on mobile */
         transform: translateX(-100%);
+        z-index: 1000;
+        box-shadow: 10px 0 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .mobile-menu-open .admin-sidebar {
+        transform: translateX(0);
+    }
+
+    .sidebar-toggle {
+        display: none;
+        /* Hide toggle on mobile */
+    }
+
+    /* Force expanded state on mobile */
+    .brand-text,
+    .nav-label,
+    .profile-info {
+        display: block !important;
+        opacity: 1 !important;
+    }
+
+    .admin-sidebar.collapsed .sidebar-brand {
+        padding: 0 20px;
+        justify-content: flex-start;
+    }
+
+    .admin-sidebar.collapsed .nav-item {
+        justify-content: flex-start;
+        padding: 12px 16px;
+    }
+
+    .admin-sidebar.collapsed .admin-profile-card {
+        padding: 12px;
+        justify-content: flex-start;
     }
 }

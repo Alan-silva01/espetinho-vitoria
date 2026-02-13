@@ -24,9 +24,11 @@ export default function OrdersPage() {
     const [loading, setLoading] = useState(true)
     const [selectedOrder, setSelectedOrder] = useState(null)
     const [searchTerm, setSearchTerm] = useState('')
+    const [activeStage, setActiveStage] = useState('confirmado')
 
     useEffect(() => {
         fetchOrders()
+        // ... existing realtime logic ...
 
         const channel = supabase
             .channel('orders_realtime')
@@ -201,9 +203,27 @@ export default function OrdersPage() {
                             onChange={e => setSearchTerm(e.target.value)}
                         />
                     </div>
-                    <button className="icon-btn"><Bell size={20} /></button>
                 </div>
             </header>
+
+            {/* Mobile Stage Selector */}
+            <div className="mobile-stage-tabs hide-scrollbar">
+                {STAGES.map(stage => {
+                    const count = filteredOrders.filter(o => o.status === stage.id).length
+                    return (
+                        <button
+                            key={stage.id}
+                            className={`stage-tab ${activeStage === stage.id ? 'active' : ''}`}
+                            onClick={() => setActiveStage(stage.id)}
+                            style={{ '--stage-color': stage.color }}
+                        >
+                            <stage.icon size={16} />
+                            <span>{stage.label}</span>
+                            <span className="count-dot">{count}</span>
+                        </button>
+                    )
+                })}
+            </div>
 
             <div className="kanban-scroller hide-scrollbar">
                 <div className="kanban-board">
@@ -213,7 +233,7 @@ export default function OrdersPage() {
                         return (
                             <div
                                 key={stage.id}
-                                className="kanban-col"
+                                className={`kanban-col ${activeStage === stage.id ? 'active' : ''}`}
                                 onDragOver={onDragOver}
                                 onDrop={(e) => onDrop(e, stage.id)}
                             >

@@ -11,6 +11,7 @@ export default function AdminLayout() {
     const [isCollapsed, setIsCollapsed] = useState(() => {
         return localStorage.getItem('admin_sidebar_collapsed') === 'true'
     })
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
     const toggleSidebar = () => {
         setIsCollapsed(prev => {
@@ -18,6 +19,10 @@ export default function AdminLayout() {
             localStorage.setItem('admin_sidebar_collapsed', next)
             return next
         })
+    }
+
+    const toggleMobileMenu = () => {
+        setIsMobileMenuOpen(prev => !prev)
     }
 
     if (loading) {
@@ -45,13 +50,33 @@ export default function AdminLayout() {
     if (!isAuthenticated) return <Navigate to="/admin/login" replace />
 
     return (
-        <div className={`admin-layout ${isCollapsed ? 'sidebar-collapsed' : ''}`}>
+        <div className={`admin-container ${isCollapsed ? 'sidebar-collapsed' : ''} ${isMobileMenuOpen ? 'mobile-menu-open' : ''}`}>
+            {/* Mobile Header */}
+            <header className="admin-mobile-header">
+                <button className="mobile-menu-toggle" onClick={toggleMobileMenu}>
+                    <span className="hamburger-bar"></span>
+                    <span className="hamburger-bar"></span>
+                    <span className="hamburger-bar"></span>
+                </button>
+                <div className="mobile-brand">
+                    <span className="brand-main">ESPETINHO</span>
+                    <span className="brand-sub">VITÓRIA</span>
+                </div>
+                <div className="mobile-actions">
+                    {/* Placeholder for notifications or profile if needed */}
+                </div>
+            </header>
+
+            {/* Mobile Overlay */}
+            <div className="admin-mobile-overlay" onClick={() => setIsMobileMenuOpen(false)}></div>
+
             <AdminSidebar
                 adminInfo={adminInfo}
                 currentPath={location.pathname}
                 onLogout={logout}
                 isCollapsed={isCollapsed}
                 onToggle={toggleSidebar}
+                onCloseMobile={() => setIsMobileMenuOpen(false)}
             />
             <main className="admin-main">
                 <Outlet />

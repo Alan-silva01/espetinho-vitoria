@@ -75,6 +75,7 @@ export default function AdminSidebar({ adminInfo, currentPath, onLogout, isColla
                             `nav-item ${isActive ? 'active' : ''}`
                         }
                         title={isCollapsed ? item.label : ''}
+                        onClick={onCloseMobile}
                     >
                         <item.icon size={20} />
                         {isExpanded && <span className="nav-label">{item.label}</span>}
