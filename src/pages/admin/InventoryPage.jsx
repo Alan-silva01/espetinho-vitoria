@@ -20,6 +20,7 @@ export default function InventoryPage() {
     })
     const [activities, setActivities] = useState([])
     const [saving, setSaving] = useState(false)
+    const [savingItem, setSavingItem] = useState(null)
     const [isFastEntry, setIsFastEntry] = useState(false)
 
     // Helper to normalize text (remove accents)
@@ -175,6 +176,46 @@ export default function InventoryPage() {
 
         await fetchInventory()
         setSaving(false)
+    }
+
+    const handleImmediateOut = async (item) => {
+        setSavingItem(item.id)
+        try {
+            const today = new Date().toISOString().split('T')[0]
+
+            // 1. Update produtos (quantidade_disponivel = 0)
+            await supabase
+                .from('produtos')
+                .update({
+                    quantidade_disponivel: 0,
+                    controlar_estoque: true
+                })
+                .eq('id', item.id)
+
+            // 2. Update/Insert estoque_diario
+            if (item.stock_id) {
+                await supabase
+                    .from('estoque_diario')
+                    .update({ quantidade_atual: 0 })
+                    .eq('id', item.stock_id)
+            } else {
+                await supabase
+                    .from('estoque_diario')
+                    .insert({
+                        produto_id: item.id,
+                        quantidade_inicial: item.inicial || 0,
+                        quantidade_atual: 0,
+                        data: today
+                    })
+            }
+
+            // 3. Update local state e sync
+            await fetchInventory()
+        } catch (error) {
+            console.error('Erro ao marcar como esgotado:', error)
+        } finally {
+            setSavingItem(null)
+        }
     }
 
     const groupedInventory = inventory.reduce((acc, item) => {
@@ -360,9 +401,14 @@ export default function InventoryPage() {
 
                                                         <button
                                                             className="btn-out-manual"
-                                                            onClick={() => updateStock(item.id, 'atual', 0)}
+                                                            onClick={() => handleImmediateOut(item)}
+                                                            disabled={savingItem === item.id}
                                                         >
-                                                            <XCircle size={14} /> Marcar Esgotado
+                                                            {savingItem === item.id ? (
+                                                                <>Salvando...</>
+                                                            ) : (
+                                                                <><XCircle size={14} /> Marcar Esgotado</>
+                                                            )}
                                                         </button>
                                                     </div>
                                                 </div>

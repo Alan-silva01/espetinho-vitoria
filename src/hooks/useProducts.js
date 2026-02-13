@@ -48,6 +48,26 @@ export function useProducts() {
         }
     }
 
+    // Realtime subscription for products
+    useEffect(() => {
+        const channel = supabase
+            .channel('public:produtos')
+            .on('postgres_changes',
+                { event: 'UPDATE', schema: 'public', table: 'produtos' },
+                (payload) => {
+                    console.log('[useProducts] Atualização em tempo real:', payload.new)
+                    setProducts(current => current.map(p =>
+                        p.id === payload.new.id ? { ...p, ...payload.new } : p
+                    ))
+                }
+            )
+            .subscribe()
+
+        return () => {
+            supabase.removeChannel(channel)
+        }
+    }, [])
+
     function getProductsByCategory(categoryId) {
         if (!categoryId) return products
         return products.filter(p => p.categoria_id === categoryId)
