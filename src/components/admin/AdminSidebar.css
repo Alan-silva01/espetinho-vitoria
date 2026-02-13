@@ -230,6 +230,18 @@
     padding: 4px;
 }
 
+/* Hiding elements when collapsed on Desktop ONLY */
+@media (min-width: 1025px) {
+
+    .admin-sidebar.collapsed:not(.hovered) .brand-text,
+    .admin-sidebar.collapsed:not(.hovered) .nav-label,
+    .admin-sidebar.collapsed:not(.hovered) .nav-badge,
+    .admin-sidebar.collapsed:not(.hovered) .profile-info,
+    .admin-sidebar.collapsed:not(.hovered) .theme-toggle-btn span {
+        display: none;
+    }
+}
+
 /* Mobile Sidebar Overrides */
 @media (max-width: 1024px) {
     .admin-sidebar {
