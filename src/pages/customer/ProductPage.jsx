@@ -23,6 +23,11 @@ export default function ProductPage() {
     const [selectedVariation, setSelectedVariation] = useState(null)
     const [selectedOptions, setSelectedOptions] = useState({})
 
+    // Scroll to top on mount
+    useEffect(() => {
+        window.scrollTo(0, 0)
+    }, [])
+
     // Initialize defaults from product customization data
     useEffect(() => {
         if (!product?.opcoes_personalizacao) return
@@ -130,6 +135,9 @@ export default function ProductPage() {
                 />
                 <div className="product-hero__overlay" />
                 <div className="product-hero__gradient" />
+                {product.quantidade_disponivel === 0 && (
+                    <div className="product-hero__out-badge">PRODUTO ESGOTADO</div>
+                )}
                 {/* Top Nav */}
                 <div className="product-hero__nav">
                     <button className="product-hero__btn" onClick={() => navigate(-1)}>
@@ -278,12 +286,19 @@ export default function ProductPage() {
                         <Plus size={16} />
                     </button>
                 </div>
-                <button className="product-footer__add" onClick={handleAdd}>
-                    <span>Adicionar</span>
-                    <div className="product-footer__add-total">
-                        <span className="product-footer__add-label">Total</span>
-                        <span>{formatCurrency(totalPrice)}</span>
-                    </div>
+                <button
+                    className="product-footer__add"
+                    onClick={handleAdd}
+                    disabled={product.quantidade_disponivel === 0}
+                    style={product.quantidade_disponivel === 0 ? { background: '#9CA3AF', cursor: 'not-allowed' } : {}}
+                >
+                    <span>{product.quantidade_disponivel === 0 ? 'Esgotado' : 'Adicionar'}</span>
+                    {product.quantidade_disponivel > 0 && (
+                        <div className="product-footer__add-total">
+                            <span className="product-footer__add-label">Total</span>
+                            <span>{formatCurrency(totalPrice)}</span>
+                        </div>
+                    )}
                 </button>
             </div>
         </div>

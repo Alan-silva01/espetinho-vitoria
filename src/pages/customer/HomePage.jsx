@@ -200,8 +200,11 @@ export default function HomePage() {
                 {filteredProducts.map(product => (
                     <div
                         key={product.id}
-                        className="product-card"
-                        onClick={() => navigate(customerCode ? `/${customerCode}/produto/${product.id}` : `/produto/${product.id}`)}
+                        className={`product-card ${product.quantidade_disponivel === 0 ? 'product-card--out-of-stock' : ''}`}
+                        onClick={() => {
+                            if (product.quantidade_disponivel === 0) return
+                            navigate(customerCode ? `/${customerCode}/produto/${product.id}` : `/produto/${product.id}`)
+                        }}
                     >
                         <div className="product-card__image-wrapper">
                             <img
@@ -209,6 +212,9 @@ export default function HomePage() {
                                 alt={product.nome}
                                 className="product-card__image"
                             />
+                            {product.quantidade_disponivel === 0 && (
+                                <div className="product-card__out-label">ESGOTADO</div>
+                            )}
                             <button
                                 className={`product-card__fav ${liked[product.id] ? 'product-card__fav--liked' : ''}`}
                                 onClick={e => handleLike(e, product.id)}
@@ -236,8 +242,10 @@ export default function HomePage() {
                             <span className="product-card__price">{formatCurrency(product.preco)}</span>
                             <button
                                 className="product-card__add"
+                                disabled={product.quantidade_disponivel === 0}
                                 onClick={e => {
                                     e.stopPropagation()
+                                    if (product.quantidade_disponivel === 0) return
 
                                     // --- Fly-to-Cart animation ---
                                     const btn = e.currentTarget

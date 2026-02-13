@@ -25,6 +25,16 @@ export default function OrdersPage() {
     const [selectedOrder, setSelectedOrder] = useState(null)
     const [searchTerm, setSearchTerm] = useState('')
     const [activeStage, setActiveStage] = useState('confirmado')
+    const audioRef = useRef(new Audio('/notificacao.mp3'))
+
+    const playNotificationSound = () => {
+        const audio = audioRef.current
+        audio.currentTime = 0
+        audio.play().catch(e => {
+            console.error('Erro ao tocar áudio:', e)
+            alert('Atenção: O som de notificação foi bloqueado pelo navegador. Por favor, clique em qualquer lugar da página para ativar os alertas sonoros.')
+        })
+    }
 
     useEffect(() => {
         fetchOrders()
@@ -37,10 +47,8 @@ export default function OrdersPage() {
                         order.id === payload.new.id ? { ...order, ...payload.new } : order
                     ))
                 } else if (payload.eventType === 'INSERT') {
-                    // Tocar som de notificação
-                    const audio = new Audio('/notificacao.mp3')
-                    audio.play().catch(e => console.log('Erro ao tocar áudio (política do navegador):', e))
-
+                    // Tocar som de notificação de forma robusta
+                    playNotificationSound()
                     fetchOrders()
                 } else if (payload.eventType === 'DELETE') {
                     setOrders(prev => prev.filter(order => order.id !== payload.old.id))
@@ -196,7 +204,15 @@ export default function OrdersPage() {
                         <span>Hoje, {new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}</span>
                     </div>
                 </div>
-                <div className="header-right">
+                <div className="orders-actions">
+                    <button
+                        className="btn-test-sound"
+                        onClick={playNotificationSound}
+                        title="Testar som de notificação"
+                    >
+                        <Bell size={18} />
+                        <span>Testar Som</span>
+                    </button>
                     <div className="search-box">
                         <Search size={18} />
                         <input

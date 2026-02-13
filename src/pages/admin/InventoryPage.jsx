@@ -358,7 +358,10 @@ export default function InventoryPage() {
                                                             </div>
                                                         </div>
 
-                                                        <button className="btn-out-manual">
+                                                        <button
+                                                            className="btn-out-manual"
+                                                            onClick={() => updateStock(item.id, 'atual', 0)}
+                                                        >
                                                             <XCircle size={14} /> Marcar Esgotado
                                                         </button>
                                                     </div>
