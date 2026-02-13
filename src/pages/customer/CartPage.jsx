@@ -193,7 +193,11 @@ export default function CartPage() {
         <div className="cart-page animate-fade-in">
             {/* Header */}
             <header className="cart-header">
-                <button className="cart-header__back" onClick={() => navigate(-1)}>
+                <button
+                    className="cart-header__back"
+                    onClick={() => navigate(customerCode ? `/${customerCode}` : '/')}
+                    type="button"
+                >
                     <ArrowLeft size={22} />
                 </button>
                 <h1 className="cart-header__title">Seu Carrinho</h1>

@@ -1,19 +1,20 @@
 .admin-layout {
     display: flex;
-    min-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
     background-color: #F3F4F6;
 }
 
 .admin-main {
     flex: 1;
     margin-left: 200px;
-    min-height: 100vh;
+    height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     width: calc(100% - 200px);
     max-width: calc(100% - 200px);
     box-sizing: border-box;
-    overflow-x: hidden;
-    /* Prevent page-level horizontal scroll */
 }
 
 .sidebar-collapsed .admin-main {
