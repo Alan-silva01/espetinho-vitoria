@@ -270,6 +270,13 @@
     font-weight: 600;
 }
 
+.checkout-item__desc {
+    font-size: 11px;
+    color: var(--cor-primaria);
+    font-weight: 600;
+    margin-top: 2px;
+}
+
 .checkout-item__qty {
     font-size: 12px;
     font-weight: 700;

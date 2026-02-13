@@ -287,7 +287,28 @@ export default function HomePage() {
                         <button
                             className="home-promo__btn"
                             style={{ background: promoDestaque.cor_texto, color: promoDestaque.cor_fundo }}
-                            onClick={() => promoDestaque.link && navigate(promoDestaque.link)}
+                            onClick={() => {
+                                const desc = promoDestaque.itens?.length > 0
+                                    ? `Inclui: ${promoDestaque.itens.join(', ')}`
+                                    : promoDestaque.descricao
+
+                                addItem({
+                                    produto_id: `promo-${promoDestaque.id}`,
+                                    nome: `Banner: ${promoDestaque.titulo}`,
+                                    preco: promoDestaque.preco_promocional || 0,
+                                    imagem_url: '', // Ou uma imagem padrão de promoção
+                                    eh_upsell: false,
+                                    descricao: desc,
+                                    isCombo: true
+                                })
+
+                                // Feedback visual: bounce no carrinho
+                                const cart = document.querySelector('.cart-count-badge')
+                                if (cart) {
+                                    cart.classList.add('cart-bounce')
+                                    setTimeout(() => cart.classList.remove('cart-bounce'), 400)
+                                }
+                            }}
                         >
                             Peça agora
                         </button>

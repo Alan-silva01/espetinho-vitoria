@@ -10,12 +10,27 @@ import './PromotionsPage.css'
 
 export default function PromotionsPage() {
     const [promotions, setPromotions] = useState([])
+    const [products, setProducts] = useState([])
     const [loading, setLoading] = useState(true)
     const [editId, setEditId] = useState(null)
     const [editData, setEditData] = useState({})
+    const [filter, setFilter] = useState('Todas')
+    const [isModalOpen, setIsModalOpen] = useState(false)
+    const [newPromo, setNewPromo] = useState({
+        titulo: '',
+        descricao: '',
+        cor_fundo: '#B91C1C',
+        cor_texto: '#FFFFFF',
+        ativa: true,
+        ordem: 1,
+        destaque: false,
+        preco_promocional: 0,
+        itens: [] // array de nomes de produtos
+    })
 
     useEffect(() => {
         fetchPromotions()
+        fetchProducts()
     }, [])
 
     async function fetchPromotions() {
@@ -28,6 +43,37 @@ export default function PromotionsPage() {
         setLoading(false)
     }
 
+    async function fetchProducts() {
+        const { data } = await supabase
+            .from('produtos')
+            .select('id, nome, preco')
+            .eq('disponivel', true)
+        if (data) setProducts(data)
+    }
+
+    async function handleCreate(e) {
+        e.preventDefault()
+        const { error } = await supabase
+            .from('promocoes')
+            .insert([newPromo])
+
+        if (!error) {
+            setIsModalOpen(false)
+            setNewPromo({
+                titulo: '',
+                descricao: '',
+                cor_fundo: '#B91C1C',
+                cor_texto: '#FFFFFF',
+                ativa: true,
+                ordem: promotions.length + 1,
+                destaque: false,
+                preco_promocional: 0,
+                itens: []
+            })
+            fetchPromotions()
+        }
+    }
+
     async function toggleStatus(id, currentStatus) {
         const { error } = await supabase
             .from('promocoes')
@@ -38,7 +84,6 @@ export default function PromotionsPage() {
     }
 
     async function toggleDestaque(id, currentDestaque) {
-        // If we are setting this as destaque, unset any other destaque first
         if (!currentDestaque) {
             await supabase
                 .from('promocoes')
@@ -65,7 +110,11 @@ export default function PromotionsPage() {
 
     function startEdit(promo) {
         setEditId(promo.id)
-        setEditData({ ...promo })
+        setEditData({
+            ...promo,
+            itens: promo.itens || [],
+            preco_promocional: promo.preco_promocional || 0
+        })
     }
 
     async function saveEdit() {
@@ -75,13 +124,30 @@ export default function PromotionsPage() {
                 titulo: editData.titulo,
                 descricao: editData.descricao,
                 cor_fundo: editData.cor_fundo,
-                cor_texto: editData.cor_texto
+                cor_texto: editData.cor_texto,
+                itens: editData.itens,
+                preco_promocional: editData.preco_promocional
             })
             .eq('id', editId)
 
         if (!error) {
             setEditId(null)
             fetchPromotions()
+        }
+    }
+
+    const filteredPromotions = promotions.filter(p => {
+        if (filter === 'Ativas') return p.ativa
+        if (filter === 'Arquivadas') return !p.ativa
+        return true
+    })
+
+    const toggleItemInPromo = (state, setState, productName) => {
+        const currentItems = state.itens || []
+        if (currentItems.includes(productName)) {
+            setState({ ...state, itens: currentItems.filter(i => i !== productName) })
+        } else {
+            setState({ ...state, itens: [...currentItems, productName] })
         }
     }
 
@@ -93,7 +159,7 @@ export default function PromotionsPage() {
                     <p>Aumente suas vendas com cupons e ofertas irresistíveis.</p>
                 </div>
                 <div className="header-actions">
-                    <button className="btn-add-promo">
+                    <button className="btn-add-promo" onClick={() => setIsModalOpen(true)}>
                         <Plus size={18} />
                         <span>Criar Promoção</span>
                     </button>
@@ -101,13 +167,19 @@ export default function PromotionsPage() {
             </header>
 
             <div className="promo-filters-row">
-                <button className="filter-chip active">Todas</button>
-                <button className="filter-chip">Ativas</button>
-                <button className="filter-chip">Arquivadas</button>
+                {['Todas', 'Ativas', 'Arquivadas'].map(f => (
+                    <button
+                        key={f}
+                        className={`filter-chip ${filter === f ? 'active' : ''}`}
+                        onClick={() => setFilter(f)}
+                    >
+                        {f}
+                    </button>
+                ))}
             </div>
 
             <div className="promotions-grid-v2">
-                {promotions.map(promo => (
+                {filteredPromotions.map(promo => (
                     <div
                         key={promo.id}
                         className={`promo-card-premium ${promo.ativa ? 'ativo' : 'pausado'}`}
@@ -148,6 +220,33 @@ export default function PromotionsPage() {
                                         onChange={e => setEditData({ ...editData, descricao: e.target.value })}
                                         placeholder="Subtítulo / Descrição"
                                     />
+
+                                    <div className="promo-edit-price">
+                                        <label>Preço do Combo (R$):</label>
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            value={editData.preco_promocional}
+                                            onChange={e => setEditData({ ...editData, preco_promocional: parseFloat(e.target.value) })}
+                                        />
+                                    </div>
+
+                                    <div className="promo-edit-products-select">
+                                        <label>Produtos incluídos:</label>
+                                        <div className="products-scroll-grid">
+                                            {products.map(p => (
+                                                <button
+                                                    key={p.id}
+                                                    type="button"
+                                                    className={`product-pill ${editData.itens?.includes(p.nome) ? 'selected' : ''}`}
+                                                    onClick={() => toggleItemInPromo(editData, setEditData, p.nome)}
+                                                >
+                                                    {p.nome}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
                                     <div className="promo-edit-colors">
                                         <label>Fundo: <input type="color" value={editData.cor_fundo} onChange={e => setEditData({ ...editData, cor_fundo: e.target.value })} /></label>
                                         <label>Texto: <input type="color" value={editData.cor_texto} onChange={e => setEditData({ ...editData, cor_texto: e.target.value })} /></label>
@@ -162,6 +261,20 @@ export default function PromotionsPage() {
                                     <h4>{promo.titulo}</h4>
                                     <p className="promo-type">{promo.descricao || 'Sem descrição'}</p>
 
+                                    {promo.preco_promocional > 0 && (
+                                        <div className="promo-card-price-tag">
+                                            {formatCurrency(promo.preco_promocional)}
+                                        </div>
+                                    )}
+
+                                    {promo.itens?.length > 0 && (
+                                        <div className="promo-card-items-list">
+                                            {promo.itens.map(item => (
+                                                <span key={item} className="item-tag">{item}</span>
+                                            ))}
+                                        </div>
+                                    )}
+
                                     <div className="promo-colors-preview">
                                         <div className="color-item">
                                             <span style={{ background: promo.cor_fundo }}></span>
@@ -173,7 +286,7 @@ export default function PromotionsPage() {
                                         </div>
                                     </div>
                                     <button className="btn-edit-inline" onClick={() => startEdit(promo)}>
-                                        <Edit2 size={14} /> Editar Texto e Cores
+                                        <Edit2 size={14} /> Editar Texto, Cores e Itens
                                     </button>
                                 </>
                             )}
@@ -197,12 +310,92 @@ export default function PromotionsPage() {
                 ))}
 
                 {/* Create Card placeholder */}
-                <button className="add-promo-card-dashed">
+                <button className="add-promo-card-dashed" onClick={() => setIsModalOpen(true)}>
                     <div className="icon-circle"><Plus /></div>
                     <span>Nova Promoção</span>
                     <p>Crie banners e ofertas para o app</p>
                 </button>
             </div>
+
+            {/* Creation Modal */}
+            {isModalOpen && (
+                <div className="modal-overlay">
+                    <div className="modal-content animate-pop-in">
+                        <h2>Nova Promoção</h2>
+                        <p>Preencha os dados abaixo para criar uma nova oferta.</p>
+                        <form className="modal-form" onSubmit={handleCreate}>
+                            <label>
+                                Título
+                                <input
+                                    type="text"
+                                    required
+                                    value={newPromo.titulo}
+                                    onChange={e => setNewPromo({ ...newPromo, titulo: e.target.value })}
+                                    placeholder="Ex: Combo Espeto + Bebida"
+                                />
+                            </label>
+                            <label>
+                                Descrição / Subtítulo
+                                <textarea
+                                    value={newPromo.descricao}
+                                    onChange={e => setNewPromo({ ...newPromo, descricao: e.target.value })}
+                                    placeholder="Ex: Apenas R$ 25,00 - Só hoje!"
+                                />
+                            </label>
+
+                            <label>
+                                Preço do Combo (R$)
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    required
+                                    value={newPromo.preco_promocional}
+                                    onChange={e => setNewPromo({ ...newPromo, preco_promocional: parseFloat(e.target.value) })}
+                                />
+                            </label>
+
+                            <div className="modal-products-select">
+                                <label>Selecione os produtos incluídos:</label>
+                                <div className="products-scroll-grid">
+                                    {products.map(p => (
+                                        <button
+                                            key={p.id}
+                                            type="button"
+                                            className={`product-pill ${newPromo.itens?.includes(p.nome) ? 'selected' : ''}`}
+                                            onClick={() => toggleItemInPromo(newPromo, setNewPromo, p.nome)}
+                                        >
+                                            {p.nome}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="promo-edit-colors">
+                                <label>
+                                    Cor do Fundo
+                                    <input
+                                        type="color"
+                                        value={newPromo.cor_fundo}
+                                        onChange={e => setNewPromo({ ...newPromo, cor_fundo: e.target.value })}
+                                    />
+                                </label>
+                                <label>
+                                    Cor do Texto
+                                    <input
+                                        type="color"
+                                        value={newPromo.cor_texto}
+                                        onChange={e => setNewPromo({ ...newPromo, cor_texto: e.target.value })}
+                                    />
+                                </label>
+                            </div>
+                            <div className="modal-actions">
+                                <button type="button" className="btn-close-modal" onClick={() => setIsModalOpen(false)}>Cancelar</button>
+                                <button type="submit" className="btn-confirm-create">Criar Promoção</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

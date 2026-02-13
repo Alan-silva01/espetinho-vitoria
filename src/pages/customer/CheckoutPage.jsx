@@ -253,19 +253,19 @@ export default function CheckoutPage() {
                             <div className="checkout-address-card">
                                 <div className="checkout-address-card__info">
                                     <p className="checkout-address-card__street">
-                                        {savedData.street}, {savedData.number}
+                                        {savedData.rua}, {savedData.numero}
                                     </p>
                                     <p className="checkout-address-card__neighborhood">
-                                        {savedData.neighborhood}
+                                        {savedData.bairro}
                                     </p>
-                                    {savedData.reference && (
+                                    {savedData.referencia && (
                                         <p className="checkout-address-card__ref">
-                                            📍 {savedData.reference}
+                                            📍 {savedData.referencia}
                                         </p>
                                     )}
                                     <div className="checkout-address-card__receiver">
-                                        <span>👤 {savedData.receiverName}</span>
-                                        <span>📱 {savedData.receiverPhone}</span>
+                                        <span>👤 {savedData.nome_recebedor}</span>
+                                        <span>📱 {savedData.telefone_recebedor}</span>
                                     </div>
                                 </div>
                                 <button
@@ -339,6 +339,9 @@ export default function CheckoutPage() {
                                                 <h4>{item.nome}</h4>
                                                 <span>{formatCurrency(item.preco * item.quantidade)}</span>
                                             </div>
+                                            {item.descricao && (
+                                                <p className="checkout-item__desc">{item.descricao}</p>
+                                            )}
                                             <span className="checkout-item__qty">{item.quantidade}x</span>
                                         </div>
                                     </div>

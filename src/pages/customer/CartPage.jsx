@@ -225,6 +225,9 @@ export default function CartPage() {
                                             <X size={16} />
                                         </button>
                                     </div>
+                                    {item.descricao && (
+                                        <p className="cart-item__desc">{item.descricao}</p>
+                                    )}
                                     {item.observacoes && (
                                         <p className="cart-item__obs">{item.observacoes}</p>
                                     )}
