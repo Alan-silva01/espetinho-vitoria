@@ -331,62 +331,154 @@ export default function OrdersPage() {
                 </div>
             </div>
 
-            {/* Modal de Detalhes (Manter funcionalidade anterior, mas polir visual) */}
             {selectedOrder && (
-                <div className="modal-overlay-v2" onClick={() => setSelectedOrder(null)}>
-                    <div className="modal-content-v2" onClick={e => e.stopPropagation()}>
-                        <div className="modal-header">
-                            <h2>Detalhes do Pedido #{selectedOrder.numero_pedido}</h2>
-                            <button onClick={() => setSelectedOrder(null)}><X size={24} /></button>
+                <div className="modal-overlay-v2 modal-active" onClick={() => setSelectedOrder(null)}>
+                    <div className="modal-content-premium" onClick={e => e.stopPropagation()}>
+                        <div className="modal-header-premium">
+                            <div className="header-order-info">
+                                <span className="order-number">Pedido #{selectedOrder.numero_pedido}</span>
+                                <span className={`type-badge ${selectedOrder.tipo_pedido}`}>
+                                    {selectedOrder.tipo_pedido === 'entrega' ? <Bike size={14} /> : <Store size={14} />}
+                                    {selectedOrder.tipo_pedido === 'entrega' ? 'Para Entrega' : 'Para Retirada'}
+                                </span>
+                            </div>
+                            <button className="close-modal" onClick={() => setSelectedOrder(null)}><X size={24} /></button>
                         </div>
-                        <div className="modal-body-v2">
-                            {/* ... Content ... */}
-                            <p><strong>Cliente:</strong> {selectedOrder.nome_cliente}</p>
-                            <p><strong>Telefone:</strong> {selectedOrder.telefone_cliente}</p>
-                            <div className="items-box">
-                                {selectedOrder.itens?.map((item, idx) => (
-                                    <div key={idx} className="item-line-container">
-                                        <div className="item-line">
-                                            <span>{item.quantidade}x {item.produtos?.nome}</span>
-                                            <span>{formatCurrency(item.preco_unitario * item.quantidade)}</span>
-                                        </div>
-                                        {item.observacoes && (
-                                            <p className="item-obs-modal">{item.observacoes}</p>
+
+                        <div className="modal-scroll-body hide-scrollbar">
+                            {/* Customer Section */}
+                            <section className="modal-section-v2">
+                                <h3 className="section-title-v2"><User size={16} /> Dados do Cliente</h3>
+                                <div className="customer-detail-card">
+                                    <div className="detail-row">
+                                        <span className="label">Nome:</span>
+                                        <span className="value">{selectedOrder.nome_cliente || 'N/A'}</span>
+                                    </div>
+                                    <div className="detail-row">
+                                        <span className="label">Telefone:</span>
+                                        <a href={`tel:${selectedOrder.telefone_cliente}`} className="value-link">
+                                            <Phone size={14} /> {selectedOrder.telefone_cliente || 'N/A'}
+                                        </a>
+                                    </div>
+                                </div>
+                            </section>
+
+                            {/* Address Section */}
+                            {selectedOrder.tipo_pedido === 'entrega' && selectedOrder.endereco && (
+                                <section className="modal-section-v2">
+                                    <h3 className="section-title-v2"><MapPin size={16} /> Endereço de Entrega</h3>
+                                    <div className="address-detail-card">
+                                        <p className="address-main">
+                                            {typeof selectedOrder.endereco === 'string'
+                                                ? selectedOrder.endereco
+                                                : `${selectedOrder.endereco.rua}, ${selectedOrder.endereco.numero}`}
+                                        </p>
+                                        {selectedOrder.endereco.bairro && (
+                                            <p className="address-sub">{selectedOrder.endereco.bairro}</p>
+                                        )}
+                                        {selectedOrder.endereco.referencia && (
+                                            <p className="address-ref">📍 Ref: {selectedOrder.endereco.referencia}</p>
                                         )}
                                     </div>
-                                ))}
-                                <div className="total-line">
-                                    <strong>Total</strong>
-                                    <strong>{formatCurrency(selectedOrder.valor_total)}</strong>
-                                </div>
-                            </div>
-
-                            {selectedOrder.endereco && (
-                                <div className="modal-address-box">
-                                    <div className="address-header">
-                                        <MapPin size={16} />
-                                        <strong>Endereço de Entrega</strong>
-                                    </div>
-                                    <p>
-                                        {typeof selectedOrder.endereco === 'string'
-                                            ? selectedOrder.endereco
-                                            : `${selectedOrder.endereco.rua || selectedOrder.endereco.street}, ${selectedOrder.endereco.numero || selectedOrder.endereco.number} - ${selectedOrder.endereco.bairro || selectedOrder.endereco.neighborhood}`}
-                                    </p>
-                                    {(selectedOrder.endereco.referencia || selectedOrder.endereco.reference) && (
-                                        <p className="address-ref">📍 {selectedOrder.endereco.referencia || selectedOrder.endereco.reference}</p>
-                                    )}
-                                </div>
+                                </section>
                             )}
 
-                            <div className="modal-actions-grid">
-                                <button className="btn-print">Imprimir Cupom</button>
-                                {selectedOrder.status === 'confirmado' && (
-                                    <button className="btn-next" onClick={() => handleStatusChange(selectedOrder.id, 'preparando')}>Mandar p/ Cozinha</button>
-                                )}
-                                {selectedOrder.status === 'preparando' && (
-                                    <button className="btn-next green" onClick={() => handleStatusChange(selectedOrder.id, 'pronto')}>Finalizar Preparo</button>
-                                )}
-                            </div>
+                            {/* Items Section */}
+                            <section className="modal-section-v2">
+                                <h3 className="section-title-v2"><Utensils size={16} /> Itens do Pedido</h3>
+                                <div className="order-items-list-v2">
+                                    {selectedOrder.itens?.map((item, idx) => (
+                                        <div key={idx} className="order-item-v2">
+                                            <div className="item-header-v2">
+                                                <div className="item-info-v2">
+                                                    <span className="item-qty-v2">{item.quantidade}x</span>
+                                                    <span className="item-name-v2">{item.produtos?.nome}</span>
+                                                </div>
+                                                <span className="item-price-v2">{formatCurrency(item.preco_unitario * item.quantidade)}</span>
+                                            </div>
+
+                                            {/* Observações / Personalização */}
+                                            {(item.observacoes || item.personalizacao) && (
+                                                <div className="item-extras-v2">
+                                                    {item.observacoes && (
+                                                        <div className="extra-box note">
+                                                            <p>{item.observacoes}</p>
+                                                        </div>
+                                                    )}
+                                                    {item.personalizacao && typeof item.personalizacao === 'object' && !Array.isArray(item.personalizacao) && (
+                                                        <div className="extra-box options">
+                                                            {Object.entries(item.personalizacao).map(([key, value]) => (
+                                                                <p key={key}><strong>{key}:</strong> {value}</p>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </section>
+
+                            {/* Payment Section */}
+                            <section className="modal-section-v2">
+                                <div className="payment-summary-card">
+                                    <div className="summary-row">
+                                        <span>Subtotal</span>
+                                        <span>{formatCurrency(selectedOrder.subtotal)}</span>
+                                    </div>
+                                    {selectedOrder.taxa_entrega > 0 && (
+                                        <div className="summary-row">
+                                            <span>Taxa de Entrega</span>
+                                            <span>{formatCurrency(selectedOrder.taxa_entrega)}</span>
+                                        </div>
+                                    )}
+                                    <div className="summary-row total">
+                                        <span>Total do Pedido</span>
+                                        <span>{formatCurrency(selectedOrder.valor_total)}</span>
+                                    </div>
+                                    <div className="payment-method-v2">
+                                        <DollarSign size={16} />
+                                        <span>Pagamento: <strong>{selectedOrder.forma_pagamento?.toUpperCase()}</strong></span>
+                                        {selectedOrder.troco_para && (
+                                            <span className="troco"> (Troco p/ {formatCurrency(selectedOrder.troco_para)})</span>
+                                        )}
+                                    </div>
+                                </div>
+                            </section>
+
+                            {/* General Observations */}
+                            {selectedOrder.observacoes && (
+                                <section className="modal-section-v2">
+                                    <h3 className="section-title-v2"><AlertCircle size={16} /> Observações Gerais</h3>
+                                    <div className="general-notes-box">
+                                        {selectedOrder.observacoes}
+                                    </div>
+                                </section>
+                            )}
+                        </div>
+
+                        <div className="modal-actions-premium">
+                            <button className="btn-action secondary btn-print">
+                                <Check size={18} /> Imprimir Cupom
+                            </button>
+
+                            {selectedOrder.status === 'confirmado' && (
+                                <button className="btn-action primary" onClick={() => handleStatusChange(selectedOrder.id, 'preparando')}>
+                                    <Play size={18} /> Enviar p/ Cozinha
+                                </button>
+                            )}
+
+                            {selectedOrder.status === 'preparando' && (
+                                <button className="btn-action success" onClick={() => handleStatusChange(selectedOrder.id, 'saiu_entrega')}>
+                                    <Truck size={18} /> Saiu p/ Entrega
+                                </button>
+                            )}
+
+                            {selectedOrder.status === 'saiu_entrega' && (
+                                <button className="btn-action success" onClick={() => handleStatusChange(selectedOrder.id, 'entregue')}>
+                                    <CheckCircle2 size={18} /> Finalizar Pedido
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>
