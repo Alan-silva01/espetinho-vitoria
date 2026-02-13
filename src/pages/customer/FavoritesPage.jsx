@@ -31,11 +31,11 @@ export default function FavoritesPage() {
 
                 const sortedIds = Object.entries(tally)
                     .sort(([, a], [, b]) => b - a)
-                    .slice(0, 5)
+                    .slice(0, 10)
                     .map(([id]) => id)
 
                 if (sortedIds.length > 0) {
-                    // Fetch full product details for these top 5
+                    // Fetch full product details for these top 10
                     const { data: pros, error: proErr } = await supabase
                         .from('produtos')
                         .select('*, categorias(nome)')
@@ -66,7 +66,7 @@ export default function FavoritesPage() {
                 </button>
                 <div className="favorites-header__title">
                     <h1>Mais Curtidos</h1>
-                    <p>O top 5 da galera 🏆</p>
+                    <p>O top 10 da galera 🏆</p>
                 </div>
                 <div style={{ width: 44 }} />
             </header>
@@ -94,10 +94,7 @@ export default function FavoritesPage() {
                                     onClick={() => navigate(customerCode ? `/${customerCode}/produto/${product.id}` : `/produto/${product.id}`)}
                                 >
                                     <div className="top-favorite-rank">
-                                        {rank === 1 && <span className="rank-icon">🏆</span>}
-                                        {rank === 2 && <span className="rank-icon">🥈</span>}
-                                        {rank === 3 && <span className="rank-icon">🥉</span>}
-                                        {rank > 3 && <span>#{rank}</span>}
+                                        <span>{rank}</span>
                                     </div>
                                     <div className="top-favorite-image">
                                         <img src={getImageUrl(product.imagem_url)} alt={product.nome} />
