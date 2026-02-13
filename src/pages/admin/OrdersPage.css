@@ -227,6 +227,7 @@
     position: relative;
     overflow: hidden;
     cursor: grab;
+    flex-shrink: 0;
 }
 
 .dark .order-card-v2 {
