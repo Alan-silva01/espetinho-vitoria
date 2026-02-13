@@ -8,6 +8,7 @@ import {
     Users,
     BarChart3,
     Truck,
+    MapPin,
     Settings,
     LogOut,
     Megaphone,
@@ -31,6 +32,7 @@ const navItems = [
     { to: '/admin/relatorios', icon: BarChart3, label: 'Relatórios' },
     { to: '/admin/motoboys', icon: Truck, label: 'Motoboys' },
     { to: '/admin/horarios', icon: Clock, label: 'Horários' },
+    { to: '/admin/fretes', icon: MapPin, label: 'Fretes' },
     { to: '/admin/configuracoes', icon: Settings, label: 'Configurações' },
 ]
 

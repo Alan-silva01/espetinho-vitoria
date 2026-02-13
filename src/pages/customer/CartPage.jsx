@@ -5,6 +5,7 @@ import { useCart } from '../../hooks/useCart'
 import { useProducts } from '../../hooks/useProducts'
 import { useCustomer } from '../../context/CustomerContext'
 import { formatCurrency, getImageUrl } from '../../lib/utils'
+import { supabase } from '../../lib/supabase'
 import './CartPage.css'
 
 export default function CartPage() {
@@ -23,33 +24,73 @@ export default function CartPage() {
         return localStorage.getItem('espetinho_tipo_pedido') || 'entrega'
     })
 
-    // Delivery costs — zero if pickup
-    const taxaEntrega = tipoPedido === 'entrega' ? 5.0 : 0
-    const total = subtotal + taxaEntrega
-
     // Address State
     const [isAddressModalOpen, setIsAddressModalOpen] = useState(false)
     const [addressData, setAddressData] = useState(() => {
         const saved = localStorage.getItem('espetinho_delivery_data')
         if (saved) {
-            try { return JSON.parse(saved) } catch { }
+            try {
+                const data = JSON.parse(saved)
+                // Backwards compatibility
+                return {
+                    rua: data.rua || data.street || '',
+                    numero: data.numero || data.number || '',
+                    bairro: data.bairro || data.neighborhood || '',
+                    referencia: data.referencia || data.reference || '',
+                    nome_recebedor: data.nome_recebedor || data.receiverName || '',
+                    telefone_recebedor: data.telefone_recebedor || data.receiverPhone || ''
+                }
+            } catch { }
         }
         return {
-            street: '',
-            number: '',
-            neighborhood: '',
-            reference: '',
-            receiverName: '',
-            receiverPhone: ''
+            rua: '',
+            numero: '',
+            bairro: '',
+            referencia: '',
+            nome_recebedor: '',
+            telefone_recebedor: ''
         }
     })
+
+    // Freight Fees from DB
+    const [freightFees, setFreightFees] = useState([])
+    useEffect(() => {
+        async function fetchFreights() {
+            const { data } = await supabase.from('taxas_entrega').select('*').eq('ativo', true).order('local')
+            if (data) setFreightFees(data)
+        }
+        fetchFreights()
+    }, [])
+
+    // Delivery costs
+    const [taxaEntrega, setTaxaEntrega] = useState(0)
+
+    useEffect(() => {
+        if (tipoPedido === 'retirada') {
+            setTaxaEntrega(0)
+            return
+        }
+
+        // Try to find fee for current neighborhood
+        const selectedNeighborhood = addressData.bairro
+        const fee = freightFees.find(f => f.local === selectedNeighborhood)
+
+        if (fee) {
+            setTaxaEntrega(Number(fee.valor_frete))
+        } else {
+            // Fallback to store config if we had it, but for now use 0 or a default
+            setTaxaEntrega(5.0) // Temporary fallback, will improve with useStore later if needed
+        }
+    }, [tipoPedido, addressData.neighborhood, freightFees])
+
+    const total = subtotal + taxaEntrega
 
     // Sync addressData if customer changes and has saved info
     useEffect(() => {
         if (customer) {
             const currentLocal = localStorage.getItem('espetinho_delivery_data')
             const noManualOverride = !localStorage.getItem('espetinho_manual_address')
-            const isActuallyEmpty = !addressData.street || !currentLocal
+            const isActuallyEmpty = !addressData.rua || !currentLocal
 
             if (isActuallyEmpty || noManualOverride) {
                 const dados = customer.dados || {}
@@ -57,16 +98,16 @@ export default function CartPage() {
                 const dbAddr = dados.endereco || dados || {}
 
                 const newData = {
-                    receiverName: dados.nome || customer.nome || '',
-                    receiverPhone: dados.whatsapp || customer.telefone || '',
-                    street: dbAddr.street || dbAddr.rua || dbAddr.logradouro || '',
-                    number: dbAddr.number || dbAddr.numero || '',
-                    neighborhood: dbAddr.neighborhood || dbAddr.bairro || '',
-                    reference: dbAddr.reference || dbAddr.referencia || dbAddr.ponto_referencia || ''
+                    nome_recebedor: dados.nome_recebedor || dados.receiverName || dados.nome || customer.nome || '',
+                    telefone_recebedor: dados.telefone_recebedor || dados.receiverPhone || dados.whatsapp || customer.telefone || '',
+                    rua: dbAddr.rua || dbAddr.street || dbAddr.logradouro || '',
+                    numero: dbAddr.numero || dbAddr.number || '',
+                    bairro: dbAddr.bairro || dbAddr.neighborhood || '',
+                    referencia: dbAddr.referencia || dbAddr.reference || dbAddr.ponto_referencia || ''
                 }
 
                 // Only set if we actually have at least something new or better
-                if (newData.street || newData.receiverName) {
+                if (newData.rua || newData.nome_recebedor) {
                     const isDifferent = JSON.stringify(newData) !== JSON.stringify(addressData)
                     if (isDifferent) {
                         setAddressData(newData)
@@ -85,7 +126,7 @@ export default function CartPage() {
         setTempData(addressData)
     }, [addressData])
 
-    const hasAddress = addressData.street && addressData.receiverName
+    const hasAddress = addressData.rua && addressData.nome_recebedor
 
     const formatPhone = (value) => {
         return value
@@ -106,7 +147,7 @@ export default function CartPage() {
     }
 
     const handleSaveAddress = async () => {
-        if (!tempData.street || !tempData.receiverName || !tempData.receiverPhone) {
+        if (!tempData.rua || !tempData.nome_recebedor || !tempData.telefone_recebedor) {
             alert('Por favor, preencha os campos obrigatórios.')
             return
         }
@@ -115,19 +156,19 @@ export default function CartPage() {
         localStorage.setItem('espetinho_delivery_data', JSON.stringify(tempData))
         localStorage.setItem('espetinho_manual_address', 'true')
 
-        const fullAddress = `${tempData.street}, ${tempData.number} - ${tempData.neighborhood}`
+        const fullAddress = `${tempData.rua}, ${tempData.numero} - ${tempData.bairro}`
         localStorage.setItem('espetinho_delivery_address', fullAddress)
 
         // Persist to database if customer is logged in
         if (customer) {
             await updateCustomerData({
-                nome: tempData.receiverName,
-                whatsapp: tempData.receiverPhone,
+                nome_recebedor: tempData.nome_recebedor,
+                telefone_recebedor: tempData.telefone_recebedor,
                 endereco: {
-                    street: tempData.street,
-                    number: tempData.number,
-                    neighborhood: tempData.neighborhood,
-                    reference: tempData.reference
+                    rua: tempData.rua,
+                    numero: tempData.numero,
+                    bairro: tempData.bairro,
+                    referencia: tempData.referencia
                 }
             })
         }
@@ -141,7 +182,7 @@ export default function CartPage() {
                 <span className="cart-empty__icon">🛒</span>
                 <h2>Seu carrinho está vazio</h2>
                 <p>Adicione itens do cardápio para fazer um pedido delicioso!</p>
-                <button className="btn btn-primary btn-md" onClick={() => navigate(customerCode ? `/${customerCode}` : '/')}>
+                <button className="cart-empty__btn btn btn-primary btn-md" onClick={() => navigate(customerCode ? `/${customerCode}` : '/')}>
                     Ver Cardápio
                 </button>
             </div>
@@ -277,9 +318,9 @@ export default function CartPage() {
                                 <p className="cart-address__label">Endereço</p>
                                 {hasAddress ? (
                                     <>
-                                        <p className="cart-address__value">{addressData.street}, {addressData.number}</p>
-                                        <p className="cart-address__sub">{addressData.neighborhood}</p>
-                                        <p className="cart-address__receiver">Para: {addressData.receiverName}</p>
+                                        <p className="cart-address__value">{addressData.rua}, {addressData.numero}</p>
+                                        <p className="cart-address__sub">{addressData.bairro}</p>
+                                        <p className="cart-address__receiver">Para: {addressData.nome_recebedor}</p>
                                     </>
                                 ) : (
                                     <p className="cart-address__value cart-address__value--empty">Toque para adicionar</p>
@@ -339,8 +380,8 @@ export default function CartPage() {
                                     <label>Rua / Logradouro *</label>
                                     <input
                                         type="text"
-                                        value={tempData.street}
-                                        onChange={e => setTempData({ ...tempData, street: e.target.value })}
+                                        value={tempData.rua}
+                                        onChange={e => setTempData({ ...tempData, rua: e.target.value })}
                                         placeholder="Ex: Rua das Flores"
                                     />
                                 </div>
@@ -349,27 +390,33 @@ export default function CartPage() {
                                     <label>Número *</label>
                                     <input
                                         type="text"
-                                        value={tempData.number}
-                                        onChange={e => setTempData({ ...tempData, number: e.target.value })}
+                                        value={tempData.numero}
+                                        onChange={e => setTempData({ ...tempData, numero: e.target.value })}
                                         placeholder="Ex: 123"
                                     />
                                 </div>
                                 <div className="input-modern-group half">
                                     <label>Bairro *</label>
-                                    <input
-                                        type="text"
-                                        value={tempData.neighborhood}
-                                        onChange={e => setTempData({ ...tempData, neighborhood: e.target.value })}
-                                        placeholder="Ex: Centro"
-                                    />
+                                    <select
+                                        className="modern-select"
+                                        value={tempData.bairro}
+                                        onChange={e => setTempData({ ...tempData, bairro: e.target.value })}
+                                    >
+                                        <option value="">Selecione...</option>
+                                        {freightFees.map(f => (
+                                            <option key={f.id} value={f.local}>
+                                                {f.local} (+ {formatCurrency(f.valor_frete)})
+                                            </option>
+                                        ))}
+                                    </select>
                                 </div>
 
                                 <div className="input-modern-group full">
                                     <label>Ponto de Referência</label>
                                     <input
                                         type="text"
-                                        value={tempData.reference}
-                                        onChange={e => setTempData({ ...tempData, reference: e.target.value })}
+                                        value={tempData.referencia}
+                                        onChange={e => setTempData({ ...tempData, referencia: e.target.value })}
                                         placeholder="Ex: Próximo à padaria"
                                     />
                                 </div>
@@ -380,8 +427,8 @@ export default function CartPage() {
                                     <label>Nome de quem recebe *</label>
                                     <input
                                         type="text"
-                                        value={tempData.receiverName}
-                                        onChange={e => setTempData({ ...tempData, receiverName: e.target.value })}
+                                        value={tempData.nome_recebedor}
+                                        onChange={e => setTempData({ ...tempData, nome_recebedor: e.target.value })}
                                         placeholder="Seu nome"
                                     />
                                 </div>
@@ -390,8 +437,8 @@ export default function CartPage() {
                                     <label>WhatsApp para contato *</label>
                                     <input
                                         type="tel"
-                                        value={tempData.receiverPhone}
-                                        onChange={e => setTempData({ ...tempData, receiverPhone: formatPhone(e.target.value) })}
+                                        value={tempData.telefone_recebedor}
+                                        onChange={e => setTempData({ ...tempData, telefone_recebedor: formatPhone(e.target.value) })}
                                         placeholder="(00) 00000-0000"
                                     />
                                 </div>

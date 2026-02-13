@@ -247,7 +247,7 @@ export default function DriversPage() {
                                     <div className="order-num">#{order.numero_pedido}</div>
                                     <div className="order-info">
                                         <strong>{order.nome_cliente}</strong>
-                                        <p>{typeof order.endereco === 'string' ? order.endereco : order.endereco?.street}</p>
+                                        <p>{typeof order.endereco === 'string' ? order.endereco : (order.endereco?.rua || order.endereco?.street)}</p>
                                     </div>
                                     <span className={`status ${order.status}`}>{order.status}</span>
                                 </div>

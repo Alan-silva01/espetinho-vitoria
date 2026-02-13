@@ -301,7 +301,7 @@ export default function OrdersPage() {
                                                     <span>
                                                         {typeof order.endereco === 'string'
                                                             ? order.endereco
-                                                            : `${order.endereco.street}, ${order.endereco.number} - ${order.endereco.neighborhood}`}
+                                                            : `${order.endereco.rua || order.endereco.street}, ${order.endereco.numero || order.endereco.number} - ${order.endereco.bairro || order.endereco.neighborhood}`}
                                                     </span>
                                                 </div>
                                             )}
@@ -370,10 +370,10 @@ export default function OrdersPage() {
                                     <p>
                                         {typeof selectedOrder.endereco === 'string'
                                             ? selectedOrder.endereco
-                                            : `${selectedOrder.endereco.street}, ${selectedOrder.endereco.number} - ${selectedOrder.endereco.neighborhood}`}
+                                            : `${selectedOrder.endereco.rua || selectedOrder.endereco.street}, ${selectedOrder.endereco.numero || selectedOrder.endereco.number} - ${selectedOrder.endereco.bairro || selectedOrder.endereco.neighborhood}`}
                                     </p>
-                                    {selectedOrder.endereco.reference && (
-                                        <p className="address-ref">📍 {selectedOrder.endereco.reference}</p>
+                                    {(selectedOrder.endereco.referencia || selectedOrder.endereco.reference) && (
+                                        <p className="address-ref">📍 {selectedOrder.endereco.referencia || selectedOrder.endereco.reference}</p>
                                     )}
                                 </div>
                             )}

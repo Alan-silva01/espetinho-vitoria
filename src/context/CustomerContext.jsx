@@ -41,11 +41,15 @@ export function CustomerProvider({ children }) {
                 localStorage.setItem('espetinho_customer_id', data.id)
 
                 // Also update delivery data if we have it in 'dados'
-                if (data.dados?.endereco) {
+                if (data.dados?.endereco || data.dados) {
+                    const dbAddr = data.dados.endereco || data.dados || {}
                     localStorage.setItem('espetinho_delivery_data', JSON.stringify({
-                        receiverName: data.dados.nome || data.nome,
-                        receiverPhone: data.dados.whatsapp || data.telefone,
-                        ...data.dados.endereco
+                        nome_recebedor: data.dados.nome_recebedor || data.dados.receiverName || data.dados.nome || data.nome || '',
+                        telefone_recebedor: data.dados.telefone_recebedor || data.dados.receiverPhone || data.dados.whatsapp || data.telefone || '',
+                        rua: dbAddr.rua || dbAddr.street || dbAddr.logradouro || '',
+                        numero: dbAddr.numero || dbAddr.number || '',
+                        bairro: dbAddr.bairro || dbAddr.neighborhood || '',
+                        referencia: dbAddr.referencia || dbAddr.reference || dbAddr.ponto_referencia || ''
                     }))
                 }
             }

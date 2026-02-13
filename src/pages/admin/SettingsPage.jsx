@@ -4,9 +4,11 @@ import {
     Settings, Clock, MapPin, Truck,
     MessageSquare, Bell, Globe, Shield,
     Save, ChevronRight, Moon, Sun,
-    CreditCard, Smartphone, AlertCircle, CheckCircle2
+    CreditCard, Smartphone, AlertCircle, CheckCircle2,
+    Plus, Trash2, Edit3, X
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
+import { formatCurrency } from '../../lib/utils'
 import './SettingsPage.css'
 
 export default function SettingsPage() {
@@ -15,6 +17,7 @@ export default function SettingsPage() {
     const [activeTab, setActiveTab] = useState('Geral')
     const [config, setConfig] = useState({})
     const [feedback, setFeedback] = useState({ type: '', msg: '' })
+
 
     useEffect(() => {
         fetchSettings()
@@ -32,6 +35,7 @@ export default function SettingsPage() {
             setLoading(false)
         }
     }
+
 
     async function handleSave() {
         setSaving(true)
@@ -147,7 +151,6 @@ export default function SettingsPage() {
                         </div>
                     )}
 
-
                     {activeTab === 'Entrega' && (
                         <div className="settings-section animate-fade-in">
                             <h3>Parâmetros de Delivery</h3>
@@ -165,7 +168,7 @@ export default function SettingsPage() {
                                         </div>
                                     </div>
                                     <div className="input-group-v2">
-                                        <label>Taxa de Entrega</label>
+                                        <label>Taxa de Entrega (Geral/Fallback)</label>
                                         <div className="input-with-icon">
                                             <span>R$</span>
                                             <input
@@ -174,11 +177,13 @@ export default function SettingsPage() {
                                                 onChange={e => setConfig({ ...config, taxa_entrega: e.target.value })}
                                             />
                                         </div>
+                                        <p className="input-hint">Usada caso o bairro não tenha uma taxa específica.</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     )}
+
                 </main>
             </div>
         </div>

@@ -25,12 +25,35 @@
 
 .cart-empty h2 {
     font-family: var(--fonte-destaque);
-    font-size: 20px;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--texto-principal);
 }
 
 .cart-empty p {
     color: var(--texto-secundario);
-    font-size: 14px;
+    font-size: 15px;
+    max-width: 250px;
+    line-height: 1.6;
+}
+
+.cart-empty__btn {
+    margin-top: 12px;
+    padding: 16px 32px;
+    font-size: 16px;
+    font-weight: 700;
+    border-radius: 14px;
+    background: var(--gradiente-primario) !important;
+    color: white !important;
+    box-shadow: 0 8px 20px rgba(196, 30, 46, 0.2);
+    transition: all 0.2s;
+    border: none;
+    text-transform: none;
+}
+
+.cart-empty__btn:active {
+    transform: scale(0.96);
+    box-shadow: 0 4px 10px rgba(196, 30, 46, 0.15);
 }
 
 /* Header */

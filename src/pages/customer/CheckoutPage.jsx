@@ -5,6 +5,7 @@ import { useCart } from '../../hooks/useCart'
 import { useOrders } from '../../hooks/useOrders'
 import { useCustomer } from '../../context/CustomerContext'
 import { formatCurrency, getImageUrl } from '../../lib/utils'
+import { supabase } from '../../lib/supabase'
 import './CheckoutPage.css'
 
 export default function CheckoutPage() {
@@ -13,15 +14,73 @@ export default function CheckoutPage() {
     const { createOrder, loading } = useOrders()
     const { customer, updateLastOrder } = useCustomer()
 
+    // Order type
+    const tipoPedido = localStorage.getItem('espetinho_tipo_pedido') || 'entrega'
+
+    // Address Data
+    const [addressData] = useState(() => {
+        const saved = localStorage.getItem('espetinho_delivery_data')
+        if (saved) {
+            try {
+                const data = JSON.parse(saved)
+                return {
+                    rua: data.rua || data.street || '',
+                    numero: data.numero || data.number || '',
+                    bairro: data.bairro || data.neighborhood || '',
+                    referencia: data.referencia || data.reference || '',
+                    nome_recebedor: data.nome_recebedor || data.receiverName || '',
+                    telefone_recebedor: data.telefone_recebedor || data.receiverPhone || ''
+                }
+            } catch { }
+        }
+        return {}
+    })
+
+    // Fetch Neighborhood Fee
+    const [taxaEntrega, setTaxaEntrega] = useState(0)
+
+    useEffect(() => {
+        async function fetchFee() {
+            if (tipoPedido === 'retirada' || !addressData.bairro) {
+                setTaxaEntrega(0)
+                return
+            }
+
+            const { data } = await supabase
+                .from('taxas_entrega')
+                .select('valor_frete')
+                .eq('local', addressData.bairro)
+                .single()
+
+            if (data) {
+                setTaxaEntrega(Number(data.valor_frete))
+            } else {
+                setTaxaEntrega(5.0) // Fallback
+            }
+        }
+        fetchFee()
+    }, [tipoPedido, addressData.neighborhood])
+
+    const total = subtotal + taxaEntrega
+
     const [savedData, setSavedData] = useState(() => {
         const raw = localStorage.getItem('espetinho_delivery_data')
         if (raw) {
-            try { return JSON.parse(raw) } catch { }
+            try {
+                const data = JSON.parse(raw)
+                return {
+                    rua: data.rua || data.street || '',
+                    numero: data.numero || data.number || '',
+                    bairro: data.bairro || data.neighborhood || '',
+                    referencia: data.referencia || data.reference || '',
+                    nome_recebedor: data.nome_recebedor || data.receiverName || '',
+                    telefone_recebedor: data.telefone_recebedor || data.receiverPhone || ''
+                }
+            } catch { }
         }
         return null
     })
 
-    const [tipoPedido, setTipoPedido] = useState('entrega')
     const [formaPagamento, setFormaPagamento] = useState('pix')
     const [precisaTroco, setPrecisaTroco] = useState(false)
     const [trocoPara, setTrocoPara] = useState('')
@@ -44,15 +103,15 @@ export default function CheckoutPage() {
 
             if (dbAddr && (hasNoLocal || noManual)) {
                 const newData = {
-                    receiverName: dados.nome || customer.nome || '',
-                    receiverPhone: dados.whatsapp || customer.telefone || '',
-                    street: dbAddr.street || dbAddr.rua || dbAddr.logradouro || '',
-                    number: dbAddr.number || dbAddr.numero || '',
-                    neighborhood: dbAddr.neighborhood || dbAddr.bairro || '',
-                    reference: dbAddr.reference || dbAddr.referencia || dbAddr.ponto_referencia || ''
+                    nome_recebedor: dados.nome_recebedor || dados.receiverName || dados.nome || customer.nome || '',
+                    telefone_recebedor: dados.telefone_recebedor || dados.receiverPhone || dados.whatsapp || customer.telefone || '',
+                    rua: dbAddr.rua || dbAddr.street || dbAddr.logradouro || '',
+                    numero: dbAddr.numero || dbAddr.number || '',
+                    bairro: dbAddr.bairro || dbAddr.neighborhood || '',
+                    referencia: dbAddr.referencia || dbAddr.reference || dbAddr.ponto_referencia || ''
                 }
 
-                if (newData.street || newData.receiverName) {
+                if (newData.rua || newData.nome_recebedor) {
                     localStorage.setItem('espetinho_delivery_data', JSON.stringify(newData))
                     setSavedData(newData)
                 }
@@ -60,14 +119,12 @@ export default function CheckoutPage() {
         }
     }, [customer])
 
-    const taxaEntrega = tipoPedido === 'entrega' ? 5.0 : 0
-    const total = subtotal + taxaEntrega
 
     const enderecoCompleto = savedData
-        ? `${savedData.street}, ${savedData.number} - ${savedData.neighborhood}${savedData.reference ? ` (${savedData.reference})` : ''}`
+        ? `${savedData.rua}, ${savedData.numero} - ${savedData.bairro}${savedData.referencia ? ` (${savedData.referencia})` : ''}`
         : null
 
-    const hasAddress = !!(savedData && savedData.street && savedData.receiverName && savedData.receiverPhone)
+    const hasAddress = !!(savedData && savedData.rua && savedData.nome_recebedor && savedData.telefone_recebedor)
 
     async function handleConfirm() {
         if (tipoPedido === 'entrega' && !hasAddress) {
@@ -77,8 +134,8 @@ export default function CheckoutPage() {
 
         try {
             const orderData = {
-                nome_cliente: tipoPedido === 'retirada' ? nomeRetirada : (savedData?.receiverName || ''),
-                telefone_cliente: savedData?.receiverPhone || '',
+                nome_cliente: tipoPedido === 'retirada' ? nomeRetirada : (savedData?.nome_recebedor || ''),
+                telefone_cliente: savedData?.telefone_recebedor || '',
                 tipo_pedido: tipoPedido,
                 subtotal,
                 taxa_entrega: taxaEntrega,
