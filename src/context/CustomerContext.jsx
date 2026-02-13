@@ -121,6 +121,8 @@ export function CustomerProvider({ children }) {
             }
             return true
         }
+
+        console.error('[updateCustomerData] Erro ao atualizar dados do cliente:', error)
         return false
     }
 
