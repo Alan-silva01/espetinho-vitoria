@@ -64,34 +64,44 @@
 
 .top-favorite-rank {
     position: absolute;
-    top: -8px;
-    left: -8px;
-    background: var(--cor-primaria);
-    color: white;
-    width: 24px;
-    height: 24px;
-    border-radius: 8px;
+    top: -10px;
+    left: 12px;
+    background: var(--fundo-secao);
+    color: var(--texto-secundario);
+    padding: 4px 10px;
+    border-radius: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 800;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--borda);
+    z-index: 2;
 }
 
-.top-favorite-item:nth-child(1) .top-favorite-rank {
-    background: #FFD700;
+.rank-1 .top-favorite-rank {
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
     color: #000;
+    border: none;
+    transform: scale(1.1);
 }
 
-.top-favorite-item:nth-child(2) .top-favorite-rank {
-    background: #C0C0C0;
+.rank-2 .top-favorite-rank {
+    background: linear-gradient(135deg, #E2E2E2 0%, #A0A0A0 100%);
     color: #000;
+    border: none;
 }
 
-.top-favorite-item:nth-child(3) .top-favorite-rank {
-    background: #CD7F32;
+.rank-3 .top-favorite-rank {
+    background: linear-gradient(135deg, #E69B56 0%, #A0522D 100%);
     color: #fff;
+    border: none;
+}
+
+.rank-icon {
+    font-size: 14px;
+    margin-right: 2px;
 }
 
 .top-favorite-image {

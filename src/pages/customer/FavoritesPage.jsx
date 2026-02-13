@@ -85,38 +85,46 @@ export default function FavoritesPage() {
                     </div>
                 ) : (
                     <div className="top-favorites-list">
-                        {topProducts.map((product, index) => (
-                            <div
-                                key={product.id}
-                                className="top-favorite-item"
-                                onClick={() => navigate(customerCode ? `/${customerCode}/produto/${product.id}` : `/produto/${product.id}`)}
-                            >
-                                <div className="top-favorite-rank">#{index + 1}</div>
-                                <div className="top-favorite-image">
-                                    <img src={getImageUrl(product.imagem_url)} alt={product.nome} />
-                                </div>
-                                <div className="top-favorite-info">
-                                    <h3>{product.nome}</h3>
-                                    <span className="category-tag">{product.categorias?.nome}</span>
-                                    <p className="price">{formatCurrency(product.preco)}</p>
-                                </div>
-                                <button
-                                    className="top-favorite-add"
-                                    onClick={(e) => {
-                                        e.stopPropagation()
-                                        addItem({
-                                            produto_id: product.id,
-                                            nome: product.nome,
-                                            preco: product.preco,
-                                            imagem_url: product.imagem_url,
-                                            eh_upsell: false,
-                                        })
-                                    }}
+                        {topProducts.map((product, index) => {
+                            const rank = index + 1;
+                            return (
+                                <div
+                                    key={product.id}
+                                    className={`top-favorite-item rank-${rank}`}
+                                    onClick={() => navigate(customerCode ? `/${customerCode}/produto/${product.id}` : `/produto/${product.id}`)}
                                 >
-                                    <Plus size={20} />
-                                </button>
-                            </div>
-                        ))}
+                                    <div className="top-favorite-rank">
+                                        {rank === 1 && <span className="rank-icon">🏆</span>}
+                                        {rank === 2 && <span className="rank-icon">🥈</span>}
+                                        {rank === 3 && <span className="rank-icon">🥉</span>}
+                                        {rank > 3 && <span>#{rank}</span>}
+                                    </div>
+                                    <div className="top-favorite-image">
+                                        <img src={getImageUrl(product.imagem_url)} alt={product.nome} />
+                                    </div>
+                                    <div className="top-favorite-info">
+                                        <h3>{product.nome}</h3>
+                                        <span className="category-tag">{product.categorias?.nome}</span>
+                                        <p className="price">{formatCurrency(product.preco)}</p>
+                                    </div>
+                                    <button
+                                        className="top-favorite-add"
+                                        onClick={(e) => {
+                                            e.stopPropagation()
+                                            addItem({
+                                                produto_id: product.id,
+                                                nome: product.nome,
+                                                preco: product.preco,
+                                                imagem_url: product.imagem_url,
+                                                eh_upsell: false,
+                                            })
+                                        }}
+                                    >
+                                        <Plus size={20} />
+                                    </button>
+                                </div>
+                            );
+                        })}
                     </div>
                 )}
             </div>
