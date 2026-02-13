@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, MapPin, CreditCard, Receipt, Edit3, CheckCircle, User } from 'lucide-react'
 import { useCart } from '../../hooks/useCart'
 import { useOrders } from '../../hooks/useOrders'
@@ -10,6 +10,7 @@ import './CheckoutPage.css'
 
 export default function CheckoutPage() {
     const navigate = useNavigate()
+    const { customerCode } = useParams()
     const { items, subtotal, clearCart } = useCart()
     const { createOrder, loading } = useOrders()
     const { customer, updateLastOrder } = useCustomer()
@@ -199,7 +200,11 @@ export default function CheckoutPage() {
         <div className="checkout-page animate-fade-in">
             {/* Header */}
             <header className="checkout-header">
-                <button className="checkout-header__back" onClick={() => navigate(-1)}>
+                <button
+                    type="button"
+                    className="checkout-header__back"
+                    onClick={() => navigate(customerCode ? `/${customerCode}/carrinho` : '/carrinho')}
+                >
                     <ArrowLeft size={22} />
                 </button>
                 <h1>Confirmar Pedido</h1>

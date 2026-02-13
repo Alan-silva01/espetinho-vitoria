@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react'
 import {
     Megaphone, Plus, Calendar, Tag,
     MoreVertical, Trash2, Edit2, CheckCircle2,
-    Clock, AlertCircle, Eye, Power
+    Clock, AlertCircle, Eye, Power, Image as ImageIcon, X
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
+import { uploadImage, isCloudinaryConfigured } from '../../lib/cloudinary'
 import { formatCurrency } from '../../lib/utils'
 import './PromotionsPage.css'
 
@@ -25,8 +26,11 @@ export default function PromotionsPage() {
         ordem: 1,
         destaque: false,
         preco_promocional: 0,
-        itens: [] // array de nomes de produtos
+        itens: [],
+        imagem_url: ''
     })
+    const [uploading, setUploading] = useState(false)
+    const [uploadProgress, setUploadProgress] = useState(0)
 
     useEffect(() => {
         fetchPromotions()
@@ -53,6 +57,7 @@ export default function PromotionsPage() {
 
     async function handleCreate(e) {
         e.preventDefault()
+        setUploading(true)
         const { error } = await supabase
             .from('promocoes')
             .insert([newPromo])
@@ -68,9 +73,39 @@ export default function PromotionsPage() {
                 ordem: promotions.length + 1,
                 destaque: false,
                 preco_promocional: 0,
-                itens: []
+                itens: [],
+                imagem_url: ''
             })
             fetchPromotions()
+        } else {
+            alert('Erro ao criar promoção: ' + error.message)
+        }
+        setUploading(false)
+    }
+
+    const handleUpload = async (e, state, setState) => {
+        const file = e.target.files[0]
+        if (!file) return
+
+        if (!isCloudinaryConfigured) {
+            alert('Cloudinary não configurado. Verifique o arquivo .env')
+            return
+        }
+
+        setUploading(true)
+        setUploadProgress(0)
+        try {
+            const result = await uploadImage(file, {
+                folder: 'espetinho-vitoria/promocoes',
+                onProgress: (pct) => setUploadProgress(pct)
+            })
+            setState(prev => ({ ...prev, imagem_url: result.url }))
+        } catch (error) {
+            console.error('Upload failed:', error)
+            alert('Erro ao enviar imagem: ' + error.message)
+        } finally {
+            setUploading(false)
+            setUploadProgress(0)
         }
     }
 
@@ -113,11 +148,13 @@ export default function PromotionsPage() {
         setEditData({
             ...promo,
             itens: promo.itens || [],
-            preco_promocional: promo.preco_promocional || 0
+            preco_promocional: promo.preco_promocional || 0,
+            imagem_url: promo.imagem_url || ''
         })
     }
 
     async function saveEdit() {
+        setUploading(true)
         const { error } = await supabase
             .from('promocoes')
             .update({
@@ -126,14 +163,18 @@ export default function PromotionsPage() {
                 cor_fundo: editData.cor_fundo,
                 cor_texto: editData.cor_texto,
                 itens: editData.itens,
-                preco_promocional: editData.preco_promocional
+                preco_promocional: editData.preco_promocional,
+                imagem_url: editData.imagem_url
             })
             .eq('id', editId)
 
         if (!error) {
             setEditId(null)
             fetchPromotions()
+        } else {
+            alert('Erro ao salvar edição: ' + error.message)
         }
+        setUploading(false)
     }
 
     const filteredPromotions = promotions.filter(p => {
@@ -199,7 +240,11 @@ export default function PromotionsPage() {
 
                         <div className="promo-card-header">
                             <div className="discount-circle" style={{ background: promo.cor_fundo }}>
-                                <Megaphone size={24} color={promo.cor_texto} />
+                                {promo.imagem_url ? (
+                                    <img src={promo.imagem_url} alt={promo.titulo} className="promo-card-img-circle" />
+                                ) : (
+                                    <Megaphone size={24} color={promo.cor_texto} />
+                                )}
                             </div>
                             <div className="promo-actions-menu">
                                 <button onClick={() => deletePromo(promo.id)}><Trash2 size={18} /></button>
@@ -209,6 +254,22 @@ export default function PromotionsPage() {
                         <div className="promo-card-body">
                             {editId === promo.id ? (
                                 <div className="promo-edit-form">
+                                    <div className="promo-image-upload">
+                                        {editData.imagem_url ? (
+                                            <div className="promo-preview">
+                                                <img src={editData.imagem_url} alt="Preview" />
+                                                <button onClick={() => setEditData({ ...editData, imagem_url: '' })}><X size={12} /></button>
+                                            </div>
+                                        ) : (
+                                            <label className="promo-upload-btn">
+                                                <ImageIcon size={20} />
+                                                <span>Banner do Combo</span>
+                                                <input type="file" hidden onChange={(e) => handleUpload(e, editData, setEditData)} accept="image/*" />
+                                            </label>
+                                        )}
+                                        {uploading && <div className="promo-upload-status">Enviando... {uploadProgress}%</div>}
+                                    </div>
+
                                     <input
                                         type="text"
                                         value={editData.titulo}
@@ -324,6 +385,22 @@ export default function PromotionsPage() {
                         <h2>Nova Promoção</h2>
                         <p>Preencha os dados abaixo para criar uma nova oferta.</p>
                         <form className="modal-form" onSubmit={handleCreate}>
+                            <div className="promo-image-upload">
+                                {newPromo.imagem_url ? (
+                                    <div className="promo-preview">
+                                        <img src={newPromo.imagem_url} alt="Preview" />
+                                        <button onClick={() => setNewPromo({ ...newPromo, imagem_url: '' })}><X size={12} /></button>
+                                    </div>
+                                ) : (
+                                    <label className="promo-upload-btn">
+                                        <ImageIcon size={20} />
+                                        <span>Imagem do Combo (Cloudinary)</span>
+                                        <input type="file" hidden onChange={(e) => handleUpload(e, newPromo, setNewPromo)} accept="image/*" />
+                                    </label>
+                                )}
+                                {uploading && <div className="promo-upload-status">Enviando... {uploadProgress}%</div>}
+                            </div>
+
                             <label>
                                 Título
                                 <input
@@ -390,7 +467,9 @@ export default function PromotionsPage() {
                             </div>
                             <div className="modal-actions">
                                 <button type="button" className="btn-close-modal" onClick={() => setIsModalOpen(false)}>Cancelar</button>
-                                <button type="submit" className="btn-confirm-create">Criar Promoção</button>
+                                <button type="submit" className="btn-confirm-create" disabled={uploading}>
+                                    {uploading ? 'Processando...' : 'Criar Promoção'}
+                                </button>
                             </div>
                         </form>
                     </div>

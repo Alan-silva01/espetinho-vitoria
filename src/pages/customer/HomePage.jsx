@@ -296,7 +296,7 @@ export default function HomePage() {
                                     produto_id: `promo-${promoDestaque.id}`,
                                     nome: `Banner: ${promoDestaque.titulo}`,
                                     preco: promoDestaque.preco_promocional || 0,
-                                    imagem_url: '', // Ou uma imagem padrão de promoção
+                                    imagem_url: promoDestaque.imagem_url || '',
                                     eh_upsell: false,
                                     descricao: desc,
                                     isCombo: true
