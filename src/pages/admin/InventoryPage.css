@@ -392,18 +392,58 @@
 
 .btn-out-manual {
     width: 100%;
-    padding: 8px;
+    padding: 10px;
     border: 1px solid #E5E7EB;
-    background: transparent;
-    border-radius: 10px;
-    font-size: 12px;
+    background: white;
+    border-radius: 12px;
+    font-size: 13px;
     font-weight: 700;
-    color: #6B7280;
+    color: #4B5563;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
     cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.btn-out-manual:hover {
+    background: #FEE2E2;
+    color: #B91C1C;
+    border-color: #F87171;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(185, 28, 28, 0.1);
+}
+
+.btn-out-manual:active {
+    transform: scale(0.96);
+}
+
+.btn-out-manual.is-out {
+    background: #FEF2F2;
+    color: #DC2626;
+    border-color: #FECACA;
+    cursor: default;
+}
+
+.btn-out-manual.is-out:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 /* Sidebar Progress */
@@ -529,6 +569,7 @@
     border-color: #374151;
     color: white;
 }
+
 /* Fast Entry Mode */
 .fast-entry-container {
     background: white;
@@ -627,9 +668,17 @@
     text-transform: uppercase;
 }
 
-.status-text.green { color: #10B981; }
-.status-text.orange { color: #F59E0B; }
-.status-text.red { color: #EF4444; }
+.status-text.green {
+    color: #10B981;
+}
+
+.status-text.orange {
+    color: #F59E0B;
+}
+
+.status-text.red {
+    color: #EF4444;
+}
 
 /* Non-controlled Items Dimming */
 .inv-item-card.no-control {

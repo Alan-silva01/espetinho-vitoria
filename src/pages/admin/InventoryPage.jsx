@@ -400,14 +400,25 @@ export default function InventoryPage() {
                                                         </div>
 
                                                         <button
-                                                            className="btn-out-manual"
+                                                            className={`btn-out-manual ${item.atual === 0 ? 'is-out' : ''}`}
                                                             onClick={() => handleImmediateOut(item)}
                                                             disabled={savingItem === item.id}
                                                         >
                                                             {savingItem === item.id ? (
-                                                                <>Salvando...</>
+                                                                <>
+                                                                    <RefreshCw size={14} className="animate-spin" />
+                                                                    Salvando...
+                                                                </>
+                                                            ) : item.atual === 0 ? (
+                                                                <>
+                                                                    <CheckCircle2 size={14} />
+                                                                    Produto Esgotado
+                                                                </>
                                                             ) : (
-                                                                <><XCircle size={14} /> Marcar Esgotado</>
+                                                                <>
+                                                                    <XCircle size={14} />
+                                                                    Marcar Esgotado
+                                                                </>
                                                             )}
                                                         </button>
                                                     </div>
