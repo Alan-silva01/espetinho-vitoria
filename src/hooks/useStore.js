@@ -53,36 +53,60 @@ export function useStore() {
             return { type: 'exceptional', message: config.motivo_fechamento_hoje }
         }
 
-        // 3. Weekly schedule (Brasília Time)
+        // 3. Next Opening Logic (Brasília Time)
         const now = new Date()
         const brTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }))
-        const day = brTime.getDay()
+        const currentDay = brTime.getDay()
         const currentTime = brTime.getHours().toString().padStart(2, '0') + ':' +
             brTime.getMinutes().toString().padStart(2, '0') + ':00'
 
-        if (day === 6) { // Saturday
-            return { type: 'saturday', message: 'Sábados nós não abrimos, obrigado pela preferência, mas não abrimos no sábado.' }
+        // Check availability for the next 7 days
+        const diasNomes = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado']
+
+        for (let i = 0; i < 7; i++) {
+            const checkDayIndex = (currentDay + i) % 7
+            const daySchedule = horarios.find(h => h.dia_semana === checkDayIndex)
+
+            if (daySchedule && daySchedule.aberto) {
+                const { horario_abertura, horario_fechamento } = daySchedule
+
+                // Case A: Checked day is TODAY
+                if (i === 0) {
+                    // Check if open NOW
+                    if (currentTime >= horario_abertura && currentTime <= horario_fechamento) {
+                        return null // Store is OPEN
+                    }
+                    // If before opening time
+                    if (currentTime < horario_abertura) {
+                        return {
+                            type: 'future_opening',
+                            message: `Abrimos hoje às ${horario_abertura.slice(0, 5)}`,
+                            openTime: horario_abertura.slice(0, 5)
+                        }
+                    }
+                    // If after closing time, continue loop to find next day
+                }
+                // Case B: Tomorrow
+                else if (i === 1) {
+                    return {
+                        type: 'future_opening',
+                        message: `Abrimos amanhã às ${horario_abertura.slice(0, 5)}`,
+                        openTime: horario_abertura.slice(0, 5)
+                    }
+                }
+                // Case C: Future Day
+                else {
+                    const diaNome = diasNomes[checkDayIndex]
+                    return {
+                        type: 'future_opening',
+                        message: `Abrimos ${diaNome} às ${horario_abertura.slice(0, 5)}`,
+                        openTime: horario_abertura.slice(0, 5)
+                    }
+                }
+            }
         }
 
-        const todaySchedule = horarios.find(h => h.dia_semana === day)
-
-        if (!todaySchedule || !todaySchedule.aberto) {
-            return { type: 'schedule_closed', message: 'Hoje não abrimos para atendimento.' }
-        }
-
-        // 4. Time range
-        const openTime = todaySchedule.horario_abertura
-        const closeTime = todaySchedule.horario_fechamento
-
-        if (currentTime < openTime) {
-            return { type: 'future_opening', openTime: openTime.slice(0, 5) }
-        }
-
-        if (currentTime > closeTime) {
-            return { type: 'already_closed', message: 'Já encerramos o atendimento hoje.' }
-        }
-
-        return null // Store is open
+        return { type: 'closed_indefinitely', message: 'Fechado temporariamente. Verifique nossos horários.' }
     }
 
     const closureInfo = getClosureInfo()

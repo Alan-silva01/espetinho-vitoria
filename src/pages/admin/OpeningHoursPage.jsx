@@ -118,32 +118,53 @@ export default function OpeningHoursPage() {
         // Manual master switch
         if (config.esta_aberta === false) return { open: false, label: 'LOJA DESATIVADA' }
 
-        // Exceptional closure
+        // Exceptional closure (priority)
         if (config.fechar_hoje_excepcionalmente) return { open: false, label: 'FECHADO HOJE' }
 
         // Get Brasília Time
         const now = new Date()
         const brTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }))
-        const day = brTime.getDay()
+        const currentDay = brTime.getDay() // 0-6 (Sun-Sat)
         const timeStr = brTime.getHours().toString().padStart(2, '0') + ':' + brTime.getMinutes().toString().padStart(2, '0') + ':00'
 
-        const todaySchedule = horarios.find(h => h.dia_semana === day)
-
-        if (!todaySchedule || !todaySchedule.aberto) return { open: false, label: 'FECHADO HOJE' }
-
-        // Compare times (standard format HH:MM:SS)
-        const openTime = todaySchedule.horario_abertura
-        const closeTime = todaySchedule.horario_fechamento
-
-        if (timeStr >= openTime && timeStr <= closeTime) {
-            return { open: true, label: 'LOJA ABERTA' }
+        // 1. Check if OPEN NOW (today)
+        const todaySchedule = horarios.find(h => h.dia_semana === currentDay)
+        if (todaySchedule && todaySchedule.aberto) {
+            const { horario_abertura, horario_fechamento } = todaySchedule
+            if (timeStr >= horario_abertura && timeStr <= horario_fechamento) {
+                return { open: true, label: 'LOJA ABERTA' }
+            }
         }
 
-        if (timeStr < openTime) {
-            return { open: false, label: `ABRIREMOS ÀS ${openTime.slice(0, 5)}` }
+        // 2. Find NEXT Opening Time (Iterate 7 days starting today)
+        for (let i = 0; i < 7; i++) {
+            const checkDayIndex = (currentDay + i) % 7
+            const daySchedule = horarios.find(h => h.dia_semana === checkDayIndex)
+
+            if (daySchedule && daySchedule.aberto) {
+                const { horario_abertura, horario_fechamento } = daySchedule
+
+                // Case A: Checked day is TODAY
+                if (i === 0) {
+                    // Only relevant if we are BEFORE opening time
+                    if (timeStr < horario_abertura) {
+                        return { open: false, label: `ABRIREMOS HOJE ÀS ${horario_abertura.slice(0, 5)}` }
+                    }
+                    // If after closing, loop continues to find next day
+                }
+                // Case B: Tomorrow
+                else if (i === 1) {
+                    return { open: false, label: `ABRIREMOS AMANHÃ ÀS ${horario_abertura.slice(0, 5)}` }
+                }
+                // Case C: Future Day
+                else {
+                    const diaNome = diasNomes[checkDayIndex].toUpperCase()
+                    return { open: false, label: `ABRIREMOS ${diaNome} ÀS ${horario_abertura.slice(0, 5)}` }
+                }
+            }
         }
 
-        return { open: false, label: 'JÁ ENCERRADO' }
+        return { open: false, label: 'FECHADO TEMPORARIAMENTE' }
     }
 
     const currentStatus = calculateStatus()

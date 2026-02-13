@@ -10,7 +10,7 @@ export default function StoreClosedOverlay({ config, closureInfo }) {
 
         switch (closureInfo.type) {
             case 'future_opening':
-                return `Abrimos às ${closureInfo.openTime}, calma que jaja você pode fazer seu pedido.`
+                return closureInfo.message || `Abrimos às ${closureInfo.openTime}, calma que jaja você pode fazer seu pedido.`
             case 'saturday':
                 return closureInfo.message
             case 'exceptional':
