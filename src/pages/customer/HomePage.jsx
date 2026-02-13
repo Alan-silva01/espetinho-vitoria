@@ -137,7 +137,7 @@ export default function HomePage() {
             </header>
 
             {/* Promo Marquee */}
-            <PromoMarquee />
+            {/* <PromoMarquee /> */}
 
             {/* Search */}
             <div className="home-search">
