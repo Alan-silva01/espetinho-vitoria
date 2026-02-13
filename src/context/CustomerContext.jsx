@@ -79,38 +79,68 @@ export function CustomerProvider({ children }) {
         }
     }
 
-    async function updateCustomerData(newData) {
-        if (!customer) return
+    async function updateCustomerData(newData, explicitId = null) {
+        const targetId = explicitId || customer?.id
+        if (!targetId) return
+
+        // 1. Prepare top-level columns to update
+        const toUpdate = {}
+        if (newData.nome) toUpdate.nome = newData.nome
+        if (newData.telefone) toUpdate.telefone = newData.telefone
+
+        // 2. Resolve current 'dados' to merge
+        let currentDados = customer?.dados || {}
+
+        // If we have an explicit ID but no 'customer' state (new user flow), 
+        // we might need to fetch current 'dados' or just overwrite/merge carefully.
+        // For simplicity and to avoid race conditions, let's treat 'newData' 
+        // as the updates for the 'dados' column if it's not a top-level column.
+
+        const { nome, telefone, ...onlyDados } = newData
 
         const updatedDados = {
-            ...customer.dados,
-            ...newData
+            ...currentDados,
+            ...onlyDados
         }
+
+        toUpdate.dados = updatedDados
 
         const { error } = await supabase
             .from('clientes')
-            .update({ dados: updatedDados })
-            .eq('id', customer.id)
+            .update(toUpdate)
+            .eq('id', targetId)
 
         if (!error) {
-            setCustomer(prev => ({ ...prev, dados: updatedDados }))
+            // Update local state if it matches the current customer
+            if (customer && customer.id === targetId) {
+                setCustomer(prev => ({
+                    ...prev,
+                    ...toUpdate,
+                    dados: updatedDados
+                }))
+            }
             return true
         }
         return false
     }
 
-    async function updateLastOrder(orderSummary, newAddress = null) {
-        if (!customer) return
+    async function updateLastOrder(orderSummary, newAddress = null, explicitId = null, extraInfo = {}) {
+        const targetId = explicitId || customer?.id
+        if (!targetId) return
 
         const updateObj = {
-            ultimos_pedidos: orderSummary
+            ultimos_pedidos: orderSummary,
+            ...extraInfo
         }
 
         if (newAddress) {
             updateObj.endereco = newAddress
+            // Also update top-level receiver name/phone if available
+            if (newAddress.nome_recebedor) updateObj.nome = newAddress.nome_recebedor
+            if (newAddress.telefone_recebedor) updateObj.telefone = newAddress.telefone_recebedor
         }
 
-        await updateCustomerData(updateObj)
+        await updateCustomerData(updateObj, targetId)
     }
 
     return (
