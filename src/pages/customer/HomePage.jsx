@@ -31,6 +31,7 @@ export default function HomePage() {
     const { isOpen, config } = useStore()
     const [activeCategory, setActiveCategory] = useState(null)
     const [search, setSearch] = useState('')
+    const [promoDestaque, setPromoDestaque] = useState(null)
     const [liked, setLiked] = useState(() => {
         try { return JSON.parse(localStorage.getItem('espetinho_likes') || '{}') }
         catch { return {} }
@@ -54,6 +55,17 @@ export default function HomePage() {
             }
         }
         loadLikes()
+
+        async function fetchPromoDestaque() {
+            const { data } = await supabase
+                .from('promocoes')
+                .select('*')
+                .eq('ativa', true)
+                .eq('destaque', true)
+                .maybeSingle()
+            if (data) setPromoDestaque(data)
+        }
+        fetchPromoDestaque()
     }, [])
 
     const categoryIcons = {
@@ -137,7 +149,7 @@ export default function HomePage() {
             </header>
 
             {/* Promo Marquee */}
-            {/* <PromoMarquee /> */}
+            <PromoMarquee />
 
             {/* Search */}
             <div className="home-search">
@@ -266,15 +278,20 @@ export default function HomePage() {
             </div>
 
             {/* Promo Banner (Oferta do Dia) */}
-            {!search && (
-                <div className="home-promo">
+            {!search && promoDestaque && (
+                <div className="home-promo" style={{ background: promoDestaque.cor_fundo }}>
                     <div className="home-promo__content">
-                        <span className="home-promo__tag">Oferta do dia</span>
-                        <h3 className="home-promo__title">Combo Casal</h3>
-                        <p className="home-promo__desc">2 Espetos + 1 Açaí grande</p>
-                        <button className="home-promo__btn">Peça agora</button>
+                        <span className="home-promo__tag" style={{ color: promoDestaque.cor_texto }}>Oferta do dia</span>
+                        <h3 className="home-promo__title" style={{ color: promoDestaque.cor_texto }}>{promoDestaque.titulo}</h3>
+                        <p className="home-promo__desc" style={{ color: promoDestaque.cor_texto }}>{promoDestaque.descricao}</p>
+                        <button
+                            className="home-promo__btn"
+                            style={{ background: promoDestaque.cor_texto, color: promoDestaque.cor_fundo }}
+                            onClick={() => promoDestaque.link && navigate(promoDestaque.link)}
+                        >
+                            Peça agora
+                        </button>
                     </div>
-                    <div className="home-promo__circle" />
                 </div>
             )}
 
