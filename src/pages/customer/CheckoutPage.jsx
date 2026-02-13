@@ -295,10 +295,7 @@ export default function CheckoutPage() {
                         <div className="checkout-payment-options">
                             <label className={`checkout-payment ${formaPagamento === 'pix' ? 'checkout-payment--active' : ''}`}>
                                 <input type="radio" name="pagamento" checked={formaPagamento === 'pix'} onChange={() => setFormaPagamento('pix')} />
-                                <div className="checkout-payment__info">
-                                    <span>💠 PIX</span>
-                                    <span className="checkout-payment__discount">-5% OFF</span>
-                                </div>
+                                <span>💠 PIX</span>
                             </label>
                             <label className={`checkout-payment ${formaPagamento === 'cartao' ? 'checkout-payment--active' : ''}`}>
                                 <input type="radio" name="pagamento" checked={formaPagamento === 'cartao'} onChange={() => setFormaPagamento('cartao')} />

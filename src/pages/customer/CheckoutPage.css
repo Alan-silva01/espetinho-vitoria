@@ -188,21 +188,6 @@
     gap: 8px;
 }
 
-.checkout-payment__info {
-    flex: 1;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.checkout-payment__discount {
-    font-size: 12px;
-    font-weight: 600;
-    color: #15803D;
-    background: #DCFCE7;
-    padding: 2px 8px;
-    border-radius: 4px;
-}
 
 /* Change */
 .checkout-change {
