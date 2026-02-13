@@ -695,3 +695,193 @@
     background: #F3F4F6;
     color: #9CA3AF;
 }
+
+/* Botões de Alternância de Visão */
+.btn-toggle-fast,
+.btn-toggle-addons {
+    padding: 10px 20px;
+    border-radius: 99px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-toggle-fast {
+    background: #F3F4F6;
+    color: #4B5563;
+    border: 1px solid #E5E7EB;
+}
+
+.btn-toggle-fast.active {
+    background: #111827;
+    color: white;
+    border-color: #111827;
+}
+
+.btn-toggle-addons {
+    background: #EFF6FF;
+    color: #2563EB;
+    border: 1px solid #BFDBFE;
+}
+
+.btn-toggle-addons.active {
+    background: #2563EB;
+    color: white;
+    border-color: #2563EB;
+}
+
+/* Addon Management Card */
+.addon-management-card {
+    background: white;
+    border-radius: 20px;
+    border: 1px solid #F3F4F6;
+    overflow: hidden;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.dark .addon-management-card {
+    background: #1F2937;
+    border-color: #374151;
+}
+
+.addon-card-header {
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid #F3F4F6;
+    background: #F9FAFB;
+}
+
+.dark .addon-card-header {
+    background: #111827;
+    border-color: #374151;
+}
+
+.addon-card-header img {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    object-fit: cover;
+}
+
+.addon-card-header h4 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.dark .addon-card-header h4 {
+    color: white;
+}
+
+.addon-groups-list {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.addon-group-item h5 {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #9CA3AF;
+    margin-bottom: 10px;
+    letter-spacing: 0.05em;
+}
+
+.addon-options-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.addon-toggle-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    background: #F9FAFB;
+    border-radius: 12px;
+    transition: all 0.2s;
+}
+
+.dark .addon-toggle-row {
+    background: #111827;
+}
+
+.addon-toggle-row.off {
+    opacity: 0.7;
+    background: #FEF2F2;
+}
+
+.dark .addon-toggle-row.off {
+    background: #451a1a;
+}
+
+.addon-toggle-row span {
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.dark .addon-toggle-row span {
+    color: #D1D5DB;
+}
+
+.addon-toggle-row.off span {
+    text-decoration: line-through;
+    color: #991B1B;
+}
+
+.dark .addon-toggle-row.off span {
+    color: #F87171;
+}
+
+/* Toggle Switch Styling */
+.addon-toggle-btn {
+    width: 42px;
+    height: 22px;
+    border-radius: 20px;
+    padding: 3px;
+    cursor: pointer;
+    border: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.addon-toggle-btn.on {
+    background-color: #10B981;
+}
+
+.addon-toggle-btn.off {
+    background-color: #E5E7EB;
+}
+
+.dark .addon-toggle-btn.off {
+    background-color: #4B5563;
+}
+
+.toggle-knob {
+    width: 16px;
+    height: 16px;
+    background-color: white;
+    border-radius: 50%;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.addon-toggle-btn.on .toggle-knob {
+    transform: translateX(20px);
+}

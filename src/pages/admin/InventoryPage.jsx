@@ -22,6 +22,7 @@ export default function InventoryPage() {
     const [saving, setSaving] = useState(false)
     const [savingItem, setSavingItem] = useState(null)
     const [isFastEntry, setIsFastEntry] = useState(false)
+    const [isAddonsMode, setIsAddonsMode] = useState(false)
 
     // Helper to normalize text (remove accents)
     const normalize = (text) => {
@@ -48,7 +49,7 @@ export default function InventoryPage() {
         // 1. Fetch products
         const { data: products } = await supabase
             .from('produtos')
-            .select('id, nome, imagem_url, quantidade_disponivel, controlar_estoque, categorias(nome)')
+            .select('id, nome, imagem_url, quantidade_disponivel, controlar_estoque, categorias(nome), opcoes_personalizacao')
             .order('nome')
 
         // 2. Fetch daily stock
@@ -218,6 +219,45 @@ export default function InventoryPage() {
         }
     }
 
+    const toggleAddonAvailability = async (productId, groupIndex, optionIndex) => {
+        const product = inventory.find(p => p.id === productId)
+        if (!product || !product.opcoes_personalizacao) return
+
+        const updatedPersonalization = [...product.opcoes_personalizacao]
+        const group = { ...updatedPersonalization[groupIndex] }
+        const options = [...group.opcoes]
+        const option = options[optionIndex]
+
+        const isAvailable = typeof option === 'string' ? true : (option.disponivel !== false)
+
+        const updatedOption = typeof option === 'string'
+            ? { nome: option, preco: 0, disponivel: !isAvailable }
+            : { ...option, disponivel: !isAvailable }
+
+        options[optionIndex] = updatedOption
+        group.opcoes = options
+        updatedPersonalization[groupIndex] = group
+
+        setSavingItem(`addon-${productId}-${groupIndex}-${optionIndex}`)
+        try {
+            const { error } = await supabase
+                .from('produtos')
+                .update({ opcoes_personalizacao: updatedPersonalization })
+                .eq('id', productId)
+
+            if (error) throw error
+
+            // Update local state
+            setInventory(prev => prev.map(p =>
+                p.id === productId ? { ...p, opcoes_personalizacao: updatedPersonalization } : p
+            ))
+        } catch (error) {
+            console.error('Erro ao atualizar acompanhamento:', error)
+        } finally {
+            setSavingItem(null)
+        }
+    }
+
     const groupedInventory = inventory.reduce((acc, item) => {
         const catName = item.categorias?.nome || 'Sem Categoria'
         if (!acc[catName]) acc[catName] = []
@@ -241,9 +281,21 @@ export default function InventoryPage() {
                     </div>
                     <button
                         className={`btn-toggle-fast ${isFastEntry ? 'active' : ''}`}
-                        onClick={() => setIsFastEntry(!isFastEntry)}
+                        onClick={() => {
+                            setIsFastEntry(!isFastEntry)
+                            setIsAddonsMode(false)
+                        }}
                     >
                         {isFastEntry ? 'Vista Normal' : 'Ajuste Rápido'}
+                    </button>
+                    <button
+                        className={`btn-toggle-addons ${isAddonsMode ? 'active' : ''}`}
+                        onClick={() => {
+                            setIsAddonsMode(!isAddonsMode)
+                            setIsFastEntry(false)
+                        }}
+                    >
+                        {isAddonsMode ? 'Gerenciar Estoque' : 'Ajustar Acompanhamentos'}
                     </button>
                     <button
                         className={`btn-save ${inventory.some(i => i.is_dirty) ? 'active' : ''}`}
@@ -341,92 +393,139 @@ export default function InventoryPage() {
                         </div>
                     ) : (
                         <div className="inventory-sections">
-                            {Object.entries(groupedInventory).map(([catName, items]) => (
-                                <section key={catName} className="inventory-group">
-                                    <div className="group-header">
-                                        <h3>{catName}</h3>
-                                        <button className="view-all">Ver todos <ChevronRight size={14} /></button>
-                                    </div>
-                                    <div className="inventory-grid-v2">
-                                        {(items || [])
-                                            .filter(matchesSearch)
-                                            .map(item => (
-                                                <div key={item.id} className={`inv-item-card ${item.atual === 0 ? 'empty' : item.percentage < 20 ? 'low' : ''} ${!item.controlar_estoque ? 'no-control' : ''}`}>
-                                                    <div className="item-img-box">
-                                                        <img src={item.imagem_url || 'https://via.placeholder.com/150'} alt={item.nome} />
-                                                        <div className="stock-label">
-                                                            {item.atual === 0 ? 'Esgotado' : item.percentage < 20 ? 'Baixo Estoque' : 'Em Estoque'}
-                                                        </div>
-                                                    </div>
-                                                    <div className="item-details">
-                                                        <div className="item-title">
+                            {Object.entries(groupedInventory).map(([catName, items]) => {
+                                const productsWithAddons = items.filter(i => i.opcoes_personalizacao?.length > 0 && matchesSearch(i))
+                                if (isAddonsMode && productsWithAddons.length === 0) return null
+
+                                return (
+                                    <section key={catName} className="inventory-group">
+                                        <div className="group-header">
+                                            <h3>{catName}</h3>
+                                            <button className="view-all">Ver todos <ChevronRight size={14} /></button>
+                                        </div>
+                                        <div className="inventory-grid-v2">
+                                            {isAddonsMode ? (
+                                                productsWithAddons.map(item => (
+                                                    <div key={item.id} className="addon-management-card">
+                                                        <div className="addon-card-header">
+                                                            <img src={item.imagem_url || 'https://via.placeholder.com/150'} alt="" />
                                                             <h4>{item.nome}</h4>
-                                                            <span className="sku">#ESP-{item.id.toString().slice(0, 2)}</span>
                                                         </div>
+                                                        <div className="addon-groups-list">
+                                                            {item.opcoes_personalizacao.map((group, gIdx) => (
+                                                                <div key={gIdx} className="addon-group-item">
+                                                                    <h5>{group.grupo}</h5>
+                                                                    <div className="addon-options-grid">
+                                                                        {group.opcoes.map((opt, oIdx) => {
+                                                                            const name = typeof opt === 'string' ? opt : opt.nome
+                                                                            const isAvailable = typeof opt === 'string' ? true : (opt.disponivel !== false)
+                                                                            const isSaving = savingItem === `addon-${item.id}-${gIdx}-${oIdx}`
 
-                                                        <div className="stock-metrics">
-                                                            <div className="metric-box">
-                                                                <span className="label">Inicial</span>
-                                                                <input
-                                                                    type="number"
-                                                                    value={item.inicial}
-                                                                    onChange={e => updateStock(item.id, 'inicial', e.target.value)}
-                                                                />
-                                                            </div>
-                                                            <div className="metric-box blue">
-                                                                <span className="label">Vendidos</span>
-                                                                <span className="val">{item.vendidos}</span>
-                                                            </div>
-                                                            <div className="metric-box green">
-                                                                <span className="label">Atual</span>
-                                                                <span className="val">{item.atual}</span>
-                                                            </div>
+                                                                            return (
+                                                                                <div key={oIdx} className={`addon-toggle-row ${!isAvailable ? 'off' : ''}`}>
+                                                                                    <span>{name}</span>
+                                                                                    <button
+                                                                                        className={`addon-toggle-btn ${isAvailable ? 'on' : 'off'}`}
+                                                                                        onClick={() => toggleAddonAvailability(item.id, gIdx, oIdx)}
+                                                                                        disabled={isSaving}
+                                                                                    >
+                                                                                        {isSaving ? (
+                                                                                            <RefreshCw size={12} className="animate-spin" />
+                                                                                        ) : (
+                                                                                            <div className="toggle-knob" />
+                                                                                        )}
+                                                                                    </button>
+                                                                                </div>
+                                                                            )
+                                                                        })}
+                                                                    </div>
+                                                                </div>
+                                                            ))}
                                                         </div>
-
-                                                        <div className="stock-progress">
-                                                            <div className="progress-info">
-                                                                <span>Status</span>
-                                                                <span>{Math.round(item.percentage)}%</span>
-                                                            </div>
-                                                            <div className="progress-bar">
-                                                                <div
-                                                                    className="fill"
-                                                                    style={{
-                                                                        width: `${item.percentage}%`,
-                                                                        background: item.percentage < 20 ? '#EF4444' : item.percentage < 50 ? '#F59E0B' : '#10B981'
-                                                                    }}
-                                                                />
-                                                            </div>
-                                                        </div>
-
-                                                        <button
-                                                            className={`btn-out-manual ${item.atual === 0 ? 'is-out' : ''}`}
-                                                            onClick={() => handleImmediateOut(item)}
-                                                            disabled={savingItem === item.id}
-                                                        >
-                                                            {savingItem === item.id ? (
-                                                                <>
-                                                                    <RefreshCw size={14} className="animate-spin" />
-                                                                    Salvando...
-                                                                </>
-                                                            ) : item.atual === 0 ? (
-                                                                <>
-                                                                    <CheckCircle2 size={14} />
-                                                                    Produto Esgotado
-                                                                </>
-                                                            ) : (
-                                                                <>
-                                                                    <XCircle size={14} />
-                                                                    Marcar Esgotado
-                                                                </>
-                                                            )}
-                                                        </button>
                                                     </div>
-                                                </div>
-                                            ))}
-                                    </div>
-                                </section>
-                            ))}
+                                                ))
+                                            ) : (
+                                                items
+                                                    .filter(matchesSearch)
+                                                    .map(item => (
+                                                        <div key={item.id} className={`inv-item-card ${item.atual === 0 ? 'empty' : item.percentage < 20 ? 'low' : ''} ${!item.controlar_estoque ? 'no-control' : ''}`}>
+                                                            <div className="item-img-box">
+                                                                <img src={item.imagem_url || 'https://via.placeholder.com/150'} alt={item.nome} />
+                                                                <div className="stock-label">
+                                                                    {item.atual === 0 ? 'Esgotado' : item.percentage < 20 ? 'Baixo Estoque' : 'Em Estoque'}
+                                                                </div>
+                                                            </div>
+                                                            <div className="item-details">
+                                                                <div className="item-title">
+                                                                    <h4>{item.nome}</h4>
+                                                                    <span className="sku">#ESP-{item.id.toString().slice(0, 2)}</span>
+                                                                </div>
+
+                                                                <div className="stock-metrics">
+                                                                    <div className="metric-box">
+                                                                        <span className="label">Inicial</span>
+                                                                        <input
+                                                                            type="number"
+                                                                            value={item.inicial}
+                                                                            onChange={e => updateStock(item.id, 'inicial', e.target.value)}
+                                                                        />
+                                                                    </div>
+                                                                    <div className="metric-box blue">
+                                                                        <span className="label">Vendidos</span>
+                                                                        <span className="val">{item.vendidos}</span>
+                                                                    </div>
+                                                                    <div className="metric-box green">
+                                                                        <span className="label">Atual</span>
+                                                                        <span className="val">{item.atual}</span>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div className="stock-progress">
+                                                                    <div className="progress-info">
+                                                                        <span>Status</span>
+                                                                        <span>{Math.round(item.percentage)}%</span>
+                                                                    </div>
+                                                                    <div className="progress-bar">
+                                                                        <div
+                                                                            className="fill"
+                                                                            style={{
+                                                                                width: `${item.percentage}%`,
+                                                                                background: item.percentage < 20 ? '#EF4444' : item.percentage < 50 ? '#F59E0B' : '#10B981'
+                                                                            }}
+                                                                        />
+                                                                    </div>
+                                                                </div>
+
+                                                                <button
+                                                                    className={`btn-out-manual ${item.atual === 0 ? 'is-out' : ''}`}
+                                                                    onClick={() => handleImmediateOut(item)}
+                                                                    disabled={savingItem === item.id}
+                                                                >
+                                                                    {savingItem === item.id ? (
+                                                                        <>
+                                                                            <RefreshCw size={14} className="animate-spin" />
+                                                                            Salvando...
+                                                                        </>
+                                                                    ) : item.atual === 0 ? (
+                                                                        <>
+                                                                            <CheckCircle2 size={14} />
+                                                                            Produto Esgotado
+                                                                        </>
+                                                                    ) : (
+                                                                        <>
+                                                                            <XCircle size={14} />
+                                                                            Marcar Esgotado
+                                                                        </>
+                                                                    )}
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    ))
+                                            )}
+                                        </div>
+                                    </section>
+                                )
+                            })}
                         </div>
                     )}
                 </div>
