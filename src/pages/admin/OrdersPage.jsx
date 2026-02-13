@@ -37,6 +37,10 @@ export default function OrdersPage() {
                         order.id === payload.new.id ? { ...order, ...payload.new } : order
                     ))
                 } else if (payload.eventType === 'INSERT') {
+                    // Tocar som de notificação
+                    const audio = new Audio('/notificacao.mp3')
+                    audio.play().catch(e => console.log('Erro ao tocar áudio (política do navegador):', e))
+
                     fetchOrders()
                 } else if (payload.eventType === 'DELETE') {
                     setOrders(prev => prev.filter(order => order.id !== payload.old.id))
