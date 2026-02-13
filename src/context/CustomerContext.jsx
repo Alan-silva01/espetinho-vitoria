@@ -83,41 +83,30 @@ export function CustomerProvider({ children }) {
         const targetId = explicitId || customer?.id
         if (!targetId) return
 
-        // 1. Prepare top-level columns to update
-        const toUpdate = {}
-        if (newData.nome) toUpdate.nome = newData.nome
-        if (newData.telefone) toUpdate.telefone = newData.telefone
-
-        // 2. Resolve current 'dados' to merge
-        let currentDados = customer?.dados || {}
-
-        // If we have an explicit ID but no 'customer' state (new user flow), 
-        // we might need to fetch current 'dados' or just overwrite/merge carefully.
-        // For simplicity and to avoid race conditions, let's treat 'newData' 
-        // as the updates for the 'dados' column if it's not a top-level column.
-
-        const { nome, telefone, ...onlyDados } = newData
-
-        const updatedDados = {
-            ...currentDados,
-            ...onlyDados
+        // Fetch current customer to get existing 'dados' if state is not available
+        let baseDados = customer?.dados || {}
+        if (!customer && explicitId) {
+            const { data } = await supabase
+                .from('clientes')
+                .select('dados')
+                .eq('id', explicitId)
+                .single()
+            if (data?.dados) baseDados = data.dados
         }
 
-        toUpdate.dados = updatedDados
+        const updatedDados = {
+            ...baseDados,
+            ...newData
+        }
 
         const { error } = await supabase
             .from('clientes')
-            .update(toUpdate)
+            .update({ dados: updatedDados })
             .eq('id', targetId)
 
         if (!error) {
-            // Update local state if it matches the current customer
             if (customer && customer.id === targetId) {
-                setCustomer(prev => ({
-                    ...prev,
-                    ...toUpdate,
-                    dados: updatedDados
-                }))
+                setCustomer(prev => ({ ...prev, dados: updatedDados }))
             }
             return true
         }
@@ -137,9 +126,6 @@ export function CustomerProvider({ children }) {
 
         if (newAddress) {
             updateObj.endereco = newAddress
-            // Also update top-level receiver name/phone if available
-            if (newAddress.nome_recebedor) updateObj.nome = newAddress.nome_recebedor
-            if (newAddress.telefone_recebedor) updateObj.telefone = newAddress.telefone_recebedor
         }
 
         await updateCustomerData(updateObj, targetId)
