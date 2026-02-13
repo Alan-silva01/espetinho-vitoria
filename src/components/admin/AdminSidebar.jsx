@@ -36,7 +36,7 @@ const navItems = [
     { to: '/admin/configuracoes', icon: Settings, label: 'Configurações' },
 ]
 
-export default function AdminSidebar({ adminInfo, currentPath, onLogout, isCollapsed, onToggle }) {
+export default function AdminSidebar({ adminInfo, currentPath, onLogout, isCollapsed, onToggle, onCloseMobile }) {
     const [isHovered, setIsHovered] = useState(false)
     const isExpanded = !isCollapsed || isHovered
 

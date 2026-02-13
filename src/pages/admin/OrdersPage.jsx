@@ -28,7 +28,6 @@ export default function OrdersPage() {
 
     useEffect(() => {
         fetchOrders()
-        // ... existing realtime logic ...
 
         const channel = supabase
             .channel('orders_realtime')
