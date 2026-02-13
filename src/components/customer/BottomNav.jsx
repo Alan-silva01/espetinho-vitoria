@@ -24,10 +24,8 @@ export default function BottomNav() {
 
     const tabs = [
         { path: '/', icon: Home, label: 'Início' },
-        { path: '/pedidos', icon: ClipboardList, label: 'Pedidos' },
         { path: '/carrinho', icon: ShoppingCart, label: '', isCenter: true },
         { path: '/favoritos', icon: Heart, label: 'Favoritos' },
-        { path: '/perfil', icon: User, label: 'Perfil' },
     ]
 
     return (
