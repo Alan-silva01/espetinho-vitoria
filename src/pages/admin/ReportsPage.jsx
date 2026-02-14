@@ -22,22 +22,53 @@ export default function ReportsPage() {
     const [chartData, setChartData] = useState([])
     const [paymentData, setPaymentData] = useState([])
     const [categoryData, setCategoryData] = useState([])
+    const [period, setPeriod] = useState('Este Mês')
+    const [loading, setLoading] = useState(true)
+
+    // Advanced Filters State
+    const [filterMode, setFilterMode] = useState('quick') // 'quick' or 'advanced'
+    const [advancedType, setAdvancedType] = useState('month') // 'day', 'month', 'year'
+    const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0])
+    const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth())
+    const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
 
     useEffect(() => {
         fetchReportsData()
-    }, [period])
+    }, [period, filterMode, advancedType, selectedDate, selectedMonth, selectedYear])
 
     async function fetchReportsData() {
         setLoading(true)
         try {
             let startDate = new Date()
-            if (period === 'Hoje') startDate.setHours(0, 0, 0, 0)
-            else if (period === 'Ontem') {
-                startDate.setDate(startDate.getDate() - 1)
-                startDate.setHours(0, 0, 0, 0)
+            let endDate = new Date()
+
+            if (filterMode === 'quick') {
+                if (period === 'Hoje') {
+                    startDate.setHours(0, 0, 0, 0)
+                } else if (period === 'Ontem') {
+                    startDate.setDate(startDate.getDate() - 1)
+                    startDate.setHours(0, 0, 0, 0)
+                    endDate.setDate(endDate.getDate() - 1)
+                    endDate.setHours(23, 59, 59, 999)
+                } else if (period === 'Últimos 7 dias') {
+                    startDate.setDate(startDate.getDate() - 7)
+                    startDate.setHours(0, 0, 0, 0)
+                } else { // Este Mês
+                    startDate.setDate(1)
+                    startDate.setHours(0, 0, 0, 0)
+                }
+            } else {
+                if (advancedType === 'day') {
+                    startDate = new Date(selectedDate + 'T00:00:00')
+                    endDate = new Date(selectedDate + 'T23:59:59')
+                } else if (advancedType === 'month') {
+                    startDate = new Date(selectedYear, selectedMonth, 1, 0, 0, 0)
+                    endDate = new Date(selectedYear, selectedMonth + 1, 0, 23, 59, 59)
+                } else { // Year
+                    startDate = new Date(selectedYear, 0, 1, 0, 0, 0)
+                    endDate = new Date(selectedYear, 11, 31, 23, 59, 59)
+                }
             }
-            else if (period === 'Últimos 7 dias') startDate.setDate(startDate.getDate() - 7)
-            else startDate.setDate(1) // Este Mês
 
             const { data: orders } = await supabase
                 .from('pedidos')
@@ -46,6 +77,7 @@ export default function ReportsPage() {
                     itens:itens_pedido(quantidade, produtos(categorias(nome)))
                 `)
                 .gte('criado_em', startDate.toISOString())
+                .lte('criado_em', endDate.toISOString())
 
             if (orders) {
                 const revenue = orders.reduce((sum, o) => sum + Number(o.valor_total), 0)
@@ -84,11 +116,36 @@ export default function ReportsPage() {
                     color: name === 'Espetinhos' ? '#C62828' : '#3B82F6'
                 })).sort((a, b) => b.percent - a.percent))
 
-                // Chart data (Simplified simple timeline)
-                setChartData(orders.slice(-7).map(o => ({
-                    name: new Date(o.criado_em).toLocaleDateString('pt-BR', { day: '2-digit' }),
-                    v: Number(o.valor_total)
-                })))
+                // Chart data - GROUP BY DAY or MONTH
+                const dailyData = {}
+                const isYearView = filterMode === 'advanced' && advancedType === 'year'
+
+                if (isYearView) {
+                    const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
+                    months.forEach(m => dailyData[m] = 0)
+
+                    orders.forEach(o => {
+                        const mIdx = new Date(o.criado_em).getMonth()
+                        dailyData[months[mIdx]] += Number(o.valor_total)
+                    })
+                } else {
+                    const tempDate = new Date(startDate)
+                    while (tempDate <= endDate) {
+                        const label = tempDate.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }).replace('.', '')
+                        dailyData[label] = 0
+                        tempDate.setDate(tempDate.getDate() + 1)
+                        if (Object.keys(dailyData).length > 31) break // Security break
+                    }
+
+                    orders.forEach(o => {
+                        const label = new Date(o.criado_em).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }).replace('.', '')
+                        if (dailyData[label] !== undefined) {
+                            dailyData[label] += Number(o.valor_total)
+                        }
+                    })
+                }
+
+                setChartData(Object.entries(dailyData).map(([name, v]) => ({ name, v })))
             }
         } catch (err) {
             console.error('Reports Error:', err)
@@ -106,19 +163,72 @@ export default function ReportsPage() {
                     <h1>Relatórios e Análises</h1>
                     <p>Visão detalhada do desempenho do seu negócio</p>
                 </div>
-                <div className="header-actions">
-                    <div className="period-selector">
-                        <select value={period} onChange={e => setPeriod(e.target.value)}>
-                            <option>Hoje</option>
-                            <option>Ontem</option>
-                            <option>Últimos 7 dias</option>
-                            <option>Este Mês</option>
-                        </select>
-                        <ChevronDown size={16} />
+                <div className="header-actions-complex">
+                    <div className="filter-mode-tabs">
+                        <button
+                            className={filterMode === 'quick' ? 'active' : ''}
+                            onClick={() => setFilterMode('quick')}
+                        >
+                            Rápido
+                        </button>
+                        <button
+                            className={filterMode === 'advanced' ? 'active' : ''}
+                            onClick={() => setFilterMode('advanced')}
+                        >
+                            Personalizado
+                        </button>
                     </div>
+
+                    {filterMode === 'quick' ? (
+                        <div className="period-selector">
+                            <select value={period} onChange={e => setPeriod(e.target.value)}>
+                                <option>Hoje</option>
+                                <option>Ontem</option>
+                                <option>Últimos 7 dias</option>
+                                <option>Este Mês</option>
+                            </select>
+                            <ChevronDown size={16} />
+                        </div>
+                    ) : (
+                        <div className="advanced-filter-controls">
+                            <select value={advancedType} onChange={e => setAdvancedType(e.target.value)}>
+                                <option value="day">Dia</option>
+                                <option value="month">Mês</option>
+                                <option value="year">Ano</option>
+                            </select>
+
+                            {advancedType === 'day' && (
+                                <input
+                                    type="date"
+                                    value={selectedDate}
+                                    onChange={e => setSelectedDate(e.target.value)}
+                                />
+                            )}
+
+                            {advancedType === 'month' && (
+                                <>
+                                    <select value={selectedMonth} onChange={e => setSelectedMonth(Number(e.target.value))}>
+                                        {['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'].map((m, i) => (
+                                            <option key={i} value={i}>{m}</option>
+                                        ))}
+                                    </select>
+                                    <select value={selectedYear} onChange={e => setSelectedYear(Number(e.target.value))}>
+                                        {[2024, 2025, 2026].map(y => <option key={y} value={y}>{y}</option>)}
+                                    </select>
+                                </>
+                            )}
+
+                            {advancedType === 'year' && (
+                                <select value={selectedYear} onChange={e => setSelectedYear(Number(e.target.value))}>
+                                    {[2024, 2025, 2026].map(y => <option key={y} value={y}>{y}</option>)}
+                                </select>
+                            )}
+                        </div>
+                    )}
+
                     <button className="btn-export">
                         <Download size={18} />
-                        <span>Exportar PDF</span>
+                        <span>PDF</span>
                     </button>
                 </div>
             </header>

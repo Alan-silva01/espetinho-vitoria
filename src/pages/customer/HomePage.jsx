@@ -135,7 +135,7 @@ export default function HomePage() {
             <header className="home-header">
                 <div className="home-header__left">
                     <div className="home-header__logo">
-                        <Flame size={20} color="#C41E2E" />
+                        <img src="/logo.png" alt="Logo" className="home-header__logo-img" />
                     </div>
                     <div>
                         <p className="home-header__welcome">Bem-vindo ao</p>
