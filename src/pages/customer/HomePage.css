@@ -26,6 +26,8 @@
 .home-header__logo {
     width: 40px;
     height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
