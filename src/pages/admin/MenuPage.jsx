@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import {
     Plus, Search, MoreVertical, Edit2,
     Trash2, Image as ImageIcon, Check, X,
@@ -36,6 +37,12 @@ export default function MenuPage() {
     const [uploading, setUploading] = useState(false)
     const [uploadProgress, setUploadProgress] = useState(0)
 
+    // Variations state
+    const [variations, setVariations] = useState([])
+    const [deletedVariationIds, setDeletedVariationIds] = useState([])
+    const [newVarName, setNewVarName] = useState('')
+    const [newVarPrice, setNewVarPrice] = useState('')
+
     // Delete confirmation state
     const [deleteConfirm, setDeleteConfirm] = useState({ open: false, id: null, loading: false, error: null })
 
@@ -50,7 +57,8 @@ export default function MenuPage() {
             .from('produtos')
             .select(`
                 *,
-                categorias(nome)
+                categorias(nome),
+                variacoes_produto(*)
             `)
             .order('nome')
 
@@ -73,6 +81,10 @@ export default function MenuPage() {
             controlar_estoque: product.controlar_estoque || false,
             opcoes_personalizacao: product.opcoes_personalizacao || []
         })
+        setVariations((product.variacoes_produto || []).map(v => ({ ...v })))
+        setDeletedVariationIds([])
+        setNewVarName('')
+        setNewVarPrice('')
         setNewOptionText({})
         setNewOptionPrice({})
         setIsModalOpen(true)
@@ -139,6 +151,7 @@ export default function MenuPage() {
         }
 
         let error
+        let productId = editingProduct?.id
         if (editingProduct) {
             const { error: err } = await supabase
                 .from('produtos')
@@ -146,10 +159,38 @@ export default function MenuPage() {
                 .eq('id', editingProduct.id)
             error = err
         } else {
-            const { error: err } = await supabase
+            const { data: newProd, error: err } = await supabase
                 .from('produtos')
                 .insert([payload])
+                .select('id')
+                .single()
             error = err
+            if (newProd) productId = newProd.id
+        }
+
+        if (!error && productId) {
+            // --- Save variations ---
+            // Delete removed variations
+            if (deletedVariationIds.length > 0) {
+                await supabase.from('variacoes_produto').delete().in('id', deletedVariationIds)
+            }
+            // Upsert variations
+            for (const v of variations) {
+                const varPayload = {
+                    produto_id: productId,
+                    nome: v.nome,
+                    preco: parseFloat(v.preco) || 0,
+                    disponivel: v.disponivel !== false,
+                    imagem_url: v.imagem_url || null,
+                }
+                if (v.id && typeof v.id === 'string' && !v.id.startsWith('new-')) {
+                    // Existing variation — update
+                    await supabase.from('variacoes_produto').update(varPayload).eq('id', v.id)
+                } else {
+                    // New variation — insert
+                    await supabase.from('variacoes_produto').insert([varPayload])
+                }
+            }
         }
 
         if (!error) {
@@ -167,6 +208,10 @@ export default function MenuPage() {
                 controlar_estoque: false,
                 opcoes_personalizacao: []
             })
+            setVariations([])
+            setDeletedVariationIds([])
+            setNewVarName('')
+            setNewVarPrice('')
             setNewOptionText({})
             setNewOptionPrice({})
             fetchData()
@@ -243,6 +288,44 @@ export default function MenuPage() {
         }
     }
 
+    // --- Variation Management ---
+    const addVariation = () => {
+        const name = newVarName.trim()
+        if (!name) return
+        setVariations(prev => [
+            ...prev,
+            { id: `new-${Date.now()}`, nome: name, preco: parseFloat(newVarPrice) || 0, disponivel: true, imagem_url: '' }
+        ])
+        setNewVarName('')
+        setNewVarPrice('')
+    }
+
+    const removeVariation = (idx) => {
+        const v = variations[idx]
+        if (v.id && typeof v.id === 'string' && !v.id.startsWith('new-')) {
+            setDeletedVariationIds(prev => [...prev, v.id])
+        }
+        setVariations(prev => prev.filter((_, i) => i !== idx))
+    }
+
+    const updateVariation = (idx, field, value) => {
+        setVariations(prev => {
+            const updated = [...prev]
+            updated[idx] = { ...updated[idx], [field]: value }
+            return updated
+        })
+    }
+
+    const handleVariationImageUpload = async (idx, file) => {
+        if (!file || !isCloudinaryConfigured) return
+        try {
+            const result = await uploadImage(file, { folder: 'espetinho-vitoria/variacoes' })
+            updateVariation(idx, 'imagem_url', result.url)
+        } catch (err) {
+            alert('Erro no upload: ' + err.message)
+        }
+    }
+
     const handleToggleDisponivel = async (product) => {
         const { error } = await supabase
             .from('produtos')
@@ -277,7 +360,17 @@ export default function MenuPage() {
                             onChange={e => setSearchTerm(e.target.value)}
                         />
                     </div>
-                    <button className="btn-add-product" onClick={() => setIsModalOpen(true)}>
+                    <button className="btn-add-product" onClick={() => {
+                        setEditingProduct(null)
+                        setFormData({ nome: '', descricao: '', preco: '', categoria_id: '', imagem_url: '', disponivel: true, item_upsell: false, quantidade_disponivel: 0, controlar_estoque: false, opcoes_personalizacao: [] })
+                        setVariations([])
+                        setDeletedVariationIds([])
+                        setNewVarName('')
+                        setNewVarPrice('')
+                        setNewOptionText({})
+                        setNewOptionPrice({})
+                        setIsModalOpen(true)
+                    }}>
                         <Plus size={20} />
                         <span>Novo Produto</span>
                     </button>
@@ -342,7 +435,7 @@ export default function MenuPage() {
             </div>
 
             {/* Modal de Produto */}
-            {isModalOpen && (
+            {isModalOpen && createPortal(
                 <div className="admin-modal-overlay">
                     <div className="admin-modal-card animate-scale-in">
                         <div className="modal-header">
@@ -460,6 +553,98 @@ export default function MenuPage() {
                                             placeholder="Descreva os detalhes do produto..."
                                             rows={4}
                                         />
+                                    </div>
+
+                                    {/* Variations Editor (Sabores/Tamanhos) */}
+                                    <div className="input-group-premium">
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                                            <label style={{ margin: 0 }}>
+                                                <Tag size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 6 }} />
+                                                Variações (Sabores / Tamanhos)
+                                            </label>
+                                        </div>
+
+                                        {variations.length === 0 && (
+                                            <p style={{ fontSize: 13, color: '#9ca3af', fontStyle: 'italic' }}>
+                                                Nenhuma variação. Adicione sabores (ex: Laranja, Acerola) ou tamanhos (ex: 300ml, 500ml).
+                                            </p>
+                                        )}
+
+                                        <div className="variations-list">
+                                            {variations.map((v, idx) => (
+                                                <div key={v.id} className="variation-item">
+                                                    <div className="variation-item__img-area">
+                                                        {v.imagem_url ? (
+                                                            <div className="variation-item__img-preview">
+                                                                <img src={v.imagem_url} alt={v.nome} />
+                                                                <button type="button" className="variation-item__img-remove" onClick={() => updateVariation(idx, 'imagem_url', '')}>
+                                                                    <X size={10} />
+                                                                </button>
+                                                            </div>
+                                                        ) : (
+                                                            <label className="variation-item__img-upload">
+                                                                <ImageIcon size={16} />
+                                                                <input type="file" accept="image/*" style={{ display: 'none' }} onChange={e => handleVariationImageUpload(idx, e.target.files[0])} />
+                                                            </label>
+                                                        )}
+                                                    </div>
+                                                    <input
+                                                        type="text"
+                                                        className="variation-item__name"
+                                                        value={v.nome}
+                                                        onChange={e => updateVariation(idx, 'nome', e.target.value)}
+                                                        placeholder="Nome..."
+                                                    />
+                                                    <input
+                                                        type="number"
+                                                        className="variation-item__price"
+                                                        value={v.preco}
+                                                        onChange={e => updateVariation(idx, 'preco', e.target.value)}
+                                                        placeholder="R$"
+                                                        step="0.50"
+                                                        min="0"
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        className="variation-item__toggle"
+                                                        onClick={() => updateVariation(idx, 'disponivel', !v.disponivel)}
+                                                        title={v.disponivel !== false ? 'Disponível' : 'Esgotado'}
+                                                    >
+                                                        <div style={{
+                                                            width: 8, height: 8, borderRadius: '50%',
+                                                            backgroundColor: v.disponivel !== false ? '#10B981' : '#EF4444'
+                                                        }} />
+                                                    </button>
+                                                    <button type="button" className="variation-item__remove" onClick={() => removeVariation(idx)}>
+                                                        <Trash2 size={14} />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        <div className="custom-group-editor__add-row">
+                                            <input
+                                                type="text"
+                                                placeholder="Nome da variação..."
+                                                value={newVarName}
+                                                onChange={e => setNewVarName(e.target.value)}
+                                                onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addVariation() } }}
+                                                style={{ flex: 2 }}
+                                            />
+                                            <input
+                                                type="number"
+                                                placeholder="R$ Preço"
+                                                value={newVarPrice}
+                                                onChange={e => setNewVarPrice(e.target.value)}
+                                                onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addVariation() } }}
+                                                style={{ flex: 1, minWidth: 100 }}
+                                                step="0.50"
+                                                min="0"
+                                            />
+                                            <button type="button" onClick={addVariation}>
+                                                <Plus size={14} />
+                                            </button>
+                                        </div>
                                     </div>
 
                                     {/* Customization Options Editor */}
@@ -608,7 +793,8 @@ export default function MenuPage() {
                             </div>
                         </form>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
 
             {/* Quick Stats footer as in reference */}
@@ -621,7 +807,7 @@ export default function MenuPage() {
             </div>
 
             {/* Modal de Confirmação de Exclusão */}
-            {deleteConfirm.open && (
+            {deleteConfirm.open && createPortal(
                 <div className="admin-modal-overlay">
                     <div className="modal-confirm-delete animate-scale-in">
                         <div className="confirm-icon-box">
@@ -653,7 +839,8 @@ export default function MenuPage() {
                             </button>
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     )

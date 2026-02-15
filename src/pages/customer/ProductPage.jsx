@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, Heart, Share2, Minus, Plus, Check } from 'lucide-react'
+import { ArrowLeft, Heart, Share2, Minus, Plus, Check, ShoppingCart } from 'lucide-react'
 import { useProduct } from '../../hooks/useProducts'
 import { useCart } from '../../hooks/useCart'
 import { formatCurrency, getImageUrl } from '../../lib/utils'
@@ -133,7 +133,7 @@ export default function ProductPage() {
         return group.opcoes.some(opt => optPreco(opt) > 0)
     }
 
-    function handleAdd() {
+    function handleAdd(e) {
         // Build options summary for display
         const optionsSummary = Object.entries(selectedOptions)
             .filter(([, val]) => (Array.isArray(val) ? val.length > 0 : val))
@@ -151,7 +151,34 @@ export default function ProductPage() {
             personalizacao: selectedOptions,
             eh_upsell: false,
         })
-        navigate('/carrinho')
+
+        // --- Fly-to-Cart Animation ---
+        const btn = e.currentTarget
+        const rect = btn.getBoundingClientRect()
+        // Try to find the cart icon in the header (ProductPage) or BottomNav (if visible)
+        const cart = document.querySelector('.product-hero__cart-btn') || document.querySelector('.bottom-nav__cart-btn')
+
+        if (cart) {
+            const cartRect = cart.getBoundingClientRect()
+            const fly = document.createElement('div')
+            fly.className = 'fly-to-cart'
+            fly.style.left = `${rect.left + rect.width / 2}px`
+            fly.style.top = `${rect.top + rect.height / 2}px`
+            fly.style.setProperty('--dx', `${cartRect.left + cartRect.width / 2 - (rect.left + rect.width / 2)}px`)
+            fly.style.setProperty('--dy', `${cartRect.top + cartRect.height / 2 - (rect.top + rect.height / 2)}px`)
+            document.body.appendChild(fly)
+
+            fly.addEventListener('animationend', () => {
+                fly.remove()
+                cart.classList.add('cart-bounce')
+                setTimeout(() => cart.classList.remove('cart-bounce'), 400)
+                // Navigate after animation
+                navigate('/carrinho')
+            })
+        } else {
+            // Fallback if no cart visible
+            navigate('/carrinho')
+        }
     }
 
     return (
@@ -177,6 +204,9 @@ export default function ProductPage() {
                         <ArrowLeft size={20} />
                     </button>
                     <div className="product-hero__actions">
+                        <button className="product-hero__btn product-hero__cart-btn" onClick={() => navigate('/carrinho')}>
+                            <ShoppingCart size={20} />
+                        </button>
                         <button className="product-hero__btn"><Heart size={20} /></button>
                         <button className="product-hero__btn"><Share2 size={20} /></button>
                     </div>
@@ -290,9 +320,22 @@ export default function ProductPage() {
                                                 )}
                                                 <div className="product-addon-item__info">
                                                     <span className="product-addon-item__name">{name}</span>
-                                                    {price > 0 && (
-                                                        <span className="product-addon-item__price">+{formatCurrency(price)}</span>
-                                                    )}
+                                                    {(() => {
+                                                        if (group.tipo === 'radio') {
+                                                            const showTotal = price > 0 || customizations.length === 1 || group.grupo === 'Tamanho'
+                                                            if (showTotal) {
+                                                                return (
+                                                                    <span className="product-addon-item__price">
+                                                                        {formatCurrency((product.preco || 0) + price)}
+                                                                    </span>
+                                                                )
+                                                            }
+                                                            return null
+                                                        }
+                                                        return price > 0 && (
+                                                            <span className="product-addon-item__price">+{formatCurrency(price)}</span>
+                                                        )
+                                                    })()}
                                                 </div>
                                             </div>
                                             <div className={`product-addon-item__check ${selected ? 'product-addon-item__check--active' : ''}`}>
@@ -311,9 +354,12 @@ export default function ProductPage() {
                     <h3>Alguma observação?</h3>
                     <textarea
                         className="product-notes"
-                        placeholder={product.nome.toLowerCase().includes('açaí')
-                            ? "Ex: Acompanhamentos separados, enviar colher..."
-                            : "Ex: Tirar a cebola, caprichar no sal..."
+                        placeholder={
+                            product.nome.toLowerCase().includes('suco') || product.nome.toLowerCase().includes('refrigerante') || product.categoria_id === 'bebidas'
+                                ? "Ex: Sem gelo, pouco açúcar..."
+                                : product.nome.toLowerCase().includes('açaí')
+                                    ? "Ex: Acompanhamentos separados, enviar colher..."
+                                    : "Ex: Tirar a cebola, caprichar no sal..."
                         }
                         value={notes}
                         onChange={e => setNotes(e.target.value)}

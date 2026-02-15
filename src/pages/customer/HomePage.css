@@ -566,34 +566,30 @@
     position: fixed;
     z-index: 9999;
     pointer-events: none;
-    font-size: 22px;
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    width: 24px;
+    height: 24px;
     background: var(--cor-primaria);
-    border-radius: 50%;
-    box-shadow: 0 4px 16px rgba(196, 30, 46, 0.4);
-    transform: translate(-50%, -50%);
+    border-radius: 0 50% 50% 50%;
+    transform: rotate(45deg);
+    box-shadow: 0 4px 10px rgba(196, 30, 46, 0.4);
     animation: flyToCart 0.7s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
 }
 
 @keyframes flyToCart {
     0% {
         opacity: 1;
-        transform: translate(-50%, -50%) scale(1);
+        transform: translate(-50%, -50%) rotate(45deg) scale(1);
     }
 
     30% {
         opacity: 1;
         transform: translate(calc(-50% + var(--dx) * 0.15),
-                calc(-50% + var(--dy) * 0.4 - 60px)) scale(1.15);
+                calc(-50% + var(--dy) * 0.4 - 60px)) rotate(45deg) scale(1.15);
     }
 
     100% {
         opacity: 0;
         transform: translate(calc(-50% + var(--dx)),
-                calc(-50% + var(--dy))) scale(0.3);
+                calc(-50% + var(--dy))) rotate(135deg) scale(0.2);
     }
 }

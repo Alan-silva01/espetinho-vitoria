@@ -3,7 +3,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap');
 
 /* ---------- Reset & Base ---------- */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -105,13 +107,33 @@ body {
 }
 
 /* ---------- Typography ---------- */
-h1, h2, h3 { font-family: var(--fonte-destaque); }
-h1 { font-weight: 800; font-size: 28px; }
-h2 { font-weight: 700; font-size: 22px; }
-h3 { font-weight: 600; font-size: 18px; }
+h1,
+h2,
+h3 {
+  font-family: var(--fonte-destaque);
+}
+
+h1 {
+  font-weight: 800;
+  font-size: 28px;
+}
+
+h2 {
+  font-weight: 700;
+  font-size: 22px;
+}
+
+h3 {
+  font-weight: 600;
+  font-size: 18px;
+}
 
 /* ---------- Links & Buttons Reset ---------- */
-a { color: inherit; text-decoration: none; }
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
 button {
   font-family: inherit;
   border: none;
@@ -119,7 +141,10 @@ button {
   cursor: pointer;
   font-size: inherit;
 }
-input, select, textarea {
+
+input,
+select,
+textarea {
   font-family: inherit;
   font-size: inherit;
   border: none;
@@ -127,50 +152,106 @@ input, select, textarea {
 }
 
 /* ---------- Scrollbar Hide ---------- */
-.hide-scrollbar::-webkit-scrollbar { display: none; }
-.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
 
 /* ---------- Animations ---------- */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes slideUp {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
+  from {
+    transform: translateY(100%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
 }
 
 @keyframes slideDown {
-  from { transform: translateY(-100%); }
-  to { transform: translateY(0); }
+  from {
+    transform: translateY(-100%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
 }
 
 @keyframes press {
-  0% { transform: scale(1); }
-  50% { transform: scale(0.96); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(0.96);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 
 @keyframes addToCart {
-  0% { transform: scale(1); }
-  30% { transform: scale(1.15); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+
+  30% {
+    transform: scale(1.15);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 .animate-fade-in {
@@ -182,8 +263,14 @@ input, select, textarea {
 }
 
 /* ---------- Utility Classes ---------- */
-.container { max-width: 430px; margin: 0 auto; }
-.page-padding { padding: 0 var(--padding-pagina); }
+.container {
+  max-width: 430px;
+  margin: 0 auto;
+}
+
+.page-padding {
+  padding: 0 var(--padding-pagina);
+}
 
 .text-price {
   font-family: var(--fonte-destaque);
@@ -210,4 +297,41 @@ input, select, textarea {
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   border-radius: var(--raio-md);
+}
+
+/* ===== Fly-to-Cart Animation (Global) ===== */
+.fly-to-cart {
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none;
+  width: 24px;
+  height: 24px;
+  background: var(--cor-primaria);
+  border-radius: 0 50% 50% 50%;
+  transform: rotate(45deg);
+  box-shadow: 0 4px 10px rgba(196, 30, 46, 0.4);
+  animation: flyToCart 0.7s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+
+@keyframes flyToCart {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(45deg) scale(1);
+  }
+
+  30% {
+    opacity: 1;
+    transform: translate(calc(-50% + var(--dx) * 0.15),
+        calc(-50% + var(--dy) * 0.4 - 60px)) rotate(45deg) scale(1.15);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--dx)),
+        calc(-50% + var(--dy))) rotate(135deg) scale(0.2);
+  }
+}
+
+.cart-bounce {
+  animation: addToCart 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }

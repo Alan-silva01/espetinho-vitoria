@@ -854,3 +854,131 @@
     color: #991B1B;
     opacity: 0.8;
 }
+
+/* ===== Variation Items ===== */
+.variations-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.variation-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background: white;
+    border: 1px solid #E5E7EB;
+    border-radius: 10px;
+    transition: box-shadow 0.2s;
+}
+
+.dark .variation-item {
+    background: #1F2937;
+    border-color: #4B5563;
+}
+
+.variation-item:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.variation-item__img-area {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+}
+
+.variation-item__img-preview {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.variation-item__img-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.variation-item__img-remove {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 18px;
+    height: 18px;
+    background: #EF4444;
+    color: white;
+    border: 2px solid white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+}
+
+.variation-item__img-upload {
+    width: 40px;
+    height: 40px;
+    border: 2px dashed #D1D5DB;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #9CA3AF;
+    transition: all 0.2s;
+}
+
+.variation-item__img-upload:hover {
+    border-color: #B91C1C;
+    color: #B91C1C;
+}
+
+.variation-item__name {
+    flex: 2;
+    padding: 6px 10px !important;
+    font-size: 13px !important;
+    border-radius: 8px !important;
+    min-width: 0;
+}
+
+.variation-item__price {
+    flex: 1;
+    max-width: 100px;
+    padding: 6px 10px !important;
+    font-size: 13px !important;
+    border-radius: 8px !important;
+}
+
+.variation-item__toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 4px;
+    flex-shrink: 0;
+}
+
+.variation-item__remove {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: #FEE2E2;
+    color: #DC2626;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.2s;
+}
+
+.variation-item__remove:hover {
+    background: #FCA5A5;
+}

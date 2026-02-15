@@ -317,8 +317,8 @@ export default function CheckoutPage() {
                                 <input type="radio" name="pagamento" checked={formaPagamento === 'pix'} onChange={() => setFormaPagamento('pix')} />
                                 <span>💠 PIX</span>
                             </label>
-                            <label className={`checkout-payment ${formaPagamento === 'cartao' ? 'checkout-payment--active' : ''}`}>
-                                <input type="radio" name="pagamento" checked={formaPagamento === 'cartao'} onChange={() => setFormaPagamento('cartao')} />
+                            <label className={`checkout-payment ${formaPagamento === 'cartao_entrega' ? 'checkout-payment--active' : ''}`}>
+                                <input type="radio" name="pagamento" checked={formaPagamento === 'cartao_entrega'} onChange={() => setFormaPagamento('cartao_entrega')} />
                                 <span>💳 Cartão (Entrega)</span>
                             </label>
                             <label className={`checkout-payment ${formaPagamento === 'dinheiro' ? 'checkout-payment--active' : ''}`}>

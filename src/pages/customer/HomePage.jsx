@@ -261,7 +261,7 @@ export default function HomePage() {
                                             const cartRect = cart.getBoundingClientRect()
                                             const fly = document.createElement('div')
                                             fly.className = 'fly-to-cart'
-                                            fly.textContent = '🍖'
+                                            // fly.textContent = '🍖' // Removed for pure CSS shape
                                             fly.style.left = `${rect.left + rect.width / 2}px`
                                             fly.style.top = `${rect.top + rect.height / 2}px`
                                             fly.style.setProperty('--dx', `${cartRect.left + cartRect.width / 2 - (rect.left + rect.width / 2)}px`)
@@ -301,7 +301,7 @@ export default function HomePage() {
                         <button
                             className="home-promo__btn"
                             style={{ background: promoDestaque.cor_texto, color: promoDestaque.cor_fundo }}
-                            onClick={() => {
+                            onClick={(e) => {
                                 const desc = promoDestaque.itens?.length > 0
                                     ? `Inclui: ${promoDestaque.itens.join(', ')}`
                                     : promoDestaque.descricao
@@ -324,7 +324,7 @@ export default function HomePage() {
                                     const cartRect = cart.getBoundingClientRect()
                                     const fly = document.createElement('div')
                                     fly.className = 'fly-to-cart'
-                                    fly.textContent = '🎁'
+                                    // fly.textContent = '🎁' // Removed for pure CSS shape
                                     fly.style.left = `${rect.left + rect.width / 2}px`
                                     fly.style.top = `${rect.top + rect.height / 2}px`
                                     fly.style.setProperty('--dx', `${cartRect.left + cartRect.width / 2 - (rect.left + rect.width / 2)}px`)
