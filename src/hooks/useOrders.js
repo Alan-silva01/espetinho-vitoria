@@ -173,3 +173,58 @@ export function useOrderTracking(orderId) {
 
     return { order, loading }
 }
+
+export function useCustomerOrders(clienteId) {
+    const [orders, setOrders] = useState([])
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        if (!clienteId) {
+            setLoading(false)
+            return
+        }
+
+        async function fetchOrders() {
+            setLoading(true)
+            try {
+                const { data, error } = await supabase
+                    .from('pedidos')
+                    .select('*')
+                    .eq('cliente_id', clienteId)
+                    .order('created_at', { ascending: false })
+
+                if (!error) setOrders(data)
+            } catch (err) {
+                console.error('Erro ao buscar pedidos do cliente:', err)
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        fetchOrders()
+
+        // Realtime subscription for updates (e.g., status changes)
+        const channel = supabase
+            .channel(`cliente-pedidos-${clienteId}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'pedidos',
+                    filter: `cliente_id=eq.${clienteId}`,
+                },
+                () => {
+                    fetchOrders()
+                }
+            )
+            .subscribe()
+
+        return () => {
+            supabase.removeChannel(channel)
+        }
+    }, [clienteId])
+
+    return { orders, loading }
+}
+
