@@ -232,6 +232,17 @@ export default function ProductPage() {
 
                 {/* Customization Options */}
                 {customizations.map((group, gIdx) => {
+                    // Check if group has any available options
+                    const availableOptions = group.opcoes.filter(opt => {
+                        const isAvailable = typeof opt === 'string'
+                            ? true
+                            : (opt.disponivel !== false && (opt.quantidade_disponivel === undefined || opt.quantidade_disponivel > 0))
+                        return isAvailable
+                    })
+
+                    // Hide group if NO options are available
+                    if (availableOptions.length === 0) return null
+
                     const hasPaid = groupHasPaidOptions(group)
                     const isOptional = group.tipo === 'radio'
                     const badgeText = hasPaid ? 'Adicional' : (isOptional ? 'Escolha 1' : 'Incluso')
@@ -249,12 +260,12 @@ export default function ProductPage() {
                                     const name = optName(opt)
                                     const price = optPreco(opt)
                                     const img = optImg(opt)
-                                    // Check availability (default true if undefined)
+                                    // Check availability (redundant but safe)
                                     const isAvailable = typeof opt === 'string'
                                         ? true
                                         : (opt.disponivel !== false && (opt.quantidade_disponivel === undefined || opt.quantidade_disponivel > 0))
 
-                                    if (!isAvailable) return null // Hide unavailable or zero-stock options
+                                    if (!isAvailable) return null
 
                                     const selected = isOptionSelected(group.grupo, name, group.tipo)
                                     return (

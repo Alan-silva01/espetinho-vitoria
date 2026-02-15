@@ -94,6 +94,7 @@ export function useProduct(id) {
 
     useEffect(() => {
         if (!id) return
+
         async function fetch() {
             setLoading(true)
             try {
@@ -111,7 +112,29 @@ export function useProduct(id) {
                 setLoading(false)
             }
         }
+
         fetch()
+
+        // Realtime subscription for this specific product
+        const channel = supabase
+            .channel(`product:${id}`)
+            .on('postgres_changes',
+                {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'produtos',
+                    filter: `id=eq.${id}`
+                },
+                (payload) => {
+                    console.log('[useProduct] Produto atualizado via Realtime:', payload.new)
+                    setProduct(current => ({ ...current, ...payload.new }))
+                }
+            )
+            .subscribe()
+
+        return () => {
+            supabase.removeChannel(channel)
+        }
     }, [id])
 
     return { product, loading }

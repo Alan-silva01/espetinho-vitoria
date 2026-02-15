@@ -885,3 +885,37 @@
 .addon-toggle-btn.on .toggle-knob {
     transform: translateX(20px);
 }
+/* Global Addons Card Special Styling */
+.addon-management-card.global-addons {
+    border: 2px solid #BFDBFE;
+    background: #F0F9FF;
+    grid-column: 1 / -1; /* Make it take full width or stand out */
+    margin-bottom: 20px;
+}
+
+.dark .addon-management-card.global-addons {
+    background: #0C4A6E33;
+    border-color: #0369A1;
+}
+
+.global-addons .addon-card-header {
+    background: #DBEAFE;
+    border-bottom: 1px solid #BFDBFE;
+}
+
+.dark .global-addons .addon-card-header {
+    background: #0C4A6E;
+    border-color: #0369A1;
+}
+
+.global-addons h4 {
+    color: #1E40AF;
+}
+
+.dark .global-addons h4 {
+    color: #60A5FA;
+}
+
+.global-addons .addon-options-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+}
