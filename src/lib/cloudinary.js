@@ -76,10 +76,14 @@ export function optimizeUrl(url, { width = 400, height = 300, quality = 'auto' }
 
     // If it's a Supabase URL or other external URL, use Cloudinary Fetch
     // Fetch URL format: https://res.cloudinary.com/<cloud_name>/image/fetch/<transforms>/<url>
+    // IMPORTANT: Cloudinary Fetch has a limit on URL length (~255-500 chars).
+    // If the URL is very long (like Google Usercontent), skip optimization to avoid 400 errors.
+    if (url.length > 255) return url
+
     const baseUrl = `https://res.cloudinary.com/${CLOUD_NAME}/image/fetch`
     const transforms = `f_auto,q_${quality},w_${width},h_${height},c_fill`
 
-    // Encode the URL twice if it contains special characters, but usually once is enough for Supabase
+    // Encode the URL once for Fetch
     return `${baseUrl}/${transforms}/${encodeURIComponent(url)}`
 }
 
