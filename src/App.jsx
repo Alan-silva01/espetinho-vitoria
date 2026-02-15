@@ -16,6 +16,7 @@ const TrackingPage = lazy(() => import('./pages/customer/TrackingPage'))
 const OrdersListPage = lazy(() => import('./pages/customer/OrdersListPage'))
 const FavoritesPage = lazy(() => import('./pages/customer/FavoritesPage'))
 const ProfilePage = lazy(() => import('./pages/customer/ProfilePage'))
+const TableMenuPage = lazy(() => import('./pages/customer/TableMenuPage'))
 
 /* Admin Pages */
 const LoginPage = lazy(() => import('./pages/admin/LoginPage'))
@@ -30,6 +31,7 @@ const PromotionsPage = lazy(() => import('./pages/admin/PromotionsPage'))
 const CustomersPage = lazy(() => import('./pages/admin/CustomersPage'))
 const OpeningHoursPage = lazy(() => import('./pages/admin/OpeningHoursPage'))
 const FreightPage = lazy(() => import('./pages/admin/FreightPage'))
+const TablesPage = lazy(() => import('./pages/admin/TablesPage'))
 
 /* Layouts */
 import CustomerLayout from './layouts/CustomerLayout'
@@ -57,6 +59,7 @@ function App() {
                   <Route path="pedidos" element={<OrdersListPage />} />
                   <Route path="favoritos" element={<FavoritesPage />} />
                   <Route path="perfil" element={<ProfilePage />} />
+                  <Route path="mesa/:numeroMesa" element={<TableMenuPage />} />
                 </Route>
 
                 {/* Support /CLI-XXXXXX/carrinho, /CLI-XXXXXX/checkout, etc. */}
@@ -84,6 +87,7 @@ function App() {
                 <Route path="motoboys" element={<DriversPage />} />
                 <Route path="horarios" element={<OpeningHoursPage />} />
                 <Route path="fretes" element={<FreightPage />} />
+                <Route path="mesas" element={<TablesPage />} />
                 <Route path="configuracoes" element={<SettingsPage />} />
               </Route>
 

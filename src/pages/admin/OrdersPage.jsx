@@ -277,8 +277,8 @@ export default function OrdersPage() {
                                             <div className="card-top">
                                                 <span className="order-id">#PED-{order.numero_pedido}</span>
                                                 <span className={`type-tag ${order.tipo_pedido}`}>
-                                                    {order.tipo_pedido === 'entrega' ? <Bike size={10} /> : <Store size={10} />}
-                                                    {order.tipo_pedido}
+                                                    {order.tipo_pedido === 'entrega' ? <Bike size={10} /> : order.tipo_pedido === 'mesa' ? <Utensils size={10} /> : <Store size={10} />}
+                                                    {order.tipo_pedido === 'mesa' ? `Mesa` : order.tipo_pedido}
                                                 </span>
                                             </div>
 
@@ -388,7 +388,7 @@ export default function OrdersPage() {
                                 <div className="v4-info-box">
                                     <div className="v4-row">
                                         <span>TIPO:</span>
-                                        <span>{selectedOrder.tipo_pedido?.toUpperCase()}</span>
+                                        <span>{selectedOrder.tipo_pedido === 'mesa' ? `MESA` : selectedOrder.tipo_pedido?.toUpperCase()}</span>
                                     </div>
                                     {selectedOrder.tipo_pedido === 'entrega' && selectedOrder.endereco && (
                                         <div className="v4-row" style={{ flexDirection: 'column', gap: '4px' }}>
@@ -467,7 +467,7 @@ export default function OrdersPage() {
 
                             <div className="receipt-header-info">
                                 <div className="receipt-order-num">PEDIDO #{selectedOrder.numero_pedido}</div>
-                                <div className="receipt-type">{selectedOrder.tipo_pedido === 'entrega' ? 'ENTREGA PARCEIRA' : 'RETIRADA NA LOJA'}</div>
+                                <div className="receipt-type">{selectedOrder.tipo_pedido === 'entrega' ? 'ENTREGA PARCEIRA' : selectedOrder.tipo_pedido === 'mesa' ? `PEDIDO NA MESA` : 'RETIRADA NA LOJA'}</div>
                                 <div className="receipt-date">
                                     {new Date(selectedOrder.criado_em).toLocaleDateString('pt-BR')} - {new Date(selectedOrder.criado_em).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                                 </div>

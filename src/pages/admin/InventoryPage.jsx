@@ -150,7 +150,8 @@ export default function InventoryPage() {
                 .from('produtos')
                 .update({
                     quantidade_disponivel: finalAtual,
-                    controlar_estoque: true // Auto-enable if saved in inventory page
+                    controlar_estoque: true,
+                    disponivel: finalAtual > 0 // Auto-hide when stock is 0, show when restocked
                 })
                 .eq('id', item.id)
 
@@ -184,12 +185,13 @@ export default function InventoryPage() {
         try {
             const today = new Date().toISOString().split('T')[0]
 
-            // 1. Update produtos (quantidade_disponivel = 0)
+            // 1. Update produtos (quantidade_disponivel = 0, disponivel = false)
             await supabase
                 .from('produtos')
                 .update({
                     quantidade_disponivel: 0,
-                    controlar_estoque: true
+                    controlar_estoque: true,
+                    disponivel: false
                 })
                 .eq('id', item.id)
 

@@ -18,7 +18,8 @@ import {
     Sun,
     Clock,
     ChevronLeft,
-    ChevronRight
+    ChevronRight,
+    QrCode
 } from 'lucide-react'
 import './AdminSidebar.css'
 
@@ -33,6 +34,7 @@ const navItems = [
     { to: '/admin/motoboys', icon: Truck, label: 'Motoboys' },
     { to: '/admin/horarios', icon: Clock, label: 'Horários' },
     { to: '/admin/fretes', icon: MapPin, label: 'Fretes' },
+    { to: '/admin/mesas', icon: QrCode, label: 'Mesas' },
     { to: '/admin/configuracoes', icon: Settings, label: 'Configurações' },
 ]
 

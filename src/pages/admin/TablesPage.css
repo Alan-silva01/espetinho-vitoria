@@ -1,0 +1,453 @@
+/* ===================== Tables Page ===================== */
+.tables-page {
+    padding: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.tables-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    gap: 16px;
+    color: var(--text-secondary, #888);
+}
+
+.tables-loading .spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid rgba(196, 30, 46, 0.2);
+    border-top-color: var(--cor-primaria, #C41E2E);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Header */
+.tables-header {
+    margin-bottom: 24px;
+}
+
+.tables-header__info h1 {
+    font-size: 24px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-primary, #1a1a1a);
+}
+
+.tables-header__info p {
+    font-size: 14px;
+    color: var(--text-secondary, #888);
+    margin-top: 4px;
+}
+
+/* Add Section */
+.tables-add {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+}
+
+.tables-add__input-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-card, #fff);
+    border: 2px solid var(--border-light, #e5e5e5);
+    border-radius: 12px;
+    padding: 8px 12px;
+    flex: 1;
+    min-width: 200px;
+    max-width: 360px;
+    transition: border-color 0.2s;
+}
+
+.tables-add__input-group:focus-within {
+    border-color: var(--cor-primaria, #C41E2E);
+}
+
+.tables-add__input-group svg {
+    color: var(--text-secondary, #999);
+    flex-shrink: 0;
+}
+
+.tables-add__input-group input {
+    border: none;
+    outline: none;
+    font-size: 15px;
+    width: 100%;
+    background: transparent;
+    color: var(--text-primary, #333);
+}
+
+.tables-add__input-group input::placeholder {
+    color: var(--text-secondary, #aaa);
+}
+
+.btn-add {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: var(--cor-primaria, #C41E2E);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: opacity 0.2s;
+}
+
+.btn-add:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-add-multiple {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: transparent;
+    color: var(--cor-primaria, #C41E2E);
+    border: 2px solid var(--cor-primaria, #C41E2E);
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+}
+
+.btn-add-multiple:hover {
+    background: var(--cor-primaria, #C41E2E);
+    color: #fff;
+}
+
+.btn-add-multiple:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Empty State */
+.tables-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 64px 24px;
+    text-align: center;
+    color: var(--text-secondary, #888);
+    gap: 12px;
+}
+
+.tables-empty h3 {
+    font-size: 18px;
+    color: var(--text-primary, #555);
+}
+
+.tables-empty p {
+    font-size: 14px;
+}
+
+/* Grid */
+.tables-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+/* Table Card */
+.table-card {
+    background: var(--bg-card, #fff);
+    border: 2px solid var(--border-light, #e8e8e8);
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.table-card:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+}
+
+.table-card--disabled {
+    opacity: 0.5;
+    filter: grayscale(0.5);
+}
+
+.table-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 16px;
+}
+
+.table-card__header h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary, #1a1a1a);
+}
+
+.table-card__status {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.table-card__status.active {
+    background: #e6f9e6;
+    color: #1a8a1a;
+}
+
+.table-card__status.inactive {
+    background: #ffe6e6;
+    color: #c41e2e;
+}
+
+.table-card__qr {
+    cursor: pointer;
+    padding: 8px;
+    background: #fff;
+    border-radius: 12px;
+    transition: transform 0.2s;
+}
+
+.table-card__qr:hover {
+    transform: scale(1.05);
+}
+
+.table-card__url {
+    font-size: 12px;
+    color: var(--text-secondary, #999);
+    margin-top: 8px;
+    font-family: monospace;
+}
+
+.table-card__actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+    width: 100%;
+    justify-content: center;
+}
+
+.btn-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-download {
+    background: #e8f0fe;
+    color: #1a73e8;
+}
+
+.btn-download:hover {
+    background: #1a73e8;
+    color: #fff;
+}
+
+.btn-deactivate {
+    background: #fff3e0;
+    color: #e65100;
+}
+
+.btn-deactivate:hover {
+    background: #e65100;
+    color: #fff;
+}
+
+.btn-activate {
+    background: #e6f9e6;
+    color: #1a8a1a;
+}
+
+.btn-activate:hover {
+    background: #1a8a1a;
+    color: #fff;
+}
+
+.btn-delete {
+    background: #ffe6e6;
+    color: #c41e2e;
+}
+
+.btn-delete:hover {
+    background: #c41e2e;
+    color: #fff;
+}
+
+/* QR Modal */
+.qr-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.2s;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.qr-modal {
+    background: #fff;
+    border-radius: 20px;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    min-width: 340px;
+    animation: scaleIn 0.3s ease;
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.qr-modal h2 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.qr-modal__url {
+    font-size: 13px;
+    color: #888;
+    font-family: monospace;
+    word-break: break-all;
+    text-align: center;
+}
+
+.qr-modal__actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.qr-modal .btn-primary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 24px;
+    background: var(--cor-primaria, #C41E2E);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.qr-modal .btn-secondary {
+    padding: 10px 24px;
+    background: #f0f0f0;
+    color: #333;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.qr-modal .btn-secondary:hover {
+    background: #e0e0e0;
+}
+
+/* Checkout Mesa Badge */
+.checkout-mesa-badge {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+    border: 2px solid #ffb74d;
+    border-radius: 14px;
+    padding: 14px 20px;
+    margin-bottom: 16px;
+}
+
+.checkout-mesa-badge span {
+    font-size: 28px;
+}
+
+.checkout-mesa-badge strong {
+    font-size: 18px;
+    color: #e65100;
+}
+
+.checkout-mesa-badge small {
+    font-size: 13px;
+    color: #bf360c;
+    margin-left: auto;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .tables-page {
+        padding: 16px;
+    }
+
+    .tables-grid {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 12px;
+    }
+
+    .table-card {
+        padding: 14px;
+    }
+
+    .tables-add {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .tables-add__input-group {
+        max-width: 100%;
+    }
+}

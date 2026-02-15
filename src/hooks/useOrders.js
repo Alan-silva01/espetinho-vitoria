@@ -52,6 +52,7 @@ export function useOrders() {
                     troco_para: orderData.troco_para,
                     endereco: orderData.endereco,
                     observacoes: orderData.observacoes,
+                    mesa_id: orderData.mesa_id || null,
                     status: 'confirmado',
                 })
                 .select()
@@ -88,9 +89,14 @@ export function useOrders() {
 
                 if (prod && prod.controlar_estoque) {
                     const newQty = Math.max(0, prod.quantidade_disponivel - item.quantidade)
+                    const updateFields = { quantidade_disponivel: newQty }
+                    // Marcar como indisponível automaticamente quando estoque zerar
+                    if (newQty === 0) {
+                        updateFields.disponivel = false
+                    }
                     await supabase
                         .from('produtos')
-                        .update({ quantidade_disponivel: newQty })
+                        .update(updateFields)
                         .eq('id', item.produto_id)
 
                     // Also update daily stock if exists

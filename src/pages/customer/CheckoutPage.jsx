@@ -23,6 +23,10 @@ export default function CheckoutPage() {
     // Order type
     const tipoPedido = localStorage.getItem('espetinho_tipo_pedido') || 'entrega'
 
+    // Mesa data (from QR code scan)
+    const mesaId = tipoPedido === 'mesa' ? localStorage.getItem('espetinho_mesa_id') : null
+    const mesaNumero = tipoPedido === 'mesa' ? localStorage.getItem('espetinho_mesa_numero') : null
+
     // Address Data
     const [addressData] = useState(() => {
         const saved = localStorage.getItem('espetinho_delivery_data')
@@ -47,7 +51,7 @@ export default function CheckoutPage() {
 
     useEffect(() => {
         async function fetchFee() {
-            if (tipoPedido === 'retirada' || !addressData.bairro) {
+            if (tipoPedido === 'retirada' || tipoPedido === 'mesa' || !addressData.bairro) {
                 setTaxaEntrega(0)
                 return
             }
@@ -140,24 +144,36 @@ export default function CheckoutPage() {
             return
         }
 
+        if (tipoPedido === 'mesa' && !mesaId) {
+            alert('Erro: mesa não identificada. Escaneie o QR code novamente.')
+            return
+        }
+
         if (isSubmitting) return
         setIsSubmitting(true)
 
         try {
+            const nomeCliente = tipoPedido === 'mesa'
+                ? `Mesa ${mesaNumero}`
+                : tipoPedido === 'retirada'
+                    ? nomeRetirada
+                    : (savedData?.nome_recebedor || '')
+
             const orderData = {
-                nome_cliente: tipoPedido === 'retirada' ? nomeRetirada : (savedData?.nome_recebedor || ''),
-                telefone_cliente: savedData?.telefone_recebedor || '',
+                nome_cliente: nomeCliente,
+                telefone_cliente: tipoPedido === 'mesa' ? '' : (savedData?.telefone_recebedor || ''),
                 tipo_pedido: tipoPedido,
                 subtotal,
                 taxa_entrega: taxaEntrega,
                 valor_total: total,
                 forma_pagamento: formaPagamento,
-                metodo_pagamento: formaPagamento, // Extra field for compatibility
+                metodo_pagamento: formaPagamento,
                 troco_para: precisaTroco ? parseFloat(trocoPara) : null,
                 endereco: tipoPedido === 'entrega' ? savedData : null,
-                observacoes,
+                observacoes: tipoPedido === 'mesa' ? `Mesa ${mesaNumero}${observacoes ? ' | ' + observacoes : ''}` : observacoes,
+                mesa_id: mesaId || null,
                 itens: items,
-                cliente_id: customer?.id || null // Link the order to the customer!
+                cliente_id: customer?.id || null
             }
 
             const pedido = await createOrder(orderData)
@@ -227,21 +243,32 @@ export default function CheckoutPage() {
             </header>
 
             <main className="checkout-main">
-                {/* Delivery / Pickup Toggle */}
-                <div className="checkout-toggle">
-                    <button
-                        className={`checkout-toggle__btn ${tipoPedido === 'entrega' ? 'checkout-toggle__btn--active' : ''}`}
-                        onClick={() => setTipoPedido('entrega')}
-                    >
-                        <span>🛵</span> Entrega
-                    </button>
-                    <button
-                        className={`checkout-toggle__btn ${tipoPedido === 'retirada' ? 'checkout-toggle__btn--active' : ''}`}
-                        onClick={() => setTipoPedido('retirada')}
-                    >
-                        <span>🏪</span> Retirada
-                    </button>
-                </div>
+                {/* Mesa Badge */}
+                {tipoPedido === 'mesa' && (
+                    <div className="checkout-mesa-badge">
+                        <span>🍽️</span>
+                        <strong>Mesa {mesaNumero}</strong>
+                        <small>Pedido na mesa</small>
+                    </div>
+                )}
+
+                {/* Delivery / Pickup Toggle (hide for mesa) */}
+                {tipoPedido !== 'mesa' && (
+                    <div className="checkout-toggle">
+                        <button
+                            className={`checkout-toggle__btn ${tipoPedido === 'entrega' ? 'checkout-toggle__btn--active' : ''}`}
+                            onClick={() => setTipoPedido('entrega')}
+                        >
+                            <span>🛵</span> Entrega
+                        </button>
+                        <button
+                            className={`checkout-toggle__btn ${tipoPedido === 'retirada' ? 'checkout-toggle__btn--active' : ''}`}
+                            onClick={() => setTipoPedido('retirada')}
+                        >
+                            <span>🏪</span> Retirada
+                        </button>
+                    </div>
+                )}
 
                 {/* Pickup Name */}
                 {tipoPedido === 'retirada' && (
@@ -404,7 +431,7 @@ export default function CheckoutPage() {
                 <button
                     className="checkout-footer__btn"
                     onClick={handleConfirm}
-                    disabled={loading || isSubmitting || (tipoPedido === 'entrega' && !hasAddress) || (tipoPedido === 'retirada' && !nomeRetirada.trim())}
+                    disabled={loading || isSubmitting || (tipoPedido === 'entrega' && !hasAddress) || (tipoPedido === 'retirada' && !nomeRetirada.trim()) || (tipoPedido === 'mesa' && !mesaId)}
                 >
                     {loading || isSubmitting ? (
                         <span className="btn-spinner" />
