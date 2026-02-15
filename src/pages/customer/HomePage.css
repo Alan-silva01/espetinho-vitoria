@@ -452,7 +452,9 @@
     margin-bottom: 4px;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
+    display: -webkit-box;
+
+    min-height: 36px;
 }
 
 .product-card__desc {

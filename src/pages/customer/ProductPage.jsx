@@ -9,9 +9,14 @@ import Loading from '../../components/ui/Loading'
 import './ProductPage.css'
 
 // Helper: normalize option to always get the name string
-const optName = (opt) => (typeof opt === 'string' ? opt : opt.nome)
-const optPreco = (opt) => (typeof opt === 'string' ? 0 : Number(opt.preco) || 0)
-const optImg = (opt) => (typeof opt === 'string' ? null : opt.imagem_url || null)
+const optName = (opt) => (typeof opt === 'string' ? opt : opt.nome || opt.name)
+const optPreco = (opt) => {
+    if (typeof opt === 'string') return 0
+    // Try both Porto and English keys, and ensure it's a number
+    const val = opt.preco !== undefined ? opt.preco : opt.price
+    return Number(val) || 0
+}
+const optImg = (opt) => (typeof opt === 'string' ? null : opt.imagem_url || opt.image_url || null)
 
 export default function ProductPage() {
     const { id } = useParams()
@@ -22,6 +27,23 @@ export default function ProductPage() {
     const [notes, setNotes] = useState('')
     const [selectedVariation, setSelectedVariation] = useState(null)
     const [selectedOptions, setSelectedOptions] = useState({})
+
+    // Pre-select 300ml variation for Açaí or 500ml for Caldos on load
+    useEffect(() => {
+        if (product?.variacoes_produto?.length > 0) {
+            // Priority 1: 300ml (Açaí)
+            // Priority 2: 500ml (Caldos)
+            const v300 = product.variacoes_produto.find(v => v.nome === '300ml')
+            const v500 = product.variacoes_produto.find(v => v.nome === '500ml')
+
+            if (product.nome?.toLowerCase().includes('caldo')) {
+                if (v500) setSelectedVariation(v500)
+                else if (v300) setSelectedVariation(v300)
+            } else {
+                if (v300) setSelectedVariation(v300)
+            }
+        }
+    }, [product])
 
     // Scroll to top on mount
     useEffect(() => {
@@ -74,7 +96,8 @@ export default function ProductPage() {
 
     const customizations = product.opcoes_personalizacao || []
 
-    function handleOptionToggle(groupName, optionName, tipo) {
+    function handleOptionToggle(group, optionName) {
+        const { grupo: groupName, tipo, maximo } = group
         setSelectedOptions(prev => {
             const current = prev[groupName] || (tipo === 'radio' ? '' : [])
 
@@ -87,6 +110,11 @@ export default function ProductPage() {
             if (arr.includes(optionName)) {
                 return { ...prev, [groupName]: arr.filter(o => o !== optionName) }
             } else {
+                // FIFO behavior: if maximo reached, remove oldest selection
+                if (maximo && arr.length >= maximo) {
+                    const newArr = [...arr.slice(1), optionName]
+                    return { ...prev, [groupName]: newArr }
+                }
                 return { ...prev, [groupName]: [...arr, optionName] }
             }
         })
@@ -100,6 +128,7 @@ export default function ProductPage() {
 
     // Check if a group has any paid options
     function groupHasPaidOptions(group) {
+        if (group.grupo?.toLowerCase().includes('pago')) return true
         return group.opcoes.some(opt => optPreco(opt) > 0)
     }
 
@@ -188,9 +217,7 @@ export default function ProductPage() {
                                         />
                                         <span className="product-option__label">{v.nome}</span>
                                     </div>
-                                    {v.preco !== product.preco && (
-                                        <span className="product-option__price">{formatCurrency(v.preco)}</span>
-                                    )}
+                                    <span className="product-option__price">{formatCurrency(v.preco)}</span>
                                 </label>
                             ))}
                         </div>
@@ -200,7 +227,8 @@ export default function ProductPage() {
                 {/* Customization Options */}
                 {customizations.map((group, gIdx) => {
                     const hasPaid = groupHasPaidOptions(group)
-                    const badgeText = hasPaid ? 'Adicional' : (group.tipo === 'radio' ? 'Escolha 1' : 'Incluso')
+                    const isOptional = group.tipo === 'radio'
+                    const badgeText = hasPaid ? 'Adicional' : (isOptional ? 'Escolha 1' : 'Incluso')
 
                     return (
                         <section key={gIdx} className="product-section">
@@ -225,7 +253,7 @@ export default function ProductPage() {
                                         <button
                                             key={oIdx}
                                             className={`product-addon-item ${selected ? 'product-addon-item--selected' : ''}`}
-                                            onClick={() => handleOptionToggle(group.grupo, name, group.tipo)}
+                                            onClick={() => handleOptionToggle(group, name)}
                                         >
                                             <div className="product-addon-item__left">
                                                 {img ? (
