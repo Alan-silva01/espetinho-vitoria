@@ -325,20 +325,7 @@
     display: flex;
     gap: 12px;
     padding: 4px 0;
-}
-
-.cart-upsell__marquee:hover {
-    animation-play-state: paused;
-}
-
-@keyframes upsellScroll {
-    0% {
-        transform: translateX(0);
-    }
-
-    100% {
-        transform: translateX(-50%);
-    }
+    width: max-content;
 }
 
 .cart-upsell__card {

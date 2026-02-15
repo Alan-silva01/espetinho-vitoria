@@ -180,6 +180,34 @@ export default function CartPage() {
         setIsAddressModalOpen(false)
     }
 
+    // --- Interactive Auto-Scroll for "Adicione também" ---
+    const scrollRef = useRef(null)
+    const [isPaused, setIsPaused] = useState(false)
+
+    useEffect(() => {
+        const container = scrollRef.current
+        if (!container || !upsellProducts || upsellProducts.length === 0) return
+
+        let animationFrameId
+        const scrollSpeed = 0.5 // Adjust for faster/slower scroll
+
+        const animate = () => {
+            if (!isPaused) {
+                container.scrollLeft += scrollSpeed
+
+                // Infinite loop: if we reached the end of the first set of items, reset to start
+                const halfWidth = container.scrollWidth / 2
+                if (container.scrollLeft >= halfWidth) {
+                    container.scrollLeft = 0
+                }
+            }
+            animationFrameId = requestAnimationFrame(animate)
+        }
+
+        animationFrameId = requestAnimationFrame(animate)
+        return () => cancelAnimationFrame(animationFrameId)
+    }, [isPaused, upsellProducts?.length])
+
     if (items.length === 0) {
         return (
             <div className="cart-empty animate-fade-in">
@@ -246,7 +274,6 @@ export default function CartPage() {
                                                 className="cart-item__qty-btn"
                                                 onClick={() => updateQuantity(item.produto_id, item.variacao_id, item.quantidade - 1)}
                                             >
-                                                <u size={12} />
                                                 <Minus size={12} />
                                             </button>
                                             <span className="cart-item__qty-val">{item.quantidade}</span>
@@ -268,7 +295,14 @@ export default function CartPage() {
                 {upsellProducts.length > 0 && (
                     <div className="cart-upsell">
                         <h3 className="cart-upsell__title">Adicione também</h3>
-                        <div className="cart-upsell__marquee-wrap hide-scrollbar">
+                        <div
+                            className="cart-upsell__marquee-wrap hide-scrollbar"
+                            ref={scrollRef}
+                            onMouseEnter={() => setIsPaused(true)}
+                            onMouseLeave={() => setIsPaused(false)}
+                            onTouchStart={() => setIsPaused(true)}
+                            onTouchEnd={() => setTimeout(() => setIsPaused(false), 2000)} // Resume after 2s
+                        >
                             <div className="cart-upsell__marquee">
                                 {[...upsellProducts, ...upsellProducts].map((p, idx) => (
                                     <div key={`${p.id}-${idx}`} className="cart-upsell__card">
