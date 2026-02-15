@@ -59,8 +59,6 @@ export default function OptimizedImage({
             <style jsx>{`
                 .optimized-image-container {
                     position: relative;
-                    width: 100%;
-                    height: 100%;
                     overflow: hidden;
                     background: #f3f4f6;
                     border-radius: inherit;

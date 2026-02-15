@@ -269,8 +269,8 @@ export default function ProductPage() {
                                                         src={getImageUrl(img)}
                                                         alt={name}
                                                         className="product-addon-item__img"
-                                                        width={100}
-                                                        height={100}
+                                                        width={80}
+                                                        height={80}
                                                     />
                                                 ) : (
                                                     <div className="product-addon-item__img-placeholder">
