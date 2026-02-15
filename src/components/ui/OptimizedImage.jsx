@@ -39,6 +39,7 @@ export default function OptimizedImage({
                 onError={() => setError(true)}
                 loading={priority ? 'eager' : 'lazy'}
                 decoding="async"
+                crossOrigin="anonymous"
                 className={`optimized-image ${loaded ? 'visible' : 'hidden'}`}
                 {...props}
             />

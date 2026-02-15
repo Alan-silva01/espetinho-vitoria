@@ -14,8 +14,41 @@ export default defineConfig({
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,
-        // Force update on every load to ensure latest version
         navigateFallbackDenylist: [/^\/admin/],
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/res\.cloudinary\.com\/.*/i,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'cloudinary-images',
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          {
+            urlPattern: /^https:\/\/.*\.supabase\.co\/storage\/v1\/object\/public\/.*/i,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'supabase-images',
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          }
+        ]
+      },
+      devOptions: {
+        enabled: true,
+        type: 'module',
       },
       manifest: {
         name: 'Espetinho Vitoria',

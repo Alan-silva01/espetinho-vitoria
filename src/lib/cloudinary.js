@@ -61,13 +61,26 @@ export async function uploadImage(file, options = {}) {
 
 /**
  * Generate a Cloudinary optimized URL
- * @param {string} url - Original Cloudinary URL
+ * @param {string} url - Original URL (Cloudinary or Supabase)
  * @param {object} transforms - Transformations
  * @returns {string}
  */
 export function optimizeUrl(url, { width = 400, height = 300, quality = 'auto' } = {}) {
-    if (!url || !url.includes('cloudinary')) return url
-    return url.replace('/upload/', `/upload/w_${width},h_${height},c_fill,q_${quality}/`)
+    if (!url) return url
+    if (!CLOUD_NAME) return url // Fallback if no cloud name
+
+    // If it's already a Cloudinary URL, transform it directly
+    if (url.includes('cloudinary.com')) {
+        return url.replace('/upload/', `/upload/f_auto,q_${quality},w_${width},h_${height},c_fill/`)
+    }
+
+    // If it's a Supabase URL or other external URL, use Cloudinary Fetch
+    // Fetch URL format: https://res.cloudinary.com/<cloud_name>/image/fetch/<transforms>/<url>
+    const baseUrl = `https://res.cloudinary.com/${CLOUD_NAME}/image/fetch`
+    const transforms = `f_auto,q_${quality},w_${width},h_${height},c_fill`
+
+    // Encode the URL twice if it contains special characters, but usually once is enough for Supabase
+    return `${baseUrl}/${transforms}/${encodeURIComponent(url)}`
 }
 
 export const isCloudinaryConfigured = Boolean(CLOUD_NAME && UPLOAD_PRESET)
