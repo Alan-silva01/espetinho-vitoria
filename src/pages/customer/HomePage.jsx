@@ -79,7 +79,9 @@ export default function HomePage() {
     const filteredProducts = products.filter(p => {
         const matchCat = !activeCategory || p.categoria_id === activeCategory
         const matchSearch = !search || p.nome.toLowerCase().includes(search.toLowerCase())
-        return matchCat && matchSearch
+        // Main products should only be hidden if manually turned off (disponivel: false)
+        const isAvailable = p.disponivel !== false
+        return matchCat && matchSearch && isAvailable
     })
 
     const handleLike = useCallback(async (e, productId) => {
@@ -199,7 +201,6 @@ export default function HomePage() {
             {/* Products Grid */}
             <div className="home-grid">
                 {filteredProducts
-                    .filter(p => p.quantidade_disponivel > 0)
                     .map((product, index) => (
                         <div
                             key={product.id}

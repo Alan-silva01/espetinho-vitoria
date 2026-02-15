@@ -324,16 +324,24 @@ export default function CartPage() {
                                         <p className="cart-upsell__price">{formatCurrency(p.preco)}</p>
                                         <button
                                             className="cart-upsell__add-btn"
-                                            onClick={() => addItem({
-                                                produto_id: p.id,
-                                                nome: p.nome,
-                                                preco: p.preco,
-                                                imagem_url: p.imagem_url,
-                                                eh_upsell: true,
-                                            })}
+                                            disabled={p.quantidade_disponivel === 0}
+                                            onClick={() => {
+                                                if (p.quantidade_disponivel === 0) return
+                                                addItem({
+                                                    produto_id: p.id,
+                                                    nome: p.nome,
+                                                    preco: p.preco,
+                                                    imagem_url: p.imagem_url,
+                                                    eh_upsell: true,
+                                                })
+                                            }}
+                                            style={p.quantidade_disponivel === 0 ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
                                         >
-                                            <Plus size={14} />
+                                            {p.quantidade_disponivel === 0 ? <span style={{ fontSize: '10px' }}>OFF</span> : <Plus size={14} />}
                                         </button>
+                                        {p.quantidade_disponivel === 0 && (
+                                            <div className="cart-upsell__out-label">Esgotado</div>
+                                        )}
                                     </div>
                                 ))}
                             </div>
