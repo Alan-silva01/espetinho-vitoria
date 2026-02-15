@@ -2,6 +2,10 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { lazy, Suspense } from 'react'
 import { CartProvider } from './hooks/useCart'
 import Loading from './components/ui/Loading'
+import { registerSW } from 'virtual:pwa-register'
+
+// Force PWA update
+registerSW({ immediate: true })
 
 /* Customer Pages */
 const HomePage = lazy(() => import('./pages/customer/HomePage'))

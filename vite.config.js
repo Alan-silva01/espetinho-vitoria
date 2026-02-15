@@ -9,6 +9,14 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['logo.png', 'favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,mp3}'],
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
+        skipWaiting: true,
+        // Force update on every load to ensure latest version
+        navigateFallbackDenylist: [/^\/admin/],
+      },
       manifest: {
         name: 'Espetinho Vitoria',
         short_name: 'Espetinho',
@@ -16,6 +24,8 @@ export default defineConfig({
         theme_color: '#C41E2E',
         background_color: '#ffffff',
         display: 'standalone',
+        start_url: '/',
+        orientation: 'portrait',
         icons: [
           {
             src: 'logo.png',

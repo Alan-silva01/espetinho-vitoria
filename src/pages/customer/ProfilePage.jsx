@@ -68,6 +68,29 @@ export default function ProfilePage() {
                         Acompanhe sempre o aviso na página inicial.
                     </span>
                 </div>
+
+                <div className="update-section">
+                    <button
+                        className="btn btn-secondary btn-sm"
+                        onClick={() => {
+                            if (window.confirm('Deseja verificar se há uma nova versão disponível? O aplicativo será recarregado.')) {
+                                if ('serviceWorker' in navigator) {
+                                    navigator.serviceWorker.getRegistrations().then(registrations => {
+                                        for (let registration of registrations) {
+                                            registration.unregister()
+                                        }
+                                        window.location.reload()
+                                    })
+                                } else {
+                                    window.location.reload()
+                                }
+                            }
+                        }}
+                    >
+                        Verificar Atualizações
+                    </button>
+                    <p className="app-version">Versão 1.2.1</p>
+                </div>
             </div>
         </div>
     )
