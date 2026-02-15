@@ -96,9 +96,10 @@ export default function CartPage() {
             const noManualOverride = !localStorage.getItem('espetinho_manual_address')
             const isActuallyEmpty = !addressData.rua || !currentLocal
 
+            // If we have no local data OR we don't have a manual override recorded yet,
+            // we should favor the database content.
             if (isActuallyEmpty || noManualOverride) {
                 const dados = customer.dados || {}
-                // Support both nested { endereco: { rua: ... } } and flat { rua: ... }
                 const dbAddr = dados.endereco || dados || {}
 
                 const newData = {
@@ -110,7 +111,7 @@ export default function CartPage() {
                     referencia: dbAddr.referencia || dbAddr.reference || dbAddr.ponto_referencia || ''
                 }
 
-                // Only set if we actually have at least something new or better
+                // If the DB has information, we update
                 if (newData.rua || newData.nome_recebedor) {
                     const isDifferent = JSON.stringify(newData) !== JSON.stringify(addressData)
                     if (isDifferent) {
@@ -120,8 +121,7 @@ export default function CartPage() {
                 }
             }
         }
-    }, [customer, addressData])
-
+    }, [customer]) // Removed addressData from dependencies to prevent infinite loop or override cycles
     // Temp state for editing
     const [tempData, setTempData] = useState(addressData)
 

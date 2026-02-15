@@ -40,17 +40,20 @@ export function CustomerProvider({ children }) {
                 setCustomer(data)
                 localStorage.setItem('espetinho_customer_id', data.id)
 
-                // Also update delivery data if we have it in 'dados'
-                if (data.dados?.endereco || data.dados) {
-                    const dbAddr = data.dados.endereco || data.dados || {}
-                    localStorage.setItem('espetinho_delivery_data', JSON.stringify({
-                        nome_recebedor: data.dados.nome_recebedor || data.dados.receiverName || data.dados.nome || data.nome || '',
-                        telefone_recebedor: data.dados.telefone_recebedor || data.dados.receiverPhone || data.dados.whatsapp || data.telefone || '',
+                // Persist delivery data from database
+                const dados = data.dados || {}
+                const dbAddr = dados.endereco || dados || {}
+
+                if (dbAddr.rua || dados.nome_recebedor || data.nome) {
+                    const syncData = {
+                        nome_recebedor: dados.nome_recebedor || dados.receiverName || dados.nome || data.nome || '',
+                        telefone_recebedor: dados.telefone_recebedor || dados.receiverPhone || dados.whatsapp || data.telefone || '',
                         rua: dbAddr.rua || dbAddr.street || dbAddr.logradouro || '',
                         numero: dbAddr.numero || dbAddr.number || '',
                         bairro: dbAddr.bairro || dbAddr.neighborhood || '',
                         referencia: dbAddr.referencia || dbAddr.reference || dbAddr.ponto_referencia || ''
-                    }))
+                    }
+                    localStorage.setItem('espetinho_delivery_data', JSON.stringify(syncData))
                 }
             }
         } catch (err) {
@@ -71,6 +74,22 @@ export function CustomerProvider({ children }) {
 
             if (data && !error) {
                 setCustomer(data)
+
+                // Also persist delivery data if we have it in database to ensure consistency
+                const dados = data.dados || {}
+                const dbAddr = dados.endereco || dados || {}
+
+                if (dbAddr.rua || dados.nome_recebedor || data.nome) {
+                    const syncData = {
+                        nome_recebedor: dados.nome_recebedor || dados.receiverName || dados.nome || data.nome || '',
+                        telefone_recebedor: dados.telefone_recebedor || dados.receiverPhone || dados.whatsapp || data.telefone || '',
+                        rua: dbAddr.rua || dbAddr.street || dbAddr.logradouro || '',
+                        numero: dbAddr.numero || dbAddr.number || '',
+                        bairro: dbAddr.bairro || dbAddr.neighborhood || '',
+                        referencia: dbAddr.referencia || dbAddr.reference || dbAddr.ponto_referencia || ''
+                    }
+                    localStorage.setItem('espetinho_delivery_data', JSON.stringify(syncData))
+                }
             }
         } catch (err) {
             console.error('[fetchCustomerById] Erro:', err)

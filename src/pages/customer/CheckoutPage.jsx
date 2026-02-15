@@ -16,6 +16,10 @@ export default function CheckoutPage() {
     const { customer, updateLastOrder } = useCustomer()
     const [isSubmitting, setIsSubmitting] = useState(false)
 
+    useEffect(() => {
+        window.scrollTo(0, 0)
+    }, [])
+
     // Order type
     const tipoPedido = localStorage.getItem('espetinho_tipo_pedido') || 'entrega'
 
@@ -97,30 +101,32 @@ export default function CheckoutPage() {
 
             // Update delivery data if we have it in DB and local is empty or mismatch
             const dados = customer.dados || {}
-            const dbAddr = dados.endereco || dados
+            const dbAddr = dados.endereco || dados || {}
 
             const currentLocal = localStorage.getItem('espetinho_delivery_data')
             const hasNoLocal = !currentLocal
             const noManual = !localStorage.getItem('espetinho_manual_address')
 
-            if (dbAddr && (hasNoLocal || noManual)) {
-                const newData = {
-                    nome_recebedor: dados.nome_recebedor || dados.receiverName || dados.nome || customer.nome || '',
-                    telefone_recebedor: dados.telefone_recebedor || dados.receiverPhone || dados.whatsapp || customer.telefone || '',
-                    rua: dbAddr.rua || dbAddr.street || dbAddr.logradouro || '',
-                    numero: dbAddr.numero || dbAddr.number || '',
-                    bairro: dbAddr.bairro || dbAddr.neighborhood || '',
-                    referencia: dbAddr.referencia || dbAddr.reference || dbAddr.ponto_referencia || ''
-                }
+            if (dbAddr.rua || dados.nome_recebedor) {
+                if (hasNoLocal || noManual) {
+                    const newData = {
+                        nome_recebedor: dados.nome_recebedor || dados.receiverName || dados.nome || customer.nome || '',
+                        telefone_recebedor: dados.telefone_recebedor || dados.receiverPhone || dados.whatsapp || customer.telefone || '',
+                        rua: dbAddr.rua || dbAddr.street || dbAddr.logradouro || '',
+                        numero: dbAddr.numero || dbAddr.number || '',
+                        bairro: dbAddr.bairro || dbAddr.neighborhood || '',
+                        referencia: dbAddr.referencia || dbAddr.reference || dbAddr.ponto_referencia || ''
+                    }
 
-                if (newData.rua || newData.nome_recebedor) {
-                    localStorage.setItem('espetinho_delivery_data', JSON.stringify(newData))
-                    setSavedData(newData)
+                    const isDifferent = JSON.stringify(newData) !== JSON.stringify(savedData)
+                    if (isDifferent) {
+                        localStorage.setItem('espetinho_delivery_data', JSON.stringify(newData))
+                        setSavedData(newData)
+                    }
                 }
             }
         }
     }, [customer])
-
 
     const enderecoCompleto = savedData
         ? `${savedData.rua}, ${savedData.numero} - ${savedData.bairro}${savedData.referencia ? ` (${savedData.referencia})` : ''}`
