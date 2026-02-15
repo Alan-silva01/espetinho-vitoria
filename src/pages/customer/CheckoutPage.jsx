@@ -348,7 +348,7 @@ export default function CheckoutPage() {
                     <div className="checkout-card">
                         <div className="checkout-items">
                             {items.map(item => {
-                                const key = `${item.produto_id}-${item.variacao_id || 'default'}`
+                                const key = `${item.produto_id}-${item.variacao_id || 'default'}-${item.observacoes || ''}`
                                 return (
                                     <div key={key} className="checkout-item">
                                         <div className="checkout-item__img">
@@ -359,7 +359,11 @@ export default function CheckoutPage() {
                                                 <h4>{item.nome}</h4>
                                                 <span>{formatCurrency(item.preco * item.quantidade)}</span>
                                             </div>
-                                            {item.descricao && (
+                                            {item.observacoes ? (
+                                                <p className="checkout-item__desc" style={{ color: 'var(--cor-destaque)', fontWeight: '500' }}>
+                                                    {item.observacoes}
+                                                </p>
+                                            ) : item.descricao && (
                                                 <p className="checkout-item__desc">{item.descricao}</p>
                                             )}
                                             <span className="checkout-item__qty">{item.quantidade}x</span>

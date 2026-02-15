@@ -259,7 +259,7 @@ export default function CartPage() {
                                         <h3 className="cart-item__name">{item.nome}</h3>
                                         <button
                                             className="cart-item__remove"
-                                            onClick={() => removeItem(item.produto_id, item.variacao_id)}
+                                            onClick={() => removeItem(item.produto_id, item.variacao_id, item.observacoes)}
                                         >
                                             <X size={16} />
                                         </button>
@@ -275,14 +275,14 @@ export default function CartPage() {
                                         <div className="cart-item__qty">
                                             <button
                                                 className="cart-item__qty-btn"
-                                                onClick={() => updateQuantity(item.produto_id, item.variacao_id, item.quantidade - 1)}
+                                                onClick={() => updateQuantity(item.produto_id, item.variacao_id, item.observacoes, item.quantidade - 1)}
                                             >
                                                 <Minus size={12} />
                                             </button>
                                             <span className="cart-item__qty-val">{item.quantidade}</span>
                                             <button
                                                 className="cart-item__qty-btn cart-item__qty-btn--plus"
-                                                onClick={() => updateQuantity(item.produto_id, item.variacao_id, item.quantidade + 1)}
+                                                onClick={() => updateQuantity(item.produto_id, item.variacao_id, item.observacoes, item.quantidade + 1)}
                                             >
                                                 <Plus size={12} />
                                             </button>

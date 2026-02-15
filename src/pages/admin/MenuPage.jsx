@@ -145,9 +145,16 @@ export default function MenuPage() {
         setUploading(true)
 
         const payload = {
-            ...formData,
+            nome: formData.nome,
+            descricao: formData.descricao,
             preco: parseFloat(formData.preco),
-            quantidade_disponivel: parseInt(formData.quantidade_disponivel) || 0
+            categoria_id: formData.categoria_id,
+            imagem_url: formData.imagem_url,
+            disponivel: formData.disponivel,
+            item_upsell: formData.item_upsell || false,
+            quantidade_disponivel: parseInt(formData.quantidade_disponivel) || 0,
+            controlar_estoque: formData.controlar_estoque || false,
+            opcoes_personalizacao: formData.opcoes_personalizacao || []
         }
 
         let error

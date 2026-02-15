@@ -19,9 +19,9 @@ function cartReducer(state, action) {
     let newState
     switch (action.type) {
         case 'ADD_ITEM': {
-            const key = `${action.item.produto_id}-${action.item.variacao_id || 'default'}`
+            const key = `${action.item.produto_id}-${action.item.variacao_id || 'default'}-${action.item.observacoes || ''}`
             const existing = state.find(i =>
-                `${i.produto_id}-${i.variacao_id || 'default'}` === key
+                `${i.produto_id}-${i.variacao_id || 'default'}-${i.observacoes || ''}` === key
             )
             if (existing) {
                 newState = state.map(i =>
@@ -35,21 +35,21 @@ function cartReducer(state, action) {
             break
         }
         case 'REMOVE_ITEM': {
-            const key = `${action.produto_id}-${action.variacao_id || 'default'}`
+            const key = `${action.produto_id}-${action.variacao_id || 'default'}-${action.observacoes || ''}`
             newState = state.filter(i =>
-                `${i.produto_id}-${i.variacao_id || 'default'}` !== key
+                `${i.produto_id}-${i.variacao_id || 'default'}-${i.observacoes || ''}` !== key
             )
             break
         }
         case 'UPDATE_QTY': {
-            const key = `${action.produto_id}-${action.variacao_id || 'default'}`
+            const key = `${action.produto_id}-${action.variacao_id || 'default'}-${action.observacoes || ''}`
             if (action.quantidade <= 0) {
                 newState = state.filter(i =>
-                    `${i.produto_id}-${i.variacao_id || 'default'}` !== key
+                    `${i.produto_id}-${i.variacao_id || 'default'}-${i.observacoes || ''}` !== key
                 )
             } else {
                 newState = state.map(i =>
-                    `${i.produto_id}-${i.variacao_id || 'default'}` === key
+                    `${i.produto_id}-${i.variacao_id || 'default'}-${i.observacoes || ''}` === key
                         ? { ...i, quantidade: action.quantidade }
                         : i
                 )
@@ -70,9 +70,9 @@ export function CartProvider({ children }) {
     const [items, dispatch] = useReducer(cartReducer, [], loadCart)
 
     const addItem = (item) => dispatch({ type: 'ADD_ITEM', item })
-    const removeItem = (produto_id, variacao_id) => dispatch({ type: 'REMOVE_ITEM', produto_id, variacao_id })
-    const updateQuantity = (produto_id, variacao_id, quantidade) =>
-        dispatch({ type: 'UPDATE_QTY', produto_id, variacao_id, quantidade })
+    const removeItem = (produto_id, variacao_id, observacoes) => dispatch({ type: 'REMOVE_ITEM', produto_id, variacao_id, observacoes })
+    const updateQuantity = (produto_id, variacao_id, observacoes, quantidade) =>
+        dispatch({ type: 'UPDATE_QTY', produto_id, variacao_id, observacoes, quantidade })
     const clearCart = () => dispatch({ type: 'CLEAR' })
 
     const totalItems = items.reduce((sum, i) => sum + i.quantidade, 0)
