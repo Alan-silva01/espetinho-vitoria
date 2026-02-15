@@ -22,6 +22,43 @@
   <meta property="og:description" content="Espetos, Açaí e Caldos. Peça agora!" />
   <meta property="og:image" content="/logo.png" />
   <meta property="og:type" content="website" />
+  <!-- PWA Dynamic Manifest for iOS Shortcut Fix -->
+  <script>
+    (function () {
+      // Get customer code from URL (e.g., /CLI-123456)
+      const pathParts = window.location.pathname.split('/');
+      const customerCode = pathParts.find(p => p.startsWith('CLI-'));
+
+      if (customerCode) {
+        const manifest = {
+          "name": "Espetinho Vitoria",
+          "short_name": "Espetinho",
+          "description": "Os melhores espetinhos, açaí e caldos da região.",
+          "theme_color": "#C41E2E",
+          "background_color": "#ffffff",
+          "display": "standalone",
+          "start_url": "/" + customerCode,
+          "icons": [
+            { "src": "/logo.png", "sizes": "192x192", "type": "image/png" },
+            { "src": "/logo.png", "sizes": "512x512", "type": "image/png" },
+            { "src": "/logo.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+          ]
+        };
+
+        const stringManifest = JSON.stringify(manifest);
+        const manifestDataUrl = 'data:application/json;charset=utf-8,' + encodeURIComponent(stringManifest);
+
+        // Find or create manifest link
+        let link = document.querySelector('link[rel="manifest"]');
+        if (!link) {
+          link = document.createElement('link');
+          link.rel = 'manifest';
+          document.head.appendChild(link);
+        }
+        link.href = manifestDataUrl;
+      }
+    })();
+  </script>
 </head>
 
 <body>
