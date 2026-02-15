@@ -162,6 +162,9 @@ export default function ProductPage() {
                     src={getImageUrl(product.imagem_url) || 'https://via.placeholder.com/600x400?text=🍖'}
                     alt={product.nome}
                     className="product-hero__img"
+                    width={600}
+                    height={400}
+                    priority={true}
                 />
                 <div className="product-hero__overlay" />
                 <div className="product-hero__gradient" />
@@ -262,11 +265,12 @@ export default function ProductPage() {
                                         >
                                             <div className="product-addon-item__left">
                                                 {img ? (
-                                                    <img
-                                                        src={optimizeUrl(getImageUrl(img), { width: 100, height: 100 })}
+                                                    <OptimizedImage
+                                                        src={getImageUrl(img)}
                                                         alt={name}
                                                         className="product-addon-item__img"
-                                                        loading="lazy"
+                                                        width={100}
+                                                        height={100}
                                                     />
                                                 ) : (
                                                     <div className="product-addon-item__img-placeholder">

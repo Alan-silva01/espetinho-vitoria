@@ -250,6 +250,8 @@ export default function CartPage() {
                                     <OptimizedImage
                                         src={getImageUrl(item.imagem_url) || 'https://via.placeholder.com/100?text=🍖'}
                                         alt={item.nome}
+                                        width={100}
+                                        height={100}
                                     />
                                 </div>
                                 <div className="cart-item__info">

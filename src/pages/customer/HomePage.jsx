@@ -200,7 +200,7 @@ export default function HomePage() {
             <div className="home-grid">
                 {filteredProducts
                     .filter(p => p.quantidade_disponivel > 0)
-                    .map(product => (
+                    .map((product, index) => (
                         <div
                             key={product.id}
                             className="product-card"
@@ -213,6 +213,9 @@ export default function HomePage() {
                                     src={getImageUrl(product.imagem_url) || 'https://via.placeholder.com/300x300?text=🍖'}
                                     alt={product.nome}
                                     className="product-card__image"
+                                    width={300}
+                                    height={300}
+                                    priority={index < 4}
                                 />
                                 {product.quantidade_disponivel === 0 && (
                                     <div className="product-card__out-label">ESGOTADO</div>
