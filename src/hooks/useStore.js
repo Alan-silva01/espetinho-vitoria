@@ -24,33 +24,39 @@ export function useStore() {
     useEffect(() => {
         fetchStoreStatus()
 
-        // Real-time synchronization
+        // 1. Real-time synchronization
         const channel = supabase
             .channel('store-status-sync')
             .on('postgres_changes',
                 { event: '*', schema: 'public', table: 'configuracoes_loja' },
                 (payload) => {
-                    console.log('[useStore] Mudança em configuracoes_loja:', payload)
-                    if (payload.new) {
-                        setConfig(current => ({ ...current, ...payload.new }))
-                    } else {
-                        fetchStoreStatus()
-                    }
+                    console.log('[useStore] Re-fetching store config due to Realtime event:', payload.eventType)
+                    fetchStoreStatus() // Always re-fetch to ensure we have the complete row state
                 }
             )
             .on('postgres_changes',
                 { event: '*', schema: 'public', table: 'horarios_funcionamento' },
-                (payload) => {
-                    console.log('[useStore] Mudança em horarios_funcionamento:', payload)
+                () => {
+                    console.log('[useStore] Re-fetching store hours due to Realtime event')
                     fetchStoreStatus()
                 }
             )
             .subscribe((status) => {
-                console.log('[useStore] Status da inscrição Realtime:', status)
+                console.log(`[useStore] Status inscricao (${status})`)
+                if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
+                    console.warn('[useStore] Reconnecting Realtime...')
+                    fetchStoreStatus()
+                }
             })
+
+        // 2. Heartbeat check every 30 seconds as fallback
+        const heartbeat = setInterval(() => {
+            fetchStoreStatus()
+        }, 30000)
 
         return () => {
             supabase.removeChannel(channel)
+            clearInterval(heartbeat)
         }
     }, [])
 
