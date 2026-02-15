@@ -1,4 +1,4 @@
-import { Outlet, useLocation, useParams } from 'react-router-dom'
+import { Outlet, useLocation, useParams, useNavigate } from 'react-router-dom'
 import BottomNav from '../components/customer/BottomNav'
 import StoreClosedOverlay from '../components/customer/StoreClosedOverlay'
 import { useStore } from '../hooks/useStore'
@@ -10,6 +10,7 @@ export default function CustomerLayout() {
     const { customerCode } = useParams()
     const { fetchCustomerByCode, customer } = useCustomer()
     const { isOpen, config, loading, closureInfo } = useStore()
+    const navigate = useNavigate()
 
     // Global detection: if URL has CLI-XXXXXX, load that customer
     useEffect(() => {
@@ -19,7 +20,15 @@ export default function CustomerLayout() {
                 fetchCustomerByCode(customerCode)
             }
         }
-    }, [customerCode, customer])
+    }, [customerCode, customer, fetchCustomerByCode])
+
+    // Redirect to coded URL if we are at root but have a customer in context
+    // This ensures that Add to Home Screen works correctly even if it opens at /
+    useEffect(() => {
+        if (location.pathname === '/' && customer?.codigo) {
+            navigate(`/${customer.codigo}`, { replace: true })
+        }
+    }, [location.pathname, customer, navigate])
 
     const hideNav = ['/checkout', '/pedido'].some(p => location.pathname.startsWith(p))
     const isProfilePage = location.pathname === '/perfil'
