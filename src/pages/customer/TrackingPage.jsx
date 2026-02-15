@@ -51,7 +51,7 @@ export default function TrackingPage() {
                     <div className="tracking-time-card__blur tracking-time-card__blur--red" />
                     <p className="tracking-time-card__label">Tempo estimado de entrega</p>
                     <h2 className="tracking-time-card__value">
-                        25-35 <span>min</span>
+                        40-50 <span>min</span>
                     </h2>
                     <div className="tracking-time-card__status">
                         <span className="tracking-time-card__dot" />

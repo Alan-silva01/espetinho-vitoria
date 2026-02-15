@@ -206,21 +206,23 @@ export default function ProductPage() {
                             <span className="product-section__badge">Escolha 1</span>
                         </div>
                         <div className="product-options">
-                            {product.variacoes_produto.map(v => (
-                                <label key={v.id} className={`product-option ${selectedVariation?.id === v.id ? 'product-option--selected' : ''}`}>
-                                    <div className="product-option__left">
-                                        <input
-                                            type="radio"
-                                            name="variacao"
-                                            className="product-option__radio"
-                                            checked={selectedVariation?.id === v.id}
-                                            onChange={() => setSelectedVariation(v)}
-                                        />
-                                        <span className="product-option__label">{v.nome}</span>
-                                    </div>
-                                    <span className="product-option__price">{formatCurrency(v.preco)}</span>
-                                </label>
-                            ))}
+                            {product.variacoes_produto
+                                .filter(v => v.disponivel !== false && (v.quantidade_disponivel === undefined || v.quantidade_disponivel > 0))
+                                .map(v => (
+                                    <label key={v.id} className={`product-option ${selectedVariation?.id === v.id ? 'product-option--selected' : ''}`}>
+                                        <div className="product-option__left">
+                                            <input
+                                                type="radio"
+                                                name="variacao"
+                                                className="product-option__radio"
+                                                checked={selectedVariation?.id === v.id}
+                                                onChange={() => setSelectedVariation(v)}
+                                            />
+                                            <span className="product-option__label">{v.nome}</span>
+                                        </div>
+                                        <span className="product-option__price">{formatCurrency(v.preco)}</span>
+                                    </label>
+                                ))}
                         </div>
                     </section>
                 )}
@@ -245,9 +247,11 @@ export default function ProductPage() {
                                     const price = optPreco(opt)
                                     const img = optImg(opt)
                                     // Check availability (default true if undefined)
-                                    const isAvailable = typeof opt === 'string' ? true : (opt.disponivel !== false)
+                                    const isAvailable = typeof opt === 'string'
+                                        ? true
+                                        : (opt.disponivel !== false && (opt.quantidade_disponivel === undefined || opt.quantidade_disponivel > 0))
 
-                                    if (!isAvailable) return null // Hide unavailable options
+                                    if (!isAvailable) return null // Hide unavailable or zero-stock options
 
                                     const selected = isOptionSelected(group.grupo, name, group.tipo)
                                     return (

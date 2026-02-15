@@ -78,7 +78,7 @@ export function useProducts() {
     }
 
     function getUpsellProducts() {
-        return products.filter(p => p.item_upsell)
+        return products.filter(p => p.item_upsell && p.quantidade_disponivel > 0)
     }
 
     return {

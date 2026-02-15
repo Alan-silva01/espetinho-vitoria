@@ -198,92 +198,93 @@ export default function HomePage() {
 
             {/* Products Grid */}
             <div className="home-grid">
-                {filteredProducts.map(product => (
-                    <div
-                        key={product.id}
-                        className={`product-card ${product.quantidade_disponivel === 0 ? 'product-card--out-of-stock' : ''}`}
-                        onClick={() => {
-                            if (product.quantidade_disponivel === 0) return
-                            navigate(customerCode ? `/${customerCode}/produto/${product.id}` : `/produto/${product.id}`)
-                        }}
-                    >
-                        <div className="product-card__image-wrapper">
-                            <OptimizedImage
-                                src={getImageUrl(product.imagem_url) || 'https://via.placeholder.com/300x300?text=🍖'}
-                                alt={product.nome}
-                                className="product-card__image"
-                            />
-                            {product.quantidade_disponivel === 0 && (
-                                <div className="product-card__out-label">ESGOTADO</div>
-                            )}
-                            <button
-                                className={`product-card__fav ${liked[product.id] ? 'product-card__fav--liked' : ''}`}
-                                onClick={e => handleLike(e, product.id)}
-                            >
-                                <Heart
-                                    size={14}
-                                    fill={liked[product.id] ? '#C41E2E' : 'none'}
-                                    color={liked[product.id] ? '#C41E2E' : '#374151'}
+                {filteredProducts
+                    .filter(p => p.quantidade_disponivel > 0)
+                    .map(product => (
+                        <div
+                            key={product.id}
+                            className="product-card"
+                            onClick={() => {
+                                navigate(customerCode ? `/${customerCode}/produto/${product.id}` : `/produto/${product.id}`)
+                            }}
+                        >
+                            <div className="product-card__image-wrapper">
+                                <OptimizedImage
+                                    src={getImageUrl(product.imagem_url) || 'https://via.placeholder.com/300x300?text=🍖'}
+                                    alt={product.nome}
+                                    className="product-card__image"
                                 />
-                                {/* Heart burst animation */}
-                                {animatingHearts[product.id] && (
-                                    <div className="heart-burst">
-                                        {[...Array(6)].map((_, i) => (
-                                            <span key={i} className="heart-burst__particle" style={{ '--i': i }}>❤</span>
-                                        ))}
-                                    </div>
+                                {product.quantidade_disponivel === 0 && (
+                                    <div className="product-card__out-label">ESGOTADO</div>
                                 )}
-                            </button>
-                        </div>
-                        <h3 className="product-card__name">{product.nome}</h3>
-                        <p className="product-card__desc">
-                            {product.descricao || product.categorias?.nome || ''}
-                        </p>
-                        <div className="product-card__footer">
-                            <span className="product-card__price">{formatCurrency(product.preco)}</span>
-                            <button
-                                className="product-card__add"
-                                disabled={product.quantidade_disponivel === 0}
-                                onClick={e => {
-                                    e.stopPropagation()
-                                    if (product.quantidade_disponivel === 0) return
+                                <button
+                                    className={`product-card__fav ${liked[product.id] ? 'product-card__fav--liked' : ''}`}
+                                    onClick={e => handleLike(e, product.id)}
+                                >
+                                    <Heart
+                                        size={14}
+                                        fill={liked[product.id] ? '#C41E2E' : 'none'}
+                                        color={liked[product.id] ? '#C41E2E' : '#374151'}
+                                    />
+                                    {/* Heart burst animation */}
+                                    {animatingHearts[product.id] && (
+                                        <div className="heart-burst">
+                                            {[...Array(6)].map((_, i) => (
+                                                <span key={i} className="heart-burst__particle" style={{ '--i': i }}>❤</span>
+                                            ))}
+                                        </div>
+                                    )}
+                                </button>
+                            </div>
+                            <h3 className="product-card__name">{product.nome}</h3>
+                            <p className="product-card__desc">
+                                {product.descricao || product.categorias?.nome || ''}
+                            </p>
+                            <div className="product-card__footer">
+                                <span className="product-card__price">{formatCurrency(product.preco)}</span>
+                                <button
+                                    className="product-card__add"
+                                    disabled={product.quantidade_disponivel === 0}
+                                    onClick={e => {
+                                        e.stopPropagation()
+                                        if (product.quantidade_disponivel === 0) return
 
-                                    // --- Fly-to-Cart animation ---
-                                    const btn = e.currentTarget
-                                    const rect = btn.getBoundingClientRect()
-                                    const cart = document.querySelector('.bottom-nav__cart-btn')
-                                    if (cart) {
-                                        const cartRect = cart.getBoundingClientRect()
-                                        const fly = document.createElement('div')
-                                        fly.className = 'fly-to-cart'
-                                        fly.textContent = '🍖'
-                                        fly.style.left = `${rect.left + rect.width / 2}px`
-                                        fly.style.top = `${rect.top + rect.height / 2}px`
-                                        fly.style.setProperty('--dx', `${cartRect.left + cartRect.width / 2 - (rect.left + rect.width / 2)}px`)
-                                        fly.style.setProperty('--dy', `${cartRect.top + cartRect.height / 2 - (rect.top + rect.height / 2)}px`)
-                                        document.body.appendChild(fly)
-                                        fly.addEventListener('animationend', () => {
-                                            fly.remove()
-                                            // Bounce the cart button
-                                            cart.classList.add('cart-bounce')
-                                            setTimeout(() => cart.classList.remove('cart-bounce'), 400)
+                                        // --- Fly-to-Cart animation ---
+                                        const btn = e.currentTarget
+                                        const rect = btn.getBoundingClientRect()
+                                        const cart = document.querySelector('.bottom-nav__cart-btn')
+                                        if (cart) {
+                                            const cartRect = cart.getBoundingClientRect()
+                                            const fly = document.createElement('div')
+                                            fly.className = 'fly-to-cart'
+                                            fly.textContent = '🍖'
+                                            fly.style.left = `${rect.left + rect.width / 2}px`
+                                            fly.style.top = `${rect.top + rect.height / 2}px`
+                                            fly.style.setProperty('--dx', `${cartRect.left + cartRect.width / 2 - (rect.left + rect.width / 2)}px`)
+                                            fly.style.setProperty('--dy', `${cartRect.top + cartRect.height / 2 - (rect.top + rect.height / 2)}px`)
+                                            document.body.appendChild(fly)
+                                            fly.addEventListener('animationend', () => {
+                                                fly.remove()
+                                                // Bounce the cart button
+                                                cart.classList.add('cart-bounce')
+                                                setTimeout(() => cart.classList.remove('cart-bounce'), 400)
+                                            })
+                                        }
+
+                                        addItem({
+                                            produto_id: product.id,
+                                            nome: product.nome,
+                                            preco: product.preco,
+                                            imagem_url: product.imagem_url,
+                                            eh_upsell: false,
                                         })
-                                    }
-
-                                    addItem({
-                                        produto_id: product.id,
-                                        nome: product.nome,
-                                        preco: product.preco,
-                                        imagem_url: product.imagem_url,
-                                        eh_upsell: false,
-                                    })
-                                }}
-                            >
-                                <Plus size={14} />
-                            </button>
+                                    }}
+                                >
+                                    <Plus size={14} />
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    ))}
             </div>
 
             {/* Promo Banner (Oferta do Dia) */}
