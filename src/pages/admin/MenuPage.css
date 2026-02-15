@@ -982,3 +982,80 @@
 .variation-item__remove:hover {
     background: #FCA5A5;
 }
+/* Option Editing Inline Styles */
+.option-editing-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 4px;
+}
+
+.option-inline-name {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    color: inherit !important;
+    width: 80px;
+    outline: none !important;
+}
+
+.option-inline-name:focus {
+    box-shadow: none !important;
+    border-bottom: 1px solid #B91C1C !important;
+}
+
+.option-price-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    font-size: 11px;
+    color: #059669;
+    font-weight: 700;
+    background: #ECFDF5;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.option-inline-price {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    color: #059669 !important;
+    width: 40px;
+    outline: none !important;
+}
+
+.option-inline-price::-webkit-inner-spin-button,
+.option-inline-price::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.option-remove-btn {
+    background: none;
+    border: none;
+    color: #9CA3AF;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 4px;
+    transition: color 0.2s;
+}
+
+.option-remove-btn:hover {
+    color: #EF4444;
+}
+
+.custom-option-tag {
+    height: 36px;
+    padding: 0 8px 0 12px !important;
+}
+
+.custom-option-tag.unavailable {
+    opacity: 0.6;
+    background: #F3F4F6;
+}

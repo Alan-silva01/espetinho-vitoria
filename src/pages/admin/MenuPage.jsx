@@ -176,10 +176,13 @@ export default function MenuPage() {
         }
 
         if (!error && productId) {
-            // --- Save variations ---
-            // Delete removed variations
             if (deletedVariationIds.length > 0) {
-                await supabase.from('variacoes_produto').delete().in('id', deletedVariationIds)
+                const { error: delErr } = await supabase.from('variacoes_produto').delete().in('id', deletedVariationIds)
+                if (delErr) {
+                    alert('Erro ao excluir variações: ' + delErr.message)
+                    setUploading(false)
+                    return
+                }
             }
             // Upsert variations
             for (const v of variations) {
@@ -192,10 +195,20 @@ export default function MenuPage() {
                 }
                 if (v.id && typeof v.id === 'string' && !v.id.startsWith('new-')) {
                     // Existing variation — update
-                    await supabase.from('variacoes_produto').update(varPayload).eq('id', v.id)
+                    const { error: upErr } = await supabase.from('variacoes_produto').update(varPayload).eq('id', v.id)
+                    if (upErr) {
+                        alert('Erro ao atualizar variação: ' + upErr.message)
+                        setUploading(false)
+                        return
+                    }
                 } else {
                     // New variation — insert
-                    await supabase.from('variacoes_produto').insert([varPayload])
+                    const { error: insErr } = await supabase.from('variacoes_produto').insert([varPayload])
+                    if (insErr) {
+                        alert('Erro ao inserir variação: ' + insErr.message)
+                        setUploading(false)
+                        return
+                    }
                 }
             }
         }
@@ -709,11 +722,56 @@ export default function MenuPage() {
 
                                                         return (
                                                             <span key={oIdx} className={`custom-option-tag ${!isAvailable ? 'unavailable' : ''}`}>
-                                                                {img && <img src={img} alt={name} style={{ width: 20, height: 20, borderRadius: '50%', objectFit: 'cover' }} />}
-                                                                <span style={{ textDecoration: isAvailable ? 'none' : 'line-through', opacity: isAvailable ? 1 : 0.6 }}>
-                                                                    {name}
-                                                                </span>
-                                                                {price > 0 && <span style={{ color: '#059669', fontSize: 11, fontWeight: 700 }}>+R$ {price.toFixed(2)}</span>}
+                                                                {img && <img src={img} alt={name} style={{ width: 24, height: 24, borderRadius: '50%', objectFit: 'cover' }} />}
+                                                                
+                                                                <div className="option-editing-group">
+                                                                    <input 
+                                                                        type="text"
+                                                                        className="option-inline-name"
+                                                                        value={name}
+                                                                        onChange={e => {
+                                                                            const updatedGroup = { ...group }
+                                                                            const updatedOptions = [...updatedGroup.opcoes]
+                                                                            const currentOpt = updatedOptions[oIdx]
+                                                                            updatedOptions[oIdx] = typeof currentOpt === 'string'
+                                                                                ? { nome: e.target.value, preco: 0 }
+                                                                                : { ...currentOpt, nome: e.target.value }
+                                                                            updatedGroup.opcoes = updatedOptions
+                                                                            setFormData(prev => {
+                                                                                const newPersonalization = [...prev.opcoes_personalizacao]
+                                                                                newPersonalization[gIdx] = updatedGroup
+                                                                                return { ...prev, opcoes_personalizacao: newPersonalization }
+                                                                            })
+                                                                        }}
+                                                                        placeholder="Nome..."
+                                                                    />
+                                                                    <div className="option-price-input-wrapper">
+                                                                        <span>R$</span>
+                                                                        <input 
+                                                                            type="number"
+                                                                            className="option-inline-price"
+                                                                            value={price || ''}
+                                                                            step="0.50"
+                                                                            min="0"
+                                                                            onChange={e => {
+                                                                                const updatedGroup = { ...group }
+                                                                                const updatedOptions = [...updatedGroup.opcoes]
+                                                                                const currentOpt = updatedOptions[oIdx]
+                                                                                const newPrice = e.target.value === '' ? 0 : parseFloat(e.target.value) || 0
+                                                                                updatedOptions[oIdx] = typeof currentOpt === 'string'
+                                                                                    ? { nome: currentOpt, preco: newPrice }
+                                                                                    : { ...currentOpt, preco: newPrice }
+                                                                                updatedGroup.opcoes = updatedOptions
+                                                                                setFormData(prev => {
+                                                                                    const newPersonalization = [...prev.opcoes_personalizacao]
+                                                                                    newPersonalization[gIdx] = updatedGroup
+                                                                                    return { ...prev, opcoes_personalizacao: newPersonalization }
+                                                                                })
+                                                                            }}
+                                                                            placeholder="0.00"
+                                                                        />
+                                                                    </div>
+                                                                </div>
 
                                                                 {/* Availability Toggle */}
                                                                 <button
@@ -742,7 +800,7 @@ export default function MenuPage() {
                                                                     style={{
                                                                         background: 'none', border: 'none', cursor: 'pointer',
                                                                         color: isAvailable ? '#10B981' : '#EF4444',
-                                                                        display: 'flex', alignItems: 'center'
+                                                                        display: 'flex', alignItems: 'center', padding: '0 4px'
                                                                     }}
                                                                 >
                                                                     <div style={{
@@ -751,12 +809,12 @@ export default function MenuPage() {
                                                                     }} />
                                                                 </button>
 
-                                                                <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', color: '#6B7280' }} title="Adicionar imagem">
-                                                                    <ImageIcon size={12} />
+                                                                <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', color: '#6B7280', padding: '0 4px' }} title="Adicionar imagem">
+                                                                    <ImageIcon size={14} />
                                                                     <input type="file" accept="image/*" style={{ display: 'none' }} onChange={e => handleOptionImageUpload(gIdx, oIdx, e.target.files[0])} />
                                                                 </label>
-                                                                <button type="button" onClick={() => removeOptionFromGroup(gIdx, oIdx)}>
-                                                                    <X size={12} />
+                                                                <button type="button" className="option-remove-btn" onClick={() => removeOptionFromGroup(gIdx, oIdx)}>
+                                                                    <Trash2 size={12} />
                                                                 </button>
                                                             </span>
                                                         )

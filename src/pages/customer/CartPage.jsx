@@ -267,8 +267,21 @@ export default function CartPage() {
                                     {item.descricao && (
                                         <p className="cart-item__desc">{item.descricao}</p>
                                     )}
+                                    {item.personalizacao && typeof item.personalizacao === 'object' && (
+                                        <div className="cart-item__details">
+                                            {Object.entries(item.personalizacao).map(([group, val]) => {
+                                                const displayVal = Array.isArray(val) ? val.join(', ') : val
+                                                if (!displayVal) return null
+                                                return (
+                                                    <p key={group} className="cart-item__detail">
+                                                        <strong>{group}:</strong> {displayVal}
+                                                    </p>
+                                                )
+                                            })}
+                                        </div>
+                                    )}
                                     {item.observacoes && (
-                                        <p className="cart-item__obs">{item.observacoes}</p>
+                                        <p className="cart-item__obs">OBS: {item.observacoes}</p>
                                     )}
                                     <div className="cart-item__bottom">
                                         <span className="cart-item__price">{formatCurrency(item.preco * item.quantidade)}</span>

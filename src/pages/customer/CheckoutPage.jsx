@@ -388,11 +388,26 @@ export default function CheckoutPage() {
                                                 <h4>{item.nome}</h4>
                                                 <span>{formatCurrency(item.preco * item.quantidade)}</span>
                                             </div>
-                                            {item.observacoes ? (
-                                                <p className="checkout-item__desc" style={{ color: 'var(--cor-destaque)', fontWeight: '500' }}>
-                                                    {item.observacoes}
+                                            {item.personalizacao && typeof item.personalizacao === 'object' && (
+                                                <div className="checkout-item__details">
+                                                    {Object.entries(item.personalizacao).map(([group, val]) => {
+                                                        const displayVal = Array.isArray(val) ? val.join(', ') : val
+                                                        if (!displayVal) return null
+                                                        return (
+                                                            <p key={group} className="checkout-item__detail">
+                                                                <strong>{group}:</strong> {displayVal}
+                                                            </p>
+                                                        )
+                                                    })}
+                                                </div>
+                                            )}
+
+                                            {item.observacoes && (
+                                                <p className="checkout-item__obs" style={{ color: 'var(--cor-destaque)', fontWeight: '500' }}>
+                                                    OBS: {item.observacoes}
                                                 </p>
-                                            ) : item.descricao && (
+                                            )}
+                                            {!item.observacoes && item.descricao && (
                                                 <p className="checkout-item__desc">{item.descricao}</p>
                                             )}
                                             <span className="checkout-item__qty">{item.quantidade}x</span>

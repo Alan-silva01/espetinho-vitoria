@@ -34,15 +34,17 @@ export default function ProductPage() {
     // Pre-select 300ml variation for Açaí or 500ml for Caldos on load
     useEffect(() => {
         if (product?.variacoes_produto?.length > 0) {
-            // Priority 1: 300ml (Açaí)
-            // Priority 2: 500ml (Caldos)
-            const v300 = product.variacoes_produto.find(v => v.nome === '300ml')
-            const v500 = product.variacoes_produto.find(v => v.nome === '500ml')
-
             if (product.nome?.toLowerCase().includes('caldo')) {
+                const v300 = product.variacoes_produto.find(v => v.nome === '300ml')
+                const v500 = product.variacoes_produto.find(v => v.nome === '500ml')
                 if (v500) setSelectedVariation(v500)
                 else if (v300) setSelectedVariation(v300)
+            } else if (product.categoria?.nome === 'Espetos' || product.nome?.toLowerCase().includes('espetinho') || product.nome?.toLowerCase().includes('medalhão')) {
+                const vCompleto = product.variacoes_produto.find(v => v.nome.toLowerCase().includes('completo'))
+                if (vCompleto) setSelectedVariation(vCompleto)
             } else {
+                // Default to 300ml for others if exists (like Açaí)
+                const v300 = product.variacoes_produto.find(v => v.nome === '300ml')
                 if (v300) setSelectedVariation(v300)
             }
         }
@@ -149,7 +151,7 @@ export default function ProductPage() {
             preco: (selectedVariation?.preco || product.preco) + extrasTotal,
             imagem_url: product.imagem_url,
             quantidade: qty,
-            observacoes: [optionsSummary, notes].filter(Boolean).join(' — '),
+            observacoes: notes,
             personalizacao: selectedOptions,
             eh_upsell: false,
         })

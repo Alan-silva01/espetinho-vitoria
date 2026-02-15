@@ -373,11 +373,15 @@ export default function OrdersPage() {
 
                                             {(item.personalizacao || item.observacoes) && (
                                                 <div className="v4-item-details">
-                                                    {item.personalizacao && typeof item.personalizacao === 'object' && Object.entries(item.personalizacao).map(([k, v]) => (
-                                                        <div key={k} className="v4-detail-row">
-                                                            {k}: {String(v)}
-                                                        </div>
-                                                    ))}
+                                                    {item.personalizacao && typeof item.personalizacao === 'object' && Object.entries(item.personalizacao).map(([k, v]) => {
+                                                        const displayVal = Array.isArray(v) ? v.join(', ') : v;
+                                                        if (!displayVal) return null;
+                                                        return (
+                                                            <div key={k} className="v4-detail-row">
+                                                                {k}: {String(displayVal)}
+                                                            </div>
+                                                        );
+                                                    })}
                                                     {item.observacoes && (
                                                         <div className="v4-item-obs">
                                                             OBS: {item.observacoes}
