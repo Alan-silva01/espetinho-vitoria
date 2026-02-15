@@ -25,18 +25,32 @@ export function useStore() {
         fetchStoreStatus()
 
         // Real-time synchronization
-        const configSub = supabase
-            .channel('store_status_sync')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'configuracoes_loja' }, () => {
-                fetchStoreStatus()
+        const channel = supabase
+            .channel('store-status-sync')
+            .on('postgres_changes',
+                { event: '*', schema: 'public', table: 'configuracoes_loja' },
+                (payload) => {
+                    console.log('[useStore] Mudança em configuracoes_loja:', payload)
+                    if (payload.new) {
+                        setConfig(current => ({ ...current, ...payload.new }))
+                    } else {
+                        fetchStoreStatus()
+                    }
+                }
+            )
+            .on('postgres_changes',
+                { event: '*', schema: 'public', table: 'horarios_funcionamento' },
+                (payload) => {
+                    console.log('[useStore] Mudança em horarios_funcionamento:', payload)
+                    fetchStoreStatus()
+                }
+            )
+            .subscribe((status) => {
+                console.log('[useStore] Status da inscrição Realtime:', status)
             })
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'horarios_funcionamento' }, () => {
-                fetchStoreStatus()
-            })
-            .subscribe()
 
         return () => {
-            supabase.removeChannel(configSub)
+            supabase.removeChannel(channel)
         }
     }, [])
 
