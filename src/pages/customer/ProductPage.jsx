@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, Heart, Share2, Minus, Plus, Check, ShoppingCart } from 'lucide-react'
 import { useProduct } from '../../hooks/useProducts'
 import { useCart } from '../../hooks/useCart'
+import { useFavorites } from '../../hooks/useFavorites'
 import { formatCurrency, getImageUrl } from '../../lib/utils'
 import { optimizeUrl } from '../../lib/cloudinary'
 import Loading from '../../components/ui/Loading'
@@ -24,6 +25,7 @@ export default function ProductPage() {
     const navigate = useNavigate()
     const { product, loading } = useProduct(id)
     const { addItem } = useCart()
+    const { liked, toggleLike, animatingHearts } = useFavorites()
     const [qty, setQty] = useState(1)
     const [notes, setNotes] = useState('')
     const [selectedVariation, setSelectedVariation] = useState(null)
@@ -207,7 +209,24 @@ export default function ProductPage() {
                         <button className="product-hero__btn product-hero__cart-btn" onClick={() => navigate('/carrinho')}>
                             <ShoppingCart size={20} />
                         </button>
-                        <button className="product-hero__btn"><Heart size={20} /></button>
+                        <button
+                            className={`product-hero__btn ${liked[product.id] ? 'product-hero__btn--liked' : ''}`}
+                            onClick={() => toggleLike(product.id)}
+                        >
+                            <Heart
+                                size={20}
+                                fill={liked[product.id] ? '#ef4444' : 'none'}
+                                color={liked[product.id] ? '#ef4444' : 'currentColor'}
+                            />
+                            {/* Heart burst animation */}
+                            {animatingHearts[product.id] && (
+                                <div className="heart-burst">
+                                    {[...Array(6)].map((_, i) => (
+                                        <span key={i} className="heart-burst__particle" style={{ '--i': i }}>❤</span>
+                                    ))}
+                                </div>
+                            )}
+                        </button>
                         <button className="product-hero__btn"><Share2 size={20} /></button>
                     </div>
                 </div>

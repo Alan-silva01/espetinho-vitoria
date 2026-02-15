@@ -5,6 +5,7 @@ import { useProducts } from '../../hooks/useProducts'
 import { useCart } from '../../hooks/useCart'
 import { useStore } from '../../hooks/useStore'
 import { useCustomer } from '../../context/CustomerContext'
+import { useFavorites } from '../../hooks/useFavorites'
 import { formatCurrency, getImageUrl } from '../../lib/utils'
 import { supabase } from '../../lib/supabase'
 import Loading from '../../components/ui/Loading'
@@ -12,15 +13,7 @@ import PromoMarquee from '../../components/customer/PromoMarquee'
 import OptimizedImage from '../../components/ui/OptimizedImage'
 import './HomePage.css'
 
-/* Generate or retrieve a unique session ID for likes */
-function getSessionId() {
-    let sid = localStorage.getItem('espetinho_session')
-    if (!sid) {
-        sid = crypto.randomUUID()
-        localStorage.setItem('espetinho_session', sid)
-    }
-    return sid
-}
+/* session ID logic moved to useFavorites.js */
 
 export default function HomePage() {
     const navigate = useNavigate()
@@ -30,33 +23,13 @@ export default function HomePage() {
     // Detection is now globally handled in CustomerLayout.jsx!
     const { addItem } = useCart()
     const { isOpen, config } = useStore()
+    const { liked, toggleLike, animatingHearts } = useFavorites()
     const [activeCategory, setActiveCategory] = useState(null)
     const [search, setSearch] = useState('')
     const [promoDestaque, setPromoDestaque] = useState(null)
-    const [liked, setLiked] = useState(() => {
-        try { return JSON.parse(localStorage.getItem('espetinho_likes') || '{}') }
-        catch { return {} }
-    })
-    const [animatingHearts, setAnimatingHearts] = useState({})
 
-    // Load likes from Supabase on mount (DB is source of truth)
+    // Load likes handled in useFavorites hook
     useEffect(() => {
-        async function loadLikes() {
-            const sessionId = getSessionId()
-            const { data, error } = await supabase
-                .from('curtidas')
-                .select('produto_id')
-                .eq('session_id', sessionId)
-
-            if (!error && data) {
-                const likesMap = {}
-                data.forEach(row => { likesMap[row.produto_id] = true })
-                setLiked(likesMap)
-                localStorage.setItem('espetinho_likes', JSON.stringify(likesMap))
-            }
-        }
-        loadLikes()
-
         async function fetchPromoDestaque() {
             const { data } = await supabase
                 .from('promocoes')
@@ -84,51 +57,10 @@ export default function HomePage() {
         return matchCat && matchSearch && isAvailable
     })
 
-    const handleLike = useCallback(async (e, productId) => {
+    const handleLike = useCallback((e, productId) => {
         e.stopPropagation()
-        const sessionId = getSessionId()
-        const isLiked = liked[productId]
-
-        // Trigger heart burst animation
-        setAnimatingHearts(prev => ({ ...prev, [productId]: true }))
-        setTimeout(() => setAnimatingHearts(prev => ({ ...prev, [productId]: false })), 800)
-
-        if (isLiked) {
-            // Optimistic remove
-            setLiked(prev => {
-                const next = { ...prev }
-                delete next[productId]
-                localStorage.setItem('espetinho_likes', JSON.stringify(next))
-                return next
-            })
-            const { error } = await supabase.from('curtidas').delete().match({ produto_id: productId, session_id: sessionId })
-            if (error) {
-                console.error('Erro ao remover curtida:', error.message)
-                setLiked(prev => {
-                    const next = { ...prev, [productId]: true }
-                    localStorage.setItem('espetinho_likes', JSON.stringify(next))
-                    return next
-                })
-            }
-        } else {
-            // Optimistic add
-            setLiked(prev => {
-                const next = { ...prev, [productId]: true }
-                localStorage.setItem('espetinho_likes', JSON.stringify(next))
-                return next
-            })
-            const { error } = await supabase.from('curtidas').insert({ produto_id: productId, session_id: sessionId })
-            if (error) {
-                console.error('Erro ao curtir:', error.message)
-                setLiked(prev => {
-                    const next = { ...prev }
-                    delete next[productId]
-                    localStorage.setItem('espetinho_likes', JSON.stringify(next))
-                    return next
-                })
-            }
-        }
-    }, [liked])
+        toggleLike(productId)
+    }, [toggleLike])
 
     if (loading) return <Loading fullScreen text="Carregando cardápio..." />
 

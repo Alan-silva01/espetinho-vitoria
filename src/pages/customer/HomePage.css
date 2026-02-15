@@ -283,7 +283,8 @@
     }
 }
 
-/* Heart burst particles */
+
+/* ===== Heart Burst Animation (Global) ===== */
 .heart-burst {
     position: absolute;
     top: 50%;
@@ -294,62 +295,7 @@
 .heart-burst__particle {
     position: absolute;
     font-size: 10px;
-    animation: heart-fly 0.7s ease-out forwards;
     opacity: 0;
-}
-
-@keyframes heart-fly {
-    0% {
-        transform: translate(-50%, -50%) scale(0.5);
-        opacity: 1;
-    }
-
-    100% {
-        transform: translate(calc(-50% + cos(calc(var(--i) * 60deg)) * 30px),
-                calc(-50% + sin(calc(var(--i) * 60deg)) * 30px)) scale(0);
-        opacity: 0;
-    }
-}
-
-.heart-burst__particle:nth-child(1) {
-    animation-delay: 0s;
-    transform: translate(-50%, -50%) translateX(0px) translateY(-25px);
-}
-
-.heart-burst__particle:nth-child(2) {
-    animation-delay: 0.05s;
-    transform: translate(-50%, -50%) translateX(20px) translateY(-12px);
-}
-
-.heart-burst__particle:nth-child(3) {
-    animation-delay: 0.1s;
-    transform: translate(-50%, -50%) translateX(20px) translateY(12px);
-}
-
-.heart-burst__particle:nth-child(4) {
-    animation-delay: 0.05s;
-    transform: translate(-50%, -50%) translateX(0px) translateY(25px);
-}
-
-.heart-burst__particle:nth-child(5) {
-    animation-delay: 0.1s;
-    transform: translate(-50%, -50%) translateX(-20px) translateY(12px);
-}
-
-.heart-burst__particle:nth-child(6) {
-    animation-delay: 0.05s;
-    transform: translate(-50%, -50%) translateX(-20px) translateY(-12px);
-}
-
-@keyframes heart-fly {
-    0% {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(1);
-    }
-
-    100% {
-        opacity: 0;
-    }
 }
 
 .heart-burst__particle:nth-child(1) {
@@ -447,6 +393,7 @@
         transform: translate(-100%, -60%) scale(0.3);
     }
 }
+
 
 .product-card__name {
     font-weight: 700;
