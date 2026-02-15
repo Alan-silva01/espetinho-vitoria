@@ -26,6 +26,7 @@ export default function ProductPage() {
     const { product, loading } = useProduct(id)
     const { addItem } = useCart()
     const { liked, toggleLike, animatingHearts } = useFavorites()
+
     const [qty, setQty] = useState(1)
     const [notes, setNotes] = useState('')
     const [selectedVariation, setSelectedVariation] = useState(null)
@@ -213,6 +214,9 @@ export default function ProductPage() {
                         <button className="product-hero__btn product-hero__cart-btn" onClick={() => navigate('/carrinho')}>
                             <ShoppingCart size={20} />
                         </button>
+
+
+
                         <button
                             className={`product-hero__btn ${liked[product.id] ? 'product-hero__btn--liked' : ''}`}
                             onClick={() => toggleLike(product.id)}

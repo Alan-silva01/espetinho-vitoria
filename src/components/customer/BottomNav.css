@@ -41,6 +41,43 @@
     font-weight: 500;
 }
 
+.bottom-nav__icon-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.status-dot-ping {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 8px;
+    height: 8px;
+    background: #10B981;
+    border-radius: 50%;
+    border: 1.5px solid var(--fundo-cards);
+}
+
+.status-dot-ping::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    background: inherit;
+    border-radius: inherit;
+    opacity: 0.6;
+    animation: status-ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes status-ping {
+
+    75%,
+    100% {
+        transform: scale(2.5);
+        opacity: 0;
+    }
+}
+
 .bottom-nav__center {
     position: relative;
     top: -20px;

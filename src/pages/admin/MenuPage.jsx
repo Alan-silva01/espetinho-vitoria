@@ -712,119 +712,125 @@ export default function MenuPage() {
                                                     </button>
                                                 </div>
 
-                                                <div className="custom-group-editor__options">
+                                                <div className="option-items-list">
                                                     {group.opcoes.map((opt, oIdx) => {
                                                         const name = typeof opt === 'string' ? opt : opt.nome
                                                         const price = typeof opt === 'string' ? 0 : Number(opt.preco) || 0
                                                         const img = typeof opt === 'string' ? null : opt.imagem_url
-                                                        // Default to true if property doesn't exist (backward compatibility)
                                                         const isAvailable = typeof opt === 'string' ? true : (opt.disponivel !== false)
 
                                                         return (
-                                                            <span key={oIdx} className={`custom-option-tag ${!isAvailable ? 'unavailable' : ''}`}>
-                                                                {img && <img src={img} alt={name} style={{ width: 24, height: 24, borderRadius: '50%', objectFit: 'cover' }} />}
-                                                                
-                                                                <div className="option-editing-group">
-                                                                    <input 
-                                                                        type="text"
-                                                                        className="option-inline-name"
-                                                                        value={name}
-                                                                        onChange={e => {
-                                                                            const updatedGroup = { ...group }
-                                                                            const updatedOptions = [...updatedGroup.opcoes]
-                                                                            const currentOpt = updatedOptions[oIdx]
-                                                                            updatedOptions[oIdx] = typeof currentOpt === 'string'
-                                                                                ? { nome: e.target.value, preco: 0 }
-                                                                                : { ...currentOpt, nome: e.target.value }
-                                                                            updatedGroup.opcoes = updatedOptions
-                                                                            setFormData(prev => {
-                                                                                const newPersonalization = [...prev.opcoes_personalizacao]
-                                                                                newPersonalization[gIdx] = updatedGroup
-                                                                                return { ...prev, opcoes_personalizacao: newPersonalization }
-                                                                            })
-                                                                        }}
-                                                                        placeholder="Nome..."
-                                                                    />
-                                                                    <div className="option-price-input-wrapper">
-                                                                        <span>R$</span>
-                                                                        <input 
-                                                                            type="number"
-                                                                            className="option-inline-price"
-                                                                            value={price || ''}
-                                                                            step="0.50"
-                                                                            min="0"
-                                                                            onChange={e => {
+                                                            <div key={oIdx} className={`option-item-row ${!isAvailable ? 'unavailable' : ''}`}>
+                                                                <div className="option-item-row__img-area">
+                                                                    {img ? (
+                                                                        <div className="option-item-row__img-preview">
+                                                                            <img src={img} alt={name} />
+                                                                            <button type="button" className="option-item-row__img-remove" onClick={() => {
                                                                                 const updatedGroup = { ...group }
                                                                                 const updatedOptions = [...updatedGroup.opcoes]
-                                                                                const currentOpt = updatedOptions[oIdx]
-                                                                                const newPrice = e.target.value === '' ? 0 : parseFloat(e.target.value) || 0
-                                                                                updatedOptions[oIdx] = typeof currentOpt === 'string'
-                                                                                    ? { nome: currentOpt, preco: newPrice }
-                                                                                    : { ...currentOpt, preco: newPrice }
+                                                                                updatedOptions[oIdx] = { ...updatedOptions[oIdx], imagem_url: '' }
                                                                                 updatedGroup.opcoes = updatedOptions
                                                                                 setFormData(prev => {
-                                                                                    const newPersonalization = [...prev.opcoes_personalizacao]
-                                                                                    newPersonalization[gIdx] = updatedGroup
-                                                                                    return { ...prev, opcoes_personalizacao: newPersonalization }
+                                                                                    const newP = [...prev.opcoes_personalizacao]
+                                                                                    newP[gIdx] = updatedGroup
+                                                                                    return { ...prev, opcoes_personalizacao: newP }
                                                                                 })
-                                                                            }}
-                                                                            placeholder="0.00"
-                                                                        />
-                                                                    </div>
+                                                                            }}>
+                                                                                <X size={10} />
+                                                                            </button>
+                                                                        </div>
+                                                                    ) : (
+                                                                        <label className="option-item-row__img-upload">
+                                                                            <ImageIcon size={16} />
+                                                                            <input type="file" accept="image/*" style={{ display: 'none' }} onChange={e => handleOptionImageUpload(gIdx, oIdx, e.target.files[0])} />
+                                                                        </label>
+                                                                    )}
                                                                 </div>
-
-                                                                {/* Availability Toggle */}
+                                                                <input
+                                                                    type="text"
+                                                                    className="option-item-row__name"
+                                                                    value={name}
+                                                                    onChange={e => {
+                                                                        const updatedGroup = { ...group }
+                                                                        const updatedOptions = [...updatedGroup.opcoes]
+                                                                        const currentOpt = updatedOptions[oIdx]
+                                                                        updatedOptions[oIdx] = typeof currentOpt === 'string'
+                                                                            ? { nome: e.target.value, preco: 0 }
+                                                                            : { ...currentOpt, nome: e.target.value }
+                                                                        updatedGroup.opcoes = updatedOptions
+                                                                        setFormData(prev => {
+                                                                            const newP = [...prev.opcoes_personalizacao]
+                                                                            newP[gIdx] = updatedGroup
+                                                                            return { ...prev, opcoes_personalizacao: newP }
+                                                                        })
+                                                                    }}
+                                                                    placeholder="Nome..."
+                                                                />
+                                                                <input
+                                                                    type="number"
+                                                                    className="option-item-row__price"
+                                                                    value={price || ''}
+                                                                    step="0.50"
+                                                                    min="0"
+                                                                    onChange={e => {
+                                                                        const updatedGroup = { ...group }
+                                                                        const updatedOptions = [...updatedGroup.opcoes]
+                                                                        const currentOpt = updatedOptions[oIdx]
+                                                                        const newPrice = e.target.value === '' ? 0 : parseFloat(e.target.value) || 0
+                                                                        updatedOptions[oIdx] = typeof currentOpt === 'string'
+                                                                            ? { nome: currentOpt, preco: newPrice }
+                                                                            : { ...currentOpt, preco: newPrice }
+                                                                        updatedGroup.opcoes = updatedOptions
+                                                                        setFormData(prev => {
+                                                                            const newP = [...prev.opcoes_personalizacao]
+                                                                            newP[gIdx] = updatedGroup
+                                                                            return { ...prev, opcoes_personalizacao: newP }
+                                                                        })
+                                                                    }}
+                                                                    placeholder="R$"
+                                                                />
                                                                 <button
                                                                     type="button"
+                                                                    className="option-item-row__toggle"
                                                                     onClick={() => {
                                                                         const updatedGroup = { ...group }
                                                                         const updatedOptions = [...updatedGroup.opcoes]
                                                                         const currentOpt = updatedOptions[oIdx]
-
-                                                                        // Ensure object structure
-                                                                        const newOptObj = typeof currentOpt === 'string'
+                                                                        updatedOptions[oIdx] = typeof currentOpt === 'string'
                                                                             ? { nome: currentOpt, preco: 0, disponivel: false }
                                                                             : { ...currentOpt, disponivel: !isAvailable }
-
-                                                                        updatedOptions[oIdx] = newOptObj
                                                                         updatedGroup.opcoes = updatedOptions
-
-                                                                        // Update state
                                                                         setFormData(prev => {
-                                                                            const newPersonalization = [...prev.opcoes_personalizacao]
-                                                                            newPersonalization[gIdx] = updatedGroup
-                                                                            return { ...prev, opcoes_personalizacao: newPersonalization }
+                                                                            const newP = [...prev.opcoes_personalizacao]
+                                                                            newP[gIdx] = updatedGroup
+                                                                            return { ...prev, opcoes_personalizacao: newP }
                                                                         })
                                                                     }}
-                                                                    title={isAvailable ? "Marcar como esgotado" : "Marcar como disponível"}
-                                                                    style={{
-                                                                        background: 'none', border: 'none', cursor: 'pointer',
-                                                                        color: isAvailable ? '#10B981' : '#EF4444',
-                                                                        display: 'flex', alignItems: 'center', padding: '0 4px'
-                                                                    }}
+                                                                    title={isAvailable ? 'Disponível' : 'Esgotado'}
                                                                 >
                                                                     <div style={{
                                                                         width: 8, height: 8, borderRadius: '50%',
                                                                         backgroundColor: isAvailable ? '#10B981' : '#EF4444'
                                                                     }} />
                                                                 </button>
-
-                                                                <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', color: '#6B7280', padding: '0 4px' }} title="Adicionar imagem">
-                                                                    <ImageIcon size={14} />
-                                                                    <input type="file" accept="image/*" style={{ display: 'none' }} onChange={e => handleOptionImageUpload(gIdx, oIdx, e.target.files[0])} />
-                                                                </label>
-                                                                <button type="button" className="option-remove-btn" onClick={() => removeOptionFromGroup(gIdx, oIdx)}>
-                                                                    <Trash2 size={12} />
+                                                                <button type="button" className="option-item-row__remove" onClick={() => removeOptionFromGroup(gIdx, oIdx)}>
+                                                                    <Trash2 size={14} />
                                                                 </button>
-                                                            </span>
+                                                            </div>
                                                         )
                                                     })}
                                                 </div>
 
+                                                {group.opcoes.length === 0 && (
+                                                    <p style={{ fontSize: 12, color: '#9ca3af', fontStyle: 'italic', margin: '4px 0 8px' }}>
+                                                        Nenhum adicional neste grupo.
+                                                    </p>
+                                                )}
+
                                                 <div className="custom-group-editor__add-row">
                                                     <input
                                                         type="text"
-                                                        placeholder="Nome..."
+                                                        placeholder="Nome do adicional..."
                                                         value={newOptionText[gIdx] || ''}
                                                         onChange={e => setNewOptionText(prev => ({ ...prev, [gIdx]: e.target.value }))}
                                                         onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addOptionToGroup(gIdx) } }}
@@ -832,7 +838,7 @@ export default function MenuPage() {
                                                     />
                                                     <input
                                                         type="number"
-                                                        placeholder="R$ (0 = incluso)"
+                                                        placeholder="R$ Preço"
                                                         value={newOptionPrice[gIdx] || ''}
                                                         onChange={e => setNewOptionPrice(prev => ({ ...prev, [gIdx]: e.target.value }))}
                                                         onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addOptionToGroup(gIdx) } }}

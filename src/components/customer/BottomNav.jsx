@@ -1,6 +1,8 @@
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import { Home, ShoppingCart, ClipboardList, Heart, User } from 'lucide-react'
+import { Home, ShoppingCart, Heart, ClipboardList } from 'lucide-react'
 import { useCart } from '../../hooks/useCart'
+import { useOrderTracking } from '../../hooks/useOrders'
+import { getStatusLabel } from '../../lib/utils'
 import './BottomNav.css'
 
 export default function BottomNav() {
@@ -8,6 +10,11 @@ export default function BottomNav() {
     const navigate = useNavigate()
     const { customerCode } = useParams()
     const { totalItems } = useCart()
+
+    // Order tracking for Bottom Nav
+    const lastOrderId = localStorage.getItem('espetinho_ultimo_pedido_id')
+    const { order: activeOrder } = useOrderTracking(lastOrderId)
+    const hasActiveOrder = activeOrder && ['pendente', 'confirmado', 'preparando', 'pronto', 'saiu_entrega'].includes(activeOrder.status)
 
     // Prefix for routes if customer identified via URL
     const prefix = customerCode ? `/${customerCode}` : ''
@@ -25,7 +32,16 @@ export default function BottomNav() {
     const tabs = [
         { path: '/', icon: Home, label: 'Início' },
         { path: '/carrinho', icon: ShoppingCart, label: '', isCenter: true },
-        { path: '/favoritos', icon: Heart, label: 'Favoritos' },
+        hasActiveOrder ? {
+            path: `/pedido/${activeOrder.id}`,
+            icon: ClipboardList,
+            label: getStatusLabel(activeOrder.status, activeOrder.tipo_pedido),
+            isStatus: true
+        } : {
+            path: '/pedidos',
+            icon: ClipboardList,
+            label: 'Pedidos'
+        },
     ]
 
     return (
@@ -57,7 +73,10 @@ export default function BottomNav() {
                         className={`bottom-nav__item ${isActive ? 'bottom-nav__item--active' : ''}`}
                         onClick={() => navigate(targetPath)}
                     >
-                        <Icon size={22} />
+                        <div className="bottom-nav__icon-wrapper">
+                            <Icon size={22} />
+                            {tab.isStatus && <div className="status-dot-ping" />}
+                        </div>
                         <span className="bottom-nav__label">{tab.label}</span>
                     </button>
                 )

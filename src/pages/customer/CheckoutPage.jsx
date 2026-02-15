@@ -207,6 +207,7 @@ export default function CheckoutPage() {
             }
 
             clearCart()
+            localStorage.setItem('espetinho_ultimo_pedido_id', pedido.id)
             navigate(`/pedido/${pedido.id}`)
         } catch (err) {
             alert('Erro ao confirmar pedido: ' + err.message)
