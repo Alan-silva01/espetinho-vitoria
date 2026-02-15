@@ -6,6 +6,7 @@ import { useProducts } from '../../hooks/useProducts'
 import { useCustomer } from '../../context/CustomerContext'
 import { formatCurrency, getImageUrl } from '../../lib/utils'
 import { supabase } from '../../lib/supabase'
+import OptimizedImage from '../../components/ui/OptimizedImage'
 import './CartPage.css'
 
 export default function CartPage() {
@@ -246,7 +247,7 @@ export default function CartPage() {
                         return (
                             <div key={key} className="cart-item">
                                 <div className="cart-item__image">
-                                    <img
+                                    <OptimizedImage
                                         src={getImageUrl(item.imagem_url) || 'https://via.placeholder.com/100?text=🍖'}
                                         alt={item.nome}
                                     />
@@ -300,14 +301,18 @@ export default function CartPage() {
                             ref={scrollRef}
                             onMouseEnter={() => setIsPaused(true)}
                             onMouseLeave={() => setIsPaused(false)}
-                            onTouchStart={() => setIsPaused(true)}
-                            onTouchEnd={() => setTimeout(() => setIsPaused(false), 2000)} // Resume after 2s
+                            // On mobile, only pause if they are actually swiping, don't block taps
+                            onTouchStart={(e) => {
+                                setIsPaused(true)
+                                // Prevent full gesture cancellation to allow button clicks
+                            }}
+                            onTouchEnd={() => setTimeout(() => setIsPaused(false), 2000)}
                         >
                             <div className="cart-upsell__marquee">
                                 {[...upsellProducts, ...upsellProducts].map((p, idx) => (
                                     <div key={`${p.id}-${idx}`} className="cart-upsell__card">
                                         <div className="cart-upsell__img-wrap">
-                                            <img
+                                            <OptimizedImage
                                                 src={getImageUrl(p.imagem_url) || 'https://via.placeholder.com/80x80?text=🍖'}
                                                 alt={p.nome}
                                                 className="cart-upsell__img"

@@ -6,6 +6,7 @@ import { useCart } from '../../hooks/useCart'
 import { formatCurrency, getImageUrl } from '../../lib/utils'
 import { optimizeUrl } from '../../lib/cloudinary'
 import Loading from '../../components/ui/Loading'
+import OptimizedImage from '../../components/ui/OptimizedImage'
 import './ProductPage.css'
 
 // Helper: normalize option to always get the name string
@@ -157,7 +158,7 @@ export default function ProductPage() {
         <div className="product-page">
             {/* Hero Image */}
             <header className="product-hero">
-                <img
+                <OptimizedImage
                     src={getImageUrl(product.imagem_url) || 'https://via.placeholder.com/600x400?text=🍖'}
                     alt={product.nome}
                     className="product-hero__img"

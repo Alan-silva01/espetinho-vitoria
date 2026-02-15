@@ -1,0 +1,98 @@
+import { useState, useEffect } from 'react'
+
+/**
+ * Componente de imagem com estado de carregamento, fade-in e placeholder.
+ * Resolve o problema de imagens carregando "pela metade" ou piscando.
+ */
+export default function OptimizedImage({ src, alt, className = '', ...props }) {
+    const [loaded, setLoaded] = useState(false)
+    const [error, setError] = useState(false)
+
+    // Reset state if src changes
+    useEffect(() => {
+        setLoaded(false)
+        setError(false)
+    }, [src])
+
+    return (
+        <div className={`optimized-image-container ${className} ${loaded ? 'loaded' : 'loading'}`}>
+            {!loaded && !error && (
+                <div className="optimized-image-skeleton" />
+            )}
+
+            <img
+                src={src}
+                alt={alt}
+                onLoad={() => setLoaded(true)}
+                onError={() => setError(true)}
+                loading="lazy"
+                decoding="async"
+                className={`optimized-image ${loaded ? 'visible' : 'hidden'}`}
+                {...props}
+            />
+
+            {error && (
+                <div className="optimized-image-fallback">
+                    🍖
+                </div>
+            )}
+
+            <style jsx>{`
+                .optimized-image-container {
+                    position: relative;
+                    width: 100%;
+                    height: 100%;
+                    overflow: hidden;
+                    background: #f3f4f6;
+                    border-radius: inherit;
+                }
+
+                .optimized-image-skeleton {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+                    background-size: 200% 100%;
+                    animation: skeleton-pulse 1.5s infinite;
+                }
+
+                .optimized-image {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    transition: opacity 0.4s ease-in-out, transform 0.4s ease-out;
+                }
+
+                .optimized-image.hidden {
+                    opacity: 0;
+                    transform: scale(1.05);
+                }
+
+                .optimized-image.visible {
+                    opacity: 1;
+                    transform: scale(1);
+                }
+
+                .optimized-image-fallback {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 2rem;
+                    background: #f9fafb;
+                }
+
+                @keyframes skeleton-pulse {
+                    0% { background-position: 200% 0; }
+                    100% { background-position: -200% 0; }
+                }
+            `}</style>
+        </div>
+    )
+}

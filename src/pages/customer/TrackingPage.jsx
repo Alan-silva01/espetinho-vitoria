@@ -55,7 +55,7 @@ export default function TrackingPage() {
                     </h2>
                     <div className="tracking-time-card__status">
                         <span className="tracking-time-card__dot" />
-                        <span>{getStatusLabel(order.status)}</span>
+                        <span>{getStatusLabel(order.status, order.tipo_pedido)}</span>
                     </div>
                     {/* Progress Bar */}
                     <div className="tracking-progress">
@@ -78,23 +78,37 @@ export default function TrackingPage() {
                 <div className="tracking-timeline-card">
                     <div className="tracking-timeline">
                         {STEPS.map((step, i) => {
-                            const completed = i < currentIndex
-                            const active = i === currentIndex
-                            const future = i > currentIndex
+                            const isDelivered = order.status === 'entregue'
+                            const completed = isDelivered ? true : i < currentIndex
+                            const active = !isDelivered && i === currentIndex
+                            const future = !isDelivered && i > currentIndex
+
+                            // Custom labels for pickup
+                            const isPickup = order.tipo_pedido === 'retirada'
+                            let label = step.label
+                            let desc = step.desc
+
+                            if (isPickup && step.key === 'saiu_entrega') {
+                                label = 'Pronto para Retirada'
+                                desc = 'Seu pedido está pronto! Pode vir buscar.'
+                            } else if (isPickup && step.key === 'pronto') {
+                                label = 'Finalizando'
+                                desc = 'Estamos embalando seu pedido.'
+                            }
 
                             return (
                                 <div key={step.key} className={`tracking-step ${future ? 'tracking-step--future' : ''}`}>
                                     <div className={`tracking-step__dot ${completed ? 'tracking-step__dot--done' :
-                                            active ? 'tracking-step__dot--active' : ''
+                                        active ? 'tracking-step__dot--active' : ''
                                         }`}>
                                         {completed && <span>✓</span>}
                                         {active && <span className="tracking-step__spinner">↻</span>}
                                     </div>
                                     <div>
                                         <h3 className={`tracking-step__title ${active ? 'tracking-step__title--active' : ''}`}>
-                                            {step.label}
+                                            {label}
                                         </h3>
-                                        <p className="tracking-step__desc">{step.desc}</p>
+                                        <p className="tracking-step__desc">{desc}</p>
                                     </div>
                                 </div>
                             )

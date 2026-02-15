@@ -9,6 +9,7 @@ import { formatCurrency, getImageUrl } from '../../lib/utils'
 import { supabase } from '../../lib/supabase'
 import Loading from '../../components/ui/Loading'
 import PromoMarquee from '../../components/customer/PromoMarquee'
+import OptimizedImage from '../../components/ui/OptimizedImage'
 import './HomePage.css'
 
 /* Generate or retrieve a unique session ID for likes */
@@ -207,7 +208,7 @@ export default function HomePage() {
                         }}
                     >
                         <div className="product-card__image-wrapper">
-                            <img
+                            <OptimizedImage
                                 src={getImageUrl(product.imagem_url) || 'https://via.placeholder.com/300x300?text=🍖'}
                                 alt={product.nome}
                                 className="product-card__image"

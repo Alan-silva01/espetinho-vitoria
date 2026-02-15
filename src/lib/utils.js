@@ -68,7 +68,10 @@ export const STATUS_COLORS = {
     cancelado: '#EF4444',
 }
 
-export function getStatusLabel(status) {
+export function getStatusLabel(status, tipoPedido = 'entrega') {
+    if (tipoPedido === 'retirada' && status === 'saiu_entrega') {
+        return 'Aguardando Retirada'
+    }
     return STATUS_LABELS[status] || status
 }
 
