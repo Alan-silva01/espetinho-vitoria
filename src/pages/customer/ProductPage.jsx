@@ -39,9 +39,11 @@ export default function ProductPage() {
                 const v500 = product.variacoes_produto.find(v => v.nome === '500ml')
                 if (v500) setSelectedVariation(v500)
                 else if (v300) setSelectedVariation(v300)
-            } else if (product.categoria?.nome === 'Espetos' || product.nome?.toLowerCase().includes('espetinho') || product.nome?.toLowerCase().includes('medalhão')) {
+            } else if (product.categoria?.nome === 'Espetos' || product.nome?.toLowerCase().includes('espetinho') || product.nome?.toLowerCase().includes('medalhão') || product.nome?.toLowerCase().includes('carne')) {
+                // Skewers: find "Completo" variation
                 const vCompleto = product.variacoes_produto.find(v => v.nome.toLowerCase().includes('completo'))
                 if (vCompleto) setSelectedVariation(vCompleto)
+                else setSelectedVariation(product.variacoes_produto[0]) // Fallback to first if no "Completo" found
             } else {
                 // Default to 300ml for others if exists (like Açaí)
                 const v300 = product.variacoes_produto.find(v => v.nome === '300ml')
