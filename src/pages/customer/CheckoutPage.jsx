@@ -14,6 +14,7 @@ export default function CheckoutPage() {
     const { items, subtotal, clearCart } = useCart()
     const { createOrder, loading } = useOrders()
     const { customer, updateLastOrder } = useCustomer()
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
     // Order type
     const tipoPedido = localStorage.getItem('espetinho_tipo_pedido') || 'entrega'
@@ -133,6 +134,9 @@ export default function CheckoutPage() {
             return
         }
 
+        if (isSubmitting) return
+        setIsSubmitting(true)
+
         try {
             const orderData = {
                 nome_cliente: tipoPedido === 'retirada' ? nomeRetirada : (savedData?.nome_recebedor || ''),
@@ -142,6 +146,7 @@ export default function CheckoutPage() {
                 taxa_entrega: taxaEntrega,
                 valor_total: total,
                 forma_pagamento: formaPagamento,
+                metodo_pagamento: formaPagamento, // Extra field for compatibility
                 troco_para: precisaTroco ? parseFloat(trocoPara) : null,
                 endereco: tipoPedido === 'entrega' ? savedData : null,
                 observacoes,
@@ -183,6 +188,7 @@ export default function CheckoutPage() {
             navigate(`/pedido/${pedido.id}`)
         } catch (err) {
             alert('Erro ao confirmar pedido: ' + err.message)
+            setIsSubmitting(false)
         }
     }
 
@@ -388,9 +394,9 @@ export default function CheckoutPage() {
                 <button
                     className="checkout-footer__btn"
                     onClick={handleConfirm}
-                    disabled={loading || (tipoPedido === 'entrega' && !hasAddress) || (tipoPedido === 'retirada' && !nomeRetirada.trim())}
+                    disabled={loading || isSubmitting || (tipoPedido === 'entrega' && !hasAddress) || (tipoPedido === 'retirada' && !nomeRetirada.trim())}
                 >
-                    {loading ? (
+                    {loading || isSubmitting ? (
                         <span className="btn-spinner" />
                     ) : (
                         <>
