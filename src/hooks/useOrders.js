@@ -151,7 +151,7 @@ export function useOrderTracking(orderId) {
 
         /* Realtime subscription */
         const channel = supabase
-            .channel(`pedido-${orderId}`)
+            .channel(`pedido-tracking-${orderId}`)
             .on(
                 'postgres_changes',
                 {
@@ -161,10 +161,17 @@ export function useOrderTracking(orderId) {
                     filter: `id=eq.${orderId}`,
                 },
                 (payload) => {
-                    setOrder(prev => prev ? { ...prev, ...payload.new } : payload.new)
+                    console.log('[useOrderTracking] Pedido atualizado:', payload.new)
+                    if (payload.new) {
+                        setOrder(prev => ({ ...prev, ...payload.new }))
+                    } else {
+                        fetch() // Fallback to re-fetch if payload.new is missing
+                    }
                 }
             )
-            .subscribe()
+            .subscribe((status) => {
+                console.log(`[useOrderTracking] Status inscricao (${orderId}):`, status)
+            })
 
         return () => {
             supabase.removeChannel(channel)
@@ -214,7 +221,8 @@ export function useCustomerOrders(clienteId) {
                     table: 'pedidos',
                     filter: `cliente_id=eq.${clienteId}`,
                 },
-                () => {
+                (payload) => {
+                    console.log('[useCustomerOrders] Pedidos do cliente atualizados:', payload)
                     fetchOrders()
                 }
             )
