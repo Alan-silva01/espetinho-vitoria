@@ -190,33 +190,48 @@ export default function CartPage() {
         if (!container || !upsellProducts || upsellProducts.length === 0) return
 
         let animationFrameId
-        const scrollSpeed = 0.5
+        const scrollSpeed = 1 // Use integer for better iOS compatibility
 
         // Initial offset to allow backward scrolling
-        if (container.scrollLeft === 0) {
-            const segmentWidth = container.scrollWidth / 3
-            container.scrollLeft = segmentWidth
+        const setInitialPos = () => {
+            if (container.scrollLeft === 0 && container.scrollWidth > container.clientWidth) {
+                const segmentWidth = container.scrollWidth / 3
+                container.scrollLeft = segmentWidth
+            }
         }
 
+        // Try multiple times as images/layout settle
+        setInitialPos()
+        const timer1 = setTimeout(setInitialPos, 100)
+        const timer2 = setTimeout(setInitialPos, 500)
+        const timer3 = setTimeout(setInitialPos, 1500)
+
         const animate = () => {
-            if (!isPaused) {
+            if (!isPaused && container) {
                 container.scrollLeft += scrollSpeed
                 const segmentWidth = container.scrollWidth / 3
 
-                // Forward reset
-                if (container.scrollLeft >= segmentWidth * 2) {
-                    container.scrollLeft -= segmentWidth
-                }
-                // Backward reset (for manual scrolling)
-                if (container.scrollLeft <= 0) {
-                    container.scrollLeft += segmentWidth
+                if (segmentWidth > 0) {
+                    // Forward reset
+                    if (container.scrollLeft >= segmentWidth * 2) {
+                        container.scrollLeft -= segmentWidth
+                    }
+                    // Backward reset (for manual scrolling)
+                    if (container.scrollLeft <= 2) {
+                        container.scrollLeft += segmentWidth
+                    }
                 }
             }
             animationFrameId = requestAnimationFrame(animate)
         }
 
         animationFrameId = requestAnimationFrame(animate)
-        return () => cancelAnimationFrame(animationFrameId)
+        return () => {
+            cancelAnimationFrame(animationFrameId)
+            clearTimeout(timer1)
+            clearTimeout(timer2)
+            clearTimeout(timer3)
+        }
     }, [isPaused, upsellProducts?.length])
 
     if (items.length === 0) {
