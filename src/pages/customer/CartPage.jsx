@@ -192,12 +192,24 @@ export default function CartPage() {
         let animationFrameId
         const scrollSpeed = 0.5
 
+        // Initial offset to allow backward scrolling
+        if (container.scrollLeft === 0) {
+            const segmentWidth = container.scrollWidth / 3
+            container.scrollLeft = segmentWidth
+        }
+
         const animate = () => {
             if (!isPaused) {
                 container.scrollLeft += scrollSpeed
                 const segmentWidth = container.scrollWidth / 3
-                if (container.scrollLeft >= segmentWidth) {
+
+                // Forward reset
+                if (container.scrollLeft >= segmentWidth * 2) {
                     container.scrollLeft -= segmentWidth
+                }
+                // Backward reset (for manual scrolling)
+                if (container.scrollLeft <= 0) {
+                    container.scrollLeft += segmentWidth
                 }
             }
             animationFrameId = requestAnimationFrame(animate)
@@ -315,7 +327,10 @@ export default function CartPage() {
                             onMouseEnter={() => setIsPaused(true)}
                             onMouseLeave={() => setIsPaused(false)}
                             onTouchStart={() => setIsPaused(true)}
-                            onTouchEnd={() => setTimeout(() => setIsPaused(false), 2000)}
+                            onTouchEnd={() => {
+                                // Short delay to allow momentum scroll to finish
+                                setTimeout(() => setIsPaused(false), 1500)
+                            }}
                         >
                             <div className="cart-upsell__marquee">
                                 {[...upsellProducts, ...upsellProducts, ...upsellProducts].map((p, idx) => (

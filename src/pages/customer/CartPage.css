@@ -317,8 +317,8 @@
 .cart-upsell__marquee-wrap {
     overflow-x: auto;
     width: 100%;
-    -webkit-overflow-scrolling: touch;
     scroll-behavior: auto;
+    will-change: scroll-position;
     /* Disable smooth scroll to avoid conflicts with JS scroller */
 }
 
