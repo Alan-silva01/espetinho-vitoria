@@ -96,15 +96,56 @@
     margin-bottom: 4px;
 }
 
+.order-card__title-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
 .order-card__header h3 {
     font-size: 16px;
     font-weight: 700;
     color: #334155;
+    margin: 0;
+}
+
+.order-status-tag {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 4px;
+    width: fit-content;
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+.order-status-tag.is-pendente,
+.order-status-tag.is-confirmado {
+    background: #fffbeb;
+    color: #d97706;
+}
+
+.order-status-tag.is-preparando,
+.order-status-tag.is-pronto {
+    background: #f0f9ff;
+    color: #0284c7;
+}
+
+.order-status-tag.is-saiu_entrega {
+    background: #fdf2f8;
+    color: #db2777;
+}
+
+.order-status-tag.is-entregue {
+    background: #f0fdf4;
+    color: #16a34a;
 }
 
 .order-card__date {
     font-size: 13px;
     color: #94a3b8;
+    margin-top: 4px;
     margin-bottom: 8px;
 }
 
@@ -117,20 +158,6 @@
 
 .order-card__meta strong {
     color: #334155;
-}
-
-.order-card__footer {
-    border-top: 1px solid #f1f5f9;
-    padding: 10px 16px;
-}
-
-.order-card__action {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 13px;
-    font-weight: 600;
-    color: #eab308;
 }
 
 /* Empty State */

@@ -191,7 +191,7 @@ export function useCustomerOrders(clienteId) {
                     .from('pedidos')
                     .select('*')
                     .eq('cliente_id', clienteId)
-                    .order('created_at', { ascending: false })
+                    .order('criado_em', { ascending: false })
 
                 if (!error) setOrders(data)
             } catch (err) {

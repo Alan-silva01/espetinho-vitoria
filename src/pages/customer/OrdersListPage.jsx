@@ -15,6 +15,7 @@ export default function OrdersListPage() {
 
     // Sync customer by code if provided in URL
     useEffect(() => {
+        window.scrollTo(0, 0)
         if (customerCode && (!customer || customer.codigo !== customerCode)) {
             fetchCustomerByCode(customerCode)
         }
@@ -60,11 +61,16 @@ export default function OrdersListPage() {
                                     </div>
                                     <div className="order-card__info">
                                         <div className="order-card__header">
-                                            <h3>Pedido Nº {order.id.toString().slice(-2)}</h3>
+                                            <div className="order-card__title-group">
+                                                <h3>Pedido Nº {order.id.toString().slice(-2)}</h3>
+                                                <span className={`order-status-tag is-${order.status}`}>
+                                                    {getStatusLabel(order.status, order.tipo_pedido)}
+                                                </span>
+                                            </div>
                                             <ChevronRight size={20} className="order-card__arrow" color="#999" />
                                         </div>
                                         <p className="order-card__date">
-                                            Feito em {new Date(order.created_at).toLocaleDateString('pt-BR', {
+                                            Feito em {new Date(order.criado_em).toLocaleDateString('pt-BR', {
                                                 day: '2-digit',
                                                 month: 'short',
                                                 year: 'numeric'
@@ -80,14 +86,6 @@ export default function OrdersListPage() {
                                         </div>
                                     </div>
                                 </div>
-                                {order.status === 'entregue' && (
-                                    <div className="order-card__footer">
-                                        <div className="order-card__action">
-                                            <Star size={16} fill="#FACC15" color="#FACC15" />
-                                            <span>Avalie o pedido</span>
-                                        </div>
-                                    </div>
-                                )}
                             </div>
                         ))}
                     </div>
