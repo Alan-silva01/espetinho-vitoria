@@ -99,10 +99,29 @@ export default function ProductPage() {
         return (basePrice + extrasTotal) * qty
     }, [product, selectedVariation, qty, extrasTotal])
 
+    const customizations = product?.opcoes_personalizacao || []
+
+    // Validation: check if all "Escolha X" groups have exactly X items
+    const isSelectionValid = useMemo(() => {
+        if (!product?.opcoes_personalizacao) return true
+        return product.opcoes_personalizacao.every(group => {
+            const groupName = group.grupo?.toLowerCase() || ''
+            if (groupName.includes('escolha')) {
+                // Extract number from "Escolha 2", "Escolha 3", etc.
+                const match = groupName.match(/escolha\s*(\d+)/i)
+                if (match) {
+                    const required = parseInt(match[1])
+                    const current = selectedOptions[group.grupo]
+                    const selectedCount = Array.isArray(current) ? current.length : 0
+                    return selectedCount === required
+                }
+            }
+            return true
+        })
+    }, [product, selectedOptions])
+
     if (loading) return <Loading fullScreen />
     if (!product) return <div className="page-padding" style={{ paddingTop: 80 }}>Produto não encontrado</div>
-
-    const customizations = product.opcoes_personalizacao || []
 
     function handleOptionToggle(group, optionName) {
         const { grupo: groupName, tipo, maximo } = group
@@ -140,24 +159,6 @@ export default function ProductPage() {
         return group.opcoes.some(opt => optPreco(opt) > 0)
     }
 
-    // Validation: check if all "Escolha X" groups have exactly X items
-    const isSelectionValid = useMemo(() => {
-        if (!product?.opcoes_personalizacao) return true
-        return product.opcoes_personalizacao.every(group => {
-            const groupName = group.grupo?.toLowerCase() || ''
-            if (groupName.includes('escolha')) {
-                // Extract number from "Escolha 2", "Escolha 3", etc.
-                const match = groupName.match(/escolha\s*(\d+)/i)
-                if (match) {
-                    const required = parseInt(match[1])
-                    const current = selectedOptions[group.grupo]
-                    const selectedCount = Array.isArray(current) ? current.length : 0
-                    return selectedCount === required
-                }
-            }
-            return true
-        })
-    }, [product, selectedOptions])
 
     const getValidationMessage = () => {
         if (product?.quantidade_disponivel === 0) return 'Esgotado'
@@ -177,13 +178,17 @@ export default function ProductPage() {
                 return false
             })
             if (missingGroup) {
-                const match = missingGroup.grupo.toLowerCase().match(/escolha\s*(\d+)/i)
+                const groupName = missingGroup.grupo?.toLowerCase() || ''
+                if (groupName.includes('fruta')) return 'Selecione as frutas'
+
+                const match = groupName.match(/escolha\s*(\d+)/i)
                 const required = match ? parseInt(match[1]) : 0
                 const current = selectedOptions[missingGroup.grupo]
                 const selectedCount = Array.isArray(current) ? current.length : 0
                 const remaining = required - selectedCount
+
                 if (remaining > 0) return `Escolha mais ${remaining} ${remaining === 1 ? 'item' : 'itens'}`
-                return `Máximo ${required} itens`
+                return `Selecione ${required} itens`
             }
         }
         return 'Adicionar'
