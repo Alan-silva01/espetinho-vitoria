@@ -181,33 +181,8 @@ export default function CartPage() {
         setIsAddressModalOpen(false)
     }
 
-    // --- Interactive Auto-Scroll for "Adicione também" ---
-    const scrollRef = useRef(null)
+    // --- Marquee State ---
     const [isPaused, setIsPaused] = useState(false)
-
-    useEffect(() => {
-        const container = scrollRef.current
-        if (!container || !upsellProducts || upsellProducts.length === 0) return
-
-        let animationFrameId
-        const scrollSpeed = 0.5 // Adjust for faster/slower scroll
-
-        const animate = () => {
-            if (!isPaused) {
-                container.scrollLeft += scrollSpeed
-
-                // Infinite loop: if we reached the end of the first set of items, reset to start
-                const halfWidth = container.scrollWidth / 2
-                if (container.scrollLeft >= halfWidth) {
-                    container.scrollLeft = 0
-                }
-            }
-            animationFrameId = requestAnimationFrame(animate)
-        }
-
-        animationFrameId = requestAnimationFrame(animate)
-        return () => cancelAnimationFrame(animationFrameId)
-    }, [isPaused, upsellProducts?.length])
 
     if (items.length === 0) {
         return (
@@ -312,15 +287,10 @@ export default function CartPage() {
                     <div className="cart-upsell">
                         <h3 className="cart-upsell__title">Adicione também</h3>
                         <div
-                            className="cart-upsell__marquee-wrap hide-scrollbar"
-                            ref={scrollRef}
+                            className={`cart-upsell__marquee-wrap hide-scrollbar ${isPaused ? 'is-paused' : ''}`}
                             onMouseEnter={() => setIsPaused(true)}
                             onMouseLeave={() => setIsPaused(false)}
-                            // On mobile, only pause if they are actually swiping, don't block taps
-                            onTouchStart={(e) => {
-                                setIsPaused(true)
-                                // Prevent full gesture cancellation to allow button clicks
-                            }}
+                            onTouchStart={() => setIsPaused(true)}
                             onTouchEnd={() => setTimeout(() => setIsPaused(false), 2000)}
                         >
                             <div className="cart-upsell__marquee">
