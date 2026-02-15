@@ -325,7 +325,8 @@
 .cart-upsell__marquee {
     display: flex;
     gap: 12px;
-    padding: 10px 24px;
+    padding: 10px 0;
+    /* Remove 24px horizontal padding to ensure perfect tiling */
     width: max-content;
 }
 

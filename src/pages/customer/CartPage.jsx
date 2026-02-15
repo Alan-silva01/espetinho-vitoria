@@ -195,9 +195,9 @@ export default function CartPage() {
         const animate = () => {
             if (!isPaused) {
                 container.scrollLeft += scrollSpeed
-                const halfWidth = container.scrollWidth / 2
-                if (container.scrollLeft >= halfWidth) {
-                    container.scrollLeft = 0
+                const segmentWidth = container.scrollWidth / 3
+                if (container.scrollLeft >= segmentWidth) {
+                    container.scrollLeft -= segmentWidth
                 }
             }
             animationFrameId = requestAnimationFrame(animate)
@@ -318,7 +318,7 @@ export default function CartPage() {
                             onTouchEnd={() => setTimeout(() => setIsPaused(false), 2000)}
                         >
                             <div className="cart-upsell__marquee">
-                                {[...upsellProducts, ...upsellProducts].map((p, idx) => (
+                                {[...upsellProducts, ...upsellProducts, ...upsellProducts].map((p, idx) => (
                                     <div key={`${p.id}-${idx}`} className="cart-upsell__card">
                                         <div className="cart-upsell__img-wrap">
                                             <OptimizedImage
