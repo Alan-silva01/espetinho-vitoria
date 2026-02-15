@@ -18,7 +18,7 @@ export default defineConfig({
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/res\.cloudinary\.com\/.*/i,
-            handler: 'StaleWhileRevalidate',
+            handler: 'CacheFirst',
             options: {
               cacheName: 'cloudinary-images',
               expiration: {
@@ -32,7 +32,7 @@ export default defineConfig({
           },
           {
             urlPattern: /^https:\/\/.*\.supabase\.co\/storage\/v1\/object\/public\/.*/i,
-            handler: 'StaleWhileRevalidate',
+            handler: 'CacheFirst',
             options: {
               cacheName: 'supabase-images',
               expiration: {
@@ -47,8 +47,7 @@ export default defineConfig({
         ]
       },
       devOptions: {
-        enabled: true,
-        type: 'module',
+        enabled: false,
       },
       manifest: {
         name: 'Espetinho Vitoria',

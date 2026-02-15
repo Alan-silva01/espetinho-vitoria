@@ -22,9 +22,16 @@ export default function OptimizedImage({
 
     // Reset state if src changes
     useEffect(() => {
-        setLoaded(false)
+        // Optimization: check if image is already in browser cache
+        const img = new Image()
+        img.src = optimizedSrc
+        if (img.complete) {
+            setLoaded(true)
+        } else {
+            setLoaded(false)
+        }
         setError(false)
-    }, [src])
+    }, [src, optimizedSrc])
 
     return (
         <div className={`optimized-image-container ${className} ${loaded ? 'loaded' : 'loading'}`}>
@@ -39,7 +46,6 @@ export default function OptimizedImage({
                 onError={() => setError(true)}
                 loading={priority ? 'eager' : 'lazy'}
                 decoding="async"
-                crossOrigin="anonymous"
                 className={`optimized-image ${loaded ? 'visible' : 'hidden'}`}
                 {...props}
             />
