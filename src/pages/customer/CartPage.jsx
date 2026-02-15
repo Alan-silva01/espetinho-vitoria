@@ -71,7 +71,7 @@ export default function CartPage() {
     const [taxaEntrega, setTaxaEntrega] = useState(0)
 
     useEffect(() => {
-        if (tipoPedido === 'retirada') {
+        if (tipoPedido === 'retirada' || tipoPedido === 'mesa') {
             setTaxaEntrega(0)
             return
         }
@@ -349,25 +349,27 @@ export default function CartPage() {
                     </div>
                 )}
 
-                {/* Delivery or Pickup Toggle */}
-                <div className="cart-order-type">
-                    <div className="cart-order-type__toggle">
-                        <button
-                            className={`cart-order-type__btn ${tipoPedido === 'entrega' ? 'cart-order-type__btn--active' : ''}`}
-                            onClick={() => handleTipoPedido('entrega')}
-                        >
-                            <Truck size={16} /> Entrega
-                        </button>
-                        <button
-                            className={`cart-order-type__btn ${tipoPedido === 'retirada' ? 'cart-order-type__btn--active' : ''}`}
-                            onClick={() => handleTipoPedido('retirada')}
-                        >
-                            <Store size={16} /> Retirada
-                        </button>
+                {/* Delivery or Pickup Toggle (hide for mesa) */}
+                {tipoPedido !== 'mesa' && (
+                    <div className="cart-order-type">
+                        <div className="cart-order-type__toggle">
+                            <button
+                                className={`cart-order-type__btn ${tipoPedido === 'entrega' ? 'cart-order-type__btn--active' : ''}`}
+                                onClick={() => handleTipoPedido('entrega')}
+                            >
+                                <Truck size={16} /> Entrega
+                            </button>
+                            <button
+                                className={`cart-order-type__btn ${tipoPedido === 'retirada' ? 'cart-order-type__btn--active' : ''}`}
+                                onClick={() => handleTipoPedido('retirada')}
+                            >
+                                <Store size={16} /> Retirada
+                            </button>
+                        </div>
                     </div>
-                </div>
+                )}
 
-                {/* Delivery Address — only if "entrega" */}
+                {/* Delivery Address — only if "entrega" — NOT for mesa */}
                 {tipoPedido === 'entrega' && (
                     <div className="cart-address" onClick={handleOpenAddress}>
                         <div className="cart-address__left">

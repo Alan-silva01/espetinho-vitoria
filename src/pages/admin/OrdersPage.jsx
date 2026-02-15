@@ -13,10 +13,10 @@ import './OrdersPage.css'
 import logoImg from '../../../logo.png'
 
 const STAGES = [
-    { id: 'confirmado', label: 'Novos', icon: AlertCircle, color: '#FBBF24', next: 'preparando', nextLabel: 'Iniciar Preparo' },
-    { id: 'preparando', label: 'Em Preparação', icon: Utensils, color: '#8B5CF6', next: 'saiu_entrega', nextLabel: 'Entregador a caminho' },
-    { id: 'saiu_entrega', label: 'Em Entrega', icon: Bike, color: '#F59E0B', next: 'entregue', nextLabel: 'Entregue / Finalizar' },
-    { id: 'entregue', label: 'Concluídos', icon: CheckCircle2, color: '#10B981' }
+    { id: 'confirmado', label: 'Recebido', icon: AlertCircle, color: '#FBBF24', next: 'preparando', nextLabel: 'Iniciar Preparo' },
+    { id: 'preparando', label: 'Preparando', icon: Utensils, color: '#8B5CF6', next: 'saiu_entrega', nextLabel: 'Entregador a caminho' },
+    { id: 'saiu_entrega', label: 'Saiu para Entrega', icon: Bike, color: '#F59E0B', next: 'entregue', nextLabel: 'Finalizar Pedido' },
+    { id: 'entregue', label: 'Servido / Finalizado', icon: CheckCircle2, color: '#10B981' }
 ]
 
 export default function OrdersPage() {
@@ -259,7 +259,7 @@ export default function OrdersPage() {
                                 <div className="col-header" style={{ borderTop: `4px solid ${stage.color}` }}>
                                     <div className="header-label">
                                         <stage.icon size={18} color={stage.color} />
-                                        <h3>{stage.label}</h3>
+                                        <h3>{stage.id === 'entregue' && selectedOrder?.tipo_pedido === 'mesa' ? 'Servido' : stage.label}</h3>
                                     </div>
                                     <span className="order-count">{stageOrders.length}</span>
                                 </div>
@@ -327,9 +327,13 @@ export default function OrdersPage() {
                                             {stage.next && (
                                                 <button
                                                     className={`quick-action stage-${stage.next}`}
-                                                    onClick={(e) => { e.stopPropagation(); handleStatusChange(order.id, stage.next); }}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        const nextStatus = (order.tipo_pedido === 'mesa' && stage.id === 'preparando') ? 'entregue' : stage.next;
+                                                        handleStatusChange(order.id, nextStatus);
+                                                    }}
                                                 >
-                                                    {stage.nextLabel}
+                                                    {order.tipo_pedido === 'mesa' && stage.id === 'preparando' ? 'Servir Pedido' : stage.nextLabel}
                                                 </button>
                                             )}
                                         </div>
@@ -444,8 +448,11 @@ export default function OrdersPage() {
                                 )}
 
                                 {selectedOrder.status === 'preparando' && (
-                                    <button className="v4-btn-status" onClick={() => handleStatusChange(selectedOrder.id, 'saiu_entrega')}>
-                                        SAIU P/ ENTREGA
+                                    <button
+                                        className="v4-btn-status"
+                                        onClick={() => handleStatusChange(selectedOrder.id, selectedOrder.tipo_pedido === 'mesa' ? 'entregue' : 'saiu_entrega')}
+                                    >
+                                        {selectedOrder.tipo_pedido === 'mesa' ? 'SERVIR PEDIDO' : 'SAIU P/ ENTREGA'}
                                     </button>
                                 )}
 
