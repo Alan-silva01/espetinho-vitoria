@@ -166,8 +166,8 @@ export default function CheckoutPage() {
                 subtotal,
                 taxa_entrega: taxaEntrega,
                 valor_total: total,
-                forma_pagamento: formaPagamento,
-                metodo_pagamento: formaPagamento,
+                forma_pagamento: tipoPedido === 'mesa' ? 'pagar_na_mesa' : formaPagamento,
+                metodo_pagamento: tipoPedido === 'mesa' ? 'pagar_na_mesa' : formaPagamento,
                 troco_para: precisaTroco ? parseFloat(trocoPara) : null,
                 endereco: tipoPedido === 'entrega' ? savedData : null,
                 observacoes: tipoPedido === 'mesa' ? `Mesa ${mesaNumero}${observacoes ? ' | ' + observacoes : ''}` : observacoes,
@@ -333,39 +333,41 @@ export default function CheckoutPage() {
                     </section>
                 )}
 
-                {/* Payment Method */}
-                <section className="checkout-section">
-                    <h2 className="checkout-section__title">
-                        <CreditCard size={20} color="var(--cor-primaria)" /> Forma de Pagamento
-                    </h2>
-                    <div className="checkout-card">
-                        <div className="checkout-payment-options">
-                            <label className={`checkout-payment ${formaPagamento === 'pix' ? 'checkout-payment--active' : ''}`}>
-                                <input type="radio" name="pagamento" checked={formaPagamento === 'pix'} onChange={() => setFormaPagamento('pix')} />
-                                <span>💠 PIX</span>
-                            </label>
-                            <label className={`checkout-payment ${formaPagamento === 'cartao_entrega' ? 'checkout-payment--active' : ''}`}>
-                                <input type="radio" name="pagamento" checked={formaPagamento === 'cartao_entrega'} onChange={() => setFormaPagamento('cartao_entrega')} />
-                                <span>💳 Cartão (Entrega)</span>
-                            </label>
-                            <label className={`checkout-payment ${formaPagamento === 'dinheiro' ? 'checkout-payment--active' : ''}`}>
-                                <input type="radio" name="pagamento" checked={formaPagamento === 'dinheiro'} onChange={() => setFormaPagamento('dinheiro')} />
-                                <span>💵 Dinheiro</span>
-                            </label>
-                        </div>
-                        {formaPagamento === 'dinheiro' && (
-                            <div className="checkout-change">
-                                <label className="checkout-change__check">
-                                    <input type="checkbox" checked={precisaTroco} onChange={e => setPrecisaTroco(e.target.checked)} />
-                                    <span>Precisa de troco?</span>
+                {/* Payment Method (hide for mesa - payment is at the table) */}
+                {tipoPedido !== 'mesa' && (
+                    <section className="checkout-section">
+                        <h2 className="checkout-section__title">
+                            <CreditCard size={20} color="var(--cor-primaria)" /> Forma de Pagamento
+                        </h2>
+                        <div className="checkout-card">
+                            <div className="checkout-payment-options">
+                                <label className={`checkout-payment ${formaPagamento === 'pix' ? 'checkout-payment--active' : ''}`}>
+                                    <input type="radio" name="pagamento" checked={formaPagamento === 'pix'} onChange={() => setFormaPagamento('pix')} />
+                                    <span>💠 PIX</span>
                                 </label>
-                                {precisaTroco && (
-                                    <input type="text" placeholder="Troco para quanto?" value={trocoPara} onChange={e => setTrocoPara(e.target.value)} className="checkout-change__input" />
-                                )}
+                                <label className={`checkout-payment ${formaPagamento === 'cartao_entrega' ? 'checkout-payment--active' : ''}`}>
+                                    <input type="radio" name="pagamento" checked={formaPagamento === 'cartao_entrega'} onChange={() => setFormaPagamento('cartao_entrega')} />
+                                    <span>💳 Cartão (Entrega)</span>
+                                </label>
+                                <label className={`checkout-payment ${formaPagamento === 'dinheiro' ? 'checkout-payment--active' : ''}`}>
+                                    <input type="radio" name="pagamento" checked={formaPagamento === 'dinheiro'} onChange={() => setFormaPagamento('dinheiro')} />
+                                    <span>💵 Dinheiro</span>
+                                </label>
                             </div>
-                        )}
-                    </div>
-                </section>
+                            {formaPagamento === 'dinheiro' && (
+                                <div className="checkout-change">
+                                    <label className="checkout-change__check">
+                                        <input type="checkbox" checked={precisaTroco} onChange={e => setPrecisaTroco(e.target.checked)} />
+                                        <span>Precisa de troco?</span>
+                                    </label>
+                                    {precisaTroco && (
+                                        <input type="text" placeholder="Troco para quanto?" value={trocoPara} onChange={e => setTrocoPara(e.target.value)} className="checkout-change__input" />
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    </section>
+                )}
 
                 {/* Order Summary */}
                 <section className="checkout-section">
