@@ -34,6 +34,8 @@ const FreightPage = lazy(() => import('./pages/admin/FreightPage'))
 const TablesPage = lazy(() => import('./pages/admin/TablesPage'))
 
 /* Layouts */
+import CustomerLayout from './layouts/CustomerLayout'
+import AdminLayout from './layouts/AdminLayout'
 import { StoreProvider } from './context/StoreContext'
 import { CustomerProvider } from './context/CustomerContext'
 
