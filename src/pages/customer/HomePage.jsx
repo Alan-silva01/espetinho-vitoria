@@ -310,11 +310,25 @@ export default function HomePage() {
                                     isCombo: true
                                 })
 
-                                // Feedback visual: bounce no carrinho
-                                const cart = document.querySelector('.cart-count-badge')
+                                // --- Fly-to-Cart animation for Combo ---
+                                const btn = e.currentTarget
+                                const rect = btn.getBoundingClientRect()
+                                const cart = document.querySelector('.bottom-nav__cart-btn')
                                 if (cart) {
-                                    cart.classList.add('cart-bounce')
-                                    setTimeout(() => cart.classList.remove('cart-bounce'), 400)
+                                    const cartRect = cart.getBoundingClientRect()
+                                    const fly = document.createElement('div')
+                                    fly.className = 'fly-to-cart'
+                                    fly.textContent = '🎁'
+                                    fly.style.left = `${rect.left + rect.width / 2}px`
+                                    fly.style.top = `${rect.top + rect.height / 2}px`
+                                    fly.style.setProperty('--dx', `${cartRect.left + cartRect.width / 2 - (rect.left + rect.width / 2)}px`)
+                                    fly.style.setProperty('--dy', `${cartRect.top + cartRect.height / 2 - (rect.top + rect.height / 2)}px`)
+                                    document.body.appendChild(fly)
+                                    fly.addEventListener('animationend', () => {
+                                        fly.remove()
+                                        cart.classList.add('cart-bounce')
+                                        setTimeout(() => cart.classList.remove('cart-bounce'), 400)
+                                    })
                                 }
                             }}
                         >

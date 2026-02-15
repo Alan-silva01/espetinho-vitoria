@@ -9,7 +9,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 32px 20px 16px;
+    padding: 16px 20px 16px;
     position: sticky;
     top: 0;
     background: var(--fundo-cards);
@@ -24,13 +24,14 @@
 }
 
 .home-header__logo {
-    width: 40px;
-    height: 40px;
+    width: 52px;
+    height: 52px;
     border-radius: 50%;
     overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
+    border: 2px solid var(--fundo-secao);
 }
 
 .home-header__logo-img {
@@ -118,6 +119,8 @@
     gap: 12px;
     overflow-x: auto;
     padding: 24px 20px 8px;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
 }
 
 .home-category-pill {

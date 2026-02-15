@@ -1,6 +1,6 @@
 .favorites-page {
     min-height: 100vh;
-    background: var(--fundo);
+    background: var(--fundo-secao);
     padding-bottom: 90px;
 }
 
@@ -8,9 +8,9 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 20px 16px;
-    background: var(--fundo-card);
-    border-bottom: 1px solid var(--borda);
+    padding: 16px;
+    background: var(--fundo-cards);
+    border-bottom: 1px solid var(--fundo-secao);
     position: sticky;
     top: 0;
     z-index: 10;
@@ -19,7 +19,7 @@
 .favorites-header__title h1 {
     font-size: 18px;
     font-weight: 700;
-    color: var(--texto);
+    color: var(--texto-principal);
     margin: 0;
 }
 
@@ -30,13 +30,13 @@
 }
 
 .favorites-header__back {
-    width: 44px;
-    height: 44px;
+    width: 40px;
+    height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 12px;
-    color: var(--texto);
+    color: var(--texto-principal);
     background: var(--fundo-secao);
 }
 
@@ -51,15 +51,15 @@
 }
 
 .top-favorite-item {
-    background: var(--fundo-card);
-    border: 1px solid var(--borda);
+    background: var(--fundo-cards);
+    border: 1px solid var(--fundo-secao);
     border-radius: 16px;
     display: flex;
     align-items: center;
     padding: 12px;
     gap: 12px;
     position: relative;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--sombra-sm);
 }
 
 .top-favorite-rank {
@@ -75,8 +75,8 @@
     justify-content: center;
     font-size: 11px;
     font-weight: 800;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    border: 1px solid var(--borda);
+    box-shadow: var(--sombra-sm);
+    border: 1px solid var(--fundo-secao);
     z-index: 2;
 }
 
@@ -126,7 +126,7 @@
     font-size: 15px;
     font-weight: 600;
     margin: 0;
-    color: var(--texto);
+    color: var(--texto-principal);
 }
 
 .category-tag {
@@ -165,7 +165,7 @@
 
 .empty-icon {
     margin-bottom: 20px;
-    color: var(--borda);
+    color: var(--fundo-secao);
 }
 
 .favorites-footer-hint {

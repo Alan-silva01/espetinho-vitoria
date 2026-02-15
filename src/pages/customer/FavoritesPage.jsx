@@ -15,6 +15,10 @@ export default function FavoritesPage() {
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
+        window.scrollTo(0, 0)
+    }, [])
+
+    useEffect(() => {
         async function fetchTopFavorites() {
             setLoading(true)
             try {
@@ -65,8 +69,7 @@ export default function FavoritesPage() {
                     <ArrowLeft size={22} />
                 </button>
                 <div className="favorites-header__title">
-                    <h1>Mais Curtidos</h1>
-                    <p>O top 10 da galera 🏆</p>
+                    <h1>Os 10 Mais Curtidos</h1>
                 </div>
                 <div style={{ width: 44 }} />
             </header>

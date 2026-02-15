@@ -15,6 +15,10 @@ export default function CartPage() {
     const { products } = useProducts()
     const { customer, updateCustomerData } = useCustomer()
 
+    useEffect(() => {
+        window.scrollTo(0, 0)
+    }, [])
+
     // Upsell: products NOT already in cart
     const cartProductIds = items.map(i => i.produto_id)
     const upsellProducts = products.filter(p => p.disponivel && !cartProductIds.includes(p.id))
