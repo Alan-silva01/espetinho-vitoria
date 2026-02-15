@@ -315,13 +315,11 @@
 }
 
 .cart-upsell__marquee-wrap {
-    overflow-x: hidden;
-    /* Change to hidden to avoid manual scroll conflicts during auto-scroll */
+    overflow-x: auto;
     width: 100%;
-}
-
-.cart-upsell__marquee-wrap.is-paused .cart-upsell__marquee {
-    animation-play-state: paused;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: auto;
+    /* Disable smooth scroll to avoid conflicts with JS scroller */
 }
 
 .cart-upsell__marquee {
@@ -329,18 +327,6 @@
     gap: 12px;
     padding: 10px 24px;
     width: max-content;
-    animation: marquee 30s linear infinite;
-    will-change: transform;
-}
-
-@keyframes marquee {
-    0% {
-        transform: translateX(0);
-    }
-
-    100% {
-        transform: translateX(-50%);
-    }
 }
 
 .cart-upsell__card {

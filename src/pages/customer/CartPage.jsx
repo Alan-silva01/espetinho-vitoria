@@ -181,8 +181,31 @@ export default function CartPage() {
         setIsAddressModalOpen(false)
     }
 
-    // --- Marquee State ---
+    // --- Interactive Auto-Scroll for "Adicione também" ---
+    const scrollRef = useRef(null)
     const [isPaused, setIsPaused] = useState(false)
+
+    useEffect(() => {
+        const container = scrollRef.current
+        if (!container || !upsellProducts || upsellProducts.length === 0) return
+
+        let animationFrameId
+        const scrollSpeed = 0.5
+
+        const animate = () => {
+            if (!isPaused) {
+                container.scrollLeft += scrollSpeed
+                const halfWidth = container.scrollWidth / 2
+                if (container.scrollLeft >= halfWidth) {
+                    container.scrollLeft = 0
+                }
+            }
+            animationFrameId = requestAnimationFrame(animate)
+        }
+
+        animationFrameId = requestAnimationFrame(animate)
+        return () => cancelAnimationFrame(animationFrameId)
+    }, [isPaused, upsellProducts?.length])
 
     if (items.length === 0) {
         return (
@@ -288,6 +311,7 @@ export default function CartPage() {
                         <h3 className="cart-upsell__title">Adicione também</h3>
                         <div
                             className={`cart-upsell__marquee-wrap hide-scrollbar ${isPaused ? 'is-paused' : ''}`}
+                            ref={scrollRef}
                             onMouseEnter={() => setIsPaused(true)}
                             onMouseLeave={() => setIsPaused(false)}
                             onTouchStart={() => setIsPaused(true)}
