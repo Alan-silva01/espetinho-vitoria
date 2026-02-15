@@ -140,6 +140,55 @@ export default function ProductPage() {
         return group.opcoes.some(opt => optPreco(opt) > 0)
     }
 
+    // Validation: check if all "Escolha X" groups have exactly X items
+    const isSelectionValid = useMemo(() => {
+        if (!product?.opcoes_personalizacao) return true
+        return product.opcoes_personalizacao.every(group => {
+            const groupName = group.grupo?.toLowerCase() || ''
+            if (groupName.includes('escolha')) {
+                // Extract number from "Escolha 2", "Escolha 3", etc.
+                const match = groupName.match(/escolha\s*(\d+)/i)
+                if (match) {
+                    const required = parseInt(match[1])
+                    const current = selectedOptions[group.grupo]
+                    const selectedCount = Array.isArray(current) ? current.length : 0
+                    return selectedCount === required
+                }
+            }
+            return true
+        })
+    }, [product, selectedOptions])
+
+    const getValidationMessage = () => {
+        if (product?.quantidade_disponivel === 0) return 'Esgotado'
+
+        if (!isSelectionValid && product?.opcoes_personalizacao) {
+            const missingGroup = product.opcoes_personalizacao.find(group => {
+                const groupName = group.grupo?.toLowerCase() || ''
+                if (groupName.includes('escolha')) {
+                    const match = groupName.match(/escolha\s*(\d+)/i)
+                    if (match) {
+                        const required = parseInt(match[1])
+                        const current = selectedOptions[group.grupo]
+                        const selectedCount = Array.isArray(current) ? current.length : 0
+                        return selectedCount !== required
+                    }
+                }
+                return false
+            })
+            if (missingGroup) {
+                const match = missingGroup.grupo.toLowerCase().match(/escolha\s*(\d+)/i)
+                const required = match ? parseInt(match[1]) : 0
+                const current = selectedOptions[missingGroup.grupo]
+                const selectedCount = Array.isArray(current) ? current.length : 0
+                const remaining = required - selectedCount
+                if (remaining > 0) return `Escolha mais ${remaining} ${remaining === 1 ? 'item' : 'itens'}`
+                return `Máximo ${required} itens`
+            }
+        }
+        return 'Adicionar'
+    }
+
     function handleAdd(e) {
         // Build options summary for display
         const optionsSummary = Object.entries(selectedOptions)
@@ -415,11 +464,11 @@ export default function ProductPage() {
                 <button
                     className="product-footer__add"
                     onClick={handleAdd}
-                    disabled={product.quantidade_disponivel === 0}
-                    style={product.quantidade_disponivel === 0 ? { background: '#9CA3AF', cursor: 'not-allowed' } : {}}
+                    disabled={product.quantidade_disponivel === 0 || !isSelectionValid}
+                    style={(product.quantidade_disponivel === 0 || !isSelectionValid) ? { background: '#9CA3AF', cursor: 'not-allowed' } : {}}
                 >
-                    <span>{product.quantidade_disponivel === 0 ? 'Esgotado' : 'Adicionar'}</span>
-                    {product.quantidade_disponivel > 0 && (
+                    <span>{getValidationMessage()}</span>
+                    {product.quantidade_disponivel > 0 && isSelectionValid && (
                         <div className="product-footer__add-total">
                             <span className="product-footer__add-label">Total</span>
                             <span>{formatCurrency(totalPrice)}</span>

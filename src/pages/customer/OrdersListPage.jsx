@@ -62,7 +62,7 @@ export default function OrdersListPage() {
                                     <div className="order-card__info">
                                         <div className="order-card__header">
                                             <div className="order-card__title-group">
-                                                <h3>Pedido Nº {order.id.toString().slice(-2)}</h3>
+                                                <h3>Pedido Nº {order.numero_pedido || order.id.toString().slice(-2)}</h3>
                                                 <span className={`order-status-tag is-${order.status}`}>
                                                     {getStatusLabel(order.status, order.tipo_pedido)}
                                                 </span>
