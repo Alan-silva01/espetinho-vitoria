@@ -28,7 +28,26 @@ export default function TrackingPage() {
     if (!order) return <div style={{ padding: 40, textAlign: 'center' }}>Pedido não encontrado</div>
 
     const currentIndex = STATUS_INDEX[order.status] ?? 0
-    const progress = Math.min(((currentIndex + 1) / STEPS.length) * 100, 100)
+    const isMesa = order.tipo_pedido === 'mesa'
+
+    // Custom steps for Mesa
+    const mesaSteps = [
+        { key: 'confirmado', label: 'Pedido recebido', desc: 'Já recebemos e vamos iniciar!' },
+        { key: 'preparando', label: 'Preparando', desc: 'Estamos preparando seus espetinhos.' },
+        { key: 'entregue', label: 'Pedido servido', desc: 'Bom apetite!' },
+    ]
+
+    const effectiveSteps = isMesa ? mesaSteps : STEPS
+
+    // Mapping current status to effective step index for progress bar
+    let effectiveIndex = currentIndex
+    if (isMesa) {
+        if (order.status === 'pendente' || order.status === 'confirmado') effectiveIndex = 0
+        else if (order.status === 'preparando' || order.status === 'pronto') effectiveIndex = 1
+        else if (order.status === 'entregue' || order.status === 'saiu_entrega') effectiveIndex = 2
+    }
+
+    const progress = Math.min(((effectiveIndex + 1) / effectiveSteps.length) * 100, 100)
     const isCancelled = order.status === 'cancelado'
 
     return (
@@ -49,9 +68,11 @@ export default function TrackingPage() {
                 <div className="tracking-time-card">
                     <div className="tracking-time-card__blur tracking-time-card__blur--purple" />
                     <div className="tracking-time-card__blur tracking-time-card__blur--red" />
-                    <p className="tracking-time-card__label">Tempo estimado de entrega</p>
+                    <p className="tracking-time-card__label">
+                        {isMesa ? 'Tempo de preparo' : 'Tempo estimado de entrega'}
+                    </p>
                     <h2 className="tracking-time-card__value">
-                        40-50 <span>min</span>
+                        {isMesa ? '15-25' : '40-50'} <span>min</span>
                     </h2>
                     <div className="tracking-time-card__status">
                         <span className="tracking-time-card__dot" />
@@ -77,11 +98,11 @@ export default function TrackingPage() {
                 {/* Timeline */}
                 <div className="tracking-timeline-card">
                     <div className="tracking-timeline">
-                        {STEPS.map((step, i) => {
-                            const isDelivered = order.status === 'entregue'
-                            const completed = isDelivered ? true : i < currentIndex
-                            const active = !isDelivered && i === currentIndex
-                            const future = !isDelivered && i > currentIndex
+                        {effectiveSteps.map((step, i) => {
+                            const isDelivered = order.status === 'entregue' || (isMesa && order.status === 'saiu_entrega')
+                            const completed = isDelivered ? true : i < effectiveIndex
+                            const active = !isDelivered && i === effectiveIndex
+                            const future = !isDelivered && i > effectiveIndex
 
                             // Custom labels for pickup
                             const isPickup = order.tipo_pedido === 'retirada'

@@ -49,12 +49,12 @@ export function getImageUrl(path) {
  * Status labels em PT-BR
  */
 export const STATUS_LABELS = {
-    pendente: 'Pendente',
-    confirmado: 'Confirmado',
+    pendente: 'Recebido',
+    confirmado: 'Recebido',
     preparando: 'Preparando',
     pronto: 'Pronto',
     saiu_entrega: 'Saiu p/ Entrega',
-    entregue: 'Entregue',
+    entregue: 'Finalizado',
     cancelado: 'Cancelado',
 }
 
@@ -69,6 +69,10 @@ export const STATUS_COLORS = {
 }
 
 export function getStatusLabel(status, tipoPedido = 'entrega') {
+    if (tipoPedido === 'mesa') {
+        if (status === 'entregue') return 'Servido'
+        if (status === 'confirmado' || status === 'pendente') return 'Recebido'
+    }
     if (tipoPedido === 'retirada' && status === 'saiu_entrega') {
         return 'Aguardando Retirada'
     }
