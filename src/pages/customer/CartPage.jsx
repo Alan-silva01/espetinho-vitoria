@@ -59,12 +59,24 @@ export default function CartPage() {
 
     // Freight Fees from DB
     const [freightFees, setFreightFees] = useState([])
+    const fetchFreights = async () => {
+        const { data } = await supabase.from('taxas_entrega').select('*').eq('ativo', true).order('local')
+        if (data) setFreightFees(data)
+    }
+
     useEffect(() => {
-        async function fetchFreights() {
-            const { data } = await supabase.from('taxas_entrega').select('*').eq('ativo', true).order('local')
-            if (data) setFreightFees(data)
-        }
         fetchFreights()
+
+        const channel = supabase
+            .channel('shipping-rates-sync')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'taxas_entrega' }, () => {
+                fetchFreights()
+            })
+            .subscribe()
+
+        return () => {
+            supabase.removeChannel(channel)
+        }
     }, [])
 
     // Delivery costs

@@ -48,19 +48,53 @@ export function useProducts() {
         }
     }
 
-    // Realtime subscription for products
+    // Realtime subscription for menu data (Products, Categories, Variations)
     useEffect(() => {
         const channel = supabase
-            .channel('public:produtos')
-            .on('postgres_changes',
-                { event: 'UPDATE', schema: 'public', table: 'produtos' },
-                (payload) => {
-                    console.log('[useProducts] Atualização em tempo real:', payload.new)
-                    setProducts(current => current.map(p =>
-                        p.id === payload.new.id ? { ...p, ...payload.new } : p
-                    ))
+            .channel('menu-updates')
+            // Products
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'produtos' }, (payload) => {
+                console.log('[useProducts] Mudança em produtos:', payload)
+                if (payload.eventType === 'INSERT') {
+                    setProducts(current => [...current, payload.new])
+                } else if (payload.eventType === 'UPDATE') {
+                    setProducts(current => current.map(p => p.id === payload.new.id ? { ...p, ...payload.new } : p))
+                } else if (payload.eventType === 'DELETE') {
+                    setProducts(current => current.filter(p => p.id === payload.old.id))
                 }
-            )
+            })
+            // Categories
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'categorias' }, (payload) => {
+                console.log('[useProducts] Mudança em categorias:', payload)
+                if (payload.eventType === 'INSERT') {
+                    setCategories(current => [...current, payload.new].sort((a, b) => a.ordem_exibicao - b.ordem_exibicao))
+                } else if (payload.eventType === 'UPDATE') {
+                    setCategories(current => current.map(c => c.id === payload.new.id ? { ...c, ...payload.new } : c).sort((a, b) => a.ordem_exibicao - b.ordem_exibicao))
+                } else if (payload.eventType === 'DELETE') {
+                    setCategories(current => current.filter(c => c.id === payload.old.id))
+                }
+            })
+            // Variations
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'variacoes_produto' }, (payload) => {
+                console.log('[useProducts] Mudança em variacoes:', payload)
+                setProducts(current => current.map(p => {
+                    if (p.id === payload.new?.produto_id || p.id === payload.old?.produto_id) {
+                        // For variations, it's easier to just trigger a re-fetch or find/update in the nested array
+                        // But since variety is nested, let's keep it simple: any variety change -> re-fetch might be safer
+                        // Or we can try to update the nested array:
+                        let newVariations = [...(p.variacoes_produto || [])]
+                        if (payload.eventType === 'INSERT') {
+                            newVariations.push(payload.new)
+                        } else if (payload.eventType === 'UPDATE') {
+                            newVariations = newVariations.map(v => v.id === payload.new.id ? payload.new : v)
+                        } else if (payload.eventType === 'DELETE') {
+                            newVariations = newVariations.filter(v => v.id === payload.old.id)
+                        }
+                        return { ...p, variacoes_produto: newVariations }
+                    }
+                    return p
+                }))
+            })
             .subscribe()
 
         return () => {

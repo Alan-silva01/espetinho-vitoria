@@ -28,18 +28,30 @@ export default function HomePage() {
     const [search, setSearch] = useState('')
     const [promoDestaque, setPromoDestaque] = useState(null)
 
-    // Load likes handled in useFavorites hook
+    // Load featured promo
+    const fetchPromoDestaque = async () => {
+        const { data } = await supabase
+            .from('promocoes')
+            .select('*')
+            .eq('ativa', true)
+            .eq('destaque', true)
+            .maybeSingle()
+        setPromoDestaque(data)
+    }
+
     useEffect(() => {
-        async function fetchPromoDestaque() {
-            const { data } = await supabase
-                .from('promocoes')
-                .select('*')
-                .eq('ativa', true)
-                .eq('destaque', true)
-                .maybeSingle()
-            if (data) setPromoDestaque(data)
-        }
         fetchPromoDestaque()
+
+        const channel = supabase
+            .channel('promo-destaque-sync')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'promocoes' }, () => {
+                fetchPromoDestaque()
+            })
+            .subscribe()
+
+        return () => {
+            supabase.removeChannel(channel)
+        }
     }, [])
 
     const categoryIcons = {

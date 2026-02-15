@@ -150,6 +150,46 @@ export function CustomerProvider({ children }) {
         await updateCustomerData(updateObj, targetId)
     }
 
+    // Realtime subscription for current customer data
+    useEffect(() => {
+        if (!customer?.id) return
+
+        const channel = supabase
+            .channel(`customer-sync:${customer.id}`)
+            .on('postgres_changes',
+                {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'clientes',
+                    filter: `id=eq.${customer.id}`
+                },
+                (payload) => {
+                    console.log('[CustomerContext] Cliente atualizado via Realtime:', payload.new)
+                    setCustomer(current => ({ ...current, ...payload.new }))
+
+                    // Also sync delivery data if it changed in DB
+                    const dados = payload.new.dados || {}
+                    const dbAddr = dados.endereco || dados || {}
+                    if (dbAddr.rua) {
+                        const syncData = {
+                            nome_recebedor: dados.nome_recebedor || dados.receiverName || dados.nome || payload.new.nome || '',
+                            telefone_recebedor: dados.telefone_recebedor || dados.receiverPhone || dados.whatsapp || payload.new.telefone || '',
+                            rua: dbAddr.rua || '',
+                            numero: dbAddr.numero || '',
+                            bairro: dbAddr.bairro || '',
+                            referencia: dbAddr.referencia || ''
+                        }
+                        localStorage.setItem('espetinho_delivery_data', JSON.stringify(syncData))
+                    }
+                }
+            )
+            .subscribe()
+
+        return () => {
+            supabase.removeChannel(channel)
+        }
+    }, [customer?.id])
+
     return (
         <CustomerContext.Provider value={{
             customer,
