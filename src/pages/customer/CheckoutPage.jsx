@@ -179,7 +179,17 @@ export default function CheckoutPage() {
                 codigo_cliente: customerCode
             }
 
-            const summary = items.map(item => `${item.quantidade}x ${item.produto?.nome || 'Item'}`).join(', ')
+            const summary = items.map(item => {
+                let name = `${item.quantidade}x ${item.nome || 'Item'}`
+                if (item.personalizacao) {
+                    const extras = Object.values(item.personalizacao)
+                        .flat()
+                        .filter(v => typeof v === 'string' && v.length > 0)
+                        .join(', ')
+                    if (extras) name += ` (${extras})`
+                }
+                return name
+            }).join(', ')
             const pedido = await createOrder(orderData)
             const targetClientId = pedido.cliente_id || customer?.id
 
