@@ -21,7 +21,6 @@ export default function InventoryPage() {
     const [activities, setActivities] = useState([])
     const [saving, setSaving] = useState(false)
     const [savingItem, setSavingItem] = useState(null)
-    const [isFastEntry, setIsFastEntry] = useState(false)
     const [isAddonsMode, setIsAddonsMode] = useState(false)
 
     // Helper to normalize text (remove accents)
@@ -40,6 +39,25 @@ export default function InventoryPage() {
 
     useEffect(() => {
         fetchInventory()
+
+        // Real-time subscription for stock updates
+        const channel = supabase
+            .channel('inventory-changes')
+            .on(
+                'postgres_changes',
+                { event: '*', schema: 'public', table: 'produtos' },
+                () => fetchInventory() // Refetch for simplicity, ensure latest totals
+            )
+            .on(
+                'postgres_changes',
+                { event: '*', schema: 'public', table: 'estoque_diario' },
+                () => fetchInventory()
+            )
+            .subscribe()
+
+        return () => {
+            supabase.removeChannel(channel)
+        }
     }, [])
 
     async function fetchInventory() {
@@ -61,9 +79,9 @@ export default function InventoryPage() {
         // Merge data
         const merged = (products || []).map(p => {
             const stock = stockToday?.find(s => s.produto_id === p.id)
-            const initial = stock?.quantidade_inicial || p.quantidade_disponivel || 0
+            const initial = stock?.qtd_inicial || p.quantidade_disponivel || 0
             const current = p.quantidade_disponivel || 0
-            const sold = stock ? stock.quantidade_inicial - stock.quantidade_atual : 0
+            const sold = stock ? stock.qtd_inicial - stock.qtd_atual : 0
             const percentage = initial > 0 ? (current / initial) * 100 : 0
 
             return {
@@ -160,8 +178,8 @@ export default function InventoryPage() {
                 await supabase
                     .from('estoque_diario')
                     .update({
-                        quantidade_inicial: finalInicial,
-                        quantidade_atual: finalAtual
+                        qtd_inicial: finalInicial,
+                        qtd_atual: finalAtual
                     })
                     .eq('id', item.stock_id)
             } else {
@@ -169,8 +187,8 @@ export default function InventoryPage() {
                     .from('estoque_diario')
                     .insert({
                         produto_id: item.id,
-                        quantidade_inicial: finalInicial,
-                        quantidade_atual: finalAtual,
+                        qtd_inicial: finalInicial,
+                        qtd_atual: finalAtual,
                         data: today
                     })
             }
@@ -180,46 +198,7 @@ export default function InventoryPage() {
         setSaving(false)
     }
 
-    const handleImmediateOut = async (item) => {
-        setSavingItem(item.id)
-        try {
-            const today = new Date().toISOString().split('T')[0]
 
-            // 1. Update produtos (quantidade_disponivel = 0, disponivel = false)
-            await supabase
-                .from('produtos')
-                .update({
-                    quantidade_disponivel: 0,
-                    controlar_estoque: true,
-                    disponivel: false
-                })
-                .eq('id', item.id)
-
-            // 2. Update/Insert estoque_diario
-            if (item.stock_id) {
-                await supabase
-                    .from('estoque_diario')
-                    .update({ quantidade_atual: 0 })
-                    .eq('id', item.stock_id)
-            } else {
-                await supabase
-                    .from('estoque_diario')
-                    .insert({
-                        produto_id: item.id,
-                        quantidade_inicial: item.inicial || 0,
-                        quantidade_atual: 0,
-                        data: today
-                    })
-            }
-
-            // 3. Update local state e sync
-            await fetchInventory()
-        } catch (error) {
-            console.error('Erro ao marcar como esgotado:', error)
-        } finally {
-            setSavingItem(null)
-        }
-    }
 
     const toggleAddonAvailability = async (productId, groupName, optionName) => {
         const product = inventory.find(p => p.id === productId)
@@ -302,22 +281,10 @@ export default function InventoryPage() {
                         <span>Última sincronização: Agora</span>
                     </div>
                     <button
-                        className={`btn-toggle-fast ${isFastEntry ? 'active' : ''}`}
-                        onClick={() => {
-                            setIsFastEntry(!isFastEntry)
-                            setIsAddonsMode(false)
-                        }}
-                    >
-                        {isFastEntry ? 'Vista Normal' : 'Ajuste Rápido'}
-                    </button>
-                    <button
                         className={`btn-toggle-addons ${isAddonsMode ? 'active' : ''}`}
-                        onClick={() => {
-                            setIsAddonsMode(!isAddonsMode)
-                            setIsFastEntry(false)
-                        }}
+                        onClick={() => setIsAddonsMode(!isAddonsMode)}
                     >
-                        {isAddonsMode ? 'Gerenciar Estoque' : 'Ajustar Acompanhamentos'}
+                        {isAddonsMode ? 'Ajuste Rápido' : 'Ajustar Acompanhamentos'}
                     </button>
                     <button
                         className={`btn-save ${inventory.some(i => i.is_dirty) ? 'active' : ''}`}
@@ -370,8 +337,8 @@ export default function InventoryPage() {
                         </div>
                     </div>
 
-                    {/* Normal View or Fast Entry View */}
-                    {isFastEntry ? (
+                    {/* Fast Entry View or Addons View */}
+                    {!isAddonsMode ? (
                         <div className="fast-entry-container animate-fade-in">
                             <table className="fast-entry-table">
                                 <thead>
