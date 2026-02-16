@@ -64,9 +64,7 @@ export default function HomePage() {
     const filteredProducts = products.filter(p => {
         const matchCat = !activeCategory || p.categoria_id === activeCategory
         const matchSearch = !search || p.nome.toLowerCase().includes(search.toLowerCase())
-        // Main products should only be hidden if manually turned off (disponivel: false)
-        const isAvailable = p.disponivel !== false
-        return matchCat && matchSearch && isAvailable
+        return matchCat && matchSearch
     })
 
     const handleLike = useCallback((e, productId) => {
@@ -162,7 +160,7 @@ export default function HomePage() {
                                     height={300}
                                     priority={index < 4}
                                 />
-                                {product.quantidade_disponivel === 0 && (
+                                {(product.quantidade_disponivel === 0 || product.disponivel === false) && (
                                     <div className="product-card__out-label">ESGOTADO</div>
                                 )}
                                 <button
@@ -192,10 +190,10 @@ export default function HomePage() {
                                 <span className="product-card__price">{formatCurrency(product.preco)}</span>
                                 <button
                                     className="product-card__add"
-                                    disabled={product.quantidade_disponivel === 0}
+                                    disabled={product.quantidade_disponivel === 0 || product.disponivel === false}
                                     onClick={e => {
                                         e.stopPropagation()
-                                        if (product.quantidade_disponivel === 0) return
+                                        if (product.quantidade_disponivel === 0 || product.disponivel === false) return
 
                                         // --- Fly-to-Cart animation ---
                                         const btn = e.currentTarget
