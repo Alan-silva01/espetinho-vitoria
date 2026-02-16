@@ -184,7 +184,8 @@ export default function CheckoutPage() {
                 await updateLastOrder(
                     `Pedido #${pedido.numero_pedido || pedido.id.slice(0, 5)}: ${summary}`,
                     tipoPedido === 'entrega' ? savedData : null,
-                    targetClientId
+                    targetClientId,
+                    { nome: orderData.nome_cliente, whatsapp: orderData.telefone_cliente }
                 )
             }
 

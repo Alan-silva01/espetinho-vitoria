@@ -118,11 +118,17 @@ export function CustomerProvider({ children }) {
                 ...newData
             }
 
-            // Cleanup redundant top-level keys
-            const keysToRemove = ['telefone', 'whatsapp', 'nome_recebedor', 'telefone_recebedor', 'nome']
+            // Cleanup redundant top-level keys and nested receiver info
+            const keysToRemove = ['telefone', 'nome_recebedor', 'telefone_recebedor']
             keysToRemove.forEach(key => {
                 delete updatedDados[key]
             })
+
+            // Also cleanup receiver info inside endereco if present
+            if (updatedDados.endereco) {
+                delete updatedDados.endereco.nome_recebedor
+                delete updatedDados.endereco.telefone_recebedor
+            }
 
             const { error, data: updated } = await supabase
                 .from('clientes')
@@ -145,12 +151,13 @@ export function CustomerProvider({ children }) {
         return false
     }
 
-    async function updateLastOrder(orderSummary, newAddress = null, explicitId = null) {
+    async function updateLastOrder(orderSummary, newAddress = null, explicitId = null, extraInfo = {}) {
         const targetId = explicitId || customer?.id
         if (!targetId) return
 
         const updateObj = {
-            ultimos_pedidos: orderSummary
+            ultimos_pedidos: orderSummary,
+            ...extraInfo
         }
 
         if (newAddress) {
