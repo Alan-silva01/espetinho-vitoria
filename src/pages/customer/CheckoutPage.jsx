@@ -70,7 +70,7 @@ export default function CheckoutPage() {
             }
         }
         fetchFee()
-    }, [tipoPedido, addressData.neighborhood])
+    }, [tipoPedido, addressData.bairro])
 
     const total = subtotal + taxaEntrega
 
@@ -179,6 +179,7 @@ export default function CheckoutPage() {
                 codigo_cliente: customerCode
             }
 
+            const summary = items.map(item => `${item.quantidade}x ${item.produto?.nome || 'Item'}`).join(', ')
             const pedido = await createOrder(orderData)
             const targetClientId = pedido.cliente_id || customer?.id
 
