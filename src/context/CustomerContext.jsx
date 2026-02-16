@@ -51,7 +51,8 @@ export function CustomerProvider({ children }) {
                         rua: dbAddr.rua || dbAddr.street || dbAddr.logradouro || '',
                         numero: dbAddr.numero || dbAddr.number || '',
                         bairro: dbAddr.bairro || dbAddr.neighborhood || '',
-                        referencia: dbAddr.referencia || dbAddr.reference || dbAddr.ponto_referencia || ''
+                        referencia: dbAddr.referencia || dbAddr.reference || dbAddr.ponto_referencia || '',
+                        google_maps_link: dbAddr.google_maps_link || ''
                     }
                     localStorage.setItem('espetinho_delivery_data', JSON.stringify(syncData))
                 }
@@ -86,7 +87,8 @@ export function CustomerProvider({ children }) {
                         rua: dbAddr.rua || dbAddr.street || dbAddr.logradouro || '',
                         numero: dbAddr.numero || dbAddr.number || '',
                         bairro: dbAddr.bairro || dbAddr.neighborhood || '',
-                        referencia: dbAddr.referencia || dbAddr.reference || dbAddr.ponto_referencia || ''
+                        referencia: dbAddr.referencia || dbAddr.reference || dbAddr.ponto_referencia || '',
+                        google_maps_link: dbAddr.google_maps_link || ''
                     }
                     localStorage.setItem('espetinho_delivery_data', JSON.stringify(syncData))
                 }
