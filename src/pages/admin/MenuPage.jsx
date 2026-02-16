@@ -347,12 +347,17 @@ export default function MenuPage() {
     }
 
     const handleToggleDisponivel = async (product) => {
+        const newDisponivel = !product.disponivel
+        // Optimistic update - no flicker
+        setProducts(prev => prev.map(p => p.id === product.id ? { ...p, disponivel: newDisponivel } : p))
         const { error } = await supabase
             .from('produtos')
-            .update({ disponivel: !product.disponivel })
+            .update({ disponivel: newDisponivel })
             .eq('id', product.id)
-
-        if (!error) fetchData()
+        if (error) {
+            // Revert on error
+            setProducts(prev => prev.map(p => p.id === product.id ? { ...p, disponivel: !newDisponivel } : p))
+        }
     }
 
     const filteredProducts = products.filter(p => {
