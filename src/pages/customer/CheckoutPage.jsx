@@ -181,12 +181,10 @@ export default function CheckoutPage() {
             const targetClientId = pedido.cliente_id || customer?.id
 
             if (targetClientId) {
-                const summary = items.map(i => `${i.quantidade}x ${i.nome}`).join(', ')
                 await updateLastOrder(
                     `Pedido #${pedido.numero_pedido || pedido.id.slice(0, 5)}: ${summary}`,
                     tipoPedido === 'entrega' ? savedData : null,
-                    targetClientId,
-                    { nome: orderData.nome_cliente, telefone: orderData.telefone_cliente }
+                    targetClientId
                 )
             }
 

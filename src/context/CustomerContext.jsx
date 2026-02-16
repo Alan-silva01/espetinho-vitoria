@@ -112,11 +112,17 @@ export function CustomerProvider({ children }) {
 
             const baseDados = current?.dados || {}
 
-            // Deep merge simulation for JSONB
-            const updatedDados = {
+            // Simple merge simulation for JSONB
+            let updatedDados = {
                 ...baseDados,
                 ...newData
             }
+
+            // Cleanup redundant top-level keys
+            const keysToRemove = ['telefone', 'whatsapp', 'nome_recebedor', 'telefone_recebedor', 'nome']
+            keysToRemove.forEach(key => {
+                delete updatedDados[key]
+            })
 
             const { error, data: updated } = await supabase
                 .from('clientes')
@@ -139,13 +145,12 @@ export function CustomerProvider({ children }) {
         return false
     }
 
-    async function updateLastOrder(orderSummary, newAddress = null, explicitId = null, extraInfo = {}) {
+    async function updateLastOrder(orderSummary, newAddress = null, explicitId = null) {
         const targetId = explicitId || customer?.id
         if (!targetId) return
 
         const updateObj = {
-            ultimos_pedidos: orderSummary,
-            ...extraInfo
+            ultimos_pedidos: orderSummary
         }
 
         if (newAddress) {
