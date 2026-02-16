@@ -21,6 +21,28 @@ export default function DriversPage() {
     })
     const [searchTerm, setSearchTerm] = useState('')
     const [deleteConfirm, setDeleteConfirm] = useState({ open: false, id: null, nome: '' })
+    const [isAddOpen, setIsAddOpen] = useState(false)
+    const [newDriver, setNewDriver] = useState({ nome: '', telefone: '' })
+    const [saving, setSaving] = useState(false)
+
+    // Helper: 11 digits (99991372552) -> 559991372552@s.whatsapp.net (removed index 3 extra 9)
+    const formatPhoneForDB = (val) => {
+        const digits = val.replace(/\D/g, '')
+        if (digits.length !== 11) return digits // fallback
+        const ddd = digits.substring(0, 2)
+        const rest = digits.substring(3) // skip index 2 (the 3rd digit)
+        return `55${ddd}${rest}@s.whatsapp.net`
+    }
+
+    // Helper: 559991372552@s.whatsapp.net -> (99) 9137-2552
+    const formatPhoneDisplay = (dbVal) => {
+        if (!dbVal) return ''
+        const clean = dbVal.split('@')[0].replace('55', '')
+        const ddd = clean.substring(0, 2)
+        const part1 = clean.substring(2, 6)
+        const part2 = clean.substring(6)
+        return `(${ddd}) ${part1}-${part2}`
+    }
 
     useEffect(() => {
         fetchDriversData()
@@ -81,6 +103,40 @@ export default function DriversPage() {
         }
     }
 
+    async function handleSaveDriver() {
+        if (!newDriver.nome || !newDriver.telefone) {
+            alert('Por favor, preencha nome e telefone.')
+            return
+        }
+
+        const phoneDigits = newDriver.telefone.replace(/\D/g, '')
+        if (phoneDigits.length !== 11) {
+            alert('O telefone deve ter 11 dígitos (DDD + número com o 9 extra).')
+            return
+        }
+
+        setSaving(true)
+        const dbPhone = formatPhoneForDB(phoneDigits)
+
+        const { data, error } = await supabase
+            .from('entregadores')
+            .insert({
+                nome: newDriver.nome,
+                telefone: dbPhone,
+                ativo: true
+            })
+            .select()
+
+        if (!error) {
+            await fetchDriversData()
+            setIsAddOpen(false)
+            setNewDriver({ nome: '', telefone: '' })
+        } else {
+            alert('Erro ao salvar entregador: ' + error.message)
+        }
+        setSaving(false)
+    }
+
     async function handleDeleteClick(driver) {
         setDeleteConfirm({ open: true, id: driver.id, nome: driver.nome })
     }
@@ -109,7 +165,7 @@ export default function DriversPage() {
                     <p>Acompanhe a performance da sua equipe de motoboys em tempo real.</p>
                 </div>
                 <div className="header-actions">
-                    <button className="btn-add-driver">
+                    <button className="btn-add-driver" onClick={() => setIsAddOpen(true)}>
                         <Plus size={18} />
                         <span>Novo Entregador</span>
                     </button>
@@ -175,7 +231,7 @@ export default function DriversPage() {
                                             {driver.status}
                                         </span>
                                     </div>
-                                    <p className="driver-tel"><Phone size={12} /> {driver.tel}</p>
+                                    <p className="driver-tel"><Phone size={12} /> {formatPhoneDisplay(driver.tel)}</p>
                                 </div>
                                 <div className="driver-stats-box">
                                     <div className="stat-group">
@@ -259,6 +315,57 @@ export default function DriversPage() {
                     </div>
                 </aside>
             </div>
+
+            {/* Modal de Adicionar Entregador */}
+            {isAddOpen && (
+                <div className="admin-modal-overlay">
+                    <div className="modal-add-driver animate-scale-in">
+                        <div className="modal-header-v2">
+                            <h3>Cadastrar Novo Entregador</h3>
+                        </div>
+                        <div className="modal-body-form">
+                            <div className="form-group-v2">
+                                <label>Nome do Entregador</label>
+                                <input
+                                    type="text"
+                                    placeholder="Ex: João Silva"
+                                    value={newDriver.nome}
+                                    onChange={e => setNewDriver({ ...newDriver, nome: e.target.value })}
+                                />
+                            </div>
+                            <div className="form-group-v2">
+                                <label>Telefone (DDD + Número)</label>
+                                <input
+                                    type="text"
+                                    placeholder="Ex: 99991372552"
+                                    value={newDriver.telefone}
+                                    onChange={e => {
+                                        const val = e.target.value.replace(/\D/g, '').slice(0, 11)
+                                        setNewDriver({ ...newDriver, telefone: val })
+                                    }}
+                                />
+                                <small>Digite os 11 dígitos. O sistema formatará automaticamente.</small>
+                            </div>
+                        </div>
+                        <div className="modal-footer-v2">
+                            <button
+                                className="btn-cancel-v2"
+                                onClick={() => setIsAddOpen(false)}
+                                disabled={saving}
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                className="btn-save-v2"
+                                onClick={handleSaveDriver}
+                                disabled={saving}
+                            >
+                                {saving ? 'Salvando...' : 'Salvar Entregador'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Modal de Confirmação de Exclusão */}
             {deleteConfirm.open && (
