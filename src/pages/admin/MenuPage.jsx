@@ -442,11 +442,6 @@ export default function MenuPage() {
                                     <span className="label">Preço</span>
                                     <span className="value">{formatCurrency(p.preco)}</span>
                                 </div>
-                                {p.controlar_estoque && (
-                                    <div className={`stock-badge ${p.quantidade_disponivel <= 5 ? 'low' : ''}`}>
-                                        {p.quantidade_disponivel} em estoque
-                                    </div>
-                                )}
                                 <span className="cat-label">{p.categorias?.nome}</span>
                             </div>
                         </div>
