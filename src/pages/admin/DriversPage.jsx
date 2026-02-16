@@ -22,8 +22,9 @@ export default function DriversPage() {
     const [searchTerm, setSearchTerm] = useState('')
     const [deleteConfirm, setDeleteConfirm] = useState({ open: false, id: null, nome: '' })
     const [isAddOpen, setIsAddOpen] = useState(false)
-    const [newDriver, setNewDriver] = useState({ nome: '', telefone: '' })
+    const [newDriver, setNewDriver] = useState({ nome: '', telefone: '', senha: '' })
     const [saving, setSaving] = useState(false)
+
 
     // Helper: 11 digits (99991372552) -> 559991372552@s.whatsapp.net (removed index 3 extra 9)
     const formatPhoneForDB = (val) => {
@@ -104,10 +105,11 @@ export default function DriversPage() {
     }
 
     async function handleSaveDriver() {
-        if (!newDriver.nome || !newDriver.telefone) {
-            alert('Por favor, preencha nome e telefone.')
+        if (!newDriver.nome || !newDriver.telefone || !newDriver.senha) {
+            alert('Por favor, preencha nome, telefone e senha.')
             return
         }
+
 
         const phoneDigits = newDriver.telefone.replace(/\D/g, '')
         if (phoneDigits.length !== 11) {
@@ -123,15 +125,18 @@ export default function DriversPage() {
             .insert({
                 nome: newDriver.nome,
                 telefone: dbPhone,
+                senha: newDriver.senha,
                 ativo: true
             })
+
             .select()
 
         if (!error) {
             await fetchDriversData()
             setIsAddOpen(false)
-            setNewDriver({ nome: '', telefone: '' })
+            setNewDriver({ nome: '', telefone: '', senha: '' })
         } else {
+
             alert('Erro ao salvar entregador: ' + error.message)
         }
         setSaving(false)
@@ -346,7 +351,18 @@ export default function DriversPage() {
                                 />
                                 <small>Digite os 11 dígitos. O sistema formatará automaticamente.</small>
                             </div>
+                            <div className="form-group-v2">
+                                <label>Senha de Acesso</label>
+                                <input
+                                    type="text"
+                                    placeholder="Ex: 123456"
+                                    value={newDriver.senha}
+                                    onChange={e => setNewDriver({ ...newDriver, senha: e.target.value })}
+                                />
+                                <small>Esta senha será usada para o entregador logar no painel.</small>
+                            </div>
                         </div>
+
                         <div className="modal-footer-v2">
                             <button
                                 className="btn-cancel-v2"

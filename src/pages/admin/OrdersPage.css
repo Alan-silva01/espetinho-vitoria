@@ -729,6 +729,41 @@
     text-transform: uppercase;
 }
 
+.v4-driver-assign {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 16px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.v4-driver-assign label {
+    font-size: 11px;
+    font-weight: 800;
+    color: #64748b;
+    white-space: nowrap;
+}
+
+.v4-driver-assign select {
+    background: white;
+    border: 1px solid #cbd5e1;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1e293b;
+    outline: none;
+    flex: 1;
+}
+
+.v4-driver-assign select:focus {
+    border-color: #b91c1c;
+}
+
+
 .v4-actions {
     padding: 24px 32px;
     background: #F9FAFB;

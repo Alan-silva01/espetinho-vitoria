@@ -1,0 +1,88 @@
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useDriverAuth } from '../../hooks/useDriverAuth'
+import { Bike, Lock, User, AlertCircle, ArrowRight } from 'lucide-react'
+import './DriverLoginPage.css'
+
+export default function DriverLoginPage() {
+    const [identificador, setIdentificador] = useState('')
+    const [senha, setSenha] = useState('')
+    const [error, setError] = useState('')
+    const { login, loading } = useDriverAuth()
+    const navigate = useNavigate()
+
+    const handleLogin = async (e) => {
+        e.preventDefault()
+        setError('')
+        try {
+            await login(identificador, senha)
+            navigate('/entregador')
+        } catch (err) {
+            setError(err.message)
+        }
+    }
+
+    return (
+        <div className="driver-login-container">
+            <div className="driver-login-card animate-fade-in">
+                <div className="login-header">
+                    <div className="icon-badge">
+                        <Bike size={32} />
+                    </div>
+                    <h1>Painel do Entregador</h1>
+                    <p>Acesse sua conta para gerenciar suas entregas</p>
+                </div>
+
+                <form onSubmit={handleLogin} className="login-form">
+                    {error && (
+                        <div className="error-message">
+                            <AlertCircle size={18} />
+                            <span>{error}</span>
+                        </div>
+                    )}
+
+                    <div className="input-field">
+                        <label>Identificador (Nome ou Tel)</label>
+                        <div className="input-wrapper">
+                            <User size={20} className="field-icon" />
+                            <input
+                                type="text"
+                                placeholder="Seu nome ou telefone"
+                                value={identificador}
+                                onChange={e => setIdentificador(e.target.value)}
+                                required
+                            />
+                        </div>
+                    </div>
+
+                    <div className="input-field">
+                        <label>Senha</label>
+                        <div className="input-wrapper">
+                            <Lock size={20} className="field-icon" />
+                            <input
+                                type="password"
+                                placeholder="Sua senha"
+                                value={senha}
+                                onChange={e => setSenha(e.target.value)}
+                                required
+                            />
+                        </div>
+                    </div>
+
+                    <button type="submit" className="btn-login" disabled={loading}>
+                        {loading ? 'Entrando...' : (
+                            <>
+                                <span>Entrar no Painel</span>
+                                <ArrowRight size={20} />
+                            </>
+                        )}
+                    </button>
+                </form>
+
+                <div className="login-footer">
+                    <p>Desenvolvido para equipe <strong>Espetinho Vitória</strong></p>
+                </div>
+            </div>
+        </div>
+    )
+}

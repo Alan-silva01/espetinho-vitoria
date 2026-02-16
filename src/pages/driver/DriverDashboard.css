@@ -1,0 +1,424 @@
+.driver-dashboard-container {
+    min-height: 100vh;
+    background: #f8fafc;
+    padding-bottom: 40px;
+}
+
+.driver-app-header {
+    background: white;
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #f1f5f9;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.driver-profile-mini {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.driver-avatar {
+    width: 44px;
+    height: 44px;
+    background: #fee2e2;
+    color: #b91c1c;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.welcome {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #94a3b8;
+    font-weight: 700;
+}
+
+.driver-name {
+    font-size: 16px;
+    font-weight: 800;
+    color: #1e293b;
+}
+
+.btn-logout-mini {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    border: 1px solid #f1f5f9;
+    background: transparent;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.driver-app-main {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.section-title h3 {
+    font-size: 14px;
+    font-weight: 800;
+    color: #475569;
+    text-transform: uppercase;
+}
+
+.count-pill {
+    background: #e2e8f0;
+    color: #475569;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 99px;
+}
+
+.orders-list-mobile {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.driver-order-card {
+    background: white;
+    border-radius: 20px;
+    padding: 16px;
+    border: 1px solid #f1f5f9;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+}
+
+.driver-order-card.finished {
+    opacity: 0.8;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.order-number {
+    font-size: 12px;
+    font-weight: 800;
+    color: #b91c1c;
+    background: #fef2f2;
+    padding: 2px 8px;
+    border-radius: 6px;
+}
+
+.order-time {
+    font-size: 11px;
+    color: #94a3b8;
+    font-weight: 600;
+}
+
+.customer-info h4 {
+    font-size: 16px;
+    font-weight: 800;
+    color: #1e293b;
+    margin-bottom: 6px;
+}
+
+.address-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.address-row span {
+    width: 100%;
+}
+
+.card-actions {
+    margin-top: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.total-price {
+    display: flex;
+    flex-direction: column;
+}
+
+.total-price span {
+    font-size: 11px;
+    color: #94a3b8;
+    font-weight: 600;
+}
+
+.total-price strong {
+    font-size: 16px;
+    color: #1e293b;
+}
+
+.btn-finish-delivery {
+    background: #10b981;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #94a3b8;
+}
+
+.empty-state p {
+    font-size: 14px;
+    margin-top: 12px;
+}
+
+/* Modal Pagamento */
+.driver-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    display: flex;
+    align-items: flex-end;
+}
+
+.payment-modal {
+    background: white;
+    width: 100%;
+    border-radius: 32px 32px 0 0;
+    padding: 32px 24px 40px;
+}
+
+.payment-modal h3 {
+    font-size: 20px;
+    font-weight: 800;
+    color: #1e293b;
+    margin-bottom: 8px;
+}
+
+.payment-modal p {
+    color: #64748b;
+    font-size: 14px;
+    margin-bottom: 24px;
+}
+
+.value-preview {
+    background: #f8fafc;
+    padding: 16px;
+    border-radius: 16px;
+    margin-bottom: 24px;
+    border: 1px solid #f1f5f9;
+}
+
+.value-preview label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: #94a3b8;
+    margin-bottom: 8px;
+}
+
+.input-money {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.input-money span {
+    font-size: 24px;
+    font-weight: 800;
+    color: #1e293b;
+}
+
+.input-money input {
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    font-weight: 800;
+    color: #1e293b;
+    width: 100%;
+    outline: none;
+}
+
+.payment-options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.btn-pay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 20px 10px;
+    border-radius: 20px;
+    border: 2px solid #f1f5f9;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-pay.pix {
+    color: #00bac4;
+}
+
+.btn-pay.card {
+    color: #6366f1;
+}
+
+.btn-pay.cash {
+    color: #10b981;
+}
+
+.btn-pay:hover {
+    border-color: currentColor;
+    background: #f8fafc;
+}
+
+.btn-pay span {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.btn-close-modal {
+    width: 100%;
+    padding: 16px;
+    background: transparent;
+    border: 1px solid #e2e8f0;
+    color: #64748b;
+    border-radius: 16px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+/* Detalhes do Pedido */
+.order-detail-modal {
+    background: white;
+    width: 90%;
+    max-width: 400px;
+    border-radius: 24px;
+    margin: auto;
+    overflow: hidden;
+}
+
+.detail-header {
+    background: #b91c1c;
+    color: white;
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.detail-header h3 {
+    font-size: 16px;
+    font-weight: 800;
+}
+
+.detail-header button {
+    background: transparent;
+    border: none;
+    color: white;
+    font-weight: 700;
+}
+
+.detail-body {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.info-group label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+.info-group strong {
+    display: block;
+    font-size: 16px;
+    color: #1e293b;
+}
+
+.tel-line {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #b91c1c;
+    font-weight: 700;
+    margin-top: 4px;
+}
+
+.ref {
+    font-size: 12px;
+    color: #64748b;
+    font-style: italic;
+}
+
+.finished .payment-tag {
+    font-size: 10px;
+    font-weight: 800;
+    background: #f1f5f9;
+    color: #64748b;
+    padding: 4px 8px;
+    border-radius: 6px;
+    text-transform: uppercase;
+}
+
+.status-badge {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #10b981;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+@keyframes slide-up {
+    from {
+        transform: translateY(100%);
+    }
+
+    to {
+        transform: translateY(0);
+    }
+}
+
+.animate-slide-up {
+    animation: slide-up 0.3s ease-out;
+}

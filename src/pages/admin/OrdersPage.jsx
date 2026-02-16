@@ -25,7 +25,9 @@ export default function OrdersPage() {
     const [selectedOrder, setSelectedOrder] = useState(null)
     const [searchTerm, setSearchTerm] = useState('')
     const [activeStage, setActiveStage] = useState('confirmado')
+    const [allDrivers, setAllDrivers] = useState([])
     const audioRef = useRef(new Audio('/notificacao.mp3'))
+
 
     const playNotificationSound = () => {
         const audio = audioRef.current
@@ -38,8 +40,10 @@ export default function OrdersPage() {
 
     useEffect(() => {
         fetchOrders()
+        fetchAllDrivers()
 
         const channel = supabase
+
             .channel('orders_realtime')
             .on('postgres_changes', { event: '*', schema: 'public', table: 'pedidos' }, (payload) => {
                 if (payload.eventType === 'UPDATE') {
@@ -85,6 +89,26 @@ export default function OrdersPage() {
         }
         setLoading(false)
     }
+
+    async function fetchAllDrivers() {
+        const { data } = await supabase.from('entregadores').select('id, nome').eq('ativo', true)
+        if (data) setAllDrivers(data)
+    }
+
+    const handleAssignDriver = async (orderId, driverId) => {
+        const { error } = await supabase
+            .from('pedidos')
+            .update({ entregador_id: driverId })
+            .eq('id', orderId)
+
+        if (!error) {
+            setOrders(prev => prev.map(o => o.id === orderId ? { ...o, entregador_id: driverId } : o))
+            if (selectedOrder?.id === orderId) {
+                setSelectedOrder(prev => ({ ...prev, entregador_id: driverId }))
+            }
+        }
+    }
+
 
     const handleStatusChange = async (orderId, newStatus) => {
         const previousOrders = [...orders]
@@ -437,7 +461,23 @@ export default function OrdersPage() {
                                     {selectedOrder.forma_pagamento === 'pagar_na_mesa' ? 'PAGAR NA MESA' : selectedOrder.forma_pagamento?.toUpperCase()}
                                     {selectedOrder.troco_para && ` (TROCO P/ ${formatCurrency(selectedOrder.troco_para)})`}
                                 </div>
+
+                                {selectedOrder.tipo_pedido === 'entrega' && (
+                                    <div className="v4-driver-assign">
+                                        <label>ENTREGADOR:</label>
+                                        <select
+                                            value={selectedOrder.entregador_id || ''}
+                                            onChange={(e) => handleAssignDriver(selectedOrder.id, e.target.value)}
+                                        >
+                                            <option value="">Não atribuído</option>
+                                            {allDrivers.map(d => (
+                                                <option key={d.id} value={d.id}>{d.nome}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                )}
                             </div>
+
 
                             <div className="v4-actions">
                                 <button className="v4-btn-print" onClick={handlePrint}>
@@ -609,7 +649,8 @@ export default function OrdersPage() {
                         </div>
                     </div>
                 </>
-            )}
-        </div>
+            )
+            }
+        </div >
     )
 }

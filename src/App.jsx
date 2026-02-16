@@ -33,6 +33,11 @@ const OpeningHoursPage = lazy(() => import('./pages/admin/OpeningHoursPage'))
 const FreightPage = lazy(() => import('./pages/admin/FreightPage'))
 const TablesPage = lazy(() => import('./pages/admin/TablesPage'))
 
+/* Driver Pages */
+const DriverLoginPage = lazy(() => import('./pages/driver/DriverLoginPage'))
+const DriverDashboard = lazy(() => import('./pages/driver/DriverDashboard'))
+
+
 /* Layouts */
 import CustomerLayout from './layouts/CustomerLayout'
 import AdminLayout from './layouts/AdminLayout'
@@ -91,6 +96,11 @@ function App() {
                   <Route path="mesas" element={<TablesPage />} />
                   <Route path="configuracoes" element={<SettingsPage />} />
                 </Route>
+
+                {/* ===== Área do Entregador ===== */}
+                <Route path="/entregador/login" element={<DriverLoginPage />} />
+                <Route path="/entregador" element={<DriverDashboard />} />
+
 
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
