@@ -64,9 +64,7 @@ export default function HomePage() {
     const filteredProducts = products.filter(p => {
         const matchCat = !activeCategory || p.categoria_id === activeCategory
         const matchSearch = !search || p.nome.toLowerCase().includes(search.toLowerCase())
-        // Main products should only be hidden if manually turned off (disponivel: false)
-        const isAvailable = p.disponivel !== false
-        return matchCat && matchSearch && isAvailable
+        return matchCat && matchSearch
     })
 
     const handleLike = useCallback((e, productId) => {
@@ -148,8 +146,9 @@ export default function HomePage() {
                     .map((product, index) => (
                         <div
                             key={product.id}
-                            className="product-card"
+                            className={`product-card ${!product.disponivel ? 'product-card--esgotado' : ''}`}
                             onClick={() => {
+                                if (!product.disponivel) return
                                 navigate(customerCode ? `/${customerCode}/produto/${product.id}` : `/produto/${product.id}`)
                             }}
                         >
@@ -162,7 +161,7 @@ export default function HomePage() {
                                     height={300}
                                     priority={index < 4}
                                 />
-                                {product.quantidade_disponivel === 0 && (
+                                {(product.quantidade_disponivel === 0 || !product.disponivel) && (
                                     <div className="product-card__out-label">ESGOTADO</div>
                                 )}
                                 <button
@@ -192,7 +191,7 @@ export default function HomePage() {
                                 <span className="product-card__price">{formatCurrency(product.preco)}</span>
                                 <button
                                     className="product-card__add"
-                                    disabled={product.quantidade_disponivel === 0}
+                                    disabled={product.quantidade_disponivel === 0 || !product.disponivel}
                                     onClick={e => {
                                         e.stopPropagation()
                                         if (product.quantidade_disponivel === 0) return

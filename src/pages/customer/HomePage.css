@@ -216,8 +216,20 @@
     transition: filter 0.3s ease;
 }
 
-.product-card--out-of-stock .product-card__image {
+.product-card--out-of-stock .product-card__image,
+.product-card--esgotado .product-card__image {
     filter: blur(4px) grayscale(0.8);
+}
+
+.product-card--esgotado {
+    cursor: not-allowed !important;
+    opacity: 0.9;
+}
+
+.product-card--esgotado .product-card__add {
+    background: #9CA3AF !important;
+    box-shadow: none !important;
+    cursor: not-allowed;
 }
 
 .product-card__out-label {
