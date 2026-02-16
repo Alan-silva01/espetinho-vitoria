@@ -45,7 +45,6 @@ export default function MenuPage() {
 
     // Delete confirmation state
     const [deleteConfirm, setDeleteConfirm] = useState({ open: false, id: null, loading: false, error: null })
-    const [togglingId, setTogglingId] = useState(null)
 
     useEffect(() => {
         fetchData()
@@ -348,31 +347,12 @@ export default function MenuPage() {
     }
 
     const handleToggleDisponivel = async (product) => {
-        if (togglingId) return
-        setTogglingId(product.id)
+        const { error } = await supabase
+            .from('produtos')
+            .update({ disponivel: !product.disponivel })
+            .eq('id', product.id)
 
-        // Optimistic update
-        setProducts(current => current.map(p =>
-            p.id === product.id ? { ...p, disponivel: !product.disponivel } : p
-        ))
-
-        try {
-            const { error } = await supabase
-                .from('produtos')
-                .update({ disponivel: !product.disponivel })
-                .eq('id', product.id)
-
-            if (error) throw error
-        } catch (err) {
-            console.error('Erro ao alternar disponibilidade:', err)
-            alert('Erro ao atualizar produto: ' + err.message)
-            // Rollback on error
-            setProducts(current => current.map(p =>
-                p.id === product.id ? { ...p, disponivel: product.disponivel } : p
-            ))
-        } finally {
-            setTogglingId(null)
-        }
+        if (!error) fetchData()
     }
 
     const filteredProducts = products.filter(p => {
@@ -450,16 +430,11 @@ export default function MenuPage() {
                         <div className="product-card__body">
                             <div className="card-top">
                                 <h3 className="product-name">{p.nome}</h3>
-                                <button
-                                    className={`status-toggle-btn ${togglingId === p.id ? 'toggling' : ''}`}
-                                    onClick={() => handleToggleDisponivel(p)}
-                                    disabled={togglingId === p.id}
-                                    title={p.disponivel ? 'Desativar Produto' : 'Ativar Produto'}
-                                >
+                                <div className="status-toggle" onClick={() => handleToggleDisponivel(p)}>
                                     <div className={`toggle-track ${p.disponivel ? 'on' : 'off'}`}>
                                         <div className="toggle-thumb" />
                                     </div>
-                                </button>
+                                </div>
                             </div>
                             <p className="product-desc">{p.descricao}</p>
                             <div className="card-bottom">

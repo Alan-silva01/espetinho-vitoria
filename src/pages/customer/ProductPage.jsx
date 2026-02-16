@@ -161,7 +161,7 @@ export default function ProductPage() {
 
 
     const getValidationMessage = () => {
-        if (product?.disponivel === false || product?.quantidade_disponivel === 0) return 'Esgotado'
+        if (product?.quantidade_disponivel === 0) return 'Esgotado'
 
         if (!isSelectionValid && product?.opcoes_personalizacao) {
             const missingGroup = product.opcoes_personalizacao.find(group => {

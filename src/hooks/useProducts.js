@@ -24,6 +24,7 @@ export function useProducts() {
                 supabase
                     .from('produtos')
                     .select('*, categorias(nome, icone), variacoes_produto(*)')
+                    .eq('disponivel', true)
                     .order('ordem_exibicao'),
             ])
 
