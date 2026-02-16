@@ -28,7 +28,7 @@ export default function DriverDashboard() {
                 .channel('driver_orders')
                 .on(
                     'postgres_changes',
-                    { event: '*', schema: 'public', table: 'pedidos', filter: `entregador_id=eq.${driver.id}` },
+                    { event: '*', schema: 'public', table: 'pedidos', filter: 'tipo_pedido=eq.entrega' },
                     () => fetchDriverOrders()
                 )
                 .subscribe()
@@ -43,14 +43,15 @@ export default function DriverDashboard() {
         if (!driver?.id) return
 
         const today = new Date()
-        today.setHours(0, 0, 0, 0)
+        const brDateStr = today.toLocaleDateString('en-US', { timeZone: 'America/Sao_Paulo' })
+        const [month, day, year] = brDateStr.split('/')
+        const brMidnightAsUTC = new Date(Date.UTC(year, month - 1, day, 3, 0, 0))
 
         const { data, error } = await supabase
             .from('pedidos')
             .select('*')
-            .eq('entregador_id', driver.id)
             .eq('tipo_pedido', 'entrega')
-            .gte('criado_em', today.toISOString())
+            .gte('criado_em', brMidnightAsUTC.toISOString())
             .order('criado_em', { ascending: false })
 
         if (!error) {
@@ -61,6 +62,7 @@ export default function DriverDashboard() {
 
     const handleFinishDelivery = (order) => {
         setReceivedValor(order.valor_total.toString())
+        setPaymentModal({ open: false, orderId: order.id }) // Reset first
         setPaymentModal({ open: true, orderId: order.id })
     }
 
@@ -72,6 +74,7 @@ export default function DriverDashboard() {
                 .update({
                     status: 'entregue',
                     entregue_em: new Date().toISOString(),
+                    entregador_id: driver.id, // Vincula o entregador que concluiu
                     recebido_por_status: true,
                     recebido_valor: Number(receivedValor),
                     recebido_metodo: metodo,
