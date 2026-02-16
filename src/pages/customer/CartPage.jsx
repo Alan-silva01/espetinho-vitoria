@@ -170,45 +170,20 @@ export default function CartPage() {
 
         setIsGeolocating(true)
         navigator.geolocation.getCurrentPosition(
-            async (position) => {
+            (position) => {
                 const { latitude, longitude } = position.coords
-                try {
-                    const response = await fetch(
-                        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`
-                    )
-                    const data = await response.json()
-
-                    if (data.address) {
-                        const { road, house_number, suburb, neighbourhood, city_district, town, city } = data.address
-
-                        // Try to find the best match for the neighborhood
-                        const detectedBairro = suburb || neighbourhood || city_district || town || city || ""
-
-                        setTempData(prev => ({
-                            ...prev,
-                            rua: road || prev.rua,
-                            numero: house_number || prev.numero,
-                            bairro: detectedBairro || prev.bairro,
-                            google_maps_link: `https://www.google.com/maps?q=${latitude},${longitude}`
-                        }))
-                    }
-                } catch (error) {
-                    console.error('Erro na geocodificação reversa:', error)
-                    alert('Não foi possível obter seu endereço automaticamente. Por favor, preencha manualmente.')
-                } finally {
-                    setIsGeolocating(false)
-                }
+                setTempData(prev => ({
+                    ...prev,
+                    google_maps_link: `https://www.google.com/maps?q=${latitude},${longitude}`
+                }))
+                setIsGeolocating(false)
             },
             (error) => {
                 console.error('Erro de geolocalização:', error)
                 setIsGeolocating(false)
-                if (error.code === 1) {
-                    alert('Permissão de localização negada. Ative-a nas configurações do seu navegador.')
-                } else {
-                    alert('Não foi possível obter sua localização.')
-                }
+                alert('Não foi possível obter sua localização. Verifique se o GPS está ligado e as permissões de localização do navegador.')
             },
-            { enableHighAccuracy: true, timeout: 10000 }
+            { enableHighAccuracy: true, timeout: 5000 }
         )
     }
 
@@ -542,13 +517,23 @@ export default function CartPage() {
 
                         <div className="bottom-sheet__content">
                             <button
-                                className={`btn-locate ${isGeolocating ? 'is-loading' : ''}`}
+                                className={`btn-locate ${isGeolocating ? 'is-loading' : ''} ${tempData.google_maps_link ? 'is-success' : ''}`}
                                 onClick={handleGetCurrentLocation}
                                 disabled={isGeolocating}
                             >
                                 <Navigation size={18} className={isGeolocating ? 'animate-spin' : ''} />
-                                {isGeolocating ? 'Obtendo localização...' : 'Usar minha localização atual'}
+                                {isGeolocating
+                                    ? 'Obtendo localização...'
+                                    : tempData.google_maps_link
+                                        ? 'Localização vinculada ✅'
+                                        : 'Vincular minha localização (GPS)'}
                             </button>
+
+                            {tempData.google_maps_link && (
+                                <p className="location-success-tip">
+                                    📍 GPS vinculado! Isso ajuda o entregador a te encontrar rápido.
+                                </p>
+                            )}
 
                             <div className="form-grid">
                                 <div className="input-modern-group full">

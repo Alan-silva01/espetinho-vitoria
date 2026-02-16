@@ -724,6 +724,23 @@
     cursor: wait;
 }
 
+.btn-locate.is-success {
+    border-color: #10B981 !important;
+    color: #059669 !important;
+    background: #F0FDF4 !important;
+}
+
+.location-success-tip {
+    font-size: 13px;
+    color: #059669;
+    text-align: center;
+    margin: -10px auto 20px;
+    padding: 0 10px;
+    font-weight: 500;
+    max-width: 280px;
+    line-height: 1.4;
+}
+
 @keyframes spin {
     from {
         transform: rotate(0deg);
