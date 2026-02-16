@@ -683,3 +683,80 @@
     from {
         opacity: 0;
     }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* Geolocate Button */
+.btn-locate {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px;
+    background: white;
+    border: 1.5px solid #E5E7EB;
+    border-radius: 14px;
+    color: #374151;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.btn-locate:active {
+    transform: scale(0.97);
+    background: #F9FAFB;
+    border-color: var(--cor-primaria);
+    color: var(--cor-primaria);
+}
+
+.btn-locate svg {
+    color: var(--cor-primaria);
+}
+
+.btn-locate.is-loading {
+    opacity: 0.7;
+    cursor: wait;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+.modern-select {
+    width: 100%;
+    padding: 12px 14px;
+    background: #F9FAFB;
+    border: 1px solid #E5E7EB;
+    border-radius: 12px;
+    font-size: 16px;
+    color: #111827;
+    outline: none;
+    transition: all 0.2s;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236B7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='C19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 18px;
+}
+
+.modern-select:focus {
+    border-color: var(--cor-primaria);
+    background-color: white;
+    box-shadow: 0 0 0 4px rgba(185, 28, 28, 0.05);
+}

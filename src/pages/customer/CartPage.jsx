@@ -44,7 +44,8 @@ export default function CartPage() {
                     bairro: data.bairro || data.neighborhood || '',
                     referencia: data.referencia || data.reference || '',
                     nome_recebedor: data.nome_recebedor || data.receiverName || '',
-                    telefone_recebedor: data.telefone_recebedor || data.receiverPhone || ''
+                    telefone_recebedor: data.telefone_recebedor || data.receiverPhone || '',
+                    google_maps_link: data.google_maps_link || ''
                 }
             } catch { }
         }
@@ -54,7 +55,8 @@ export default function CartPage() {
             bairro: '',
             referencia: '',
             nome_recebedor: '',
-            telefone_recebedor: ''
+            telefone_recebedor: '',
+            google_maps_link: ''
         }
     })
 
@@ -122,11 +124,12 @@ export default function CartPage() {
                     rua: dbAddr.rua || dbAddr.street || dbAddr.logradouro || '',
                     numero: dbAddr.numero || dbAddr.number || '',
                     bairro: dbAddr.bairro || dbAddr.neighborhood || '',
-                    referencia: dbAddr.referencia || dbAddr.reference || dbAddr.ponto_referencia || ''
+                    referencia: dbAddr.referencia || dbAddr.reference || dbAddr.ponto_referencia || '',
+                    google_maps_link: dbAddr.google_maps_link || ''
                 }
 
                 // If the DB has information, we update
-                if (newData.rua || newData.nome_recebedor) {
+                if (newData.rua || newData.nome_recebedor || newData.google_maps_link) {
                     const isDifferent = JSON.stringify(newData) !== JSON.stringify(addressData)
                     if (isDifferent) {
                         setAddressData(newData)
@@ -185,7 +188,8 @@ export default function CartPage() {
                             ...prev,
                             rua: road || prev.rua,
                             numero: house_number || prev.numero,
-                            bairro: detectedBairro || prev.bairro
+                            bairro: detectedBairro || prev.bairro,
+                            google_maps_link: `https://www.google.com/maps?q=${latitude},${longitude}`
                         }))
                     }
                 } catch (error) {
@@ -235,7 +239,8 @@ export default function CartPage() {
                     rua: tempData.rua,
                     numero: tempData.numero,
                     bairro: tempData.bairro,
-                    referencia: tempData.referencia
+                    referencia: tempData.referencia,
+                    google_maps_link: tempData.google_maps_link
                 }
             })
         }
