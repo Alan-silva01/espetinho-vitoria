@@ -191,10 +191,9 @@ export function CustomerProvider({ children }) {
                         const syncData = {
                             nome_recebedor: dados.nome_recebedor || dados.receiverName || dados.nome || payload.new.nome || '',
                             telefone_recebedor: dados.telefone_recebedor || dados.receiverPhone || dados.whatsapp || payload.new.telefone || '',
-                            rua: dbAddr.rua || '',
-                            numero: dbAddr.numero || '',
                             bairro: dbAddr.bairro || '',
-                            referencia: dbAddr.referencia || ''
+                            referencia: dbAddr.referencia || '',
+                            google_maps_link: dbAddr.google_maps_link || ''
                         }
                         localStorage.setItem('espetinho_delivery_data', JSON.stringify(syncData))
                     }

@@ -39,7 +39,8 @@ export default function CheckoutPage() {
                     bairro: data.bairro || data.neighborhood || '',
                     referencia: data.referencia || data.reference || '',
                     nome_recebedor: data.nome_recebedor || data.receiverName || '',
-                    telefone_recebedor: data.telefone_recebedor || data.receiverPhone || ''
+                    telefone_recebedor: data.telefone_recebedor || data.receiverPhone || '',
+                    google_maps_link: data.google_maps_link || ''
                 }
             } catch { }
         }
@@ -115,6 +116,9 @@ export default function CheckoutPage() {
                 if (hasNoLocal || noManual) {
                     const newData = {
                         nome_recebedor: dados.nome_recebedor || dados.receiverName || dados.nome || customer.nome || '',
+                        telefone_recebedor: dados.telefone_recebedor || dados.receiverPhone || dados.whatsapp || customer.telefone || '',
+                        rua: dbAddr.rua || dbAddr.street || dbAddr.logradouro || '',
+                        numero: dbAddr.numero || dbAddr.number || '',
                         bairro: dbAddr.bairro || dbAddr.neighborhood || '',
                         referencia: dbAddr.referencia || dbAddr.reference || dbAddr.ponto_referencia || '',
                         google_maps_link: dbAddr.google_maps_link || ''
