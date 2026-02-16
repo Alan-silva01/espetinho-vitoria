@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, X, Minus, Plus, MapPin, Truck, Store } from 'lucide-react'
+import { ArrowLeft, X, Minus, Plus, MapPin, Truck, Store, Navigation } from 'lucide-react'
 import { useCart } from '../../hooks/useCart'
 import { useProducts } from '../../hooks/useProducts'
 import { useCustomer } from '../../context/CustomerContext'
@@ -15,6 +15,7 @@ export default function CartPage() {
     const { items, removeItem, updateQuantity, clearCart, subtotal, addItem } = useCart()
     const { products } = useProducts()
     const { customer, updateCustomerData } = useCustomer()
+    const [isGeolocating, setIsGeolocating] = useState(false)
 
     useEffect(() => {
         window.scrollTo(0, 0)
@@ -156,6 +157,55 @@ export default function CartPage() {
     const handleTipoPedido = (tipo) => {
         setTipoPedido(tipo)
         localStorage.setItem('espetinho_tipo_pedido', tipo)
+    }
+
+    const handleGetCurrentLocation = () => {
+        if (!navigator.geolocation) {
+            alert('Geolocalização não é suportada pelo seu navegador.')
+            return
+        }
+
+        setIsGeolocating(true)
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                const { latitude, longitude } = position.coords
+                try {
+                    const response = await fetch(
+                        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`
+                    )
+                    const data = await response.json()
+
+                    if (data.address) {
+                        const { road, house_number, suburb, neighbourhood, city_district, town, city } = data.address
+
+                        // Try to find the best match for the neighborhood
+                        const detectedBairro = suburb || neighbourhood || city_district || town || city || ""
+
+                        setTempData(prev => ({
+                            ...prev,
+                            rua: road || prev.rua,
+                            numero: house_number || prev.numero,
+                            bairro: detectedBairro || prev.bairro
+                        }))
+                    }
+                } catch (error) {
+                    console.error('Erro na geocodificação reversa:', error)
+                    alert('Não foi possível obter seu endereço automaticamente. Por favor, preencha manualmente.')
+                } finally {
+                    setIsGeolocating(false)
+                }
+            },
+            (error) => {
+                console.error('Erro de geolocalização:', error)
+                setIsGeolocating(false)
+                if (error.code === 1) {
+                    alert('Permissão de localização negada. Ative-a nas configurações do seu navegador.')
+                } else {
+                    alert('Não foi possível obter sua localização.')
+                }
+            },
+            { enableHighAccuracy: true, timeout: 10000 }
+        )
     }
 
     const handleOpenAddress = () => {
@@ -486,6 +536,15 @@ export default function CartPage() {
                         </div>
 
                         <div className="bottom-sheet__content">
+                            <button
+                                className={`btn-locate ${isGeolocating ? 'is-loading' : ''}`}
+                                onClick={handleGetCurrentLocation}
+                                disabled={isGeolocating}
+                            >
+                                <Navigation size={18} className={isGeolocating ? 'animate-spin' : ''} />
+                                {isGeolocating ? 'Obtendo localização...' : 'Usar minha localização atual'}
+                            </button>
+
                             <div className="form-grid">
                                 <div className="input-modern-group full">
                                     <label>Rua / Logradouro *</label>
