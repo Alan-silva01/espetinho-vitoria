@@ -512,8 +512,40 @@
     color: white;
 }
 
-.status-toggle {
+.status-toggle-btn {
+    background: none;
+    border: none;
+    padding: 0;
     cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    outline: none;
+}
+
+.status-toggle-btn:hover:not(:disabled) {
+    transform: scale(1.1);
+}
+
+.status-toggle-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.status-toggle-btn.toggling {
+    animation: toggle-pulse 1s infinite alternate;
+}
+
+@keyframes toggle-pulse {
+    from {
+        opacity: 0.6;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1.05);
+    }
 }
 
 .toggle-track {
