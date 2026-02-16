@@ -8,21 +8,36 @@ export function useOrders() {
     async function createOrder(orderData) {
         setLoading(true)
         try {
-            /* 1. Resolve client identify */
             let clienteId = orderData.cliente_id
 
-            // If no ID provided, try to find an existing client by phone number
+            // 1. If we have a customer code (from URL), prioritize lookup by code
+            if (!clienteId && orderData.codigo_cliente) {
+                const { data: existingByCode } = await supabase
+                    .from('clientes')
+                    .select('id')
+                    .eq('codigo', orderData.codigo_cliente)
+                    .maybeSingle()
+
+                if (existingByCode) {
+                    clienteId = existingByCode.id
+                }
+            }
+
+            // 2. Fallback: If no ID yet, try to find an existing client by phone number
             if (!clienteId && orderData.telefone_cliente) {
-                const { data: existing } = await supabase
+                const { data: existingByPhone } = await supabase
                     .from('clientes')
                     .select('id')
                     .eq('telefone', orderData.telefone_cliente)
                     .maybeSingle()
 
-                if (existing) {
-                    clienteId = existing.id
-                } else {
-                    // Create new client if not found
+                if (existingByPhone) {
+                    clienteId = existingByPhone.id
+                } else if (!orderData.codigo_cliente) {
+                    // 3. Create new client ONLY if not found by phone AND no code was provided
+                    // If a code was provided but not found, we should probably still create one or error,
+                    // but usually the code should exist. For safety, if code provided but not found, 
+                    // we create a new one as well but without a preset code.
                     const { data: newClient, error: clientErr } = await supabase
                         .from('clientes')
                         .insert({

@@ -173,7 +173,8 @@ export default function CheckoutPage() {
                 observacoes: tipoPedido === 'mesa' ? `Mesa ${mesaNumero}${observacoes ? ' | ' + observacoes : ''}` : observacoes,
                 mesa_id: mesaId || null,
                 itens: items,
-                cliente_id: customer?.id || null
+                cliente_id: customer?.id || null,
+                codigo_cliente: customerCode
             }
 
             const pedido = await createOrder(orderData)

@@ -102,35 +102,40 @@ export function CustomerProvider({ children }) {
         const targetId = explicitId || customer?.id
         if (!targetId) return
 
-        // Fetch current customer to get existing 'dados' if state is not available
-        let baseDados = customer?.dados || {}
-        if (!customer && explicitId) {
-            const { data } = await supabase
+        try {
+            // Always fetch latest data to ensure safe merge
+            const { data: current } = await supabase
                 .from('clientes')
                 .select('dados')
-                .eq('id', explicitId)
+                .eq('id', targetId)
                 .single()
-            if (data?.dados) baseDados = data.dados
-        }
 
-        const updatedDados = {
-            ...baseDados,
-            ...newData
-        }
+            const baseDados = current?.dados || {}
 
-        const { error } = await supabase
-            .from('clientes')
-            .update({ dados: updatedDados })
-            .eq('id', targetId)
-
-        if (!error) {
-            if (customer && customer.id === targetId) {
-                setCustomer(prev => ({ ...prev, dados: updatedDados }))
+            // Deep merge simulation for JSONB
+            const updatedDados = {
+                ...baseDados,
+                ...newData
             }
-            return true
-        }
 
-        console.error('[updateCustomerData] Erro ao atualizar dados do cliente:', error)
+            const { error, data: updated } = await supabase
+                .from('clientes')
+                .update({ dados: updatedDados })
+                .eq('id', targetId)
+                .select()
+                .single()
+
+            if (!error && updated) {
+                // Update local state to reflect merge
+                if (customer && customer.id === targetId) {
+                    setCustomer(updated)
+                }
+                return true
+            }
+            if (error) throw error
+        } catch (err) {
+            console.error('[updateCustomerData] Erro ao atualizar dados do cliente:', err)
+        }
         return false
     }
 
