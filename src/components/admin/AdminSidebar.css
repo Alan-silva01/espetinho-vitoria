@@ -163,26 +163,6 @@
     width: 100%;
 }
 
-.theme-toggle-btn {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 16px;
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: rgba(255, 255, 255, 0.8);
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 600;
-    transition: all 0.2s;
-}
-
-.dark .icon-light,
-:not(.dark) .icon-dark {
-    display: none;
-}
 
 .admin-profile-card {
     display: flex;
@@ -236,8 +216,7 @@
     .admin-sidebar.collapsed:not(.hovered) .brand-text,
     .admin-sidebar.collapsed:not(.hovered) .nav-label,
     .admin-sidebar.collapsed:not(.hovered) .nav-badge,
-    .admin-sidebar.collapsed:not(.hovered) .profile-info,
-    .admin-sidebar.collapsed:not(.hovered) .theme-toggle-btn span {
+    .admin-sidebar.collapsed:not(.hovered) .profile-info {
         display: none;
     }
 }

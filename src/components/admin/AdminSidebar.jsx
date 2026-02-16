@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { NavLink } from 'react-router-dom'
 import {
     LayoutDashboard,
@@ -14,8 +14,6 @@ import {
     Megaphone,
     Search,
     Bell,
-    Moon,
-    Sun,
     Clock,
     ChevronLeft,
     ChevronRight,
@@ -42,9 +40,10 @@ export default function AdminSidebar({ adminInfo, currentPath, onLogout, isColla
     const [isHovered, setIsHovered] = useState(false)
     const isExpanded = !isCollapsed || isHovered
 
-    const toggleTheme = () => {
-        document.documentElement.classList.toggle('dark')
-    }
+    useEffect(() => {
+        // Force light mode in admin
+        document.documentElement.classList.remove('dark')
+    }, [])
 
     return (
         <aside
@@ -85,13 +84,6 @@ export default function AdminSidebar({ adminInfo, currentPath, onLogout, isColla
             </nav>
 
             <div className="sidebar-footer">
-                <div className="theme-toggle-container">
-                    <button className="theme-toggle-btn" onClick={toggleTheme}>
-                        <Sun size={18} className="icon-light" />
-                        <Moon size={18} className="icon-dark" />
-                        <span>Alternar Tema</span>
-                    </button>
-                </div>
 
                 <div className="admin-profile-card">
                     <img
