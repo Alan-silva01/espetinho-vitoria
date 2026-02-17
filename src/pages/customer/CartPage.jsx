@@ -632,7 +632,7 @@ export default function CartPage() {
                             <h3>Endereço não informado</h3>
                             <p>Por favor, insira seu endereço para entrega para continuar com o pedido.</p>
                             <button
-                                className="btn btn-primary full"
+                                className="btn btn-primary btn-md btn-full"
                                 onClick={() => {
                                     setIsValidationModalOpen(false)
                                     handleOpenAddress()

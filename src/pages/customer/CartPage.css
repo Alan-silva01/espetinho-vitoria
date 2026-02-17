@@ -672,6 +672,15 @@
     margin: 0 0 8px 0;
 }
 
+.validation-content .btn-primary {
+    background: var(--cor-primaria) !important;
+    color: white !important;
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    font-weight: 700;
+}
+
 .btn-ghost {
     background: transparent;
     color: #6B7280;
