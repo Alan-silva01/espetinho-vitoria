@@ -21,14 +21,20 @@ export default function CheckoutPage() {
     }, [])
 
     // Order type
-    const tipoPedido = localStorage.getItem('espetinho_tipo_pedido') || 'entrega'
+    const [tipoPedido, setTipoPedido] = useState(() => {
+        return localStorage.getItem('espetinho_tipo_pedido') || 'entrega'
+    })
+
+    useEffect(() => {
+        localStorage.setItem('espetinho_tipo_pedido', tipoPedido)
+    }, [tipoPedido])
 
     // Mesa data (from QR code scan)
     const mesaId = tipoPedido === 'mesa' ? localStorage.getItem('espetinho_mesa_id') : null
     const mesaNumero = tipoPedido === 'mesa' ? localStorage.getItem('espetinho_mesa_numero') : null
 
     // Address Data
-    const [addressData] = useState(() => {
+    const [addressData, setAddressData] = useState(() => {
         const saved = localStorage.getItem('espetinho_delivery_data')
         if (saved) {
             try {
@@ -44,7 +50,15 @@ export default function CheckoutPage() {
                 }
             } catch { }
         }
-        return {}
+        return {
+            rua: '',
+            numero: '',
+            bairro: '',
+            referencia: '',
+            nome_recebedor: '',
+            telefone_recebedor: '',
+            google_maps_link: ''
+        }
     })
 
     // Fetch Neighborhood Fee
@@ -74,25 +88,6 @@ export default function CheckoutPage() {
 
     const total = subtotal + taxaEntrega
 
-    const [savedData, setSavedData] = useState(() => {
-        const raw = localStorage.getItem('espetinho_delivery_data')
-        if (raw) {
-            try {
-                const data = JSON.parse(raw)
-                return {
-                    rua: data.rua || data.street || '',
-                    numero: data.numero || data.number || '',
-                    bairro: data.bairro || data.neighborhood || '',
-                    referencia: data.referencia || data.reference || '',
-                    nome_recebedor: data.nome_recebedor || data.receiverName || '',
-                    telefone_recebedor: data.telefone_recebedor || data.receiverPhone || '',
-                    google_maps_link: data.google_maps_link || ''
-                }
-            } catch { }
-        }
-        return null
-    })
-
     const [formaPagamento, setFormaPagamento] = useState('pix')
     const [precisaTroco, setPrecisaTroco] = useState(false)
     const [trocoPara, setTrocoPara] = useState('')
@@ -110,11 +105,11 @@ export default function CheckoutPage() {
             const dbAddr = dados.endereco || dados || {}
 
             const currentLocal = localStorage.getItem('espetinho_delivery_data')
-            const hasNoLocal = !currentLocal
-            const noManual = !localStorage.getItem('espetinho_manual_address')
+            const noManualOverride = !localStorage.getItem('espetinho_manual_address')
+            const isActuallyEmpty = !addressData.rua || !currentLocal
 
-            if (dbAddr.rua || dados.nome_recebedor) {
-                if (hasNoLocal || noManual) {
+            if (dbAddr.rua || dados.nome_recebedor || dbAddr.google_maps_link) {
+                if (isActuallyEmpty || noManualOverride) {
                     const newData = {
                         nome_recebedor: dados.nome_recebedor || dados.receiverName || dados.nome || customer.nome || '',
                         telefone_recebedor: dados.telefone_recebedor || dados.receiverPhone || dados.whatsapp || customer.telefone || '',
@@ -125,21 +120,21 @@ export default function CheckoutPage() {
                         google_maps_link: dbAddr.google_maps_link || ''
                     }
 
-                    const isDifferent = JSON.stringify(newData) !== JSON.stringify(savedData)
+                    const isDifferent = JSON.stringify(newData) !== JSON.stringify(addressData)
                     if (isDifferent) {
                         localStorage.setItem('espetinho_delivery_data', JSON.stringify(newData))
-                        setSavedData(newData)
+                        setAddressData(newData)
                     }
                 }
             }
         }
-    }, [customer])
+    }, [customer, addressData])
 
-    const enderecoCompleto = savedData
-        ? `${savedData.rua}, ${savedData.numero} - ${savedData.bairro}${savedData.referencia ? ` (${savedData.referencia})` : ''}`
+    const enderecoCompleto = addressData.rua
+        ? `${addressData.rua}, ${addressData.numero} - ${addressData.bairro}${addressData.referencia ? ` (${addressData.referencia})` : ''}`
         : null
 
-    const hasAddress = !!(savedData && savedData.rua && savedData.nome_recebedor && savedData.telefone_recebedor)
+    const hasAddress = !!(addressData.rua && addressData.nome_recebedor)
 
     async function handleConfirm() {
         if (tipoPedido === 'entrega' && !hasAddress) {
@@ -161,11 +156,11 @@ export default function CheckoutPage() {
                 ? `Mesa ${mesaNumero}`
                 : tipoPedido === 'retirada'
                     ? nomeRetirada
-                    : (savedData?.nome_recebedor || '')
+                    : (addressData.nome_recebedor || '')
 
             const orderData = {
                 nome_cliente: nomeCliente,
-                telefone_cliente: tipoPedido === 'mesa' ? '' : (savedData?.telefone_recebedor || ''),
+                telefone_cliente: tipoPedido === 'mesa' ? '' : (addressData.telefone_recebedor || ''),
                 tipo_pedido: tipoPedido,
                 subtotal,
                 taxa_entrega: taxaEntrega,
@@ -173,7 +168,7 @@ export default function CheckoutPage() {
                 forma_pagamento: tipoPedido === 'mesa' ? 'pagar_na_mesa' : formaPagamento,
                 metodo_pagamento: tipoPedido === 'mesa' ? 'pagar_na_mesa' : formaPagamento,
                 troco_para: precisaTroco ? parseFloat(trocoPara) : null,
-                endereco: tipoPedido === 'entrega' ? savedData : null,
+                endereco: tipoPedido === 'entrega' ? addressData : null,
                 observacoes: tipoPedido === 'mesa' ? `Mesa ${mesaNumero}${observacoes ? ' | ' + observacoes : ''}` : observacoes,
                 mesa_id: mesaId || null,
                 itens: items,
@@ -198,7 +193,7 @@ export default function CheckoutPage() {
             if (targetClientId) {
                 await updateLastOrder(
                     `Pedido #${pedido.numero_pedido || pedido.id.slice(0, 5)}: ${summary}`,
-                    tipoPedido === 'entrega' ? savedData : null,
+                    tipoPedido === 'entrega' ? addressData : null,
                     targetClientId,
                     { nome: orderData.nome_cliente, whatsapp: orderData.telefone_cliente }
                 )
@@ -316,19 +311,19 @@ export default function CheckoutPage() {
                             <div className="checkout-address-card">
                                 <div className="checkout-address-card__info">
                                     <p className="checkout-address-card__street">
-                                        {savedData.rua}, {savedData.numero}
+                                        {addressData.rua}, {addressData.numero}
                                     </p>
                                     <p className="checkout-address-card__neighborhood">
-                                        {savedData.bairro}
+                                        {addressData.bairro}
                                     </p>
-                                    {savedData.referencia && (
+                                    {addressData.referencia && (
                                         <p className="checkout-address-card__ref">
-                                            📍 {savedData.referencia}
+                                            📍 {addressData.referencia}
                                         </p>
                                     )}
                                     <div className="checkout-address-card__receiver">
-                                        <span>👤 {savedData.nome_recebedor}</span>
-                                        <span>📱 {savedData.telefone_recebedor}</span>
+                                        <span>👤 {addressData.nome_recebedor}</span>
+                                        <span>📱 {addressData.telefone_recebedor}</span>
                                     </div>
                                 </div>
                                 <button
