@@ -630,6 +630,60 @@
     background: #BBF7D0;
 }
 
+/* Selected payment method */
+.btn-pay.selected {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 3px currentColor;
+    opacity: 1;
+}
+
+.btn-pay.pix.selected {
+    background: #BAE6FD;
+    border-color: #0369A1;
+}
+
+.btn-pay.card.selected {
+    background: rgba(196, 30, 46, 0.15);
+    border-color: var(--cor-primaria, #C41E2E);
+}
+
+.btn-pay.cash.selected {
+    background: #BBF7D0;
+    border-color: #15803D;
+}
+
+/* Confirm payment button */
+.btn-confirm-payment {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 16px;
+    margin-top: 12px;
+    border-radius: var(--raio-md, 12px);
+    font-size: 16px;
+    font-weight: 800;
+    color: white;
+    background: linear-gradient(135deg, #16A34A, #15803D);
+    border: none;
+    cursor: pointer;
+    transition: all var(--transicao-rapida, 150ms ease);
+    font-family: var(--fonte-destaque, 'Poppins', sans-serif);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-confirm-payment:active:not(:disabled) {
+    transform: scale(0.97);
+}
+
+.btn-confirm-payment:disabled {
+    background: #D1D5DB;
+    color: #9CA3AF;
+    cursor: not-allowed;
+}
+
 .btn-close-modal {
     width: 100%;
     padding: 14px;

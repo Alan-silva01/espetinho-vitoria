@@ -55,6 +55,7 @@ export default function DriverDashboard() {
     const [loading, setLoading] = useState(false)
     const [selectedOrder, setSelectedOrder] = useState(null)
     const [paymentModal, setPaymentModal] = useState({ open: false, order: null })
+    const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null)
     const [receivedValor, setReceivedValor] = useState('')
     const [savingPayment, setSavingPayment] = useState(false)
 
@@ -125,13 +126,14 @@ export default function DriverDashboard() {
     const openPaymentModal = (order) => {
         setSelectedOrder(null)
         setReceivedValor(order.valor_total?.toString() || '0')
+        setSelectedPaymentMethod(null)
         setTimeout(() => {
             setPaymentModal({ open: true, order })
         }, 150)
     }
 
-    const confirmPayment = async (metodo) => {
-        if (!paymentModal.order) return
+    const confirmPayment = async () => {
+        if (!paymentModal.order || !selectedPaymentMethod) return
         setSavingPayment(true)
         try {
             const updatePayload = {
@@ -140,7 +142,7 @@ export default function DriverDashboard() {
                 entregador_id: driver.id,
                 recebido_por_status: true,
                 recebido_valor: Number(receivedValor),
-                recebido_metodo: metodo,
+                recebido_metodo: selectedPaymentMethod,
                 recebido_em: new Date().toISOString()
             }
 
@@ -584,19 +586,46 @@ export default function DriverDashboard() {
                             <p className="payment-prompt">Como o cliente pagou?</p>
 
                             <div className="payment-options">
-                                <button className="btn-pay pix" onClick={() => confirmPayment('pix')} disabled={savingPayment}>
+                                <button
+                                    className={`btn-pay pix ${selectedPaymentMethod === 'pix' ? 'selected' : ''}`}
+                                    onClick={() => setSelectedPaymentMethod('pix')}
+                                    disabled={savingPayment}
+                                >
                                     <Smartphone size={24} />
                                     <span>PIX</span>
                                 </button>
-                                <button className="btn-pay card" onClick={() => confirmPayment('cartao')} disabled={savingPayment}>
+                                <button
+                                    className={`btn-pay card ${selectedPaymentMethod === 'cartao' ? 'selected' : ''}`}
+                                    onClick={() => setSelectedPaymentMethod('cartao')}
+                                    disabled={savingPayment}
+                                >
                                     <CreditCard size={24} />
                                     <span>CARTÃO</span>
                                 </button>
-                                <button className="btn-pay cash" onClick={() => confirmPayment('dinheiro')} disabled={savingPayment}>
+                                <button
+                                    className={`btn-pay cash ${selectedPaymentMethod === 'dinheiro' ? 'selected' : ''}`}
+                                    onClick={() => setSelectedPaymentMethod('dinheiro')}
+                                    disabled={savingPayment}
+                                >
                                     <Wallet size={24} />
                                     <span>DINHEIRO</span>
                                 </button>
                             </div>
+
+                            <button
+                                className="btn-confirm-payment"
+                                onClick={() => confirmPayment()}
+                                disabled={!selectedPaymentMethod || savingPayment}
+                            >
+                                {savingPayment ? (
+                                    <span className="btn-spinner" />
+                                ) : (
+                                    <>
+                                        <CheckCircle size={20} />
+                                        <span>Confirmar Entrega</span>
+                                    </>
+                                )}
+                            </button>
 
                             <button
                                 className="btn-close-modal"
