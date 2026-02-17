@@ -84,6 +84,7 @@ export default function DriversPage() {
                     return {
                         id: d.id,
                         nome: d.nome,
+                        ativo: d.ativo,
                         status: d.ativo ? 'Disponível' : 'Offline',
                         entregas: dDeliveries.length,
                         total: dDeliveries.reduce((sum, o) => sum + Number(o.taxa_entrega || 0), 0),
@@ -185,6 +186,38 @@ export default function DriversPage() {
             alert('Erro ao cadastrar: ' + (err.message || 'Erro desconhecido'))
         } finally {
             setSaving(false)
+        }
+    }
+
+    async function handleToggleActive(driverId, currentStatus) {
+        try {
+            const { error } = await supabase
+                .from('entregadores')
+                .update({ ativo: !currentStatus })
+                .eq('id', driverId)
+
+            if (error) throw error
+
+            setDrivers(prev => prev.map(d => {
+                if (d.id === driverId) {
+                    const nextAtivo = !currentStatus
+                    return {
+                        ...d,
+                        ativo: nextAtivo,
+                        status: nextAtivo ? 'Disponível' : 'Offline'
+                    }
+                }
+                return d
+            }))
+
+            // Refresh stats
+            setStats(prev => ({
+                ...prev,
+                activeDrivers: drivers.filter(d => (d.id === driverId ? !currentStatus : d.ativo)).length
+            }))
+        } catch (err) {
+            console.error('Erro ao alternar status do entregador:', err)
+            alert('Erro ao alterar status: ' + err.message)
         }
     }
 
@@ -304,6 +337,22 @@ export default function DriversPage() {
                                         </span>
                                     </div>
                                     <p className="driver-tel"><Phone size={12} /> {formatPhoneDisplay(driver.tel)}</p>
+
+                                    <div className="driver-actions-row">
+                                        <div className="toggle-container">
+                                            <span className={`toggle-label ${driver.ativo ? 'active' : ''}`}>
+                                                {driver.ativo ? 'Ativo' : 'Inativo'}
+                                            </span>
+                                            <label className="toggle-switch">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={driver.ativo}
+                                                    onChange={() => handleToggleActive(driver.id, driver.ativo)}
+                                                />
+                                                <span className="toggle-slider"></span>
+                                            </label>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div className="driver-stats-box">
                                     <div className="stat-group">

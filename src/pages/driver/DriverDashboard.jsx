@@ -173,6 +173,44 @@ export default function DriverDashboard() {
 
     if (!driver && !initializing) return <Navigate to="/entregador/login" replace />
 
+    if (driver && driver.ativo === false) {
+        return (
+            <div className="driver-dashboard-container">
+                <header className="driver-app-header">
+                    <div className="driver-profile-mini">
+                        <div className="driver-avatar">
+                            <Bike size={20} />
+                        </div>
+                        <div>
+                            <span className="welcome">Olá,</span>
+                            <h2 className="driver-name">{driver.nome?.split(' ')[0]}</h2>
+                        </div>
+                    </div>
+                    <button className="btn-logout-mini" onClick={logout} title="Sair">
+                        <LogOut size={18} />
+                    </button>
+                </header>
+
+                <div className="inactive-blocked-card animate-scale-in">
+                    <div className="blocked-icon">
+                        <X size={32} />
+                    </div>
+                    <h2>Acesso Suspenso</h2>
+                    <p>
+                        Seu perfil de entregador está <strong>inativo</strong> no momento.
+                    </p>
+                    <div className="blocked-info">
+                        <Info size={16} />
+                        <p>Entre em contato com o administrador para ativar seu cadastro e começar a receber pedidos.</p>
+                    </div>
+                    <button className="btn-finish-large" onClick={() => window.location.reload()}>
+                        Verificar Novamente
+                    </button>
+                </div>
+            </div>
+        )
+    }
+
     try {
         const pendingOrders = Array.isArray(orders) ? orders.filter(o => o?.status === 'saiu_entrega') : []
         const completedOrders = Array.isArray(orders) ? orders.filter(o => o?.status === 'entregue') : []
