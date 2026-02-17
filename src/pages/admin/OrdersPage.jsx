@@ -43,20 +43,12 @@ export default function OrdersPage() {
         fetchAllDrivers()
 
         const channel = supabase
-
             .channel('orders_realtime')
             .on('postgres_changes', { event: '*', schema: 'public', table: 'pedidos' }, (payload) => {
-                if (payload.eventType === 'UPDATE') {
-                    setOrders(prev => prev.map(order =>
-                        order.id === payload.new.id ? { ...order, ...payload.new } : order
-                    ))
-                } else if (payload.eventType === 'INSERT') {
-                    // Tocar som de notificação de forma robusta
+                if (payload.eventType === 'INSERT') {
                     playNotificationSound()
-                    fetchOrders()
-                } else if (payload.eventType === 'DELETE') {
-                    setOrders(prev => prev.filter(order => order.id !== payload.old.id))
                 }
+                fetchOrders()
             })
             .subscribe()
 
