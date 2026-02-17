@@ -1,12 +1,13 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Navigate } from 'react-router-dom'
-import { X } from 'lucide-react'
+import {
+    Bike, LogOut, CheckCircle2, DollarSign,
+    MapPin, Phone, Info, Clock,
+    Smartphone, Search, Wallet, CreditCard, MessageCircle, X
+} from 'lucide-react'
 import { useDriverAuth } from '../../hooks/useDriverAuth'
 import { supabase } from '../../lib/supabase'
 import { formatCurrency } from '../../lib/utils'
-import {
-    Smartphone, Search, Wallet, CreditCard, MessageCircle
-} from 'lucide-react'
 import './DriverDashboard.css'
 
 export default function DriverDashboard() {
