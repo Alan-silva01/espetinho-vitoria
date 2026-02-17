@@ -138,6 +138,22 @@ export default function OrdersPage() {
             if (newStatus === 'saiu_entrega') {
                 const order = orders.find(o => o.id === orderId)
                 if (order) {
+                    // Push notification via OneSignal Edge Function
+                    try {
+                        const enderecoBairro = typeof order.endereco === 'object' ? (order.endereco?.bairro || '') : ''
+                        await supabase.functions.invoke('notify-driver', {
+                            body: {
+                                numero_pedido: order.numero_pedido,
+                                nome_cliente: order.nome_cliente || order.clientes?.nome || 'Cliente',
+                                endereco_bairro: enderecoBairro,
+                                valor_total: order.valor_total
+                            }
+                        })
+                    } catch (notifyErr) {
+                        console.error('Erro ao enviar push notification:', notifyErr)
+                    }
+
+                    // Existing webhook
                     try {
                         await fetch('https://rapidus-n8n-webhook.b7bsm5.easypanel.host/webhook/saiu_entrega', {
                             method: 'POST',

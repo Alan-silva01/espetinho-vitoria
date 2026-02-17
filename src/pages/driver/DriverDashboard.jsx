@@ -4,7 +4,7 @@ import {
     Bike, LogOut, CheckCircle,
     MapPin, Phone, Info, Clock,
     Smartphone, Wallet, CreditCard, MessageCircle, X,
-    Package, ChevronRight, Navigation2
+    Package, ChevronRight, Navigation2, Timer, Flame
 } from 'lucide-react'
 import { useDriverAuth } from '../../hooks/useDriverAuth'
 import { supabase } from '../../lib/supabase'
@@ -218,6 +218,7 @@ export default function DriverDashboard() {
     }
 
     try {
+        const incomingOrders = Array.isArray(orders) ? orders.filter(o => o?.tipo_pedido === 'entrega' && (o?.status === 'confirmado' || o?.status === 'preparando')) : []
         const pendingOrders = Array.isArray(orders) ? orders.filter(o => o?.status === 'saiu_entrega') : []
         const completedOrders = Array.isArray(orders) ? orders.filter(o => o?.status === 'entregue') : []
 
@@ -239,6 +240,87 @@ export default function DriverDashboard() {
                 </header>
 
                 <main className="driver-app-main">
+                    {/* Novos Pedidos - Aguardando Preparo */}
+                    {incomingOrders.length > 0 && (
+                        <div className="kanban-section incoming">
+                            <div className="section-title incoming-title">
+                                <Flame size={18} />
+                                <h3>Novo Pedido</h3>
+                                <span className="count-pill incoming-pill">{incomingOrders.length}</span>
+                            </div>
+
+                            <div className="orders-list-mobile">
+                                {incomingOrders.map(order => (
+                                    <div key={order.id} className="driver-order-card incoming-card" onClick={() => setSelectedOrder(order)}>
+                                        <div className="waiting-badge">
+                                            <Timer size={14} />
+                                            <span>Aguardando preparo</span>
+                                        </div>
+
+                                        <div className="card-header">
+                                            <span className="order-number">#{order.numero_pedido}</span>
+                                            <span className="order-time">
+                                                <Clock size={12} />
+                                                {order.criado_em ? new Date(order.criado_em).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '--:--'}
+                                            </span>
+                                        </div>
+
+                                        <div className="customer-info">
+                                            <h4>{order.nome_cliente}</h4>
+                                        </div>
+
+                                        <div className="card-address-row">
+                                            <MapPin size={14} />
+                                            <span>{getAddressString(order.endereco)}</span>
+                                            {getGoogleMapsLink(order.endereco) && (
+                                                <a
+                                                    href={getGoogleMapsLink(order.endereco)}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    className="btn-ver-rota-mini"
+                                                    onClick={e => e.stopPropagation()}
+                                                >
+                                                    <Navigation2 size={12} />
+                                                    Rota
+                                                </a>
+                                            )}
+                                        </div>
+
+                                        {order.endereco?.bairro && (
+                                            <div className="card-bairro-row">
+                                                <span>📍 {order.endereco.bairro}</span>
+                                                {order.endereco?.referencia && (
+                                                    <span className="ref-inline">Ref: {order.endereco.referencia}</span>
+                                                )}
+                                            </div>
+                                        )}
+
+                                        <div className="card-items-row">
+                                            <Package size={14} />
+                                            <span>{getItemsSummary(order.itens)}</span>
+                                        </div>
+
+                                        <div className="card-actions">
+                                            <div className="card-actions-left">
+                                                <div className="card-payment-badge">
+                                                    {getPaymentIcon(order.forma_pagamento)}
+                                                    <span>{getPaymentLabel(order.forma_pagamento)}</span>
+                                                </div>
+                                                <div className="total-price">
+                                                    <strong>{formatCurrency(order.valor_total)}</strong>
+                                                </div>
+                                            </div>
+                                            <div className="incoming-status-tag">
+                                                <Clock size={14} />
+                                                <span>{order.status === 'confirmado' ? 'Recebido' : 'Preparando'}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
                     {/* Para Entregar */}
                     <div className="kanban-section">
                         <div className="section-title">

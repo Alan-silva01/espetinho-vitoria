@@ -1094,3 +1094,126 @@
     color: #6B7280;
     margin: 0;
 }
+
+/* ========== INCOMING ORDERS (Aguardando Preparo) ========== */
+
+.kanban-section.incoming {
+    animation: fadeInSection 0.4s ease both;
+}
+
+.incoming-title {
+    color: #F59E0B !important;
+}
+
+.incoming-title h3 {
+    color: #92400E !important;
+}
+
+.incoming-pill {
+    background: linear-gradient(135deg, #F59E0B, #D97706) !important;
+    animation: pulseGlow 2s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4);
+    }
+
+    50% {
+        box-shadow: 0 0 0 8px rgba(245, 158, 11, 0);
+    }
+}
+
+/* ---------- Incoming Card ---------- */
+.driver-order-card.incoming-card {
+    background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
+    border: 1px solid rgba(245, 158, 11, 0.15);
+    box-shadow: 0 4px 16px rgba(245, 158, 11, 0.12);
+}
+
+.driver-order-card.incoming-card::before {
+    background: linear-gradient(180deg, #F59E0B, #D97706);
+}
+
+/* ---------- Waiting Badge ---------- */
+.waiting-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, #FCD34D, #F59E0B);
+    color: #78350F;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 5px 12px;
+    border-radius: var(--raio-full, 9999px);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    animation: badgePulse 2.5s ease-in-out infinite;
+    width: fit-content;
+}
+
+@keyframes badgePulse {
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.85;
+        transform: scale(1.02);
+    }
+}
+
+/* ---------- Bairro Row ---------- */
+.card-bairro-row {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #92400E;
+    background: rgba(245, 158, 11, 0.08);
+    padding: 8px 12px;
+    border-radius: var(--raio-sm, 8px);
+    margin-bottom: 8px;
+}
+
+.ref-inline {
+    font-size: 12px;
+    font-weight: 500;
+    color: #B45309;
+    font-style: italic;
+}
+
+/* ---------- Incoming Status Tag ---------- */
+.incoming-status-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #B45309;
+    background: rgba(245, 158, 11, 0.12);
+    padding: 6px 14px;
+    border-radius: var(--raio-md, 12px);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.incoming-status-tag svg {
+    animation: spinSlow 3s linear infinite;
+}
+
+@keyframes spinSlow {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}

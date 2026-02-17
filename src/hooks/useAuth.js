@@ -56,11 +56,21 @@ export function useAuth() {
 
         async function init() {
             try {
-                // 1. Check for existing session first
-                const { data: { session } } = await supabase.auth.getSession()
+                // 1. Check for existing session (with timeout to avoid hanging)
+                const sessionPromise = supabase.auth.getSession()
+                const timeoutPromise = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('Session timeout')), 3000)
+                )
+
+                let session = null
+                try {
+                    const result = await Promise.race([sessionPromise, timeoutPromise])
+                    session = result?.data?.session
+                } catch (e) {
+                    console.warn('[useAuth] Session check slow, continuing...')
+                }
 
                 if (session?.user) {
-                    // Already logged in — resolve immediately
                     await resolveAdmin(session.user)
                     initializedRef.current = true
                     return
@@ -125,7 +135,7 @@ export function useAuth() {
                 initializedRef.current = true
                 setLoading(false)
             }
-        }, 8000)
+        }, 3000)
 
         return () => {
             mounted.current = false
