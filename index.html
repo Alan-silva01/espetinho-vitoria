@@ -27,12 +27,13 @@
   <!-- PWA Dynamic Manifest -->
   <link rel="apple-touch-icon" href="/logo.png">
   <script>
+    const isDriver = window.location.pathname.startsWith('/entregador');
+
     (function () {
       const origin = window.location.origin;
       const path = window.location.pathname;
       const pathParts = path.split('/');
       const customerCode = pathParts.find(p => p.startsWith('CLI-'));
-      const isDriver = path.startsWith('/entregador');
 
       let manifest = null;
 

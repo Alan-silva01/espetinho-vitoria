@@ -58,11 +58,38 @@ export default function DriverDashboard() {
     const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null)
     const [receivedValor, setReceivedValor] = useState('')
     const [savingPayment, setSavingPayment] = useState(false)
+    const [notificationsPermission, setNotificationsPermission] = useState('default')
     const paymentModalRef = useRef(null)
 
     useEffect(() => {
         paymentModalRef.current = paymentModal
     }, [paymentModal])
+
+    // Monitorar permissão de notificação
+    useEffect(() => {
+        const checkPermission = async () => {
+            if (window.OneSignal) {
+                const permission = await window.OneSignal.Notifications.permission;
+                setNotificationsPermission(permission ? 'granted' : 'default');
+
+                // OneSignal v16 usa boolean para permission Native ou string. 
+                // Vamos simplificar para o que o OneSignalSDK costuma retornar ou o que o navegador reporta.
+                if (window.Notification) {
+                    setNotificationsPermission(Notification.permission);
+                }
+            }
+        };
+
+        const timer = setInterval(checkPermission, 3000);
+        checkPermission();
+        return () => clearInterval(timer);
+    }, []);
+
+    const requestNotificationPermission = () => {
+        if (window.OneSignal) {
+            window.OneSignal.Notifications.requestPermission();
+        }
+    };
 
     const fetchDriverOrders = useCallback(async (isSilent = false) => {
         if (!driver?.id) return
