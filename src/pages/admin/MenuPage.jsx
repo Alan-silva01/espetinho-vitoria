@@ -16,6 +16,7 @@ export default function MenuPage() {
     const [selectedCategory, setSelectedCategory] = useState('Todos')
     const [loading, setLoading] = useState(true)
     const [searchTerm, setSearchTerm] = useState('')
+    const [error, setError] = useState(null)
 
     // Modal states
     const [isModalOpen, setIsModalOpen] = useState(false)
@@ -52,19 +53,29 @@ export default function MenuPage() {
 
     async function fetchData() {
         setLoading(true)
-        const { data: catData } = await supabase.from('categorias').select('*').order('nome')
-        const { data: prodData } = await supabase
-            .from('produtos')
-            .select(`
-                *,
-                categorias(nome),
-                variacoes_produto(*)
-            `)
-            .order('nome')
+        setError(null)
+        try {
+            const { data: catData, error: catErr } = await supabase.from('categorias').select('*').order('nome')
+            if (catErr) throw catErr
 
-        setCategories(catData || [])
-        setProducts(prodData || [])
-        setLoading(false)
+            const { data: prodData, error: prodErr } = await supabase
+                .from('produtos')
+                .select(`
+                    *,
+                    categorias(nome),
+                    variacoes_produto(*)
+                `)
+                .order('nome')
+            if (prodErr) throw prodErr
+
+            setCategories(catData || [])
+            setProducts(prodData || [])
+        } catch (err) {
+            console.error('[MenuPage] Erro ao carregar dados:', err)
+            setError('Não foi possível carregar o cardápio. Verifique sua conexão.')
+        } finally {
+            setLoading(false)
+        }
     }
 
     const handleEdit = (product) => {
@@ -367,6 +378,34 @@ export default function MenuPage() {
     })
 
     if (loading) return <div className="admin-loading">Carregando cardápio...</div>
+
+    if (error) {
+        return (
+            <div className="admin-error-state">
+                <Tag size={48} />
+                <h3>Houve um problema</h3>
+                <p>{error}</p>
+                <button onClick={fetchData} className="btn-retry">
+                    <Plus size={18} style={{ transform: 'rotate(45deg)' }} />
+                    Tentar Novamente
+                </button>
+            </div>
+        )
+    }
+
+    if (error) {
+        return (
+            <div className="admin-error-state">
+                <Tag size={48} />
+                <h3>Houve um problema</h3>
+                <p>{error}</p>
+                <button onClick={fetchData} className="btn-retry">
+                    <Plus size={18} style={{ transform: 'rotate(45deg)' }} />
+                    Tentar Novamente
+                </button>
+            </div>
+        )
+    }
 
     return (
         <div className="menu-page-wrapper animate-fade-in">

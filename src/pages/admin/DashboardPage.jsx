@@ -25,7 +25,9 @@ export default function DashboardPage() {
     const [recentOrders, setRecentOrders] = useState([])
     const [categorySales, setCategorySales] = useState([])
     const [lowStockProducts, setLowStockProducts] = useState([])
+    const [chartData, setChartData] = useState([])
     const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null)
 
     useEffect(() => {
         fetchDashboardData()
@@ -33,6 +35,7 @@ export default function DashboardPage() {
 
     async function fetchDashboardData() {
         setLoading(true)
+        setError(null)
         try {
             const today = new Date()
             today.setHours(0, 0, 0, 0)
@@ -130,25 +133,40 @@ export default function DashboardPage() {
             setTopProducts(Object.values(prodMap).sort((a, b) => b.vendas - a.vendas).slice(0, 5))
 
             // 5. Low Stock Alerts
-            const { data: lowStockData } = await supabase
+            const { data: lowStockData, error: stockErr } = await supabase
                 .from('produtos')
                 .select('id, nome, quantidade_disponivel, imagem_url')
                 .eq('controlar_estoque', true)
                 .lte('quantidade_disponivel', 5)
                 .order('quantidade_disponivel', { ascending: true })
 
+            if (stockErr) throw stockErr
             setLowStockProducts(lowStockData || [])
 
         } catch (error) {
             console.error('[Dashboard] Erro ao carregar dados:', error)
+            setError('Falha ao sincronizar métricas.')
         } finally {
             setLoading(false)
         }
     }
 
-    const [chartData, setChartData] = useState([])
 
     if (loading) return <div className="admin-loading">Carregando métricas...</div>
+
+    if (error) {
+        return (
+            <div className="admin-error-state">
+                <BarChart3 size={48} />
+                <h3>Painel Indisponível</h3>
+                <p>{error}</p>
+                <button onClick={fetchDashboardData} className="btn-retry">
+                    <TrendingUp size={18} />
+                    Tentar Novamente
+                </button>
+            </div>
+        )
+    }
 
     return (
         <div className="dashboard-wrapper animate-fade-in">

@@ -22,6 +22,7 @@ export default function InventoryPage() {
     const [saving, setSaving] = useState(false)
     const [savingItem, setSavingItem] = useState(null)
     const [isAddonsMode, setIsAddonsMode] = useState(false)
+    const [error, setError] = useState(null)
 
     // Helper to normalize text (remove accents)
     const normalize = (text) => {
@@ -62,69 +63,82 @@ export default function InventoryPage() {
 
     async function fetchInventory() {
         setLoading(true)
-        const today = new Date().toISOString().split('T')[0]
+        setError(null)
+        try {
+            const today = new Date().toISOString().split('T')[0]
 
-        // 1. Fetch products
-        const { data: products } = await supabase
-            .from('produtos')
-            .select('id, nome, imagem_url, quantidade_disponivel, controlar_estoque, categorias(nome), opcoes_personalizacao')
-            .order('nome')
+            // 1. Fetch products
+            const { data: products, error: prodErr } = await supabase
+                .from('produtos')
+                .select('id, nome, imagem_url, quantidade_disponivel, controlar_estoque, categorias(nome), opcoes_personalizacao')
+                .order('nome')
 
-        // 2. Fetch daily stock
-        const { data: stockToday } = await supabase
-            .from('estoque_diario')
-            .select('*')
-            .eq('data', today)
+            if (prodErr) throw prodErr
 
-        // Merge data
-        const merged = (products || []).map(p => {
-            const stock = stockToday?.find(s => s.produto_id === p.id)
-            const initial = stock?.qtd_inicial || p.quantidade_disponivel || 0
-            const current = p.quantidade_disponivel || 0
-            const sold = stock ? stock.qtd_inicial - stock.qtd_atual : 0
-            const percentage = initial > 0 ? (current / initial) * 100 : 0
+            // 2. Fetch daily stock
+            const { data: stockToday, error: stockErr } = await supabase
+                .from('estoque_diario')
+                .select('*')
+                .eq('data', today)
 
-            return {
-                ...p,
-                stock_id: stock?.id,
-                inicial: initial,
-                atual: current,
-                vendidos: sold > 0 ? sold : 0,
-                percentage: percentage,
-                is_dirty: false
+            if (stockErr) throw stockErr
+
+            // Merge data
+            const merged = (products || []).map(p => {
+                const stock = stockToday?.find(s => s.produto_id === p.id)
+                const initial = stock?.qtd_inicial || p.quantidade_disponivel || 0
+                const current = p.quantidade_disponivel || 0
+                const sold = stock ? stock.qtd_inicial - stock.qtd_atual : 0
+                const percentage = initial > 0 ? (current / initial) * 100 : 0
+
+                return {
+                    ...p,
+                    stock_id: stock?.id,
+                    inicial: initial,
+                    atual: current,
+                    vendidos: sold > 0 ? sold : 0,
+                    percentage: percentage,
+                    is_dirty: false
+                }
+            })
+
+            setInventory(merged)
+
+            // 3. Update stats summary
+            const totalStock = merged.reduce((acc, i) => acc + i.atual, 0)
+            const totalSold = merged.reduce((acc, i) => acc + i.vendidos, 0)
+            const lowStock = merged.filter(i => i.percentage < 20 && i.inicial > 0).length
+
+            setStats({
+                total: totalStock,
+                sales: totalSold,
+                alerts: lowStock
+            })
+
+            // 4. Fetch real activities (Recent Sales)
+            const { data: recentItems, error: itemsErr } = await supabase
+                .from('itens_pedido')
+                .select('quantidade, produtos(nome), pedidos(id, numero_pedido, criado_em)')
+                .order('id', { ascending: false })
+                .limit(5)
+
+            if (itemsErr) throw itemsErr
+
+            if (recentItems) {
+                const formatted = recentItems.map(item => ({
+                    id: item.pedidos?.id,
+                    title: `Pedido #${item.pedidos?.numero_pedido}`,
+                    subtitle: `${item.quantidade}x ${item.produtos?.nome}`,
+                    time: new Date(item.pedidos?.criado_em).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    type: 'blue'
+                }))
+                setActivities(formatted)
             }
-        })
-
-        setInventory(merged)
-        setLoading(false)
-
-        // 3. Update stats summary
-        const totalStock = merged.reduce((acc, i) => acc + i.atual, 0)
-        const totalSold = merged.reduce((acc, i) => acc + i.vendidos, 0)
-        const lowStock = merged.filter(i => i.percentage < 20 && i.inicial > 0).length
-
-        setStats({
-            total: totalStock,
-            sales: totalSold,
-            alerts: lowStock
-        })
-
-        // 4. Fetch real activities (Recent Sales)
-        const { data: recentItems } = await supabase
-            .from('itens_pedido')
-            .select('quantidade, produtos(nome), pedidos(id, numero_pedido, criado_em)')
-            .order('id', { ascending: false })
-            .limit(5)
-
-        if (recentItems) {
-            const formatted = recentItems.map(item => ({
-                id: item.pedidos?.id,
-                title: `Pedido #${item.pedidos?.numero_pedido}`,
-                subtitle: `${item.quantidade}x ${item.produtos?.nome}`,
-                time: new Date(item.pedidos?.criado_em).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                type: 'blue'
-            }))
-            setActivities(formatted)
+        } catch (err) {
+            console.error('[Inventory] Erro ao carregar dados:', err)
+            setError('Não foi possível carregar o estoque. Verifique sua conexão.')
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -267,6 +281,20 @@ export default function InventoryPage() {
     }, {})
 
     if (loading) return <div className="admin-loading">Carregando estoque...</div>
+
+    if (error) {
+        return (
+            <div className="admin-error-state">
+                <AlertTriangle size={48} />
+                <h3>Ops! Algo deu errado</h3>
+                <p>{error}</p>
+                <button onClick={fetchInventory} className="btn-retry">
+                    <RefreshCw size={18} />
+                    Tentar Novamente
+                </button>
+            </div>
+        )
+    }
 
     return (
         <div className="inventory-wrapper animate-fade-in">

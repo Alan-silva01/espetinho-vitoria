@@ -26,6 +26,7 @@ export default function OrdersPage() {
     const [searchTerm, setSearchTerm] = useState('')
     const [activeStage, setActiveStage] = useState('confirmado')
     const [allDrivers, setAllDrivers] = useState([])
+    const [error, setError] = useState(null)
     const audioRef = useRef(new Audio('/notificacao.mp3'))
     const selectedOrderRef = useRef(null)
 
@@ -93,33 +94,47 @@ export default function OrdersPage() {
     }, [])
 
     async function fetchOrders(isSilent = false) {
-        if (!isSilent) setLoading(true)
-        const brDateStr = new Date().toLocaleDateString('en-US', { timeZone: 'America/Sao_Paulo' })
-        const [month, day, year] = brDateStr.split('/')
-        const brMidnightAsUTC = new Date(Date.UTC(year, month - 1, day, 3, 0, 0))
-
-        const { data, error } = await supabase
-            .from('pedidos')
-            .select(`
-                *,
-                itens:itens_pedido(
-                    *,
-                    produtos(nome)
-                ),
-                clientes(telefone, nome)
-            `)
-            .gte('criado_em', brMidnightAsUTC.toISOString())
-            .order('criado_em', { ascending: true })
-
-        if (!error) {
-            setOrders(data || [])
+        if (!isSilent) {
+            setLoading(true)
+            setError(null)
         }
-        setLoading(false)
+        try {
+            const brDateStr = new Date().toLocaleDateString('en-US', { timeZone: 'America/Sao_Paulo' })
+            const [month, day, year] = brDateStr.split('/')
+            const brMidnightAsUTC = new Date(Date.UTC(year, month - 1, day, 3, 0, 0))
+
+            const { data, error: ordersErr } = await supabase
+                .from('pedidos')
+                .select(`
+                    *,
+                    itens:itens_pedido(
+                        *,
+                        produtos(nome)
+                    ),
+                    clientes(telefone, nome)
+                `)
+                .gte('criado_em', brMidnightAsUTC.toISOString())
+                .order('criado_em', { ascending: true })
+
+            if (ordersErr) throw ordersErr
+
+            setOrders(data || [])
+        } catch (err) {
+            console.error('[Orders] Erro ao carregar pedidos:', err)
+            if (!isSilent) setError('Não foi possível carregar os pedidos.')
+        } finally {
+            if (!isSilent) setLoading(false)
+        }
     }
 
     async function fetchAllDrivers() {
-        const { data } = await supabase.from('entregadores').select('id, nome').eq('ativo', true)
-        if (data) setAllDrivers(data)
+        try {
+            const { data, error: driversErr } = await supabase.from('entregadores').select('id, nome').eq('ativo', true)
+            if (driversErr) throw driversErr
+            if (data) setAllDrivers(data)
+        } catch (err) {
+            console.error('[Orders] Erro ao carregar entregadores:', err)
+        }
     }
 
     const handleAssignDriver = async (orderId, driverId) => {
@@ -369,7 +384,21 @@ export default function OrdersPage() {
         return matchesSearch
     })
 
-    if (loading) return <div className="admin-loading">Carregando pedidos...</div>
+    if (loading) return <div className="admin-loading">Sincronizando pedidos...</div>
+
+    if (error) {
+        return (
+            <div className="admin-error-state">
+                <Clock size={48} />
+                <h3>Erro de sincronização</h3>
+                <p>{error}</p>
+                <button onClick={() => fetchOrders()} className="btn-retry">
+                    <RefreshCw size={18} />
+                    Recarregar Pedidos
+                </button>
+            </div>
+        )
+    }
 
     return (
         <div className="orders-kanban-wrapper animate-fade-in">
