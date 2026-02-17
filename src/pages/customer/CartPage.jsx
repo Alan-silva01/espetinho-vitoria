@@ -415,6 +415,15 @@ export default function CartPage() {
                                             disabled={p.quantidade_disponivel === 0}
                                             onClick={() => {
                                                 if (p.quantidade_disponivel === 0) return
+
+                                                // Check if product has variations or customizations
+                                                const hasOptions = (p.variacoes_produto?.length > 0) || (p.opcoes_personalizacao?.length > 0)
+
+                                                if (hasOptions) {
+                                                    navigate(customerCode ? `/${customerCode}/produto/${p.id}` : `/produto/${p.id}`)
+                                                    return
+                                                }
+
                                                 addItem({
                                                     produto_id: p.id,
                                                     nome: p.nome,

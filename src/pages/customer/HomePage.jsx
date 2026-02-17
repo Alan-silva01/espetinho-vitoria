@@ -196,6 +196,14 @@ export default function HomePage() {
                                         e.stopPropagation()
                                         if (product.quantidade_disponivel === 0) return
 
+                                        // Check if product has variations or customizations
+                                        const hasOptions = (product.variacoes_produto?.length > 0) || (product.opcoes_personalizacao?.length > 0)
+
+                                        if (hasOptions) {
+                                            navigate(customerCode ? `/${customerCode}/produto/${product.id}` : `/produto/${product.id}`)
+                                            return
+                                        }
+
                                         // --- Fly-to-Cart animation ---
                                         const btn = e.currentTarget
                                         const rect = btn.getBoundingClientRect()

@@ -42,7 +42,7 @@ export default function FavoritesPage() {
                     // Fetch full product details for these top 10
                     const { data: pros, error: proErr } = await supabase
                         .from('produtos')
-                        .select('*, categorias(nome)')
+                        .select('*, categorias(nome), variacoes_produto(*)')
                         .in('id', sortedIds)
 
                     if (proErr) throw proErr
@@ -111,6 +111,15 @@ export default function FavoritesPage() {
                                         className="top-favorite-add"
                                         onClick={(e) => {
                                             e.stopPropagation()
+
+                                            // Check if product has variations or customizations
+                                            const hasOptions = (product.variacoes_produto?.length > 0) || (product.opcoes_personalizacao?.length > 0)
+
+                                            if (hasOptions) {
+                                                navigate(customerCode ? `/${customerCode}/produto/${product.id}` : `/produto/${product.id}`)
+                                                return
+                                            }
+
                                             addItem({
                                                 produto_id: product.id,
                                                 nome: product.nome,
