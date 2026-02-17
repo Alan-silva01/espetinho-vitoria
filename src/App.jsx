@@ -5,7 +5,7 @@ import Loading from './components/ui/Loading'
 import { registerSW } from 'virtual:pwa-register'
 
 // Force PWA update
-registerSW({ immediate: true })
+registerSW()
 
 /* Customer Pages */
 const HomePage = lazy(() => import('./pages/customer/HomePage'))

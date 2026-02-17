@@ -25,10 +25,11 @@ export default function CustomerLayout() {
     // Redirect to coded URL if we are at root but have a customer in context
     // This ensures that Add to Home Screen works correctly even if it opens at /
     useEffect(() => {
-        if (location.pathname === '/' && customer?.codigo) {
+        const isRoot = location.pathname === '/' || location.pathname === ''
+        if (isRoot && customer?.codigo) {
             navigate(`/${customer.codigo}`, { replace: true })
         }
-    }, [location.pathname, customer, navigate])
+    }, [location.pathname, customer?.codigo, navigate])
 
     const hideNav = ['/checkout', '/pedido'].some(p => location.pathname.startsWith(p))
     const isProfilePage = location.pathname === '/perfil'
