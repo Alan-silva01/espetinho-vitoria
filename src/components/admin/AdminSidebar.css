@@ -211,7 +211,7 @@
 }
 
 /* Hiding elements when collapsed on Desktop ONLY */
-@media (min-width: 1025px) {
+@media (min-width: 769px) {
 
     .admin-sidebar.collapsed:not(.hovered) .brand-text,
     .admin-sidebar.collapsed:not(.hovered) .nav-label,
@@ -222,7 +222,7 @@
 }
 
 /* Mobile Sidebar Overrides */
-@media (max-width: 1024px) {
+@media (max-width: 768px) {
     .admin-sidebar {
         width: 280px !important;
         /* Fixed width on mobile */

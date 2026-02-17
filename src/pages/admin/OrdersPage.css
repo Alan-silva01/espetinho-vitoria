@@ -228,6 +228,10 @@
     overflow: hidden;
     cursor: grab;
     flex-shrink: 0;
+    will-change: transform;
+    user-select: none;
+    touch-action: pan-y;
+    /* Allow scrolling but we'll override for dragging */
 }
 
 .dark .order-card-v2 {

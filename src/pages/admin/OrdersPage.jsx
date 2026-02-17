@@ -246,53 +246,91 @@ export default function OrdersPage() {
     }
 
     // Touch Support for Kanban dragging
-    const touchInfo = useRef({ orderId: null, startX: 0, startY: 0, ghost: null })
+    const touchInfo = useRef({
+        orderId: null,
+        ghost: null,
+        rafId: null,
+        currentX: 0,
+        currentY: 0,
+        lastCheckX: 0,
+        lastCheckY: 0
+    })
 
     const onTouchStart = (e, orderId) => {
         const touch = e.touches[0]
         const card = e.currentTarget
         const rect = card.getBoundingClientRect()
 
+        // Cache initial values
         touchInfo.current = {
             orderId,
             startX: touch.clientX,
             startY: touch.clientY,
             offsetX: touch.clientX - rect.left,
             offsetY: touch.clientY - rect.top,
-            card: card
+            card: card,
+            ghost: null,
+            rafId: null,
+            currentX: touch.clientX,
+            currentY: touch.clientY,
+            lastCheckX: touch.clientX,
+            lastCheckY: touch.clientY
         }
 
         // Create ghost/clone for dragging feedback
         const ghost = card.cloneNode(true)
         ghost.style.position = 'fixed'
-        ghost.style.top = rect.top + 'px'
-        ghost.style.left = rect.left + 'px'
+        ghost.style.top = '0'
+        ghost.style.left = '0'
         ghost.style.width = rect.width + 'px'
-        ghost.style.opacity = '0.8'
+        ghost.style.opacity = '0.9'
         ghost.style.pointerEvents = 'none'
         ghost.style.zIndex = '10001'
-        ghost.style.boxShadow = '0 10px 25px rgba(0,0,0,0.1)'
+        ghost.style.boxShadow = '0 15px 35px rgba(0,0,0,0.15)'
+        ghost.style.transition = 'none' // Disable transitions for fluidity
+        ghost.style.willChange = 'transform'
+        // Initial position
+        ghost.style.transform = `translate3d(${rect.left}px, ${rect.top}px, 0)`
+
         ghost.classList.add('dragging-ghost')
         document.body.appendChild(ghost)
         touchInfo.current.ghost = ghost
 
         card.classList.add('touch-dragging')
+
+        // Start animation loop
+        const updateGhostPosition = () => {
+            if (!touchInfo.current.ghost) return
+
+            const { currentX, currentY, offsetX, offsetY, ghost } = touchInfo.current
+            ghost.style.transform = `translate3d(${currentX - offsetX}px, ${currentY - offsetY}px, 0)`
+
+            // Throttled drop target detection (only if moved significantly)
+            const { lastCheckX, lastCheckY } = touchInfo.current
+            if (Math.abs(currentX - lastCheckX) > 10 || Math.abs(currentY - lastCheckY) > 10) {
+                const targetElement = document.elementFromPoint(currentX, currentY)
+                const column = targetElement?.closest('.kanban-col')
+
+                document.querySelectorAll('.kanban-col').forEach(col => col.classList.remove('drop-active'))
+                if (column) column.classList.add('drop-active')
+
+                touchInfo.current.lastCheckX = currentX
+                touchInfo.current.lastCheckY = currentY
+            }
+
+            touchInfo.current.rafId = requestAnimationFrame(updateGhostPosition)
+        }
+
+        touchInfo.current.rafId = requestAnimationFrame(updateGhostPosition)
     }
 
     const onTouchMove = (e) => {
         if (!touchInfo.current.ghost) return
         const touch = e.touches[0]
-        const ghost = touchInfo.current.ghost
 
-        ghost.style.top = (touch.clientY - touchInfo.current.offsetY) + 'px'
-        ghost.style.left = (touch.clientX - touchInfo.current.offsetX) + 'px'
-
-        // Highlight potential drop targets
-        const targetElement = document.elementFromPoint(touch.clientX, touch.clientY)
-        const column = targetElement?.closest('.kanban-col')
-
-        document.querySelectorAll('.kanban-col').forEach(col => col.classList.remove('drop-active'))
-        if (column) column.classList.add('drop-active')
+        // Only update coords, RAF handles the move
+        touchInfo.current.currentX = touch.clientX
+        touchInfo.current.currentY = touch.clientY
 
         // Prevent scrolling while dragging
         if (e.cancelable) e.preventDefault()
@@ -301,22 +339,19 @@ export default function OrdersPage() {
     const onTouchEnd = (e) => {
         if (!touchInfo.current.ghost) return
         const touch = e.changedTouches[0]
-        const { orderId, ghost, card } = touchInfo.current
+        const { rafId, ghost, card } = touchInfo.current
 
-        ghost.remove()
+        if (rafId) cancelAnimationFrame(rafId)
+        if (ghost) ghost.remove()
+
         card.classList.remove('touch-dragging')
         document.querySelectorAll('.kanban-col').forEach(col => col.classList.remove('drop-active'))
 
         const targetElement = document.elementFromPoint(touch.clientX, touch.clientY)
         const column = targetElement?.closest('.kanban-col')
 
-        if (column) {
-            // Find stage ID from column data or classes
-            // In our JSX, we'll need to pass it or read it.
-            // Let's check how the columns are rendered.
-        }
-
-        touchInfo.current = { orderId: null, ghost: null }
+        touchInfo.current = { orderId: null, ghost: null, rafId: null }
+        return column // Return column for the inline handler
     }
 
     const getMinutesAgo = (date) => {
