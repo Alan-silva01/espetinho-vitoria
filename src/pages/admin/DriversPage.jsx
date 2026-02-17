@@ -6,7 +6,8 @@ import {
     ChevronRight, AlertCircle, CheckCircle2, Trash2
 } from 'lucide-react'
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts'
-import { supabase } from '../../lib/supabase'
+import { createClient } from '@supabase/supabase-js'
+import { supabase, supabaseUrl, supabaseAnonKey } from '../../lib/supabase'
 import { formatCurrency } from '../../lib/utils'
 import './DriversPage.css'
 
@@ -120,8 +121,13 @@ export default function DriversPage() {
         setSaving(true)
 
         try {
-            // 1. Criar usuário no Supabase Auth
-            const { data: authData, error: authError } = await supabase.auth.signUp({
+            // 1. Criar usuário no Supabase Auth usando um cliente temporário
+            // Isso evita que o Admin seja deslogado ao criar o novo usuário
+            const tempSupabase = createClient(supabaseUrl, supabaseAnonKey, {
+                auth: { persistSession: false }
+            })
+
+            const { data: authData, error: authError } = await tempSupabase.auth.signUp({
                 email: newDriver.email,
                 password: newDriver.senha,
                 options: {
@@ -136,7 +142,7 @@ export default function DriversPage() {
 
             const dbPhone = formatPhoneForDB(phoneDigits)
 
-            // 2. Criar registro na tabela pública
+            // 2. Criar registro na tabela pública (usando o cliente principal onde o Admin está logado)
             const { error: dbError } = await supabase
                 .from('entregadores')
                 .insert({
