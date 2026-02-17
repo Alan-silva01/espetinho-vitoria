@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { Navigate } from 'react-router-dom'
 import {
     Bike, LogOut, CheckCircle,
-    MapPin, Phone, Info, Clock,
+    Bell, MapPin, Phone, Info, Clock,
     Smartphone, Wallet, CreditCard, MessageCircle, X,
     Package, ChevronRight, Navigation2, Timer, Flame
 } from 'lucide-react'
