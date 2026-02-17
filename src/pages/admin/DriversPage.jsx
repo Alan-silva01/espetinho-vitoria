@@ -11,11 +11,13 @@ import { supabase, supabaseUrl, supabaseAnonKey } from '../../lib/supabase'
 import { formatCurrency } from '../../lib/utils'
 import './DriversPage.css'
 
+let _driversCache = null
+
 export default function DriversPage() {
-    const [drivers, setDrivers] = useState([])
-    const [loading, setLoading] = useState(true)
-    const [pendingOrders, setPendingOrders] = useState([])
-    const [stats, setStats] = useState({
+    const [drivers, setDrivers] = useState(_driversCache?.drivers || [])
+    const [loading, setLoading] = useState(!_driversCache)
+    const [pendingOrders, setPendingOrders] = useState(_driversCache?.pendingOrders || [])
+    const [stats, setStats] = useState(_driversCache?.stats || {
         todayDeliveries: 0,
         activeDrivers: 0,
         avgTime: 0
@@ -52,7 +54,7 @@ export default function DriversPage() {
     }, [])
 
     async function fetchDriversData() {
-        setLoading(true)
+        if (!_driversCache) setLoading(true)
         try {
             const today = new Date()
             today.setHours(0, 0, 0, 0)
@@ -93,13 +95,15 @@ export default function DriversPage() {
                     }
                 })
                 setDrivers(enriched)
-                setStats({
+                const newStats = {
                     todayDeliveries: deliveries?.length || 0,
                     activeDrivers: driversData.filter(d => d.ativo).length,
-                    avgTime: 28 // Keep mock for now as time calculation is complex
-                })
+                    avgTime: 28
+                }
+                setStats(newStats)
+                setPendingOrders(pending || [])
+                _driversCache = { drivers: enriched, stats: newStats, pendingOrders: pending || [] }
             }
-            setPendingOrders(pending || [])
         } catch (err) {
             console.error('Erro Drivers:', err)
         } finally {

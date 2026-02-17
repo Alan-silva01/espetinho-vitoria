@@ -17,9 +17,11 @@ const PRESET_COLORS = [
     { bg: '#FFF1F2', text: '#C41E2E', label: 'Rose' },
 ]
 
+let _promosCache = null
+
 export default function PromosPage() {
-    const [promos, setPromos] = useState([])
-    const [loading, setLoading] = useState(true)
+    const [promos, setPromos] = useState(_promosCache?.promos || [])
+    const [loading, setLoading] = useState(!_promosCache)
     const [modal, setModal] = useState(null) // null | { type: 'add'|'edit', promo? }
     const [deleteConfirm, setDeleteConfirm] = useState(null)
     const [toast, setToast] = useState(null)
@@ -27,12 +29,13 @@ export default function PromosPage() {
     useEffect(() => { fetchPromos() }, [])
 
     async function fetchPromos() {
-        setLoading(true)
+        if (!_promosCache) setLoading(true)
         const { data } = await supabase
             .from('promocoes')
             .select('*')
             .order('ordem')
         setPromos(data || [])
+        _promosCache = { promos: data || [] }
         setLoading(false)
     }
 

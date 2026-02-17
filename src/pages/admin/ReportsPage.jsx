@@ -12,18 +12,20 @@ import { supabase } from '../../lib/supabase'
 import { formatCurrency } from '../../lib/utils'
 import './ReportsPage.css'
 
+let _reportsCache = null
+
 export default function ReportsPage() {
-    const [stats, setStats] = useState({
+    const [stats, setStats] = useState(_reportsCache?.stats || {
         revenue: 0,
         orders: 0,
         ticket: 0,
         upsell: 0
     })
-    const [chartData, setChartData] = useState([])
-    const [paymentData, setPaymentData] = useState([])
-    const [categoryData, setCategoryData] = useState([])
+    const [chartData, setChartData] = useState(_reportsCache?.chartData || [])
+    const [paymentData, setPaymentData] = useState(_reportsCache?.paymentData || [])
+    const [categoryData, setCategoryData] = useState(_reportsCache?.categoryData || [])
     const [period, setPeriod] = useState('Este Mês')
-    const [loading, setLoading] = useState(true)
+    const [loading, setLoading] = useState(!_reportsCache)
 
     // Advanced Filters State
     const [filterMode, setFilterMode] = useState('quick') // 'quick' or 'advanced'
@@ -37,7 +39,7 @@ export default function ReportsPage() {
     }, [period, filterMode, advancedType, selectedDate, selectedMonth, selectedYear])
 
     async function fetchReportsData() {
-        setLoading(true)
+        if (!_reportsCache) setLoading(true)
         try {
             let startDate = new Date()
             let endDate = new Date()
@@ -145,7 +147,10 @@ export default function ReportsPage() {
                     })
                 }
 
-                setChartData(Object.entries(dailyData).map(([name, v]) => ({ name, v })))
+                const newChartData = Object.entries(dailyData).map(([name, v]) => ({ name, v }))
+                setChartData(newChartData)
+
+                _reportsCache = { stats: { revenue, orders: orders.length, ticket, upsell: 12 }, chartData: newChartData, paymentData: paymentData, categoryData: categoryData }
             }
         } catch (err) {
             console.error('Reports Error:', err)

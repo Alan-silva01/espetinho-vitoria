@@ -10,11 +10,13 @@ import { uploadImage, isCloudinaryConfigured } from '../../lib/cloudinary'
 import { formatCurrency } from '../../lib/utils'
 import './MenuPage.css'
 
+let _menuCache = null
+
 export default function MenuPage() {
-    const [products, setProducts] = useState([])
-    const [categories, setCategories] = useState([])
+    const [products, setProducts] = useState(_menuCache?.products || [])
+    const [categories, setCategories] = useState(_menuCache?.categories || [])
     const [selectedCategory, setSelectedCategory] = useState('Todos')
-    const [loading, setLoading] = useState(true)
+    const [loading, setLoading] = useState(!_menuCache)
     const [searchTerm, setSearchTerm] = useState('')
     const [error, setError] = useState(null)
 
@@ -52,7 +54,7 @@ export default function MenuPage() {
     }, [])
 
     async function fetchData() {
-        setLoading(true)
+        if (!_menuCache) setLoading(true)
         setError(null)
         try {
             const { data: catData, error: catErr } = await supabase.from('categorias').select('*').order('nome')
@@ -70,9 +72,10 @@ export default function MenuPage() {
 
             setCategories(catData || [])
             setProducts(prodData || [])
+            _menuCache = { products: prodData || [], categories: catData || [] }
         } catch (err) {
             console.error('[MenuPage] Erro ao carregar dados:', err)
-            setError('Não foi possível carregar o cardápio. Verifique sua conexão.')
+            if (!_menuCache) setError('Não foi possível carregar o cardápio. Verifique sua conexão.')
         } finally {
             setLoading(false)
         }
