@@ -1,8 +1,9 @@
+import { useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { ArrowLeft, Phone, MessageSquare, Headphones } from 'lucide-react'
+import { ArrowLeft, Phone, MessageSquare, Headphones, ChevronDown, ChevronUp, Package } from 'lucide-react'
 import { useOrderTracking } from '../../hooks/useOrders'
 import Loading from '../../components/ui/Loading'
-import { getStatusLabel, getStatusColor } from '../../lib/utils'
+import { getStatusLabel, formatCurrency } from '../../lib/utils'
 import './TrackingPage.css'
 
 const STEPS = [
@@ -23,6 +24,7 @@ export default function TrackingPage() {
     const { id } = useParams()
     const navigate = useNavigate()
     const { order, loading } = useOrderTracking(id)
+    const [showDetails, setShowDetails] = useState(false)
 
     if (loading) return <Loading fullScreen text="Carregando pedido..." />
     if (!order) return <div style={{ padding: 40, textAlign: 'center' }}>Pedido não encontrado</div>
@@ -48,7 +50,6 @@ export default function TrackingPage() {
     }
 
     const progress = Math.min(((effectiveIndex + 1) / effectiveSteps.length) * 100, 100)
-    const isCancelled = order.status === 'cancelado'
 
     return (
         <div className="tracking-page animate-fade-in">
@@ -92,8 +93,74 @@ export default function TrackingPage() {
                         <span className="tracking-order-bar__label">Pedido Nº</span>
                         <span className="tracking-order-bar__number">#{order.numero_pedido || order.id.slice(0, 4)}</span>
                     </div>
-                    <a href="#" className="tracking-order-bar__link">Ver detalhes</a>
+                    <button
+                        className={`tracking-order-bar__toggle ${showDetails ? 'is-active' : ''}`}
+                        onClick={() => setShowDetails(!showDetails)}
+                    >
+                        {showDetails ? 'Ocultar detalhes' : 'Ver detalhes'}
+                        {showDetails ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                    </button>
                 </div>
+
+                {/* Detailed Items List */}
+                {showDetails && (
+                    <div className="tracking-items-overlay animate-slide-down">
+                        <div className="tracking-items-list">
+                            <div className="tracking-items-list__header">
+                                <Package size={16} />
+                                <span>Itens do Pedido</span>
+                            </div>
+                            {order.itens_pedido?.map((item, index) => (
+                                <div
+                                    key={item.id}
+                                    className="tracking-item-row"
+                                    style={{ animationDelay: `${index * 50}ms` }}
+                                >
+                                    <div className="tracking-item-row__qty">
+                                        {item.quantidade}x
+                                    </div>
+                                    <div className="tracking-item-row__info">
+                                        <div className="tracking-item-row__name">
+                                            {item.produtos?.nome}
+                                            {item.variacao_id && (
+                                                <span className="tracking-item-row__variation">
+                                                    • {item.variacoes_produto?.nome || 'Padrão'}
+                                                </span>
+                                            )}
+                                        </div>
+                                        {item.personalizacao && item.personalizacao.length > 0 && (
+                                            <div className="tracking-item-row__extras">
+                                                {item.personalizacao.map((opt, i) => (
+                                                    <span key={i}>
+                                                        {opt.nome}{i < item.personalizacao.length - 1 ? ', ' : ''}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        )}
+                                        {item.observacoes && (
+                                            <div className="tracking-item-row__obs">
+                                                "{item.observacoes}"
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="tracking-item-row__price">
+                                        {getStatusLabel(order.status) === 'Cancelado' ? '-' : formatCurrency(item.preco_unitario * item.quantidade)}
+                                    </div>
+                                </div>
+                            ))}
+                            <div className="tracking-items-list__footer">
+                                <div className="tracking-items-list__total-row">
+                                    <span>Valor total:</span>
+                                    <strong>{formatCurrency(order.valor_total)}</strong>
+                                </div>
+                                <div className="tracking-items-list__sub-info">
+                                    <span>Pagamento: {order.forma_pagamento}</span>
+                                    {order.troco_para && <span> • Troco p/ {formatCurrency(order.troco_para)}</span>}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 {/* Timeline */}
                 <div className="tracking-timeline-card">
