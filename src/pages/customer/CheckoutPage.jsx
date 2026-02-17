@@ -143,6 +143,7 @@ export default function CheckoutPage() {
     async function handleConfirm() {
         if (tipoPedido === 'entrega' && !hasAddress) {
             alert('Volte ao carrinho e preencha o endereço de entrega.')
+            navigate(customerCode ? `/${customerCode}/carrinho` : '/carrinho')
             return
         }
 

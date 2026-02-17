@@ -223,6 +223,15 @@ export default function CartPage() {
         setIsAddressModalOpen(false)
     }
 
+    const handleFinalize = () => {
+        if (tipoPedido === 'entrega' && !hasAddress) {
+            alert('Por ser seu primeiro pedido para entrega, precisamos que você informe seu endereço.')
+            handleOpenAddress()
+            return
+        }
+        navigate(customerCode ? `/${customerCode}/checkout` : '/checkout')
+    }
+
     // --- Interactive Auto-Scroll for "Adicione também" ---
     const scrollRef = useRef(null)
     const [isPaused, setIsPaused] = useState(false)
@@ -496,7 +505,7 @@ export default function CartPage() {
             <div className="cart-footer">
                 <button
                     className="cart-footer__btn"
-                    onClick={() => navigate(customerCode ? `/${customerCode}/checkout` : '/checkout')}
+                    onClick={handleFinalize}
                 >
                     <span>Finalizar Pedido</span>
                     <span className="cart-footer__btn-price">{formatCurrency(total)}</span>
