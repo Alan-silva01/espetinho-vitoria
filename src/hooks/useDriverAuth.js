@@ -6,49 +6,73 @@ export function useDriverAuth() {
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        const storedDriver = localStorage.getItem('espetinho_driver_session')
-        if (storedDriver) {
-            try {
-                setDriver(JSON.parse(storedDriver))
-            } catch (e) {
-                console.error('Erro ao ler sessão do entregador')
+        // Initialize from session
+        const initSession = async () => {
+            const { data: { session } } = await supabase.auth.getSession()
+            if (session?.user) {
+                await fetchDriverProfile(session.user.id)
             }
+            setLoading(false)
         }
-        setLoading(false)
+
+        initSession()
+
+        // Listen for auth changes
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+            if (session?.user) {
+                await fetchDriverProfile(session.user.id)
+            } else {
+                setDriver(null)
+            }
+            setLoading(false)
+        })
+
+        return () => subscription.unsubscribe()
     }, [])
 
-    async function login(identificador, senha) {
-        setLoading(true)
+    async function fetchDriverProfile(authUserId) {
         try {
-            // Busca o entregador pelo nome ou telefone
             const { data, error } = await supabase
                 .from('entregadores')
                 .select('*')
-                .or(`nome.eq."${identificador}",telefone.eq."${identificador}"`)
-                .eq('senha', senha)
+                .eq('auth_user_id', authUserId)
                 .single()
 
-            if (error || !data) {
-                throw new Error('Login ou senha incorretos.')
+            if (data && !error) {
+                setDriver(data)
+                return data
+            }
+        } catch (err) {
+            console.error('Erro ao buscar perfil do entregador:', err)
+        }
+        return null
+    }
+
+    async function login(email, password) {
+        setLoading(true)
+        try {
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email,
+                password
+            })
+
+            if (error) throw error
+
+            const profile = await fetchDriverProfile(data.user.id)
+            if (!profile) {
+                await supabase.auth.signOut()
+                throw new Error('Perfil de entregador não encontrado.')
             }
 
-            const driverData = {
-                id: data.id,
-                nome: data.nome,
-                telefone: data.telefone
-            }
-
-            setDriver(driverData)
-            localStorage.setItem('espetinho_driver_session', JSON.stringify(driverData))
-            return data
+            return profile
         } finally {
             setLoading(false)
         }
     }
 
-    function logout() {
+    async function logout() {
+        await supabase.auth.signOut()
         setDriver(null)
-        localStorage.removeItem('espetinho_driver_session')
     }
 
     return {

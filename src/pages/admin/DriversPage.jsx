@@ -22,7 +22,7 @@ export default function DriversPage() {
     const [searchTerm, setSearchTerm] = useState('')
     const [deleteConfirm, setDeleteConfirm] = useState({ open: false, id: null, nome: '' })
     const [isAddOpen, setIsAddOpen] = useState(false)
-    const [newDriver, setNewDriver] = useState({ nome: '', telefone: '', senha: '' })
+    const [newDriver, setNewDriver] = useState({ nome: '', telefone: '', email: '', senha: '' })
     const [saving, setSaving] = useState(false)
 
 
@@ -105,11 +105,10 @@ export default function DriversPage() {
     }
 
     async function handleSaveDriver() {
-        if (!newDriver.nome || !newDriver.telefone || !newDriver.senha) {
-            alert('Por favor, preencha nome, telefone e senha.')
+        if (!newDriver.nome || !newDriver.telefone || !newDriver.email || !newDriver.senha) {
+            alert('Por favor, preencha nome, telefone, e-mail e senha.')
             return
         }
-
 
         const phoneDigits = newDriver.telefone.replace(/\D/g, '')
         if (phoneDigits.length !== 11) {
@@ -118,28 +117,47 @@ export default function DriversPage() {
         }
 
         setSaving(true)
-        const dbPhone = formatPhoneForDB(phoneDigits)
 
-        const { data, error } = await supabase
-            .from('entregadores')
-            .insert({
-                nome: newDriver.nome,
-                telefone: dbPhone,
-                senha: newDriver.senha,
-                ativo: true
+        try {
+            // 1. Criar usuário no Supabase Auth
+            const { data: authData, error: authError } = await supabase.auth.signUp({
+                email: newDriver.email,
+                password: newDriver.senha,
+                options: {
+                    data: {
+                        full_name: newDriver.nome,
+                        role: 'driver'
+                    }
+                }
             })
 
-            .select()
+            if (authError) throw authError
 
-        if (!error) {
+            const dbPhone = formatPhoneForDB(phoneDigits)
+
+            // 2. Criar registro na tabela pública
+            const { error: dbError } = await supabase
+                .from('entregadores')
+                .insert({
+                    nome: newDriver.nome,
+                    telefone: dbPhone,
+                    email: newDriver.email,
+                    auth_user_id: authData.user.id,
+                    ativo: true
+                })
+
+            if (dbError) throw dbError
+
             await fetchDriversData()
             setIsAddOpen(false)
-            setNewDriver({ nome: '', telefone: '', senha: '' })
-        } else {
-
-            alert('Erro ao salvar entregador: ' + error.message)
+            setNewDriver({ nome: '', telefone: '', email: '', senha: '' })
+            alert('Entregador cadastrado com sucesso! Verifique se ele precisa confirmar o e-mail (dependendo das configurações do Supabase).')
+        } catch (err) {
+            console.error('Erro ao cadastrar entregador:', err)
+            alert('Erro ao cadastrar: ' + err.message)
+        } finally {
+            setSaving(false)
         }
-        setSaving(false)
     }
 
     async function handleDeleteClick(driver) {
@@ -350,6 +368,15 @@ export default function DriversPage() {
                                     }}
                                 />
                                 <small>Digite os 11 dígitos. O sistema formatará automaticamente.</small>
+                            </div>
+                            <div className="form-group-v2">
+                                <label>E-mail de Acesso</label>
+                                <input
+                                    type="email"
+                                    placeholder="Ex: joao@email.com"
+                                    value={newDriver.email}
+                                    onChange={e => setNewDriver({ ...newDriver, email: e.target.value })}
+                                />
                             </div>
                             <div className="form-group-v2">
                                 <label>Senha de Acesso</label>

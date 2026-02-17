@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useDriverAuth } from '../../hooks/useDriverAuth'
-import { Bike, Lock, User, AlertCircle, ArrowRight } from 'lucide-react'
+import { Bike, Lock, Mail, AlertCircle, ArrowRight } from 'lucide-react'
 import './DriverLoginPage.css'
 
 export default function DriverLoginPage() {
-    const [identificador, setIdentificador] = useState('')
+    const [email, setEmail] = useState('')
     const [senha, setSenha] = useState('')
     const [error, setError] = useState('')
     const { login, loading } = useDriverAuth()
@@ -15,7 +15,7 @@ export default function DriverLoginPage() {
         e.preventDefault()
         setError('')
         try {
-            await login(identificador, senha)
+            await login(email, senha)
             navigate('/entregador')
         } catch (err) {
             setError(err.message)
@@ -42,14 +42,14 @@ export default function DriverLoginPage() {
                     )}
 
                     <div className="input-field">
-                        <label>Identificador (Nome ou Tel)</label>
+                        <label>E-mail de Acesso</label>
                         <div className="input-wrapper">
-                            <User size={20} className="field-icon" />
+                            <Mail size={20} className="field-icon" />
                             <input
-                                type="text"
-                                placeholder="Seu nome ou telefone"
-                                value={identificador}
-                                onChange={e => setIdentificador(e.target.value)}
+                                type="email"
+                                placeholder="seu@email.com"
+                                value={email}
+                                onChange={e => setEmail(e.target.value)}
                                 required
                             />
                         </div>
