@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Navigate } from 'react-router-dom'
 import {
-    Bike, LogOut, CheckCircle2, DollarSign,
+    Bike, LogOut, CheckCircle, DollarSign,
     MapPin, Phone, Info, Clock,
     Smartphone, Search, Wallet, CreditCard, MessageCircle, X
 } from 'lucide-react'
@@ -104,113 +104,113 @@ export default function DriverDashboard() {
     const pendingOrders = orders.filter(o => o.status === 'saiu_entrega')
     const completedOrders = orders.filter(o => o.status === 'entregue')
 
-    return (
-        <div className="driver-dashboard-container">
-            <header className="driver-app-header">
-                <div className="driver-profile-mini">
-                    <div className="driver-avatar">
-                        <Bike size={20} />
+    try {
+        return (
+            <div className="driver-dashboard-container">
+                <header className="driver-app-header">
+                    <div className="driver-profile-mini">
+                        <div className="driver-avatar">
+                            <Bike size={20} />
+                        </div>
+                        <div>
+                            <span className="welcome">Olá,</span>
+                            <h2 className="driver-name">{driver?.nome ? driver.nome.split(' ')[0] : 'Entregador'}</h2>
+                        </div>
                     </div>
-                    <div>
-                        <span className="welcome">Olá,</span>
-                        <h2 className="driver-name">{driver.nome.split(' ')[0]}</h2>
-                    </div>
-                </div>
-                <button className="btn-logout-mini" onClick={logout}>
-                    <LogOut size={18} />
-                </button>
-            </header>
+                    <button className="btn-logout-mini" onClick={logout}>
+                        <LogOut size={18} />
+                    </button>
+                </header>
 
-            <main className="driver-app-main">
-                <div className="kanban-section">
-                    <div className="section-title">
-                        <Smartphone size={18} />
-                        <h3>Para Entregar</h3>
-                        <span className="count-pill">{pendingOrders.length}</span>
-                    </div>
+                <main className="driver-app-main">
+                    <div className="kanban-section">
+                        <div className="section-title">
+                            <Smartphone size={18} />
+                            <h3>Para Entregar</h3>
+                            <span className="count-pill">{pendingOrders.length}</span>
+                        </div>
 
-                    <div className="orders-list-mobile">
-                        {pendingOrders.length > 0 ? pendingOrders.map(order => (
-                            <div key={order.id} className="driver-order-card" onClick={() => setSelectedOrder(order)}>
-                                <div className="card-header">
-                                    <span className="order-number">#{order.numero_pedido}</span>
-                                    <span className="order-time">{new Date(order.criado_em).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
-                                </div>
+                        <div className="orders-list-mobile">
+                            {pendingOrders.length > 0 ? pendingOrders.map(order => (
+                                <div key={order.id} className="driver-order-card" onClick={() => setSelectedOrder(order)}>
+                                    <div className="card-header">
+                                        <span className="order-number">#{order.numero_pedido}</span>
+                                        <span className="order-time">{order.criado_em ? new Date(order.criado_em).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '--:--'}</span>
+                                    </div>
 
-                                <div className="customer-info">
-                                    <h4>{order.nome_cliente}</h4>
-                                    <div className="payment-method-row">
-                                        {order.metodo_pagamento === 'pix' && <Smartphone size={14} />}
-                                        {order.metodo_pagamento === 'dinheiro' && <Wallet size={14} />}
-                                        {order.metodo_pagamento?.includes('cartao') && <CreditCard size={14} />}
-                                        <span className="payment-label">
-                                            {order.metodo_pagamento === 'pix' ? 'Pagamento via PIX' :
-                                                order.metodo_pagamento === 'dinheiro' ? 'Pagamento em Dinheiro' :
-                                                    'Pagamento no Cartão'}
-                                        </span>
+                                    <div className="customer-info">
+                                        <h4>{order.nome_cliente}</h4>
+                                        <div className="payment-method-row">
+                                            {order.metodo_pagamento === 'pix' && <Smartphone size={14} />}
+                                            {order.metodo_pagamento === 'dinheiro' && <Wallet size={14} />}
+                                            {order.metodo_pagamento?.includes('cartao') && <CreditCard size={14} />}
+                                            <span className="payment-label">
+                                                {order.metodo_pagamento === 'pix' ? 'Pagamento via PIX' :
+                                                    order.metodo_pagamento === 'dinheiro' ? 'Pagamento em Dinheiro' :
+                                                        'Pagamento no Cartão'}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div className="card-actions">
+                                        <div className="total-price">
+                                            <span>Valor:</span>
+                                            <strong>{formatCurrency(order.valor_total)}</strong>
+                                        </div>
+                                        <button
+                                            className="btn-finish-delivery"
+                                            onClick={(e) => {
+                                                e.stopPropagation()
+                                                handleFinishDelivery(order)
+                                            }}
+                                        >
+                                            <CheckCircle size={18} />
+                                            <span>Entregar</span>
+                                        </button>
                                     </div>
                                 </div>
+                            )) : (
+                                <div className="empty-state">
+                                    <Bike size={32} />
+                                    <p>Nenhum pedido para entregar no momento.</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
 
-                                <div className="card-actions">
-                                    <div className="total-price">
-                                        <span>Valor:</span>
-                                        <strong>{formatCurrency(order.valor_total)}</strong>
+                    <div className="kanban-section completed">
+                        <div className="section-title">
+                            <CheckCircle size={18} />
+                            <h3>Concluídos Hoje</h3>
+                            <span className="count-pill">{completedOrders.length}</span>
+                        </div>
+
+                        <div className="orders-list-mobile">
+                            {completedOrders.map(order => (
+                                <div key={order.id} className="driver-order-card finished">
+                                    <div className="card-header">
+                                        <span className="order-number">#{order.numero_pedido}</span>
+                                        <span className="payment-tag">{order.recebido_metodo?.toUpperCase()}</span>
                                     </div>
-                                    <button
-                                        className="btn-finish-delivery"
-                                        onClick={(e) => {
-                                            e.stopPropagation()
-                                            handleFinishDelivery(order)
-                                        }}
-                                    >
-                                        <CheckCircle2 size={18} />
-                                        <span>Entregar</span>
-                                    </button>
-                                </div>
-                            </div>
-                        )) : (
-                            <div className="empty-state">
-                                <Bike size={32} />
-                                <p>Nenhum pedido para entregar no momento.</p>
-                            </div>
-                        )}
-                    </div>
-                </div>
-
-                <div className="kanban-section completed">
-                    <div className="section-title">
-                        <CheckCircle2 size={18} />
-                        <h3>Concluídos Hoje</h3>
-                        <span className="count-pill">{completedOrders.length}</span>
-                    </div>
-
-                    <div className="orders-list-mobile">
-                        {completedOrders.map(order => (
-                            <div key={order.id} className="driver-order-card finished">
-                                <div className="card-header">
-                                    <span className="order-number">#{order.numero_pedido}</span>
-                                    <span className="payment-tag">{order.recebido_metodo?.toUpperCase()}</span>
-                                </div>
-                                <div className="customer-info">
-                                    <h4>{order.nome_cliente}</h4>
-                                    <p className="finish-time">Entregue às {new Date(order.entregue_em).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</p>
-                                </div>
-                                <div className="card-footer">
-                                    <span className="total">{formatCurrency(order.valor_total)}</span>
-                                    <div className="status-badge">
-                                        <CheckCircle2 size={12} />
-                                        Concluído
+                                    <div className="customer-info">
+                                        <h4>{order.nome_cliente}</h4>
+                                        <p className="finish-time">Entregue às {order.entregue_em ? new Date(order.entregue_em).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '--:--'}</p>
+                                    </div>
+                                    <div className="card-footer">
+                                        <span className="total">{formatCurrency(order.valor_total)}</span>
+                                        <div className="status-badge">
+                                            <CheckCircle size={12} />
+                                            Concluído
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
                     </div>
-                </div>
-            </main >
+                </main>
 
-            {/* Modal de Pagamento */}
-            {
-                paymentModal.open && (
+                {/* Modal de Pagamento */}
+                {paymentModal.open && (
                     <div className="driver-modal-overlay">
                         <div className="payment-modal animate-slide-up">
                             <h3>Confirmar Recebimento</h3>
@@ -248,12 +248,10 @@ export default function DriverDashboard() {
                             </button>
                         </div>
                     </div>
-                )
-            }
+                )}
 
-            {/* Detalhes do Pedido Modal opcional */}
-            {
-                selectedOrder && (
+                {/* Detalhes do Pedido Modal opcional */}
+                {selectedOrder && (
                     <div className="driver-modal-overlay" onClick={() => setSelectedOrder(null)}>
                         <div className="order-detail-sheet animate-slide-up" onClick={e => e.stopPropagation()}>
                             <div className="sheet-handle"></div>
@@ -293,7 +291,7 @@ export default function DriverDashboard() {
                                         <p>
                                             <strong>{typeof selectedOrder.endereco === 'string'
                                                 ? selectedOrder.endereco
-                                                : `${selectedOrder.endereco.rua}, ${selectedOrder.endereco.numero}`}</strong>
+                                                : `${selectedOrder.endereco?.rua || ''}, ${selectedOrder.endereco?.numero || ''}`}</strong>
                                         </p>
                                         <p>{selectedOrder.endereco?.bairro}</p>
                                         {selectedOrder.endereco?.referencia && (
@@ -359,14 +357,17 @@ export default function DriverDashboard() {
                                         setSelectedOrder(null)
                                     }}
                                 >
-                                    <CheckCircle2 size={20} />
+                                    <CheckCircle size={20} />
                                     Confirmar Entrega
                                 </button>
                             </div>
                         </div>
                     </div>
-                )
-            }
-        </div >
-    )
+                )}
+            </div>
+        )
+    } catch (err) {
+        console.error('Critical Render Error:', err)
+        return <div style={{ padding: 20 }}>Erro ao carregar o dashboard: {err.message}</div>
+    }
 }
