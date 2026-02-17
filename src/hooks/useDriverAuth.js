@@ -3,16 +3,20 @@ import { supabase } from '../lib/supabase'
 
 export function useDriverAuth() {
     const [driver, setDriver] = useState(null)
-    const [loading, setLoading] = useState(true)
+    const [loading, setLoading] = useState(false)
+    const [initializing, setInitializing] = useState(true)
 
     useEffect(() => {
         // Initialize from session
         const initSession = async () => {
-            const { data: { session } } = await supabase.auth.getSession()
-            if (session?.user) {
-                await fetchDriverProfile(session.user.id)
+            try {
+                const { data: { session } } = await supabase.auth.getSession()
+                if (session?.user) {
+                    await fetchDriverProfile(session.user.id)
+                }
+            } finally {
+                setInitializing(false)
             }
-            setLoading(false)
         }
 
         initSession()
@@ -24,7 +28,7 @@ export function useDriverAuth() {
             } else {
                 setDriver(null)
             }
-            setLoading(false)
+            setInitializing(false)
         })
 
         return () => subscription.unsubscribe()
@@ -78,6 +82,7 @@ export function useDriverAuth() {
     return {
         driver,
         loading,
+        initializing,
         isAuthenticated: !!driver,
         login,
         logout
