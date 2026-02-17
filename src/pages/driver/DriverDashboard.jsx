@@ -1,21 +1,55 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Navigate } from 'react-router-dom'
 import {
-    Bike, LogOut, CheckCircle, DollarSign,
+    Bike, LogOut, CheckCircle,
     MapPin, Phone, Info, Clock,
-    Smartphone, Search, Wallet, CreditCard, MessageCircle, X
+    Smartphone, Wallet, CreditCard, MessageCircle, X,
+    Package, ChevronRight
 } from 'lucide-react'
 import { useDriverAuth } from '../../hooks/useDriverAuth'
 import { supabase } from '../../lib/supabase'
 import { formatCurrency } from '../../lib/utils'
 import './DriverDashboard.css'
 
+function getAddressString(endereco) {
+    if (!endereco) return 'Endereço não informado'
+    if (typeof endereco === 'string') return endereco
+    const parts = []
+    if (endereco.rua) parts.push(endereco.rua)
+    if (endereco.numero) parts.push(endereco.numero)
+    if (endereco.bairro) parts.push(`- ${endereco.bairro}`)
+    return parts.join(', ') || 'Endereço não informado'
+}
+
+function getPaymentLabel(forma) {
+    const metodo = forma || '';
+    if (metodo === 'pix') return 'PIX'
+    if (metodo === 'dinheiro') return 'Dinheiro'
+    if (metodo?.includes('cartao')) return 'Cartão'
+    return metodo || '--'
+}
+
+function getPaymentIcon(forma) {
+    const metodo = forma || ''
+    if (metodo === 'pix') return <Smartphone size={14} />
+    if (metodo === 'dinheiro') return <Wallet size={14} />
+    return <CreditCard size={14} />
+}
+
+function getItemsSummary(itens) {
+    if (!Array.isArray(itens) || itens.length === 0) return 'Sem itens'
+    const total = itens.reduce((sum, i) => sum + (i.quantidade || 1), 0)
+    const names = itens.slice(0, 3).map(i => `${i.quantidade}x ${i.nome}`).join(', ')
+    if (itens.length > 3) return `${names} +${itens.length - 3}`
+    return names
+}
+
 export default function DriverDashboard() {
     const { driver, logout, loading: authLoading, initializing } = useDriverAuth()
     const [orders, setOrders] = useState([])
     const [loading, setLoading] = useState(true)
     const [selectedOrder, setSelectedOrder] = useState(null)
-    const [paymentModal, setPaymentModal] = useState({ open: false, orderId: null })
+    const [paymentModal, setPaymentModal] = useState({ open: false, order: null })
     const [receivedValor, setReceivedValor] = useState('')
     const [savingPayment, setSavingPayment] = useState(false)
 
@@ -23,24 +57,31 @@ export default function DriverDashboard() {
         if (!driver?.id) return
 
         try {
-            // Get today at 00:00:00 BRT
             const now = new Date()
             const brTimeStr = now.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' })
             const brDate = new Date(brTimeStr)
             brDate.setHours(0, 0, 0, 0)
-
-            // BRT is UTC-3, so 00:00 BRT is 03:00 UTC
             const brMidnightAsUTC = new Date(Date.UTC(brDate.getFullYear(), brDate.getMonth(), brDate.getDate(), 3, 0, 0))
 
             const { data, error } = await supabase
                 .from('pedidos')
-                .select('*')
+                .select('*, entregadores(nome), itens_pedido(*, produtos(nome, imagem_url))')
                 .eq('tipo_pedido', 'entrega')
                 .gte('criado_em', brMidnightAsUTC.toISOString())
                 .order('criado_em', { ascending: false })
 
             if (!error) {
-                setOrders(data || [])
+                const enriched = (data || []).map(order => ({
+                    ...order,
+                    itens: (order.itens_pedido || []).map(ip => ({
+                        quantidade: ip.quantidade,
+                        nome: ip.produtos?.nome || 'Item',
+                        preco: ip.preco_unitario,
+                        observacoes: ip.observacoes,
+                        personalizacao: ip.personalizacao
+                    }))
+                }))
+                setOrders(enriched)
             } else {
                 console.error('Erro ao buscar pedidos:', error)
             }
@@ -62,53 +103,61 @@ export default function DriverDashboard() {
                     .on(
                         'postgres_changes',
                         { event: '*', schema: 'public', table: 'pedidos', filter: 'tipo_pedido=eq.entrega' },
-                        () => {
-                            console.log('[Dashboard] Mudança detectada, atualizando...')
-                            fetchDriverOrders()
-                        }
+                        () => fetchDriverOrders()
                     )
-                    .subscribe((status) => {
-                        console.log('[Dashboard] Status Realtime:', status)
-                    })
+                    .subscribe()
             } catch (err) {
-                console.error('[Dashboard] Erro ao iniciar Realtime:', err)
+                console.error('[Dashboard] Erro Realtime:', err)
             }
 
             return () => {
-                if (channel) {
-                    supabase.removeChannel(channel)
-                }
+                if (channel) supabase.removeChannel(channel)
             }
         }
     }, [driver, fetchDriverOrders])
 
-    const handleFinishDelivery = (order) => {
-        setReceivedValor(order.valor_total.toString())
-        setPaymentModal({ open: false, orderId: order.id }) // Reset first
-        setPaymentModal({ open: true, orderId: order.id })
+    const openPaymentModal = (order) => {
+        setSelectedOrder(null)
+        setReceivedValor(order.valor_total?.toString() || '0')
+        setTimeout(() => {
+            setPaymentModal({ open: true, order })
+        }, 150)
     }
 
     const confirmPayment = async (metodo) => {
+        if (!paymentModal.order) return
         setSavingPayment(true)
         try {
-            const { error } = await supabase
+            const updatePayload = {
+                status: 'entregue',
+                entregue_em: new Date().toISOString(),
+                entregador_id: driver.id,
+                recebido_por_status: true,
+                recebido_valor: Number(receivedValor),
+                recebido_metodo: metodo,
+                recebido_em: new Date().toISOString()
+            }
+
+            console.log('[Driver] Updating order:', paymentModal.order.id, updatePayload)
+
+            const { data, error } = await supabase
                 .from('pedidos')
-                .update({
-                    status: 'entregue',
-                    entregue_em: new Date().toISOString(),
-                    entregador_id: driver.id, // Vincula o entregador que concluiu
-                    recebido_por_status: true,
-                    recebido_valor: Number(receivedValor),
-                    recebido_metodo: metodo,
-                    recebido_em: new Date().toISOString()
-                })
-                .eq('id', paymentModal.orderId)
+                .update(updatePayload)
+                .eq('id', paymentModal.order.id)
+                .select()
+
+            console.log('[Driver] Update result:', { data, error })
 
             if (error) throw error
 
-            setPaymentModal({ open: false, orderId: null })
+            if (!data || data.length === 0) {
+                throw new Error('Sem permissão para atualizar este pedido. Verifique as permissões do banco.')
+            }
+
+            setPaymentModal({ open: false, order: null })
             await fetchDriverOrders()
         } catch (err) {
+            console.error('[Driver] Erro ao finalizar:', err)
             alert('Erro ao finalizar pedido: ' + err.message)
         } finally {
             setSavingPayment(false)
@@ -146,9 +195,10 @@ export default function DriverDashboard() {
                 </header>
 
                 <main className="driver-app-main">
+                    {/* Para Entregar */}
                     <div className="kanban-section">
                         <div className="section-title">
-                            <Smartphone size={18} />
+                            <Package size={18} />
                             <h3>Para Entregar</h3>
                             <span className="count-pill">{pendingOrders.length}</span>
                         </div>
@@ -158,37 +208,48 @@ export default function DriverDashboard() {
                                 <div key={order.id} className="driver-order-card" onClick={() => setSelectedOrder(order)}>
                                     <div className="card-header">
                                         <span className="order-number">#{order.numero_pedido}</span>
-                                        <span className="order-time">{order.criado_em ? new Date(order.criado_em).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '--:--'}</span>
+                                        <span className="order-time">
+                                            <Clock size={12} />
+                                            {order.criado_em ? new Date(order.criado_em).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '--:--'}
+                                        </span>
                                     </div>
 
                                     <div className="customer-info">
                                         <h4>{order.nome_cliente}</h4>
-                                        <div className="payment-method-row">
-                                            {order.metodo_pagamento === 'pix' && <Smartphone size={14} />}
-                                            {order.metodo_pagamento === 'dinheiro' && <Wallet size={14} />}
-                                            {order.metodo_pagamento?.includes('cartao') && <CreditCard size={14} />}
-                                            <span className="payment-label">
-                                                {order.metodo_pagamento === 'pix' ? 'Pagamento via PIX' :
-                                                    order.metodo_pagamento === 'dinheiro' ? 'Pagamento em Dinheiro' :
-                                                        'Pagamento no Cartão'}
-                                            </span>
-                                        </div>
                                     </div>
 
+                                    {/* Address preview */}
+                                    <div className="card-address-row">
+                                        <MapPin size={14} />
+                                        <span>{getAddressString(order.endereco)}</span>
+                                    </div>
+
+                                    {/* Items summary */}
+                                    <div className="card-items-row">
+                                        <Package size={14} />
+                                        <span>{getItemsSummary(order.itens)}</span>
+                                    </div>
+
+                                    {/* Footer: payment + value + action */}
                                     <div className="card-actions">
-                                        <div className="total-price">
-                                            <span>Valor:</span>
-                                            <strong>{formatCurrency(order.valor_total)}</strong>
+                                        <div className="card-actions-left">
+                                            <div className="card-payment-badge">
+                                                {getPaymentIcon(order.forma_pagamento)}
+                                                <span>{getPaymentLabel(order.forma_pagamento)}</span>
+                                            </div>
+                                            <div className="total-price">
+                                                <strong>{formatCurrency(order.valor_total)}</strong>
+                                            </div>
                                         </div>
                                         <button
                                             className="btn-finish-delivery"
                                             onClick={(e) => {
                                                 e.stopPropagation()
-                                                handleFinishDelivery(order)
+                                                openPaymentModal(order)
                                             }}
                                         >
-                                            <CheckCircle size={18} />
-                                            <span>Entregar</span>
+                                            <CheckCircle size={16} />
+                                            <span>Entreguei</span>
                                         </button>
                                     </div>
                                 </div>
@@ -201,6 +262,7 @@ export default function DriverDashboard() {
                         </div>
                     </div>
 
+                    {/* Concluídos */}
                     <div className="kanban-section completed">
                         <div className="section-title">
                             <CheckCircle size={18} />
@@ -232,52 +294,12 @@ export default function DriverDashboard() {
                     </div>
                 </main>
 
-                {/* Modal de Pagamento */}
-                {paymentModal.open && (
-                    <div className="driver-modal-overlay">
-                        <div className="payment-modal animate-slide-up">
-                            <h3>Confirmar Recebimento</h3>
-                            <p>Escolha a forma que o cliente pagou:</p>
-
-                            <div className="value-preview">
-                                <label>Valor Recebido</label>
-                                <div className="input-money">
-                                    <span>R$</span>
-                                    <input
-                                        type="number"
-                                        value={receivedValor}
-                                        onChange={e => setReceivedValor(e.target.value)}
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="payment-options">
-                                <button className="btn-pay pix" onClick={() => confirmPayment('pix')} disabled={savingPayment}>
-                                    <Smartphone size={24} />
-                                    <span>PIX</span>
-                                </button>
-                                <button className="btn-pay card" onClick={() => confirmPayment('cartao')} disabled={savingPayment}>
-                                    <CreditCard size={24} />
-                                    <span>CARTÃO</span>
-                                </button>
-                                <button className="btn-pay cash" onClick={() => confirmPayment('dinheiro')} disabled={savingPayment}>
-                                    <Wallet size={24} />
-                                    <span>DINHEIRO</span>
-                                </button>
-                            </div>
-
-                            <button className="btn-close-modal" onClick={() => setPaymentModal({ open: false, orderId: null })}>
-                                Cancelar
-                            </button>
-                        </div>
-                    </div>
-                )}
-
-                {/* Detalhes do Pedido Modal opcional */}
+                {/* ===== ORDER DETAIL SHEET ===== */}
                 {selectedOrder && (
                     <div className="driver-modal-overlay" onClick={() => setSelectedOrder(null)}>
                         <div className="order-detail-sheet animate-slide-up" onClick={e => e.stopPropagation()}>
                             <div className="sheet-handle"></div>
+
                             <div className="detail-header">
                                 <div>
                                     <span className="order-badge">Pedido #{selectedOrder.numero_pedido}</span>
@@ -289,6 +311,23 @@ export default function DriverDashboard() {
                             </div>
 
                             <div className="detail-body">
+                                {/* Address - FIRST and prominent */}
+                                <div className="info-section address-highlight">
+                                    <label><MapPin size={14} /> Endereço de Entrega</label>
+                                    <div className="address-box">
+                                        <p>
+                                            <strong>{typeof selectedOrder.endereco === 'string'
+                                                ? selectedOrder.endereco
+                                                : (selectedOrder.endereco ? `${selectedOrder.endereco.rua || ''}, ${selectedOrder.endereco.numero || ''}` : 'Endereço não informado')}</strong>
+                                        </p>
+                                        {selectedOrder.endereco?.bairro && <p>{selectedOrder.endereco.bairro}</p>}
+                                        {selectedOrder.endereco?.referencia && (
+                                            <p className="ref-text"><span>Ref:</span> {selectedOrder.endereco.referencia}</p>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Contact */}
                                 <div className="contact-actions">
                                     <a
                                         href={`tel:${selectedOrder.telefone_cliente?.replace(/\D/g, '')}`}
@@ -308,31 +347,16 @@ export default function DriverDashboard() {
                                     </a>
                                 </div>
 
-                                <div className="info-section">
-                                    <label><MapPin size={14} /> Endereço de Entrega</label>
-                                    <div className="address-box">
-                                        <p>
-                                            <strong>{typeof selectedOrder.endereco === 'string'
-                                                ? selectedOrder.endereco
-                                                : (selectedOrder.endereco ? `${selectedOrder.endereco.rua || ''}, ${selectedOrder.endereco.numero || ''}` : 'Endereço não informado')}</strong>
-                                        </p>
-                                        {selectedOrder.endereco?.bairro && <p>{selectedOrder.endereco.bairro}</p>}
-                                        {selectedOrder.endereco?.referencia && (
-                                            <p className="ref-text"><span>Ref:</span> {selectedOrder.endereco.referencia}</p>
-                                        )}
-                                    </div>
-                                </div>
-
+                                {/* Payment + Value */}
                                 <div className="info-section">
                                     <label><Wallet size={14} /> Pagamento</label>
                                     <div className="payment-box">
                                         <div className="payment-info">
-                                            <span className={`payment-tag ${selectedOrder.metodo_pagamento}`}>
-                                                {selectedOrder.metodo_pagamento === 'pix' ? 'PIX' :
-                                                    selectedOrder.metodo_pagamento === 'dinheiro' ? 'DINHEIRO' : 'CARTÃO'}
+                                            <span className={`payment-tag ${selectedOrder.forma_pagamento}`}>
+                                                {getPaymentLabel(selectedOrder.forma_pagamento)}
                                             </span>
-                                            {selectedOrder.metodo_pagamento === 'dinheiro' && selectedOrder.troco_para && (
-                                                <span className="change-info">Levo troco para {formatCurrency(selectedOrder.troco_para)}</span>
+                                            {selectedOrder.forma_pagamento === 'dinheiro' && selectedOrder.troco_para && (
+                                                <span className="change-info">Troco p/ {formatCurrency(selectedOrder.troco_para)}</span>
                                             )}
                                         </div>
                                         <div className="total-amount">
@@ -342,6 +366,7 @@ export default function DriverDashboard() {
                                     </div>
                                 </div>
 
+                                {/* Items */}
                                 <div className="info-section">
                                     <label><Info size={14} /> Itens do Pedido</label>
                                     <div className="items-list">
@@ -375,15 +400,62 @@ export default function DriverDashboard() {
                             <div className="sheet-footer">
                                 <button
                                     className="btn-finish-large"
-                                    onClick={() => {
-                                        handleFinishDelivery(selectedOrder)
-                                        setSelectedOrder(null)
-                                    }}
+                                    onClick={() => openPaymentModal(selectedOrder)}
                                 >
                                     <CheckCircle size={20} />
                                     Confirmar Entrega
                                 </button>
                             </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* ===== PAYMENT MODAL ===== */}
+                {paymentModal.open && paymentModal.order && (
+                    <div className="driver-modal-overlay" onClick={() => !savingPayment && setPaymentModal({ open: false, order: null })}>
+                        <div className="payment-modal animate-slide-up" onClick={e => e.stopPropagation()}>
+                            <div className="payment-modal-header">
+                                <h3>Confirmar Recebimento</h3>
+                                <p>Pedido <strong>#{paymentModal.order.numero_pedido}</strong> — {paymentModal.order.nome_cliente}</p>
+                            </div>
+
+                            <div className="value-preview">
+                                <label>Valor Recebido</label>
+                                <div className="input-money">
+                                    <span>R$</span>
+                                    <input
+                                        type="number"
+                                        inputMode="decimal"
+                                        value={receivedValor}
+                                        onChange={e => setReceivedValor(e.target.value)}
+                                    />
+                                </div>
+                            </div>
+
+                            <p className="payment-prompt">Como o cliente pagou?</p>
+
+                            <div className="payment-options">
+                                <button className="btn-pay pix" onClick={() => confirmPayment('pix')} disabled={savingPayment}>
+                                    <Smartphone size={24} />
+                                    <span>PIX</span>
+                                </button>
+                                <button className="btn-pay card" onClick={() => confirmPayment('cartao')} disabled={savingPayment}>
+                                    <CreditCard size={24} />
+                                    <span>CARTÃO</span>
+                                </button>
+                                <button className="btn-pay cash" onClick={() => confirmPayment('dinheiro')} disabled={savingPayment}>
+                                    <Wallet size={24} />
+                                    <span>DINHEIRO</span>
+                                </button>
+                            </div>
+
+                            <button
+                                className="btn-close-modal"
+                                onClick={() => setPaymentModal({ open: false, order: null })}
+                                disabled={savingPayment}
+                            >
+                                Cancelar
+                            </button>
                         </div>
                     </div>
                 )}
@@ -399,17 +471,9 @@ export default function DriverDashboard() {
                     <p style={{ color: '#6B7280', fontSize: '14px', marginBottom: '20px' }}>
                         Não conseguimos carregar o painel agora. Tente recarregar a página.
                     </p>
-                    <button
-                        onClick={() => window.location.reload()}
-                        className="btn-finish-large"
-                    >
+                    <button onClick={() => window.location.reload()} className="btn-finish-large">
                         Recarregar Página
                     </button>
-                    {import.meta.env.DEV && (
-                        <pre style={{ marginTop: '20px', fontSize: '10px', color: '#EF4444', overflow: 'auto', textAlign: 'left' }}>
-                            {err.message}
-                        </pre>
-                    )}
                 </div>
             </div>
         )
