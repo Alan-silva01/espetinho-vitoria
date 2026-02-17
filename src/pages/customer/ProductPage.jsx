@@ -32,7 +32,8 @@ export default function ProductPage() {
     const { id } = useParams()
     const navigate = useNavigate()
     const { product, loading } = useProduct(id)
-    const { addItem } = useCart()
+    const { addItem, items: cartItems } = useCart()
+    const cartCount = cartItems.reduce((sum, i) => sum + i.quantidade, 0)
     const { liked, toggleLike, animatingHearts } = useFavorites()
 
     const [qty, setQty] = useState(1)
@@ -279,6 +280,7 @@ export default function ProductPage() {
                     <div className="product-hero__actions">
                         <button className="product-hero__btn product-hero__cart-btn" onClick={() => navigate('/carrinho')}>
                             <ShoppingCart size={20} />
+                            {cartCount > 0 && <span className="product-hero__cart-badge">{cartCount}</span>}
                         </button>
 
 
@@ -333,7 +335,7 @@ export default function ProductPage() {
                         </div>
                         <div className="product-options">
                             {product.variacoes_produto
-                                .filter(v => v.disponivel !== false && (v.quantidade_disponivel === undefined || v.quantidade_disponivel > 0))
+                                .filter(v => v.disponivel !== false && (!v.controlar_estoque || v.quantidade_disponivel > 0))
                                 .map(v => (
                                     <label key={v.id} className={`product-option ${selectedVariation?.id === v.id ? 'product-option--selected' : ''}`}>
                                         <div className="product-option__left">
@@ -359,7 +361,7 @@ export default function ProductPage() {
                     const availableOptions = group.opcoes.filter(opt => {
                         const isAvailable = typeof opt === 'string'
                             ? true
-                            : (opt.disponivel !== false && (opt.quantidade_disponivel === undefined || opt.quantidade_disponivel > 0))
+                            : (opt.disponivel !== false && (!opt.controlar_estoque || opt.quantidade_disponivel > 0))
                         return isAvailable
                     })
 
@@ -386,7 +388,7 @@ export default function ProductPage() {
                                     // Check availability (redundant but safe)
                                     const isAvailable = typeof opt === 'string'
                                         ? true
-                                        : (opt.disponivel !== false && (opt.quantidade_disponivel === undefined || opt.quantidade_disponivel > 0))
+                                        : (opt.disponivel !== false && (!opt.controlar_estoque || opt.quantidade_disponivel > 0))
 
                                     if (!isAvailable) return null
 
