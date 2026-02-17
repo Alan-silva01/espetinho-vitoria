@@ -474,7 +474,13 @@ export default function ProductPage() {
                     <span className="product-footer__qty-value">{qty}</span>
                     <button
                         className="product-footer__qty-btn product-footer__qty-btn--plus"
-                        onClick={() => setQty(qty + 1)}
+                        onClick={() => {
+                            if (product.controlar_estoque && qty >= product.quantidade_disponivel) {
+                                alert(`Infelizmente só temos ${product.quantidade_disponivel} ${product.nome.toLowerCase()}, que tal escolher outro sabor?`)
+                                return
+                            }
+                            setQty(qty + 1)
+                        }}
                         disabled={!product.disponivel || (product.controlar_estoque && product.quantidade_disponivel <= 0)}
                     >
                         <Plus size={16} />

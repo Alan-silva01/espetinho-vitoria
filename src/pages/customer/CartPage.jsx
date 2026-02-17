@@ -371,7 +371,14 @@ export default function CartPage() {
                                             <span className="cart-item__qty-val">{item.quantidade}</span>
                                             <button
                                                 className="cart-item__qty-btn cart-item__qty-btn--plus"
-                                                onClick={() => updateQuantity(item.produto_id, item.variacao_id, item.observacoes, item.quantidade + 1)}
+                                                onClick={() => {
+                                                    const prodData = products.find(p => p.id === item.produto_id)
+                                                    if (prodData && prodData.controlar_estoque && item.quantidade >= prodData.quantidade_disponivel) {
+                                                        alert(`Infelizmente só temos ${prodData.quantidade_disponivel} ${prodData.nome.toLowerCase()}, que tal escolher outro sabor?`)
+                                                        return
+                                                    }
+                                                    updateQuantity(item.produto_id, item.variacao_id, item.observacoes, item.quantidade + 1)
+                                                }}
                                             >
                                                 <Plus size={12} />
                                             </button>

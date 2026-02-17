@@ -229,6 +229,15 @@ export default function HomePage() {
                                                 })
                                             }
 
+                                            const { items: cartItems } = useCart()
+                                            const inCart = cartItems.find(i => i.produto_id === product.id && !i.variacao_id)
+                                            const currentQty = inCart ? inCart.quantidade : 0
+
+                                            if (product.controlar_estoque && currentQty >= product.quantidade_disponivel) {
+                                                alert(`Infelizmente só temos ${product.quantidade_disponivel} ${product.nome.toLowerCase()}, que tal escolher outro sabor?`)
+                                                return
+                                            }
+
                                             addItem({
                                                 produto_id: product.id,
                                                 nome: product.nome,
