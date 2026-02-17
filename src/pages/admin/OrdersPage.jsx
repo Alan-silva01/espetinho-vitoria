@@ -245,6 +245,80 @@ export default function OrdersPage() {
         }
     }
 
+    // Touch Support for Kanban dragging
+    const touchInfo = useRef({ orderId: null, startX: 0, startY: 0, ghost: null })
+
+    const onTouchStart = (e, orderId) => {
+        const touch = e.touches[0]
+        const card = e.currentTarget
+        const rect = card.getBoundingClientRect()
+
+        touchInfo.current = {
+            orderId,
+            startX: touch.clientX,
+            startY: touch.clientY,
+            offsetX: touch.clientX - rect.left,
+            offsetY: touch.clientY - rect.top,
+            card: card
+        }
+
+        // Create ghost/clone for dragging feedback
+        const ghost = card.cloneNode(true)
+        ghost.style.position = 'fixed'
+        ghost.style.top = rect.top + 'px'
+        ghost.style.left = rect.left + 'px'
+        ghost.style.width = rect.width + 'px'
+        ghost.style.opacity = '0.8'
+        ghost.style.pointerEvents = 'none'
+        ghost.style.zIndex = '10001'
+        ghost.style.boxShadow = '0 10px 25px rgba(0,0,0,0.1)'
+        ghost.classList.add('dragging-ghost')
+        document.body.appendChild(ghost)
+        touchInfo.current.ghost = ghost
+
+        card.classList.add('touch-dragging')
+    }
+
+    const onTouchMove = (e) => {
+        if (!touchInfo.current.ghost) return
+        const touch = e.touches[0]
+        const ghost = touchInfo.current.ghost
+
+        ghost.style.top = (touch.clientY - touchInfo.current.offsetY) + 'px'
+        ghost.style.left = (touch.clientX - touchInfo.current.offsetX) + 'px'
+
+        // Highlight potential drop targets
+        const targetElement = document.elementFromPoint(touch.clientX, touch.clientY)
+        const column = targetElement?.closest('.kanban-col')
+
+        document.querySelectorAll('.kanban-col').forEach(col => col.classList.remove('drop-active'))
+        if (column) column.classList.add('drop-active')
+
+        // Prevent scrolling while dragging
+        if (e.cancelable) e.preventDefault()
+    }
+
+    const onTouchEnd = (e) => {
+        if (!touchInfo.current.ghost) return
+        const touch = e.changedTouches[0]
+        const { orderId, ghost, card } = touchInfo.current
+
+        ghost.remove()
+        card.classList.remove('touch-dragging')
+        document.querySelectorAll('.kanban-col').forEach(col => col.classList.remove('drop-active'))
+
+        const targetElement = document.elementFromPoint(touch.clientX, touch.clientY)
+        const column = targetElement?.closest('.kanban-col')
+
+        if (column) {
+            // Find stage ID from column data or classes
+            // In our JSX, we'll need to pass it or read it.
+            // Let's check how the columns are rendered.
+        }
+
+        touchInfo.current = { orderId: null, ghost: null }
+    }
+
     const getMinutesAgo = (date) => {
         if (!date) return 0
         const diff = new Date() - new Date(date)
@@ -321,6 +395,7 @@ export default function OrdersPage() {
                             <div
                                 key={stage.id}
                                 className={`kanban-col ${activeStage === stage.id ? 'active' : ''}`}
+                                data-stage={stage.id}
                                 onDragOver={onDragOver}
                                 onDrop={(e) => onDrop(e, stage.id)}
                             >
@@ -339,6 +414,19 @@ export default function OrdersPage() {
                                             draggable
                                             onDragStart={(e) => onDragStart(e, order.id)}
                                             onDragEnd={onDragEnd}
+                                            onTouchStart={(e) => onTouchStart(e, order.id)}
+                                            onTouchMove={onTouchMove}
+                                            onTouchEnd={(e) => {
+                                                const touch = e.changedTouches[0]
+                                                const targetElement = document.elementFromPoint(touch.clientX, touch.clientY)
+                                                const column = targetElement?.closest('.kanban-col')
+                                                if (column) {
+                                                    // Identify the stage from a data attribute
+                                                    const targetStage = column.getAttribute('data-stage')
+                                                    if (targetStage) handleStatusChange(order.id, targetStage)
+                                                }
+                                                onTouchEnd(e)
+                                            }}
                                             className={`order-card-v2 ${(order.status === 'preparando' || order.status === 'pronto') ? 'border-purple' : order.status === 'saiu_entrega' ? 'border-orange' : order.status === 'entregue' ? 'border-green' : ''}`}
                                             onClick={() => setSelectedOrder(order)}
                                         >

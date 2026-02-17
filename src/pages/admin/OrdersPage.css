@@ -462,8 +462,32 @@
     font-size: 11px;
 }
 
+.order-card-v2.touch-dragging {
+    opacity: 0;
+}
+
+.kanban-col.drop-active {
+    background: rgba(255, 106, 0, 0.1) !important;
+    border: 1px dashed #FF6A00 !important;
+}
+
+.dark .kanban-col.drop-active {
+    background: rgba(255, 106, 0, 0.2) !important;
+}
+
+.dragging-ghost .quick-action {
+    display: none;
+}
+
 /* RESPONSIVE OVERRIDES */
 @media (max-width: 1024px) {
+    .kanban-col {
+        width: 290px;
+        /* Slightly narrower for tablets to fit better */
+    }
+}
+
+@media (max-width: 768px) {
     .orders-kanban-wrapper {
         padding: 16px;
     }
