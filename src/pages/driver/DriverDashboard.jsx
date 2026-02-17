@@ -58,11 +58,16 @@ export default function DriverDashboard() {
     const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null)
     const [receivedValor, setReceivedValor] = useState('')
     const [savingPayment, setSavingPayment] = useState(false)
+    const paymentModalRef = useRef(null)
 
-    const fetchDriverOrders = useCallback(async () => {
+    useEffect(() => {
+        paymentModalRef.current = paymentModal
+    }, [paymentModal])
+
+    const fetchDriverOrders = useCallback(async (isSilent = false) => {
         if (!driver?.id) return
 
-        setLoading(true)
+        if (!isSilent) setLoading(true)
         try {
             const now = new Date()
             const brTimeStr = now.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' })
@@ -110,7 +115,31 @@ export default function DriverDashboard() {
                     .on(
                         'postgres_changes',
                         { event: '*', schema: 'public', table: 'pedidos', filter: 'tipo_pedido=eq.entrega' },
-                        () => fetchDriverOrders()
+                        (payload) => {
+                            if (payload.eventType === 'UPDATE') {
+                                // 1. Optimistic Update: Update order properties instantly in UI
+                                setOrders(prev => prev.map(order =>
+                                    order.id === payload.new.id ? { ...order, ...payload.new } : order
+                                ))
+
+                                // 2. Silent Refresh: Sync full data (items, etc) after a small delay
+                                setTimeout(() => {
+                                    fetchDriverOrders(true).then(() => {
+                                        // Sync payment modal if the updated order is the one being viewed
+                                        if (paymentModalRef.current?.open && paymentModalRef.current?.order?.id === payload.new.id) {
+                                            setOrders(currentOrders => {
+                                                const updated = currentOrders.find(o => o.id === payload.new.id)
+                                                if (updated) setPaymentModal(prev => ({ ...prev, order: updated }))
+                                                return currentOrders
+                                            })
+                                        }
+                                    })
+                                }, 800)
+                            } else {
+                                // For INSERT/DELETE or other, just silent refresh
+                                fetchDriverOrders(true)
+                            }
+                        }
                     )
                     .subscribe()
             } catch (err) {
