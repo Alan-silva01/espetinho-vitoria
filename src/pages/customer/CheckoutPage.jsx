@@ -223,7 +223,8 @@ export default function CheckoutPage() {
                             numero_pedido: pedido.numero_pedido,
                             nome_cliente: orderData.nome_cliente,
                             endereco_bairro: enderecoBairro,
-                            valor_total: orderData.valor_total
+                            valor_total: orderData.valor_total,
+                            tipo_notificacao: 'novo_pedido'
                         }
                     }).then(({ error }) => {
                         if (error) console.error('[Notification] Error calling notify-driver:', error)

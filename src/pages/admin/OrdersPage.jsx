@@ -173,7 +173,8 @@ export default function OrdersPage() {
                                 numero_pedido: order.numero_pedido,
                                 nome_cliente: order.nome_cliente || order.clientes?.nome || 'Cliente',
                                 endereco_bairro: enderecoBairro,
-                                valor_total: order.valor_total
+                                valor_total: order.valor_total,
+                                tipo_notificacao: 'pedido_pronto'
                             }
                         })
                     } catch (notifyErr) {

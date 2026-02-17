@@ -110,7 +110,8 @@ export default function DriverDashboard() {
                     numero_pedido: 'TESTE-00',
                     nome_cliente: 'Teste de Notificação',
                     endereco_bairro: 'Admin Dashboard',
-                    valor_total: 0
+                    valor_total: 0,
+                    tipo_notificacao: 'teste'
                 }
             })
             if (error) throw error
