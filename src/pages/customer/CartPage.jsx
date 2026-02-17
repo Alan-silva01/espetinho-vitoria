@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, X, Minus, Plus, MapPin, Truck, Store, Navigation } from 'lucide-react'
+import { ArrowLeft, X, Minus, Plus, MapPin, Truck, Store, Navigation, MapPinOff } from 'lucide-react'
 import { useCart } from '../../hooks/useCart'
 import { useProducts } from '../../hooks/useProducts'
 import { useCustomer } from '../../context/CustomerContext'
@@ -16,6 +16,7 @@ export default function CartPage() {
     const { products } = useProducts()
     const { customer, updateCustomerData } = useCustomer()
     const [isGeolocating, setIsGeolocating] = useState(false)
+    const [isValidationModalOpen, setIsValidationModalOpen] = useState(false)
 
     useEffect(() => {
         window.scrollTo(0, 0)
@@ -225,8 +226,7 @@ export default function CartPage() {
 
     const handleFinalize = () => {
         if (tipoPedido === 'entrega' && !hasAddress) {
-            alert('Por ser seu primeiro pedido para entrega, precisamos que você informe seu endereço.')
-            handleOpenAddress()
+            setIsValidationModalOpen(true)
             return
         }
         navigate(customerCode ? `/${customerCode}/checkout` : '/checkout')
@@ -616,6 +616,37 @@ export default function CartPage() {
                                     Salvar Endereço
                                 </button>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {/* VALIDATION MODAL */}
+            {isValidationModalOpen && (
+                <div className="modal-backdrop" onClick={() => setIsValidationModalOpen(false)}>
+                    <div className="bottom-sheet validation-modal" onClick={e => e.stopPropagation()}>
+                        <div className="bottom-sheet__handle" />
+                        <div className="validation-content">
+                            <div className="validation-icon">
+                                <MapPinOff size={48} color="var(--cor-primaria)" />
+                            </div>
+                            <h3>Endereço não informado</h3>
+                            <p>Por favor, insira seu endereço para entrega para continuar com o pedido.</p>
+                            <button
+                                className="btn btn-primary full"
+                                onClick={() => {
+                                    setIsValidationModalOpen(false)
+                                    handleOpenAddress()
+                                }}
+                            >
+                                Inserir Endereço
+                            </button>
+                            <button
+                                className="btn btn-ghost full"
+                                onClick={() => setIsValidationModalOpen(false)}
+                                style={{ marginTop: 8 }}
+                            >
+                                Voltar
+                            </button>
                         </div>
                     </div>
                 </div>
