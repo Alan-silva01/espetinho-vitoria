@@ -84,26 +84,28 @@
       }
     })();
 
-    // OneSignal initialization (driver only)
-    if (isDriver) {
-      window.OneSignalDeferred = window.OneSignalDeferred || [];
-      window.OneSignalDeferred.push(async function (OneSignal) {
-        try {
-          await OneSignal.init({
-            appId: "3cffc84b-c412-49a6-bccb-a108981a4ef3",
-            allowLocalhostAsSecureOrigin: true,
-            autoResubscribe: true,
-            notifyButton: { enable: false },
-            serviceWorkerParam: { scope: "/" },
-            serviceWorkerPath: "/OneSignalSDKWorker.js",
-          });
+    // OneSignal initialization (Initialized for all routes in SPA)
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    window.OneSignalDeferred.push(async function (OneSignal) {
+      try {
+        await OneSignal.init({
+          appId: "3cffc84b-c412-49a6-bccb-a108981a4ef3",
+          allowLocalhostAsSecureOrigin: true,
+          autoResubscribe: true,
+          notifyButton: { enable: false },
+          serviceWorkerParam: { scope: "/" },
+          serviceWorkerPath: "/OneSignalSDKWorker.js",
+        });
+
+        // Only tag as driver if we are on the driver route
+        if (window.location.pathname.startsWith('/entregador')) {
           await OneSignal.User.addTag("user_type", "entregador");
-          console.log("[OneSignal] Initialized for driver");
-        } catch (e) {
-          console.error("[OneSignal] Init error:", e);
+          console.log("[OneSignal] Initialized and tagged as driver");
         }
-      });
-    }
+      } catch (e) {
+        console.error("[OneSignal] Init error:", e);
+      }
+    });
   </script>
 </head>
 

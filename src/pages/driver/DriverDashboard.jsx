@@ -58,7 +58,9 @@ export default function DriverDashboard() {
     const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null)
     const [receivedValor, setReceivedValor] = useState('')
     const [savingPayment, setSavingPayment] = useState(false)
-    const [notificationsPermission, setNotificationsPermission] = useState('default')
+    const [notificationsPermission, setNotificationsPermission] = useState(
+        window.Notification ? Notification.permission : 'default'
+    )
     const paymentModalRef = useRef(null)
 
     useEffect(() => {
@@ -69,14 +71,15 @@ export default function DriverDashboard() {
     useEffect(() => {
         const checkPermission = async () => {
             if (window.OneSignal) {
-                const permission = await window.OneSignal.Notifications.permission;
-                setNotificationsPermission(permission ? 'granted' : 'default');
-
-                // OneSignal v16 usa boolean para permission Native ou string. 
-                // Vamos simplificar para o que o OneSignalSDK costuma retornar ou o que o navegador reporta.
-                if (window.Notification) {
-                    setNotificationsPermission(Notification.permission);
+                try {
+                    const isPushEnabled = await window.OneSignal.Notifications.permission;
+                    const status = isPushEnabled ? 'granted' : (window.Notification?.permission || 'default');
+                    setNotificationsPermission(status);
+                } catch (e) {
+                    console.warn('[OneSignal] Error checking permission:', e);
                 }
+            } else if (window.Notification) {
+                setNotificationsPermission(Notification.permission);
             }
         };
 
@@ -85,9 +88,17 @@ export default function DriverDashboard() {
         return () => clearInterval(timer);
     }, []);
 
-    const requestNotificationPermission = () => {
+    const requestNotificationPermission = async () => {
         if (window.OneSignal) {
-            window.OneSignal.Notifications.requestPermission();
+            try {
+                // Tenta carregar o prompt nativo ou slidedown
+                await window.OneSignal.Notifications.requestPermission();
+                if (window.OneSignal.Slidedown) {
+                    await window.OneSignal.Slidedown.promptPush();
+                }
+            } catch (e) {
+                console.error('[OneSignal] Request permission error:', e);
+            }
         }
     };
 
