@@ -84,7 +84,7 @@
       }
     })();
 
-    // OneSignal initialization (Initialized for all routes in SPA)
+    // OneSignal initialization (Simplified as requested)
     window.OneSignalDeferred = window.OneSignalDeferred || [];
     window.OneSignalDeferred.push(async function (OneSignal) {
       try {
@@ -97,10 +97,9 @@
           serviceWorkerPath: "/OneSignalSDKWorker.js",
         });
 
-        // Only tag as driver if we are on the driver route
+        // Tag users on the driver route
         if (window.location.pathname.startsWith('/entregador')) {
           await OneSignal.User.addTag("user_type", "entregador");
-          console.log("[OneSignal] Initialized and tagged as driver");
         }
       } catch (e) {
         console.error("[OneSignal] Init error:", e);
