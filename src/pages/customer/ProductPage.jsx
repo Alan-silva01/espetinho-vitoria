@@ -233,13 +233,17 @@ export default function ProductPage() {
                 fly.remove()
                 cart.classList.add('cart-bounce')
                 setTimeout(() => cart.classList.remove('cart-bounce'), 400)
-                // Navigate after animation
-                navigate('/carrinho')
             })
-        } else {
-            // Fallback if no cart visible
-            navigate('/carrinho')
         }
+
+        // --- Visual Feedback ---
+        const originalText = btn.innerHTML
+        btn.innerHTML = '<span>Adicionado!</span>'
+        btn.classList.add('btn-success-temporary')
+        setTimeout(() => {
+            btn.innerHTML = originalText
+            btn.classList.remove('btn-success-temporary')
+        }, 2000)
     }
 
     return (

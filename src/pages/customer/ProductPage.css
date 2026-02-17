@@ -333,6 +333,12 @@
     transform: scale(0.98);
 }
 
+.product-footer__add.btn-success-temporary {
+    background: #059669 !important;
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3) !important;
+    transform: none !important;
+}
+
 .product-footer__add-total {
     display: flex;
     align-items: center;
