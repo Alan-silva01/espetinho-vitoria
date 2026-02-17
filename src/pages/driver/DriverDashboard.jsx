@@ -102,25 +102,6 @@ export default function DriverDashboard() {
         }
     };
 
-    const testNotification = async () => {
-        try {
-            console.log('[Notification] Sending test notification...')
-            const { error } = await supabase.functions.invoke('notify-driver', {
-                body: {
-                    numero_pedido: 'TESTE-00',
-                    nome_cliente: 'Teste de Notificação',
-                    endereco_bairro: 'Admin Dashboard',
-                    valor_total: 0,
-                    tipo_notificacao: 'teste'
-                }
-            })
-            if (error) throw error
-            alert('Notificação de teste enviada! Verifique seu celular/navegador.')
-        } catch (err) {
-            console.error('Erro ao testar notificação:', err)
-            alert('Erro ao enviar teste: ' + err.message)
-        }
-    }
 
     const fetchDriverOrders = useCallback(async (isSilent = false) => {
         if (!driver?.id) return
@@ -344,29 +325,6 @@ export default function DriverDashboard() {
                         </div>
                     )}
 
-                    {/* Developer / Test Tools */}
-                    <div style={{ padding: '0 4px', marginBottom: 20 }}>
-                        <button
-                            onClick={testNotification}
-                            style={{
-                                width: '100%',
-                                padding: '12px',
-                                borderRadius: '12px',
-                                border: '1px dashed #CBD5E1',
-                                background: '#F1F5F9',
-                                color: '#475569',
-                                fontSize: '13px',
-                                fontWeight: '600',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                gap: '8px'
-                            }}
-                        >
-                            <Bell size={16} />
-                            Testar Notificações (Ping)
-                        </button>
-                    </div>
 
                     {/* Novos Pedidos - Aguardando Preparo */}
                     {incomingOrders.length > 0 && (
