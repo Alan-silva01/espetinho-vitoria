@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import {
     Clock, Save, AlertCircle, CheckCircle2,
-    Calendar, Moon, Sun, ToggleRight, ToggleLeft
+    Calendar, Moon, Sun, ToggleRight, ToggleLeft, Send
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import './OpeningHoursPage.css'
@@ -57,6 +57,29 @@ export default function OpeningHoursPage() {
         }))
         setHorarios(defaultHours)
         setFeedback({ type: 'success', msg: 'Horários redefinidos para o padrão (18h-22h, exceto Sábado)' })
+    }
+
+    async function handleTestNotification() {
+        if (!confirm('Deseja enviar uma notificação de "Loja Aberta" para todos os clientes agora?')) return
+
+        setSaving(true)
+        try {
+            const { data, error } = await supabase.functions.invoke('broadcast-notifications')
+            if (error) throw error
+
+            if (data?.status === 'skipped') {
+                setFeedback({ type: 'error', msg: 'Aviso pulado: ' + data.message })
+            } else {
+                setFeedback({ type: 'success', msg: 'Notificação enviada com sucesso!' })
+                fetchSettings()
+            }
+        } catch (err) {
+            console.error('Erro ao enviar notificação:', err)
+            setFeedback({ type: 'error', msg: 'Erro ao enviar: ' + err.message })
+        } finally {
+            setSaving(false)
+            setTimeout(() => setFeedback({ type: '', msg: '' }), 4000)
+        }
     }
 
     async function handleSave() {
@@ -188,6 +211,10 @@ export default function OpeningHoursPage() {
                             <span>{feedback.msg}</span>
                         </div>
                     )}
+                    <button className="btn-test-notification" onClick={handleTestNotification} disabled={saving}>
+                        <Send size={18} />
+                        <span>Testar Aviso</span>
+                    </button>
                     <button className="btn-save-hours" onClick={handleSave} disabled={saving}>
                         <Save size={18} />
                         <span>{saving ? 'Gravando...' : 'Salvar Alterações'}</span>
@@ -237,6 +264,13 @@ export default function OpeningHoursPage() {
                                 <span>Status automático (Horário de Brasília)</span>
                             </div>
                         </div>
+
+                        {config.ultima_notificacao_transmissao && (
+                            <div className="notification-status-info">
+                                <Send size={14} />
+                                <span>Último aviso automático enviado em: <strong>{new Date(config.ultima_notificacao_transmissao + 'T12:00:00').toLocaleDateString('pt-BR')}</strong></span>
+                            </div>
+                        )}
                     </div>
                 </section>
 

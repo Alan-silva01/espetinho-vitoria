@@ -98,10 +98,18 @@
           serviceWorkerPath: "/OneSignalSDKWorker.js",
         });
 
-        // Tag users on the driver route
-        if (window.location.pathname.startsWith('/entregador')) {
+        // Tag users based on route
+        const path = window.location.pathname;
+        if (path.startsWith('/entregador')) {
           await OneSignal.User.addTag("user_type", "entregador");
           console.log("[OneSignal] Tag 'user_type: entregador' applied");
+        } else if (path.startsWith('/admin')) {
+          await OneSignal.User.addTag("user_type", "admin");
+          console.log("[OneSignal] Tag 'user_type: admin' applied");
+        } else {
+          // Default to cliente for any other route (HomePage, Menu, etc.)
+          await OneSignal.User.addTag("user_type", "cliente");
+          console.log("[OneSignal] Tag 'user_type: cliente' applied");
         }
 
         OneSignal.User.PushSubscription.addEventListener("change", (event) => {

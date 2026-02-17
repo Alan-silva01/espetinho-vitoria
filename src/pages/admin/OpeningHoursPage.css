@@ -59,6 +59,36 @@
     font-weight: 500;
 }
 
+.btn-test-notification {
+    background: white;
+    color: #475569;
+    border: 1.5px solid #E2E8F0;
+    padding: 14px 28px;
+    border-radius: 16px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dark .btn-test-notification {
+    background: #1E293B;
+    border-color: #334155;
+    color: #F1F5F9;
+}
+
+.btn-test-notification:hover:not(:disabled) {
+    background: #F8FAFC;
+    border-color: #CBD5E1;
+    transform: translateY(-2px);
+}
+
+.dark .btn-test-notification:hover:not(:disabled) {
+    background: #0F172A;
+}
+
 .btn-save-hours {
     background: #FF6A00;
     color: white;
@@ -469,6 +499,32 @@
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+.notification-status-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 20px;
+    padding: 12px 16px;
+    background: #F1F5F9;
+    border-radius: 12px;
+    color: #64748B;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.dark .notification-status-info {
+    background: #0F172A;
+    color: #94A3B8;
+}
+
+.notification-status-info strong {
+    color: #334155;
+}
+
+.dark .notification-status-info strong {
+    color: #F1F5F9;
 }
 
 @media (max-width: 1024px) {
