@@ -118,13 +118,14 @@ export function useAuth() {
             }
         })
 
-        // Safety timeout
+        // Safety timeout — use ref to avoid stale closure
         const safety = setTimeout(() => {
-            if (mounted.current && loading) {
+            if (mounted.current && !initializedRef.current) {
                 console.warn('[useAuth] ⚠️ Safety timeout — forcing load complete')
+                initializedRef.current = true
                 setLoading(false)
             }
-        }, 4000)
+        }, 8000)
 
         return () => {
             mounted.current = false
