@@ -27,6 +27,11 @@ export default function OrdersPage() {
     const [activeStage, setActiveStage] = useState('confirmado')
     const [allDrivers, setAllDrivers] = useState([])
     const audioRef = useRef(new Audio('/notificacao.mp3'))
+    const selectedOrderRef = useRef(null)
+
+    useEffect(() => {
+        selectedOrderRef.current = selectedOrder
+    }, [selectedOrder])
 
 
     const playNotificationSound = () => {
@@ -43,22 +48,52 @@ export default function OrdersPage() {
         fetchAllDrivers()
 
         const channel = supabase
-            .channel('orders_realtime')
+            .channel('orders_admin_realtime')
             .on('postgres_changes', { event: '*', schema: 'public', table: 'pedidos' }, (payload) => {
+                console.log('[Realtime] Order event:', payload.eventType, payload.new?.id || payload.old?.id)
+
                 if (payload.eventType === 'INSERT') {
                     playNotificationSound()
+                    // For new orders, a full fetch is best to get all joined data immediately
+                    fetchOrders(true)
                 }
-                fetchOrders()
+
+                if (payload.eventType === 'UPDATE') {
+                    // 1. Optimistic Update: Move the card instantly in UI
+                    setOrders(prev => prev.map(order =>
+                        order.id === payload.new.id ? { ...order, ...payload.new } : order
+                    ))
+
+                    // 2. Silent Refresh: Sync full details (items, names) after a small delay
+                    setTimeout(() => {
+                        fetchOrders(true).then(() => {
+                            // Sync selectedOrderRef for the modal if needed
+                            if (selectedOrderRef.current && payload.new.id === selectedOrderRef.current.id) {
+                                setOrders(currentOrders => {
+                                    const updated = currentOrders.find(o => o.id === payload.new.id)
+                                    if (updated) setSelectedOrder(updated)
+                                    return currentOrders
+                                })
+                            }
+                        })
+                    }, 1000)
+                }
+
+                if (payload.eventType === 'DELETE') {
+                    setOrders(prev => prev.filter(order => order.id !== payload.old.id))
+                }
             })
-            .subscribe()
+            .subscribe((status) => {
+                console.log('[Realtime] Subscription status:', status)
+            })
 
         return () => {
             supabase.removeChannel(channel)
         }
     }, [])
 
-    async function fetchOrders() {
-        setLoading(true)
+    async function fetchOrders(isSilent = false) {
+        if (!isSilent) setLoading(true)
         const brDateStr = new Date().toLocaleDateString('en-US', { timeZone: 'America/Sao_Paulo' })
         const [month, day, year] = brDateStr.split('/')
         const brMidnightAsUTC = new Date(Date.UTC(year, month - 1, day, 3, 0, 0))
