@@ -121,12 +121,13 @@ export default function DriversPage() {
         setSaving(true)
 
         try {
+            console.log('[DriversPage] Iniciando cadastro...', newDriver)
             // 1. Criar usuário no Supabase Auth usando um cliente temporário
-            // Isso evita que o Admin seja deslogado ao criar o novo usuário
             const tempSupabase = createClient(supabaseUrl, supabaseAnonKey, {
                 auth: { persistSession: false }
             })
 
+            console.log('[DriversPage] Chamando signUp...')
             const { data: authData, error: authError } = await tempSupabase.auth.signUp({
                 email: newDriver.email,
                 password: newDriver.senha,
@@ -138,11 +139,17 @@ export default function DriversPage() {
                 }
             })
 
-            if (authError) throw authError
+            if (authError) {
+                console.error('[DriversPage] Erro no signUp:', authError)
+                throw authError
+            }
+
+            console.log('[DriversPage] Usuário Auth criado:', authData.user?.id)
 
             const dbPhone = formatPhoneForDB(phoneDigits)
 
             // 2. Criar registro na tabela pública (usando o cliente principal onde o Admin está logado)
+            console.log('[DriversPage] Inserindo na tabela entregadores...')
             const { error: dbError } = await supabase
                 .from('entregadores')
                 .insert({
@@ -153,15 +160,19 @@ export default function DriversPage() {
                     ativo: true
                 })
 
-            if (dbError) throw dbError
+            if (dbError) {
+                console.error('[DriversPage] Erro no database insert:', dbError)
+                throw dbError
+            }
 
+            console.log('[DriversPage] Cadastro concluído com sucesso!')
             await fetchDriversData()
             setIsAddOpen(false)
             setNewDriver({ nome: '', telefone: '', email: '', senha: '' })
-            alert('Entregador cadastrado com sucesso! Verifique se ele precisa confirmar o e-mail (dependendo das configurações do Supabase).')
+            alert('Entregador cadastrado com sucesso!')
         } catch (err) {
-            console.error('Erro ao cadastrar entregador:', err)
-            alert('Erro ao cadastrar: ' + err.message)
+            console.error('[DriversPage] Erro geral:', err)
+            alert('Erro ao cadastrar: ' + (err.message || 'Erro desconhecido'))
         } finally {
             setSaving(false)
         }
