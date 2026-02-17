@@ -11,7 +11,7 @@ import { formatCurrency } from '../../lib/utils'
 import './DriverDashboard.css'
 
 export default function DriverDashboard() {
-    const { driver, logout, loading: authLoading } = useDriverAuth()
+    const { driver, logout, loading: authLoading, initializing } = useDriverAuth()
     const [orders, setOrders] = useState([])
     const [loading, setLoading] = useState(true)
     const [selectedOrder, setSelectedOrder] = useState(null)
@@ -41,22 +41,33 @@ export default function DriverDashboard() {
     const fetchDriverOrders = useCallback(async () => {
         if (!driver?.id) return
 
-        const today = new Date()
-        const brDateStr = today.toLocaleDateString('en-US', { timeZone: 'America/Sao_Paulo' })
-        const [month, day, year] = brDateStr.split('/')
-        const brMidnightAsUTC = new Date(Date.UTC(year, month - 1, day, 3, 0, 0))
+        try {
+            // Get today at 00:00:00 BRT
+            const now = new Date()
+            const brTimeStr = now.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' })
+            const brDate = new Date(brTimeStr)
+            brDate.setHours(0, 0, 0, 0)
 
-        const { data, error } = await supabase
-            .from('pedidos')
-            .select('*')
-            .eq('tipo_pedido', 'entrega')
-            .gte('criado_em', brMidnightAsUTC.toISOString())
-            .order('criado_em', { ascending: false })
+            // BRT is UTC-3, so 00:00 BRT is 03:00 UTC
+            const brMidnightAsUTC = new Date(Date.UTC(brDate.getFullYear(), brDate.getMonth(), brDate.getDate(), 3, 0, 0))
 
-        if (!error) {
-            setOrders(data || [])
+            const { data, error } = await supabase
+                .from('pedidos')
+                .select('*')
+                .eq('tipo_pedido', 'entrega')
+                .gte('criado_em', brMidnightAsUTC.toISOString())
+                .order('criado_em', { ascending: false })
+
+            if (!error) {
+                setOrders(data || [])
+            } else {
+                console.error('Erro ao buscar pedidos:', error)
+            }
+        } catch (err) {
+            console.error('Critical Error in fetchDriverOrders:', err)
+        } finally {
+            setLoading(false)
         }
-        setLoading(false)
     }, [driver])
 
     const handleFinishDelivery = (order) => {
@@ -92,19 +103,19 @@ export default function DriverDashboard() {
         }
     }
 
-    if (authLoading || loading) return (
+    if (initializing || authLoading || loading) return (
         <div className="driver-loading">
             <Bike size={40} className="animate-bounce" />
-            <p>Carregando pedidos...</p>
+            <p>{initializing ? 'Iniciando sistema...' : 'Carregando pedidos...'}</p>
         </div>
     )
 
-    if (!driver) return <Navigate to="/entregador/login" replace />
-
-    const pendingOrders = orders.filter(o => o.status === 'saiu_entrega')
-    const completedOrders = orders.filter(o => o.status === 'entregue')
+    if (!driver && !initializing) return <Navigate to="/entregador/login" replace />
 
     try {
+        const pendingOrders = orders.filter(o => o.status === 'saiu_entrega')
+        const completedOrders = orders.filter(o => o.status === 'entregue')
+
         return (
             <div className="driver-dashboard-container">
                 <header className="driver-app-header">
