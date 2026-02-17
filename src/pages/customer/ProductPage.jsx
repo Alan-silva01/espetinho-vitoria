@@ -20,6 +20,14 @@ const optPreco = (opt) => {
 }
 const optImg = (opt) => (typeof opt === 'string' ? null : opt.imagem_url || opt.image_url || null)
 
+// Helper: Get clean product name for display (strips current size in parenthesis if variation is selected)
+function getDisplayName(baseName, selectedVariation) {
+    if (!selectedVariation) return baseName
+    // Strip (300ml) or (500ml) etc from base name to avoid "(300ml) - 500ml"
+    const cleanBase = baseName.replace(/\s*\(.*?\)\s*/g, ' ').trim()
+    return `${cleanBase} - ${selectedVariation.nome}`
+}
+
 export default function ProductPage() {
     const { id } = useParams()
     const navigate = useNavigate()
@@ -204,7 +212,7 @@ export default function ProductPage() {
         addItem({
             produto_id: product.id,
             variacao_id: selectedVariation?.id,
-            nome: product.nome + (selectedVariation ? ` - ${selectedVariation.nome}` : ''),
+            nome: getDisplayName(product.nome, selectedVariation),
             preco: (selectedVariation?.preco || product.preco) + extrasTotal,
             imagem_url: product.imagem_url,
             quantidade: qty,
@@ -302,7 +310,7 @@ export default function ProductPage() {
             <main className="product-content">
                 {/* Header Info */}
                 <div className="product-info">
-                    <h1 className="product-info__name">{product.nome}</h1>
+                    <h1 className="product-info__name">{getDisplayName(product.nome, selectedVariation)}</h1>
                     <div className="product-info__tags">
                         <span className="product-info__tag product-info__tag--highlight">Mais Vendido</span>
                         <div className="product-info__rating">
@@ -311,7 +319,7 @@ export default function ProductPage() {
                         </div>
                     </div>
                     <p className="product-info__desc">{product.descricao}</p>
-                    <div className="product-info__price">{formatCurrency(product.preco)}</div>
+                    <div className="product-info__price">{formatCurrency(selectedVariation?.preco || product.preco)}</div>
                 </div>
 
                 <div className="product-divider" />
