@@ -1,12 +1,11 @@
-import { useState, useEffect } from 'react'
-import { useNavigate, Navigate } from 'react-router-dom'
+import { useState, useEffect, useCallback } from 'react'
+import { Navigate } from 'react-router-dom'
+import { X } from 'lucide-react'
 import { useDriverAuth } from '../../hooks/useDriverAuth'
 import { supabase } from '../../lib/supabase'
 import { formatCurrency } from '../../lib/utils'
 import {
-    Bike, LogOut, CheckCircle2, DollarSign,
-    MapPin, Phone, Info, Clock,
-    Smartphone, Search, Wallet, CreditCard
+    Smartphone, Search, Wallet, CreditCard, MessageCircle
 } from 'lucide-react'
 import './DriverDashboard.css'
 
@@ -18,7 +17,6 @@ export default function DriverDashboard() {
     const [paymentModal, setPaymentModal] = useState({ open: false, orderId: null })
     const [receivedValor, setReceivedValor] = useState('')
     const [savingPayment, setSavingPayment] = useState(false)
-    const navigate = useNavigate()
 
     useEffect(() => {
         if (driver?.id) {
@@ -37,9 +35,9 @@ export default function DriverDashboard() {
                 supabase.removeChannel(channel)
             }
         }
-    }, [driver])
+    }, [driver, fetchDriverOrders])
 
-    async function fetchDriverOrders() {
+    const fetchDriverOrders = useCallback(async () => {
         if (!driver?.id) return
 
         const today = new Date()
@@ -58,7 +56,7 @@ export default function DriverDashboard() {
             setOrders(data || [])
         }
         setLoading(false)
-    }
+    }, [driver])
 
     const handleFinishDelivery = (order) => {
         setReceivedValor(order.valor_total.toString())
@@ -93,7 +91,13 @@ export default function DriverDashboard() {
         }
     }
 
-    if (authLoading) return <div className="driver-loading">Carregando...</div>
+    if (authLoading || loading) return (
+        <div className="driver-loading">
+            <Bike size={40} className="animate-bounce" />
+            <p>Carregando pedidos...</p>
+        </div>
+    )
+
     if (!driver) return <Navigate to="/entregador/login" replace />
 
     const pendingOrders = orders.filter(o => o.status === 'saiu_entrega')
@@ -134,12 +138,14 @@ export default function DriverDashboard() {
 
                                 <div className="customer-info">
                                     <h4>{order.nome_cliente}</h4>
-                                    <div className="address-row">
-                                        <MapPin size={14} />
-                                        <span>
-                                            {typeof order.endereco === 'string'
-                                                ? order.endereco
-                                                : `${order.endereco.rua}, ${order.endereco.numero} - ${order.endereco.bairro}`}
+                                    <div className="payment-method-row">
+                                        {order.metodo_pagamento === 'pix' && <Smartphone size={14} />}
+                                        {order.metodo_pagamento === 'dinheiro' && <Wallet size={14} />}
+                                        {order.metodo_pagamento?.includes('cartao') && <CreditCard size={14} />}
+                                        <span className="payment-label">
+                                            {order.metodo_pagamento === 'pix' ? 'Pagamento via PIX' :
+                                                order.metodo_pagamento === 'dinheiro' ? 'Pagamento em Dinheiro' :
+                                                    'Pagamento no Cartão'}
                                         </span>
                                     </div>
                                 </div>
@@ -199,90 +205,167 @@ export default function DriverDashboard() {
                         ))}
                     </div>
                 </div>
-            </main>
+            </main >
 
             {/* Modal de Pagamento */}
-            {paymentModal.open && (
-                <div className="driver-modal-overlay">
-                    <div className="payment-modal animate-slide-up">
-                        <h3>Confirmar Recebimento</h3>
-                        <p>Escolha a forma que o cliente pagou:</p>
+            {
+                paymentModal.open && (
+                    <div className="driver-modal-overlay">
+                        <div className="payment-modal animate-slide-up">
+                            <h3>Confirmar Recebimento</h3>
+                            <p>Escolha a forma que o cliente pagou:</p>
 
-                        <div className="value-preview">
-                            <label>Valor Recebido</label>
-                            <div className="input-money">
-                                <span>R$</span>
-                                <input
-                                    type="number"
-                                    value={receivedValor}
-                                    onChange={e => setReceivedValor(e.target.value)}
-                                />
+                            <div className="value-preview">
+                                <label>Valor Recebido</label>
+                                <div className="input-money">
+                                    <span>R$</span>
+                                    <input
+                                        type="number"
+                                        value={receivedValor}
+                                        onChange={e => setReceivedValor(e.target.value)}
+                                    />
+                                </div>
                             </div>
-                        </div>
 
-                        <div className="payment-options">
-                            <button className="btn-pay pix" onClick={() => confirmPayment('pix')} disabled={savingPayment}>
-                                <Smartphone size={24} />
-                                <span>PIX</span>
-                            </button>
-                            <button className="btn-pay card" onClick={() => confirmPayment('cartao')} disabled={savingPayment}>
-                                <CreditCard size={24} />
-                                <span>CARTÃO</span>
-                            </button>
-                            <button className="btn-pay cash" onClick={() => confirmPayment('dinheiro')} disabled={savingPayment}>
-                                <Wallet size={24} />
-                                <span>DINHEIRO</span>
+                            <div className="payment-options">
+                                <button className="btn-pay pix" onClick={() => confirmPayment('pix')} disabled={savingPayment}>
+                                    <Smartphone size={24} />
+                                    <span>PIX</span>
+                                </button>
+                                <button className="btn-pay card" onClick={() => confirmPayment('cartao')} disabled={savingPayment}>
+                                    <CreditCard size={24} />
+                                    <span>CARTÃO</span>
+                                </button>
+                                <button className="btn-pay cash" onClick={() => confirmPayment('dinheiro')} disabled={savingPayment}>
+                                    <Wallet size={24} />
+                                    <span>DINHEIRO</span>
+                                </button>
+                            </div>
+
+                            <button className="btn-close-modal" onClick={() => setPaymentModal({ open: false, orderId: null })}>
+                                Cancelar
                             </button>
                         </div>
-
-                        <button className="btn-close-modal" onClick={() => setPaymentModal({ open: false, orderId: null })}>
-                            Cancelar
-                        </button>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             {/* Detalhes do Pedido Modal opcional */}
-            {selectedOrder && (
-                <div className="driver-modal-overlay" onClick={() => setSelectedOrder(null)}>
-                    <div className="order-detail-modal" onClick={e => e.stopPropagation()}>
-                        <div className="detail-header">
-                            <h3>Pedido #{selectedOrder.numero_pedido}</h3>
-                            <button onClick={() => setSelectedOrder(null)}>Fechar</button>
-                        </div>
-                        <div className="detail-body">
-                            <div className="info-group">
-                                <label>Cliente</label>
-                                <strong>{selectedOrder.nome_cliente}</strong>
-                                <p className="tel-line">
-                                    <Phone size={14} />
-                                    {selectedOrder.telefone_cliente}
-                                </p>
+            {
+                selectedOrder && (
+                    <div className="driver-modal-overlay" onClick={() => setSelectedOrder(null)}>
+                        <div className="order-detail-sheet animate-slide-up" onClick={e => e.stopPropagation()}>
+                            <div className="sheet-handle"></div>
+                            <div className="detail-header">
+                                <div>
+                                    <span className="order-badge">Pedido #{selectedOrder.numero_pedido}</span>
+                                    <h3>{selectedOrder.nome_cliente}</h3>
+                                </div>
+                                <button className="btn-close-sheet" onClick={() => setSelectedOrder(null)}>
+                                    <X size={20} />
+                                </button>
                             </div>
-                            <div className="info-group">
-                                <label>Endereço</label>
-                                <p>
-                                    {typeof selectedOrder.endereco === 'string'
-                                        ? selectedOrder.endereco
-                                        : `${selectedOrder.endereco.rua}, ${selectedOrder.endereco.numero} - ${selectedOrder.endereco.bairro}`}
-                                </p>
-                                {selectedOrder.endereco?.referencia && (
-                                    <p className="ref">Ref: {selectedOrder.endereco.referencia}</p>
+
+                            <div className="detail-body">
+                                <div className="contact-actions">
+                                    <a
+                                        href={`tel:${selectedOrder.telefone_cliente?.replace(/\D/g, '')}`}
+                                        className="contact-btn phone"
+                                    >
+                                        <Phone size={18} />
+                                        Ligar
+                                    </a>
+                                    <a
+                                        href={`https://wa.me/55${selectedOrder.telefone_cliente?.replace(/\D/g, '')}`}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="contact-btn whatsapp"
+                                    >
+                                        <MessageCircle size={18} />
+                                        WhatsApp
+                                    </a>
+                                </div>
+
+                                <div className="info-section">
+                                    <label><MapPin size={14} /> Endereço de Entrega</label>
+                                    <div className="address-box">
+                                        <p>
+                                            <strong>{typeof selectedOrder.endereco === 'string'
+                                                ? selectedOrder.endereco
+                                                : `${selectedOrder.endereco.rua}, ${selectedOrder.endereco.numero}`}</strong>
+                                        </p>
+                                        <p>{selectedOrder.endereco?.bairro}</p>
+                                        {selectedOrder.endereco?.referencia && (
+                                            <p className="ref-text"><span>Ref:</span> {selectedOrder.endereco.referencia}</p>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="info-section">
+                                    <label><Wallet size={14} /> Pagamento</label>
+                                    <div className="payment-box">
+                                        <div className="payment-info">
+                                            <span className={`payment-tag ${selectedOrder.metodo_pagamento}`}>
+                                                {selectedOrder.metodo_pagamento === 'pix' ? 'PIX' :
+                                                    selectedOrder.metodo_pagamento === 'dinheiro' ? 'DINHEIRO' : 'CARTÃO'}
+                                            </span>
+                                            {selectedOrder.metodo_pagamento === 'dinheiro' && selectedOrder.troco_para && (
+                                                <span className="change-info">Levo troco para {formatCurrency(selectedOrder.troco_para)}</span>
+                                            )}
+                                        </div>
+                                        <div className="total-amount">
+                                            <span>Total a receber:</span>
+                                            <strong>{formatCurrency(selectedOrder.valor_total)}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="info-section">
+                                    <label><Info size={14} /> Itens do Pedido</label>
+                                    <div className="items-list">
+                                        {selectedOrder.itens?.map((item, idx) => (
+                                            <div key={idx} className="item-row">
+                                                <span className="item-qty">{item.quantidade}x</span>
+                                                <div className="item-details">
+                                                    <span className="item-name">{item.nome}</span>
+                                                    {item.personalizacao && (
+                                                        <span className="item-extras">
+                                                            {Object.values(item.personalizacao).flat().join(', ')}
+                                                        </span>
+                                                    )}
+                                                    {item.observacoes && (
+                                                        <span className="item-obs">Obs: {item.observacoes}</span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {selectedOrder.observacoes && (
+                                    <div className="info-section">
+                                        <label>Observações Gerais</label>
+                                        <p className="general-obs">{selectedOrder.observacoes}</p>
+                                    </div>
                                 )}
                             </div>
-                            <div className="info-group">
-                                <label>Observações</label>
-                                <p>{selectedOrder.observacoes || 'Nenhuma'}</p>
-                            </div>
-                            <div className="order-items-mini">
-                                <label>Itens</label>
-                                {/* Itens seriam buscados ou passados, se houver muitos, simplificamos */}
-                                <p>Ver resumo no card principal.</p>
+
+                            <div className="sheet-footer">
+                                <button
+                                    className="btn-finish-large"
+                                    onClick={() => {
+                                        handleFinishDelivery(selectedOrder)
+                                        setSelectedOrder(null)
+                                    }}
+                                >
+                                    <CheckCircle2 size={20} />
+                                    Confirmar Entrega
+                                </button>
                             </div>
                         </div>
                     </div>
-                </div>
-            )}
-        </div>
+                )
+            }
+        </div >
     )
 }
