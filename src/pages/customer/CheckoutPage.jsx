@@ -201,19 +201,37 @@ export default function CheckoutPage() {
 
             // Webhook notification
             try {
+                const webhookBody = {
+                    ...orderData,
+                    pedido_id: pedido.id,
+                    numero_pedido: pedido.numero_pedido,
+                    cliente_original: customer
+                }
+
                 await fetch('https://rapidus-n8n-webhook.b7bsm5.easypanel.host/webhook/pedido_feito', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        ...orderData,
-                        pedido_id: pedido.id,
-                        numero_pedido: pedido.numero_pedido,
-                        cliente_original: customer
-                    })
+                    body: JSON.stringify(webhookBody)
                 })
+
+                // If it's delivery, notify all drivers via OneSignal
+                if (tipoPedido === 'entrega') {
+                    console.log('[Notification] Triggering notify-driver for new order...')
+                    const enderecoBairro = typeof addressData === 'object' ? (addressData.bairro || '') : ''
+                    supabase.functions.invoke('notify-driver', {
+                        body: {
+                            numero_pedido: pedido.numero_pedido,
+                            nome_cliente: orderData.nome_cliente,
+                            endereco_bairro: enderecoBairro,
+                            valor_total: orderData.valor_total
+                        }
+                    }).then(({ error }) => {
+                        if (error) console.error('[Notification] Error calling notify-driver:', error)
+                        else console.log('[Notification] Driver notification sent successfully')
+                    })
+                }
             } catch (webhookErr) {
-                console.error('Erro ao enviar webhook:', webhookErr)
-                // Don't block the user if webhook fails
+                console.error('Erro ao enviar webhook/notificação:', webhookErr)
             }
 
             clearCart()

@@ -87,6 +87,7 @@
     // OneSignal initialization (Simplified as requested)
     window.OneSignalDeferred = window.OneSignalDeferred || [];
     window.OneSignalDeferred.push(async function (OneSignal) {
+      console.log("[OneSignal] Starting initialization...");
       try {
         await OneSignal.init({
           appId: "3cffc84b-c412-49a6-bccb-a108981a4ef3",
@@ -100,7 +101,15 @@
         // Tag users on the driver route
         if (window.location.pathname.startsWith('/entregador')) {
           await OneSignal.User.addTag("user_type", "entregador");
+          console.log("[OneSignal] Tag 'user_type: entregador' applied");
         }
+
+        OneSignal.User.PushSubscription.addEventListener("change", (event) => {
+          console.log("[OneSignal] Subscription changed:", event.current);
+        });
+
+        const id = OneSignal.User.PushSubscription.id;
+        console.log("[OneSignal] Initialized. Subscription ID:", id || "None (Not subscribed yet)");
       } catch (e) {
         console.error("[OneSignal] Init error:", e);
       }
