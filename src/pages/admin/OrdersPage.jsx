@@ -19,6 +19,14 @@ const STAGES = [
     { id: 'entregue', label: 'Servido / Finalizado', icon: CheckCircle2, color: '#10B981' }
 ]
 
+// Valid forward transitions for drag-and-drop
+const VALID_TRANSITIONS = {
+    'confirmado': ['preparando'],
+    'preparando': ['saiu_entrega', 'entregue'], // entregue for mesa orders
+    'saiu_entrega': ['entregue'],
+    'entregue': [] // final state, no forward transitions
+}
+
 export default function OrdersPage() {
     const [orders, setOrders] = useState([])
     const [loading, setLoading] = useState(true)
@@ -29,6 +37,12 @@ export default function OrdersPage() {
     const [error, setError] = useState(null)
     const audioRef = useRef(new Audio('/notificacao.mp3'))
     const selectedOrderRef = useRef(null)
+    const inFlightRef = useRef(new Set()) // Guards concurrent updates
+    const ordersRef = useRef(orders) // Always-fresh orders reference
+
+    useEffect(() => {
+        ordersRef.current = orders
+    }, [orders])
 
     useEffect(() => {
         selectedOrderRef.current = selectedOrder
@@ -55,29 +69,33 @@ export default function OrdersPage() {
 
                 if (payload.eventType === 'INSERT') {
                     playNotificationSound()
-                    // For new orders, a full fetch is best to get all joined data immediately
                     fetchOrders(true)
                 }
 
                 if (payload.eventType === 'UPDATE') {
-                    // 1. Optimistic Update: Move the card instantly in UI
+                    const orderId = payload.new.id
+
+                    // If this order is currently being updated by US, skip the realtime merge
+                    // to avoid reverting our optimistic update. Our handleStatusChange will
+                    // handle the final state.
+                    if (inFlightRef.current.has(orderId)) {
+                        console.log('[Realtime] Skipping merge for in-flight order:', orderId)
+                        return
+                    }
+
+                    // Merge the update from another client or from server confirmation
                     setOrders(prev => prev.map(order =>
-                        order.id === payload.new.id ? { ...order, ...payload.new } : order
+                        order.id === orderId ? { ...order, ...payload.new } : order
                     ))
 
-                    // 2. Silent Refresh: Sync full details (items, names) after a small delay
-                    setTimeout(() => {
-                        fetchOrders(true).then(() => {
-                            // Sync selectedOrderRef for the modal if needed
-                            if (selectedOrderRef.current && payload.new.id === selectedOrderRef.current.id) {
-                                setOrders(currentOrders => {
-                                    const updated = currentOrders.find(o => o.id === payload.new.id)
-                                    if (updated) setSelectedOrder(updated)
-                                    return currentOrders
-                                })
-                            }
+                    // Sync selected order modal if open
+                    if (selectedOrderRef.current && orderId === selectedOrderRef.current.id) {
+                        setOrders(currentOrders => {
+                            const updated = currentOrders.find(o => o.id === orderId)
+                            if (updated) setSelectedOrder(updated)
+                            return currentOrders
                         })
-                    }, 1000)
+                    }
                 }
 
                 if (payload.eventType === 'DELETE') {
@@ -153,9 +171,29 @@ export default function OrdersPage() {
 
 
     const handleStatusChange = async (orderId, newStatus) => {
-        const previousOrders = [...orders]
+        // 1. Find current order and validate
+        const currentOrder = ordersRef.current.find(o => o.id === orderId)
+        if (!currentOrder) return
+
+        // 2. Skip if already at the target status
+        if (currentOrder.status === newStatus) {
+            console.log('[Kanban] Skip: order already at status', newStatus)
+            return
+        }
+
+        // 3. Concurrency guard — reject if this order is already being updated
+        if (inFlightRef.current.has(orderId)) {
+            console.log('[Kanban] Skip: order', orderId, 'update already in-flight')
+            return
+        }
+
+        // 4. Mark as in-flight
+        inFlightRef.current.add(orderId)
+
+        const previousOrders = [...ordersRef.current]
         const now = new Date().toISOString()
 
+        // 5. Optimistic update
         setOrders(prev => prev.map(order =>
             order.id === orderId ? {
                 ...order,
@@ -177,63 +215,66 @@ export default function OrdersPage() {
 
             if (error) throw error
 
-            if (newStatus === 'saiu_entrega') {
-                const order = orders.find(o => o.id === orderId)
-                if (order) {
-                    // Push notification via OneSignal Edge Function (ONLY for delivery orders)
-                    if (order.tipo_pedido === 'entrega') {
-                        try {
-                            const enderecoBairro = typeof order.endereco === 'object' ? (order.endereco?.bairro || '') : ''
-                            await supabase.functions.invoke('notify-driver', {
-                                body: {
-                                    numero_pedido: order.numero_pedido,
-                                    nome_cliente: order.nome_cliente || order.clientes?.nome || 'Cliente',
-                                    endereco_bairro: enderecoBairro,
-                                    valor_total: order.valor_total,
-                                    tipo_notificacao: 'pedido_pronto'
-                                }
-                            })
-                        } catch (notifyErr) {
-                            console.error('Erro ao enviar push notification:', notifyErr)
-                        }
-                    }
+            // DB write succeeded — use the FRESH order data for side-effects
+            const freshOrder = ordersRef.current.find(o => o.id === orderId)
 
-                    // Existing webhook
+            if (newStatus === 'saiu_entrega' && freshOrder) {
+                // Push notification via OneSignal Edge Function (ONLY for delivery orders)
+                if (freshOrder.tipo_pedido === 'entrega') {
                     try {
-                        await fetch('https://rapidus-n8n-webhook.b7bsm5.easypanel.host/webhook/saiu_entrega', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                order_id: order.id,
-                                numero_pedido: order.numero_pedido,
-                                status: newStatus,
-                                tipo_pedido: order.tipo_pedido,
-                                telefone_contato: order.telefone_cliente || order.clientes?.telefone,
-                                cliente: {
-                                    id: order.cliente_id,
-                                    nome: order.clientes?.nome || order.nome_cliente,
-                                    telefone_db: order.clientes?.telefone,
-                                    whatsapp_contato: order.clientes?.whatsapp || order.telefone_cliente,
-                                },
-                                endereco: order.endereco,
-                                valor_total: order.valor_total,
-                                itens: order.itens?.map(item => ({
-                                    quantidade: item.quantidade,
-                                    nome: item.produtos?.nome,
-                                    preco: item.preco_unitario,
-                                    observacoes: item.observacoes
-                                }))
-                            })
+                        const enderecoBairro = typeof freshOrder.endereco === 'object' ? (freshOrder.endereco?.bairro || '') : ''
+                        await supabase.functions.invoke('notify-driver', {
+                            body: {
+                                numero_pedido: freshOrder.numero_pedido,
+                                nome_cliente: freshOrder.nome_cliente || freshOrder.clientes?.nome || 'Cliente',
+                                endereco_bairro: enderecoBairro,
+                                valor_total: freshOrder.valor_total,
+                                tipo_notificacao: 'pedido_pronto'
+                            }
                         })
-                    } catch (webhookErr) {
-                        console.error('Erro ao enviar webhook saiu_entrega:', webhookErr)
+                    } catch (notifyErr) {
+                        console.error('Erro ao enviar push notification:', notifyErr)
                     }
+                }
+
+                // Existing webhook
+                try {
+                    await fetch('https://rapidus-n8n-webhook.b7bsm5.easypanel.host/webhook/saiu_entrega', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            order_id: freshOrder.id,
+                            numero_pedido: freshOrder.numero_pedido,
+                            status: newStatus,
+                            tipo_pedido: freshOrder.tipo_pedido,
+                            telefone_contato: freshOrder.telefone_cliente || freshOrder.clientes?.telefone,
+                            cliente: {
+                                id: freshOrder.cliente_id,
+                                nome: freshOrder.clientes?.nome || freshOrder.nome_cliente,
+                                telefone_db: freshOrder.clientes?.telefone,
+                                whatsapp_contato: freshOrder.clientes?.whatsapp || freshOrder.telefone_cliente,
+                            },
+                            endereco: freshOrder.endereco,
+                            valor_total: freshOrder.valor_total,
+                            itens: freshOrder.itens?.map(item => ({
+                                quantidade: item.quantidade,
+                                nome: item.produtos?.nome,
+                                preco: item.preco_unitario,
+                                observacoes: item.observacoes
+                            }))
+                        })
+                    })
+                } catch (webhookErr) {
+                    console.error('Erro ao enviar webhook saiu_entrega:', webhookErr)
                 }
             }
         } catch (error) {
             console.error('Erro ao atualizar status:', error)
             setOrders(previousOrders)
             alert('Erro ao atualizar status do pedido. Tente novamente.')
+        } finally {
+            // 6. Release the concurrency guard
+            inFlightRef.current.delete(orderId)
         }
     }
 
@@ -257,9 +298,20 @@ export default function OrdersPage() {
     const onDrop = (e, targetStage) => {
         e.preventDefault()
         const orderId = e.dataTransfer.getData('orderId')
-        if (orderId) {
-            handleStatusChange(orderId, targetStage)
+        if (!orderId) return
+
+        // Validate: find the order and check if this is a valid forward transition
+        const order = ordersRef.current.find(o => o.id === orderId)
+        if (!order) return
+        if (order.status === targetStage) return // Same column — do nothing
+
+        const allowed = VALID_TRANSITIONS[order.status] || []
+        if (!allowed.includes(targetStage)) {
+            console.log('[Kanban] Invalid transition:', order.status, '→', targetStage)
+            return
         }
+
+        handleStatusChange(orderId, targetStage)
     }
 
     // Touch Support for Kanban dragging
@@ -487,9 +539,13 @@ export default function OrdersPage() {
                                                 const targetElement = document.elementFromPoint(touch.clientX, touch.clientY)
                                                 const column = targetElement?.closest('.kanban-col')
                                                 if (column) {
-                                                    // Identify the stage from a data attribute
                                                     const targetStage = column.getAttribute('data-stage')
-                                                    if (targetStage) handleStatusChange(order.id, targetStage)
+                                                    if (targetStage && targetStage !== order.status) {
+                                                        const allowed = VALID_TRANSITIONS[order.status] || []
+                                                        if (allowed.includes(targetStage)) {
+                                                            handleStatusChange(order.id, targetStage)
+                                                        }
+                                                    }
                                                 }
                                                 onTouchEnd(e)
                                             }}
