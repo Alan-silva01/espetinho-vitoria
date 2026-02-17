@@ -64,7 +64,7 @@ export default function DriversPage() {
             // 2. Fetch Orders (Deliveries) to calculate performance
             const { data: deliveries } = await supabase
                 .from('pedidos')
-                .select('id, entregador_id, valor_total, status, tipo_pedido, criado_em')
+                .select('id, entregador_id, valor_total, taxa_entrega, status, tipo_pedido, criado_em')
                 .eq('tipo_pedido', 'entrega')
                 .gte('criado_em', today.toISOString())
 
@@ -84,7 +84,7 @@ export default function DriversPage() {
                         nome: d.nome,
                         status: d.ativo ? 'Disponível' : 'Offline',
                         entregas: dDeliveries.length,
-                        total: dDeliveries.reduce((sum, o) => sum + Number(o.valor_total), 0),
+                        total: dDeliveries.reduce((sum, o) => sum + Number(o.taxa_entrega || 0), 0),
                         tel: d.telefone,
                         avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(d.nome)}&background=random`
                     }
@@ -165,12 +165,32 @@ export default function DriversPage() {
     }
 
     async function confirmDelete() {
-        const { error } = await supabase.from('entregadores').delete().eq('id', deleteConfirm.id)
-        if (!error) {
+        setSaving(true)
+        try {
+            // 1. Desvincular pedidos do entregador (para evitar erro de Foreign Key)
+            const { error: updateError } = await supabase
+                .from('pedidos')
+                .update({ entregador_id: null })
+                .eq('entregador_id', deleteConfirm.id)
+
+            if (updateError) throw updateError
+
+            // 2. Excluir da tabela pública
+            const { error: deleteError } = await supabase
+                .from('entregadores')
+                .delete()
+                .eq('id', deleteConfirm.id)
+
+            if (deleteError) throw deleteError
+
             setDrivers(prev => prev.filter(d => d.id !== deleteConfirm.id))
             setDeleteConfirm({ open: false, id: null, nome: '' })
-        } else {
-            alert('Erro ao excluir entregador: ' + error.message)
+            alert('Entregador excluído com sucesso!')
+        } catch (err) {
+            console.error('Erro ao excluir entregador:', err)
+            alert('Erro ao excluir entregador: ' + err.message)
+        } finally {
+            setSaving(false)
         }
     }
 
@@ -424,14 +444,16 @@ export default function DriversPage() {
                             <button
                                 className="btn-confirm-cancel"
                                 onClick={() => setDeleteConfirm({ open: false, id: null, nome: '' })}
+                                disabled={saving}
                             >
                                 Cancelar
                             </button>
                             <button
                                 className="btn-confirm-delete"
                                 onClick={confirmDelete}
+                                disabled={saving}
                             >
-                                Sim, Excluir
+                                {saving ? 'Excluindo...' : 'Sim, Excluir'}
                             </button>
                         </div>
                     </div>
