@@ -295,6 +295,26 @@
     -webkit-line-clamp: 2;
     line-clamp: 2;
     -webkit-box-orient: vertical;
+    flex: 1;
+}
+
+.btn-ver-rota-mini {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+    font-size: 11px;
+    font-weight: 700;
+    color: #2563EB;
+    background: #EFF6FF;
+    padding: 3px 8px;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background 150ms ease;
+}
+
+.btn-ver-rota-mini:active {
+    background: #DBEAFE;
 }
 
 .card-items-row {
@@ -733,6 +753,16 @@
     background: #25D366;
     color: white;
     box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+}
+
+.contact-btn.route {
+    background: #2563EB;
+    color: white;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.contact-actions:has(.contact-btn.route) {
+    grid-template-columns: 1fr 1fr 1fr;
 }
 
 /* ---------- Info Sections ---------- */

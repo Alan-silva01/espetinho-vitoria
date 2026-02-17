@@ -4,7 +4,7 @@ import {
     Bike, LogOut, CheckCircle,
     MapPin, Phone, Info, Clock,
     Smartphone, Wallet, CreditCard, MessageCircle, X,
-    Package, ChevronRight
+    Package, ChevronRight, Navigation2
 } from 'lucide-react'
 import { useDriverAuth } from '../../hooks/useDriverAuth'
 import { supabase } from '../../lib/supabase'
@@ -19,6 +19,11 @@ function getAddressString(endereco) {
     if (endereco.numero) parts.push(endereco.numero)
     if (endereco.bairro) parts.push(`- ${endereco.bairro}`)
     return parts.join(', ') || 'Endereço não informado'
+}
+
+function getGoogleMapsLink(endereco) {
+    if (!endereco || typeof endereco === 'string') return null
+    return endereco.google_maps_link || null
 }
 
 function getPaymentLabel(forma) {
@@ -260,6 +265,18 @@ export default function DriverDashboard() {
                                     <div className="card-address-row">
                                         <MapPin size={14} />
                                         <span>{getAddressString(order.endereco)}</span>
+                                        {getGoogleMapsLink(order.endereco) && (
+                                            <a
+                                                href={getGoogleMapsLink(order.endereco)}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="btn-ver-rota-mini"
+                                                onClick={e => e.stopPropagation()}
+                                            >
+                                                <Navigation2 size={12} />
+                                                Rota
+                                            </a>
+                                        )}
                                     </div>
 
                                     {/* Items summary */}
@@ -365,7 +382,7 @@ export default function DriverDashboard() {
                                     </div>
                                 </div>
 
-                                {/* Contact */}
+                                {/* Contact + Route */}
                                 <div className="contact-actions">
                                     <a
                                         href={`tel:${selectedOrder.telefone_cliente?.replace(/\D/g, '')}`}
@@ -383,6 +400,17 @@ export default function DriverDashboard() {
                                         <MessageCircle size={18} />
                                         WhatsApp
                                     </a>
+                                    {getGoogleMapsLink(selectedOrder.endereco) && (
+                                        <a
+                                            href={getGoogleMapsLink(selectedOrder.endereco)}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="contact-btn route"
+                                        >
+                                            <Navigation2 size={18} />
+                                            Ver Rota
+                                        </a>
+                                    )}
                                 </div>
 
                                 {/* Payment + Value */}
