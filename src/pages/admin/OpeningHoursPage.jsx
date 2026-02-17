@@ -60,7 +60,7 @@ export default function OpeningHoursPage() {
     }
 
     async function handleTestNotification() {
-        if (!confirm('Deseja enviar uma notificação de "Loja Aberta" para todos os clientes agora?')) return
+        if (!confirm('Deseja enviar uma notificação de "Espetinho Aberto" para todos os clientes agora?')) return
 
         setSaving(true)
         try {
