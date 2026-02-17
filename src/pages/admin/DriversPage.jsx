@@ -24,6 +24,7 @@ export default function DriversPage() {
     const [isAddOpen, setIsAddOpen] = useState(false)
     const [newDriver, setNewDriver] = useState({ nome: '', telefone: '', email: '', senha: '' })
     const [saving, setSaving] = useState(false)
+    const [showSuccessModal, setShowSuccessModal] = useState({ open: false, nome: '' })
 
 
     // Helper: 11 digits (99991372552) -> 559991372552@s.whatsapp.net (removed index 3 extra 9)
@@ -184,8 +185,9 @@ export default function DriversPage() {
             if (deleteError) throw deleteError
 
             setDrivers(prev => prev.filter(d => d.id !== deleteConfirm.id))
+            const deletedNome = deleteConfirm.nome
             setDeleteConfirm({ open: false, id: null, nome: '' })
-            alert('Entregador excluído com sucesso!')
+            setShowSuccessModal({ open: true, nome: deletedNome })
         } catch (err) {
             console.error('Erro ao excluir entregador:', err)
             alert('Erro ao excluir entregador: ' + err.message)
@@ -456,6 +458,25 @@ export default function DriversPage() {
                                 {saving ? 'Excluindo...' : 'Sim, Excluir'}
                             </button>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal de Sucesso na Exclusão */}
+            {showSuccessModal.open && (
+                <div className="admin-modal-overlay">
+                    <div className="modal-success animate-scale-in">
+                        <div className="success-icon-box">
+                            <CheckCircle2 size={32} />
+                        </div>
+                        <h2>Excluído com Sucesso!</h2>
+                        <p>O entregador <strong>{showSuccessModal.nome}</strong> foi removido do sistema.</p>
+                        <button
+                            className="btn-success-ok"
+                            onClick={() => setShowSuccessModal({ open: false, nome: '' })}
+                        >
+                            Entendido
+                        </button>
                     </div>
                 </div>
             )}
