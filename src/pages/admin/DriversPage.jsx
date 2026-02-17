@@ -123,8 +123,18 @@ export default function DriversPage() {
         try {
             console.log('[DriversPage] Iniciando cadastro...', newDriver)
             // 1. Criar usuário no Supabase Auth usando um cliente temporário
+            // Isolamos completamente para evitar que o Admin seja deslogado
             const tempSupabase = createClient(supabaseUrl, supabaseAnonKey, {
-                auth: { persistSession: false }
+                auth: {
+                    persistSession: false,
+                    autoRefreshToken: false,
+                    detectSessionInUrl: false,
+                    storage: {
+                        getItem: () => null,
+                        setItem: () => { },
+                        removeItem: () => { },
+                    }
+                }
             })
 
             console.log('[DriversPage] Chamando signUp...')
