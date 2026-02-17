@@ -169,7 +169,8 @@ export default function ProductPage() {
 
 
     const getValidationMessage = () => {
-        if (product?.quantidade_disponivel === 0) return 'Esgotado'
+        const isEsgotado = !product?.disponivel || (product?.controlar_estoque && product?.quantidade_disponivel <= 0)
+        if (isEsgotado) return 'Esgotado'
 
         if (!isSelectionValid && product?.opcoes_personalizacao) {
             const missingGroup = product.opcoes_personalizacao.find(group => {
@@ -256,8 +257,7 @@ export default function ProductPage() {
 
     return (
         <div className="product-page">
-            {/* Hero Image */}
-            <header className="product-hero">
+            <header className={`product-hero ${(!product.disponivel || (product.controlar_estoque && product.quantidade_disponivel <= 0)) ? 'product-hero--esgotado' : ''}`}>
                 <OptimizedImage
                     src={getImageUrl(product.imagem_url) || 'https://via.placeholder.com/600x400?text=🍖'}
                     alt={product.nome}
@@ -268,7 +268,7 @@ export default function ProductPage() {
                 />
                 <div className="product-hero__overlay" />
                 <div className="product-hero__gradient" />
-                {product.quantidade_disponivel === 0 && (
+                {(!product.disponivel || (product.controlar_estoque && product.quantidade_disponivel <= 0)) && (
                     <div className="product-hero__out-badge">PRODUTO ESGOTADO</div>
                 )}
                 {/* Top Nav */}
@@ -467,6 +467,7 @@ export default function ProductPage() {
                     <button
                         className="product-footer__qty-btn"
                         onClick={() => setQty(Math.max(1, qty - 1))}
+                        disabled={!product.disponivel || (product.controlar_estoque && product.quantidade_disponivel <= 0)}
                     >
                         <Minus size={16} />
                     </button>
@@ -474,6 +475,7 @@ export default function ProductPage() {
                     <button
                         className="product-footer__qty-btn product-footer__qty-btn--plus"
                         onClick={() => setQty(qty + 1)}
+                        disabled={!product.disponivel || (product.controlar_estoque && product.quantidade_disponivel <= 0)}
                     >
                         <Plus size={16} />
                     </button>
@@ -481,11 +483,11 @@ export default function ProductPage() {
                 <button
                     className="product-footer__add"
                     onClick={handleAdd}
-                    disabled={product.quantidade_disponivel === 0 || !isSelectionValid}
-                    style={(product.quantidade_disponivel === 0 || !isSelectionValid) ? { background: '#9CA3AF', cursor: 'not-allowed' } : {}}
+                    disabled={!product.disponivel || (product.controlar_estoque && product.quantidade_disponivel <= 0) || !isSelectionValid}
+                    style={(!product.disponivel || (product.controlar_estoque && product.quantidade_disponivel <= 0) || !isSelectionValid) ? { background: '#9CA3AF', cursor: 'not-allowed' } : {}}
                 >
                     <span>{getValidationMessage()}</span>
-                    {product.quantidade_disponivel > 0 && isSelectionValid && (
+                    {product.disponivel && (!product.controlar_estoque || product.quantidade_disponivel > 0) && isSelectionValid && (
                         <div className="product-footer__add-total">
                             <span className="product-footer__add-label">Total</span>
                             <span>{formatCurrency(totalPrice)}</span>
