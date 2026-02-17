@@ -102,7 +102,7 @@ export default function CartPage() {
             // Fallback to store config if we had it, but for now use 0 or a default
             setTaxaEntrega(5.0) // Temporary fallback, will improve with useStore later if needed
         }
-    }, [tipoPedido, addressData.neighborhood, freightFees])
+    }, [tipoPedido, addressData.bairro, freightFees])
 
     const total = subtotal + taxaEntrega
 
@@ -627,7 +627,7 @@ export default function CartPage() {
                         <div className="bottom-sheet__handle" />
                         <div className="validation-content">
                             <div className="validation-icon">
-                                <MapPinOff size={48} color="var(--cor-primaria)" />
+                                <MapPin size={48} color="var(--cor-primaria)" />
                             </div>
                             <h3>Endereço não informado</h3>
                             <p>Por favor, insira seu endereço para entrega para continuar com o pedido.</p>

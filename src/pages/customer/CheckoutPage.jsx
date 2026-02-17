@@ -82,6 +82,7 @@ export default function CheckoutPage() {
                 return {
                     rua: data.rua || data.street || '',
                     numero: data.numero || data.number || '',
+                    bairro: data.bairro || data.neighborhood || '',
                     referencia: data.referencia || data.reference || '',
                     nome_recebedor: data.nome_recebedor || data.receiverName || '',
                     telefone_recebedor: data.telefone_recebedor || data.receiverPhone || '',
