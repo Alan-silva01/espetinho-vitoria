@@ -10,10 +10,12 @@ export function useDriverAuth() {
         // Initialize from session
         const initSession = async () => {
             try {
-                const { data: { session } } = await supabase.auth.getSession()
-                if (session?.user) {
-                    await fetchDriverProfile(session.user.id)
+                const { data, error } = await supabase.auth.getSession()
+                if (data?.session?.user) {
+                    await fetchDriverProfile(data.session.user.id)
                 }
+            } catch (err) {
+                console.error('[useDriverAuth] Erro ao buscar sessão:', err)
             } finally {
                 setInitializing(false)
             }

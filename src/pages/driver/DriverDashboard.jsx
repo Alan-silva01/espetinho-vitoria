@@ -19,25 +19,6 @@ export default function DriverDashboard() {
     const [receivedValor, setReceivedValor] = useState('')
     const [savingPayment, setSavingPayment] = useState(false)
 
-    useEffect(() => {
-        if (driver?.id) {
-            fetchDriverOrders()
-
-            const channel = supabase
-                .channel('driver_orders')
-                .on(
-                    'postgres_changes',
-                    { event: '*', schema: 'public', table: 'pedidos', filter: 'tipo_pedido=eq.entrega' },
-                    () => fetchDriverOrders()
-                )
-                .subscribe()
-
-            return () => {
-                supabase.removeChannel(channel)
-            }
-        }
-    }, [driver, fetchDriverOrders])
-
     const fetchDriverOrders = useCallback(async () => {
         if (!driver?.id) return
 
@@ -69,6 +50,37 @@ export default function DriverDashboard() {
             setLoading(false)
         }
     }, [driver])
+
+    useEffect(() => {
+        let channel = null
+        if (driver?.id) {
+            fetchDriverOrders()
+
+            try {
+                channel = supabase
+                    .channel(`driver_orders_${driver.id}`)
+                    .on(
+                        'postgres_changes',
+                        { event: '*', schema: 'public', table: 'pedidos', filter: 'tipo_pedido=eq.entrega' },
+                        () => {
+                            console.log('[Dashboard] Mudança detectada, atualizando...')
+                            fetchDriverOrders()
+                        }
+                    )
+                    .subscribe((status) => {
+                        console.log('[Dashboard] Status Realtime:', status)
+                    })
+            } catch (err) {
+                console.error('[Dashboard] Erro ao iniciar Realtime:', err)
+            }
+
+            return () => {
+                if (channel) {
+                    supabase.removeChannel(channel)
+                }
+            }
+        }
+    }, [driver, fetchDriverOrders])
 
     const handleFinishDelivery = (order) => {
         setReceivedValor(order.valor_total.toString())
@@ -113,8 +125,8 @@ export default function DriverDashboard() {
     if (!driver && !initializing) return <Navigate to="/entregador/login" replace />
 
     try {
-        const pendingOrders = orders.filter(o => o.status === 'saiu_entrega')
-        const completedOrders = orders.filter(o => o.status === 'entregue')
+        const pendingOrders = Array.isArray(orders) ? orders.filter(o => o?.status === 'saiu_entrega') : []
+        const completedOrders = Array.isArray(orders) ? orders.filter(o => o?.status === 'entregue') : []
 
         return (
             <div className="driver-dashboard-container">
@@ -302,9 +314,9 @@ export default function DriverDashboard() {
                                         <p>
                                             <strong>{typeof selectedOrder.endereco === 'string'
                                                 ? selectedOrder.endereco
-                                                : `${selectedOrder.endereco?.rua || ''}, ${selectedOrder.endereco?.numero || ''}`}</strong>
+                                                : (selectedOrder.endereco ? `${selectedOrder.endereco.rua || ''}, ${selectedOrder.endereco.numero || ''}` : 'Endereço não informado')}</strong>
                                         </p>
-                                        <p>{selectedOrder.endereco?.bairro}</p>
+                                        {selectedOrder.endereco?.bairro && <p>{selectedOrder.endereco.bairro}</p>}
                                         {selectedOrder.endereco?.referencia && (
                                             <p className="ref-text"><span>Ref:</span> {selectedOrder.endereco.referencia}</p>
                                         )}
@@ -333,14 +345,14 @@ export default function DriverDashboard() {
                                 <div className="info-section">
                                     <label><Info size={14} /> Itens do Pedido</label>
                                     <div className="items-list">
-                                        {selectedOrder.itens?.map((item, idx) => (
+                                        {Array.isArray(selectedOrder.itens) && selectedOrder.itens.map((item, idx) => (
                                             <div key={idx} className="item-row">
                                                 <span className="item-qty">{item.quantidade}x</span>
                                                 <div className="item-details">
                                                     <span className="item-name">{item.nome}</span>
                                                     {item.personalizacao && (
                                                         <span className="item-extras">
-                                                            {Object.values(item.personalizacao).flat().join(', ')}
+                                                            {Object.values(item.personalizacao).flat().filter(Boolean).join(', ')}
                                                         </span>
                                                     )}
                                                     {item.observacoes && (
@@ -379,6 +391,27 @@ export default function DriverDashboard() {
         )
     } catch (err) {
         console.error('Critical Render Error:', err)
-        return <div style={{ padding: 20 }}>Erro ao carregar o dashboard: {err.message}</div>
+        return (
+            <div className="driver-dashboard-container" style={{ padding: '20px', textAlign: 'center' }}>
+                <div className="driver-order-card" style={{ padding: '30px', marginTop: '40px' }}>
+                    <X size={48} color="#B91C1C" style={{ margin: '0 auto 20px' }} />
+                    <h3 style={{ color: '#1F2937', marginBottom: '10px' }}>Ops! Algo deu errado</h3>
+                    <p style={{ color: '#6B7280', fontSize: '14px', marginBottom: '20px' }}>
+                        Não conseguimos carregar o painel agora. Tente recarregar a página.
+                    </p>
+                    <button
+                        onClick={() => window.location.reload()}
+                        className="btn-finish-large"
+                    >
+                        Recarregar Página
+                    </button>
+                    {import.meta.env.DEV && (
+                        <pre style={{ marginTop: '20px', fontSize: '10px', color: '#EF4444', overflow: 'auto', textAlign: 'left' }}>
+                            {err.message}
+                        </pre>
+                    )}
+                </div>
+            </div>
+        )
     }
 }

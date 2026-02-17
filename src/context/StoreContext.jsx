@@ -49,9 +49,10 @@ export function StoreProvider({ children }) {
                 if (status === 'SUBSCRIBED') {
                     console.log('[StoreContext] Conexão Realtime estabelecida com sucesso!')
                 }
+                // Evitamos loop infinito de re-fetch se a conexão estiver instável
                 if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
-                    console.warn('[StoreContext] Problema na conexão Realtime, tentando re-fetch...')
-                    fetchStoreStatus()
+                    console.warn('[StoreContext] Problema na conexão Realtime.')
+                    // O heartbeat de 30s já servirá como fallback seguro
                 }
             })
 
@@ -79,8 +80,11 @@ export function StoreProvider({ children }) {
         }
 
         // 3. Time-based Logic (Brasília Time)
-        const brTimeStr = new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' })
+        const now = new Date()
+        const brTimeStr = now.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' })
         const brTime = new Date(brTimeStr)
+
+        if (isNaN(brTime.getTime())) return null // Fallback se falhar a data
         const currentDay = brTime.getDay()
         const currentTime = brTime.getHours().toString().padStart(2, '0') + ':' +
             brTime.getMinutes().toString().padStart(2, '0') + ':00'
@@ -95,10 +99,10 @@ export function StoreProvider({ children }) {
                 const { horario_abertura, horario_fechamento } = daySchedule
 
                 if (i === 0) {
-                    if (currentTime >= horario_abertura && currentTime <= horario_fechamento) {
+                    if (horario_abertura && horario_fechamento && currentTime >= horario_abertura && currentTime <= horario_fechamento) {
                         return null
                     }
-                    if (currentTime < horario_abertura) {
+                    if (horario_abertura && currentTime < horario_abertura) {
                         return {
                             type: 'future_opening',
                             message: `Abrimos hoje às ${horario_abertura.slice(0, 5)}`,
@@ -106,17 +110,21 @@ export function StoreProvider({ children }) {
                         }
                     }
                 } else if (i === 1) {
-                    return {
-                        type: 'future_opening',
-                        message: `Abrimos amanhã às ${horario_abertura.slice(0, 5)}`,
-                        openTime: horario_abertura.slice(0, 5)
+                    if (horario_abertura) {
+                        return {
+                            type: 'future_opening',
+                            message: `Abrimos amanhã às ${horario_abertura.slice(0, 5)}`,
+                            openTime: horario_abertura.slice(0, 5)
+                        }
                     }
                 } else {
                     const diaNome = diasNomes[checkDayIndex]
-                    return {
-                        type: 'future_opening',
-                        message: `Abrimos ${diaNome} às ${horario_abertura.slice(0, 5)}`,
-                        openTime: horario_abertura.slice(0, 5)
+                    if (horario_abertura) {
+                        return {
+                            type: 'future_opening',
+                            message: `Abrimos ${diaNome} às ${horario_abertura.slice(0, 5)}`,
+                            openTime: horario_abertura.slice(0, 5)
+                        }
                     }
                 }
             }
