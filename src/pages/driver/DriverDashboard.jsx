@@ -52,7 +52,7 @@ function getItemsSummary(itens) {
 export default function DriverDashboard() {
     const { driver, logout, loading: authLoading, initializing } = useDriverAuth()
     const [orders, setOrders] = useState([])
-    const [loading, setLoading] = useState(true)
+    const [loading, setLoading] = useState(false)
     const [selectedOrder, setSelectedOrder] = useState(null)
     const [paymentModal, setPaymentModal] = useState({ open: false, order: null })
     const [receivedValor, setReceivedValor] = useState('')
@@ -61,6 +61,7 @@ export default function DriverDashboard() {
     const fetchDriverOrders = useCallback(async () => {
         if (!driver?.id) return
 
+        setLoading(true)
         try {
             const now = new Date()
             const brTimeStr = now.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' })

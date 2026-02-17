@@ -1,39 +1,52 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 
 export function useDriverAuth() {
     const [driver, setDriver] = useState(null)
     const [loading, setLoading] = useState(false)
     const [initializing, setInitializing] = useState(true)
+    const initializedRef = useRef(false)
 
     useEffect(() => {
-        // Initialize from session
+        let cancelled = false
+
         const initSession = async () => {
             try {
-                const { data, error } = await supabase.auth.getSession()
-                if (data?.session?.user) {
+                const { data } = await supabase.auth.getSession()
+                if (!cancelled && data?.session?.user) {
                     await fetchDriverProfile(data.session.user.id)
                 }
             } catch (err) {
                 console.error('[useDriverAuth] Erro ao buscar sessão:', err)
             } finally {
-                setInitializing(false)
+                if (!cancelled) {
+                    initializedRef.current = true
+                    setInitializing(false)
+                }
             }
         }
 
         initSession()
 
-        // Listen for auth changes
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+            if (!initializedRef.current) return
+
+            if (event === 'SIGNED_OUT') {
+                setDriver(null)
+                return
+            }
+
             if (session?.user) {
                 await fetchDriverProfile(session.user.id)
             } else {
                 setDriver(null)
             }
-            setInitializing(false)
         })
 
-        return () => subscription.unsubscribe()
+        return () => {
+            cancelled = true
+            subscription.unsubscribe()
+        }
     }, [])
 
     async function fetchDriverProfile(authUserId) {
