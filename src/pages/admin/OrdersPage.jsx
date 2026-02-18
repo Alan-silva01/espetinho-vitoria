@@ -129,12 +129,21 @@ export default function OrdersPage() {
                         return
                     }
 
+                    // Sound highlights for specific comanda events
+                    const isNewItemAdded = payload.new.valor_total > (oldOrder?.valor_total || 0)
+                    const isClosingRequested = payload.new.comanda_status === 'fechamento_solicitado' && oldOrder?.comanda_status !== 'fechamento_solicitado'
+
+                    if (isNewItemAdded || isClosingRequested) {
+                        console.log('[Realtime] Comanda event detected, playing sound...')
+                        playNotificationSound()
+                    }
+
                     // Merged orders for comanda: if status moves back to 'confirmado' OR total changes, 
                     // we likely have new items that payload.new doesn't include.
-                    const needsFullFetch = payload.new.status === 'confirmado' || payload.new.valor_total !== oldOrder?.valor_total
+                    const needsFullFetch = payload.new.status === 'confirmado' || isNewItemAdded || isClosingRequested
 
                     if (needsFullFetch) {
-                        console.log('[Realtime] Order updated with new items/status, re-fetching list...')
+                        console.log('[Realtime] Order updated, re-fetching list...')
                         setTimeout(() => fetchOrders(true), 1000)
                         return
                     }
