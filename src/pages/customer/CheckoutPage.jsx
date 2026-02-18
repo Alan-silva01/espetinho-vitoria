@@ -48,7 +48,9 @@ export default function CheckoutPage() {
                     telefone_recebedor: data.telefone_recebedor || data.receiverPhone || '',
                     google_maps_link: data.google_maps_link || ''
                 }
-            } catch { }
+            } catch {
+                // Ignore parsing errors
+            }
         }
         return {
             rua: '',
@@ -130,9 +132,7 @@ export default function CheckoutPage() {
         }
     }, [customer, addressData])
 
-    const enderecoCompleto = addressData.rua
-        ? `${addressData.rua}, ${addressData.numero} - ${addressData.bairro}${addressData.referencia ? ` (${addressData.referencia})` : ''}`
-        : null
+
 
     const hasAddress = !!(addressData.rua && addressData.nome_recebedor)
 
@@ -158,6 +158,12 @@ export default function CheckoutPage() {
                     ? nomeRetirada
                     : (addressData.nome_recebedor || '')
 
+            let comandaId = localStorage.getItem('espetinho_comanda_id')
+            if (tipoPedido === 'mesa' && !comandaId) {
+                comandaId = crypto.randomUUID()
+                localStorage.setItem('espetinho_comanda_id', comandaId)
+            }
+
             const orderData = {
                 nome_cliente: nomeCliente,
                 telefone_cliente: tipoPedido === 'mesa' ? '' : (addressData.telefone_recebedor || ''),
@@ -171,6 +177,9 @@ export default function CheckoutPage() {
                 endereco: tipoPedido === 'entrega' ? addressData : null,
                 observacoes: tipoPedido === 'mesa' ? `Mesa ${mesaNumero}${observacoes ? ' | ' + observacoes : ''}` : observacoes,
                 mesa_id: mesaId || null,
+                comanda_id: comandaId || null,
+                pago: false,
+                comanda_status: comandaId ? 'aberta' : null,
                 itens: items,
                 cliente_id: customer?.id || null,
                 codigo_cliente: customerCode

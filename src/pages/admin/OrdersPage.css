@@ -981,3 +981,99 @@
         font-size: 11px;
     }
 }
+
+/* Comanda Management Styles */
+.closing-alert-badge {
+    background: #FF0000;
+    color: white;
+    font-size: 10px;
+    font-weight: 900;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 8px;
+    animation: blinker 1.5s linear infinite;
+}
+
+@keyframes blinker {
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.comanda-header-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.comanda-header-row h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 800;
+    color: #111827;
+}
+
+.comanda-status-tag {
+    padding: 4px 12px;
+    border-radius: 99px;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.comanda-status-tag.aberta {
+    background: #ECFDF5;
+    color: #059669;
+}
+
+.comanda-status-tag.fechamento_solicitado {
+    background: #FFFBEB;
+    color: #D97706;
+    border: 1px solid #F59E0B;
+}
+
+.comanda-status-tag.paga {
+    background: #F3F4F6;
+    color: #4B5563;
+}
+
+.comanda-items-grouped {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 16px;
+}
+
+.comanda-order-mini {
+    font-size: 14px;
+    color: #374151;
+}
+
+.btn-finalize-comanda {
+    margin-top: 20px;
+    width: 100%;
+    background: #059669;
+    color: white;
+    border: none;
+    padding: 16px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+    box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.4);
+}
+
+.btn-finalize-comanda:hover {
+    background: #047857;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px -2px rgba(5, 150, 105, 0.4);
+}
+
+.btn-finalize-comanda:active {
+    transform: translateY(0);
+}

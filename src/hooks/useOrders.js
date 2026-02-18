@@ -68,6 +68,9 @@ export function useOrders() {
                     endereco: orderData.endereco,
                     observacoes: orderData.observacoes,
                     mesa_id: orderData.mesa_id || null,
+                    comanda_id: orderData.comanda_id || null,
+                    pago: orderData.pago || false,
+                    comanda_status: orderData.comanda_status || (orderData.comanda_id ? 'aberta' : null),
                     status: 'confirmado',
                 })
                 .select()
@@ -141,7 +144,62 @@ export function useOrders() {
         }
     }
 
-    return { orders, loading, createOrder }
+    async function requestComandaClosing(comandaId) {
+        if (!comandaId) return
+        setLoading(true)
+        try {
+            const { error } = await supabase
+                .from('pedidos')
+                .update({ comanda_status: 'fechamento_solicitado' })
+                .eq('comanda_id', comandaId)
+            if (error) throw error
+        } catch (err) {
+            console.error('Erro ao solicitar fechamento:', err)
+            throw err
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    async function finalizeComanda(comandaId) {
+        if (!comandaId) return
+        setLoading(true)
+        try {
+            const { error } = await supabase
+                .from('pedidos')
+                .update({ comanda_status: 'paga', pago: true })
+                .eq('comanda_id', comandaId)
+            if (error) throw error
+        } catch (err) {
+            console.error('Erro ao finalizar comanda:', err)
+            throw err
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    return { orders, loading, createOrder, requestComandaClosing, finalizeComanda }
+}
+
+export async function getActiveComanda(mesaId) {
+    if (!mesaId) return null
+    try {
+        const { data, error } = await supabase
+            .from('pedidos')
+            .select('comanda_id')
+            .eq('mesa_id', mesaId)
+            .eq('pago', false)
+            .not('comanda_id', 'is', null)
+            .order('criado_em', { ascending: false })
+            .limit(1)
+            .maybeSingle()
+
+        if (error) throw error
+        return data?.comanda_id || null
+    } catch (err) {
+        console.error('Erro ao buscar comanda ativa:', err)
+        return null
+    }
 }
 
 export function useOrderTracking(orderId) {
@@ -271,3 +329,58 @@ export function useCustomerOrders(clienteId) {
     return { orders, loading }
 }
 
+
+export function useComanda(comandaId) {
+    const [orders, setOrders] = useState([])
+    const [loading, setLoading] = useState(true)
+
+    const fetchOrders = async () => {
+        if (!comandaId) {
+            setLoading(false)
+            return
+        }
+        try {
+            const { data, error } = await supabase
+                .from('pedidos')
+                .select('*, itens_pedido(*, produtos(nome, imagem_url), variacoes_produto(nome))')
+                .eq('comanda_id', comandaId)
+                .order('criado_em', { ascending: true })
+
+            if (error) throw error
+            setOrders(data || [])
+        } catch (err) {
+            console.error('Erro ao buscar pedidos da comanda:', err)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    useEffect(() => {
+        fetchOrders()
+
+        const channel = supabase
+            .channel(`comanda-${comandaId}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'pedidos',
+                    filter: `comanda_id=eq.${comandaId}`,
+                },
+                () => {
+                    fetchOrders()
+                }
+            )
+            .subscribe()
+
+        return () => {
+            supabase.removeChannel(channel)
+        }
+    }, [comandaId])
+
+    const total = orders.reduce((acc, order) => acc + (order.pago ? 0 : order.valor_total), 0)
+    const status = orders[0]?.comanda_status || 'aberta'
+
+    return { orders, total, status, loading, refresh: fetchOrders }
+}

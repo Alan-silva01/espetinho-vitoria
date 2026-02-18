@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import Loading from '../../components/ui/Loading'
+import { getActiveComanda } from '../../hooks/useOrders'
 
 export default function TableMenuPage() {
     const { numeroMesa } = useParams()
@@ -32,10 +33,19 @@ export default function TableMenuPage() {
                 return
             }
 
+            // Verificando se já existe uma comanda ativa para esta mesa
+            const activeComandaId = await getActiveComanda(data.id)
+
             // Salvar dados da mesa no localStorage
             localStorage.setItem('espetinho_tipo_pedido', 'mesa')
             localStorage.setItem('espetinho_mesa_id', data.id)
             localStorage.setItem('espetinho_mesa_numero', String(data.numero))
+
+            if (activeComandaId) {
+                localStorage.setItem('espetinho_comanda_id', activeComandaId)
+            } else {
+                localStorage.removeItem('espetinho_comanda_id')
+            }
 
             // Redirecionar para o cardápio
             navigate('/', { replace: true })

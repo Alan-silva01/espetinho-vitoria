@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { ArrowLeft, Phone, MessageSquare, Headphones, ChevronDown, ChevronUp, Package } from 'lucide-react'
-import { useOrderTracking } from '../../hooks/useOrders'
+import { ArrowLeft, Phone, MessageSquare, Headphones, ChevronDown, ChevronUp, Package, Plus, Receipt } from 'lucide-react'
+import { useOrderTracking, useComanda, useOrders } from '../../hooks/useOrders'
 import Loading from '../../components/ui/Loading'
 import { getStatusLabel, formatCurrency } from '../../lib/utils'
 import './TrackingPage.css'
@@ -23,8 +23,13 @@ const STATUS_INDEX = {
 export default function TrackingPage() {
     const { id } = useParams()
     const navigate = useNavigate()
-    const { order, loading } = useOrderTracking(id)
+    const { order, loading: orderLoading } = useOrderTracking(id)
+    const { orders: comandaOrders, total: comandaTotal, status: comandaStatus, loading: comandaLoading } = useComanda(order?.comanda_id)
+    const { requestComandaClosing } = useOrders()
     const [showDetails, setShowDetails] = useState(false)
+    const [requestingClose, setRequestingClose] = useState(false)
+
+    const loading = orderLoading || (order?.tipo_pedido === 'mesa' && comandaLoading)
 
     if (loading) return <Loading fullScreen text="Carregando pedido..." />
     if (!order) return <div style={{ padding: 40, textAlign: 'center' }}>Pedido não encontrado</div>
@@ -86,6 +91,64 @@ export default function TrackingPage() {
                         </div>
                     </div>
                 </div>
+
+                {/* Comanda Summary (Mesa Only) */}
+                {isMesa && order.comanda_id && (
+                    <div className="tracking-comanda-card animate-slide-down">
+                        <div className="tracking-comanda-header">
+                            <div className="tracking-comanda-header__info">
+                                <Receipt size={20} color="var(--cor-primaria)" />
+                                <div>
+                                    <h3>Sua Comanda</h3>
+                                    <span className="tracking-comanda-header__table">Mesa {order.nome_cliente.replace('Mesa ', '')}</span>
+                                </div>
+                            </div>
+                            <span className={`comanda-status-pill comanda-status-pill--${comandaStatus}`}>
+                                {comandaStatus === 'fechamento_solicitado' ? 'Aguardando Garçom' :
+                                    comandaStatus === 'paga' ? 'Paga' : 'Em Aberto'}
+                            </span>
+                        </div>
+
+                        <div className="tracking-comanda-total">
+                            <span className="tracking-comanda-total__label">Total Acumulado</span>
+                            <div className="tracking-comanda-total__value">
+                                <span>{formatCurrency(comandaTotal)}</span>
+                                <small>{comandaOrders?.filter(o => !o.pago).length} pedidos ativos</small>
+                            </div>
+                        </div>
+
+                        <div className="tracking-comanda-actions">
+                            <button
+                                className="btn-comanda btn-comanda--new"
+                                onClick={() => navigate('/')}
+                                disabled={comandaStatus === 'paga'}
+                            >
+                                <Plus size={18} /> Pedir Mais
+                            </button>
+
+                            {comandaStatus === 'aberta' && (
+                                <button
+                                    className="btn-comanda btn-comanda--close"
+                                    onClick={async () => {
+                                        if (confirm('Deseja solicitar o fechamento da conta?')) {
+                                            setRequestingClose(true)
+                                            try {
+                                                await requestComandaClosing(order.comanda_id)
+                                            } catch {
+                                                alert('Erro ao solicitar fechamento. Tente novamente.')
+                                            } finally {
+                                                setRequestingClose(false)
+                                            }
+                                        }
+                                    }}
+                                    disabled={requestingClose}
+                                >
+                                    {requestingClose ? 'Solicitando...' : 'Fechar Conta'}
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                )}
 
                 {/* Order Number */}
                 <div className="tracking-order-bar">

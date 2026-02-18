@@ -7,12 +7,56 @@ import {
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { formatCurrency } from '../../lib/utils'
+import { useOrders, useComanda } from '../../hooks/useOrders'
 import './OrdersPage.css'
 
 // Importando a logo para garantir que ela esteja disponível para o print
 import logoImg from '../../../logo.png'
 
 let _ordersCache = null
+
+function ComandaSummary({ comandaId, onFinalize }) {
+    const { orders, total, status, loading } = useComanda(comandaId)
+
+    if (loading || !orders.length) return null
+
+    return (
+        <div className="v4-comanda-summary">
+            <div className="v4-info-box" style={{ border: '2px solid var(--cor-primaria)', background: 'rgba(196,30,46,0.02)' }}>
+                <div className="comanda-header-row">
+                    <Receipt size={20} color="var(--cor-primaria)" />
+                    <h3>RESUMO DA COMANDA</h3>
+                    <span className={`comanda-status-tag ${status}`}>
+                        {status === 'fechamento_solicitado' ? 'SOLICITOU FECHAMENTO' :
+                            status === 'paga' ? 'PAGO' : 'ABERTA'}
+                    </span>
+                </div>
+
+                <div className="comanda-items-grouped">
+                    {orders.map((ord) => (
+                        <div key={ord.id} className="comanda-order-mini">
+                            <strong>Pedido #{ord.numero_pedido}:</strong> {formatCurrency(ord.valor_total)}
+                        </div>
+                    ))}
+                </div>
+
+                <div className="v4-total-row" style={{ marginTop: '12px', borderTop: '1px dashed #ddd', paddingTop: '8px' }}>
+                    <span>TOTAL DA COMANDA:</span>
+                    <span style={{ fontSize: '24px', color: 'var(--cor-primaria)' }}>{formatCurrency(total)}</span>
+                </div>
+
+                {status !== 'paga' && (
+                    <button
+                        className="btn-finalize-comanda"
+                        onClick={() => onFinalize(comandaId)}
+                    >
+                        <Check size={20} /> CONFIRMAR PAGAMENTO DA COMANDA
+                    </button>
+                )}
+            </div>
+        </div>
+    )
+}
 
 const STAGES = [
     { id: 'confirmado', label: 'Recebido', icon: AlertCircle, color: '#FBBF24', next: 'preparando', nextLabel: 'Iniciar Preparo' },
@@ -38,6 +82,7 @@ const getItemDisplayName = (item) => {
 }
 
 export default function OrdersPage() {
+    const { finalizeComanda } = useOrders()
     const [orders, setOrders] = useState(_ordersCache || [])
     const [loading, setLoading] = useState(!_ordersCache)
     const [selectedOrder, setSelectedOrder] = useState(null)
@@ -606,6 +651,11 @@ export default function OrdersPage() {
                                                     {order.tipo_pedido === 'entrega' ? <Bike size={10} /> : order.tipo_pedido === 'mesa' ? <Utensils size={10} /> : <Store size={10} />}
                                                     {order.tipo_pedido === 'mesa' ? order.nome_cliente : order.tipo_pedido}
                                                 </span>
+                                                {order.comanda_status === 'fechamento_solicitado' && (
+                                                    <span className="closing-alert-badge">
+                                                        FECHAR CONTA!
+                                                    </span>
+                                                )}
                                             </div>
 
                                             <div className="customer-row">
@@ -808,6 +858,20 @@ export default function OrdersPage() {
                                     </button>
                                 )}
                             </div>
+
+                            {selectedOrder.comanda_id && (
+                                <div style={{ padding: '0 24px 24px' }}>
+                                    <ComandaSummary
+                                        comandaId={selectedOrder.comanda_id}
+                                        onFinalize={async (cid) => {
+                                            if (confirm('Confirmar pagamento total desta comanda? Todos os pedidos serão marcados como pagos.')) {
+                                                await finalizeComanda(cid)
+                                                setSelectedOrder(null)
+                                            }
+                                        }}
+                                    />
+                                </div>
+                            )}
                         </div>
                     </div>
 
