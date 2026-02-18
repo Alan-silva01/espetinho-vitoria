@@ -25,6 +25,16 @@ const VALID_TRANSITIONS = Object.fromEntries(
     ALL_STAGES.map(stage => [stage, ALL_STAGES.filter(s => s !== stage)])
 )
 
+// Helper: build display name including variation (e.g. "Espetinho de Carne - Só a Carne")
+const getItemDisplayName = (item) => {
+    const baseName = item.produtos?.nome || 'Item'
+    const variationName = item.variacoes_produto?.nome
+    if (!variationName) return baseName
+    // Strip existing variation from product name if it's already embedded (e.g. "Espetinho de Carne – Completo")
+    const cleanBase = baseName.replace(/\s*[-–]\s*(Completo|Com .+|Só .+)$/i, '').trim()
+    return `${cleanBase} - ${variationName}`
+}
+
 export default function OrdersPage() {
     const [orders, setOrders] = useState([])
     const [loading, setLoading] = useState(true)
@@ -140,7 +150,8 @@ export default function OrdersPage() {
                     *,
                     itens:itens_pedido(
                         *,
-                        produtos(nome)
+                        produtos(nome),
+                        variacoes_produto(nome)
                     ),
                     clientes(telefone, nome)
                 `)
@@ -611,7 +622,7 @@ export default function OrdersPage() {
                                                     <div key={idx} className="item-detail-row">
                                                         <div className="item-main">
                                                             <span className="qnt">{item.quantidade}x</span>
-                                                            <span className="name">{item.produtos?.nome}</span>
+                                                            <span className="name">{getItemDisplayName(item)}</span>
                                                         </div>
                                                     </div>
                                                 ))}
@@ -680,7 +691,7 @@ export default function OrdersPage() {
                                         <div key={idx} className="v4-item-card">
                                             <div className="v4-item-main">
                                                 <span className="v4-item-qty">{item.quantidade}X</span>
-                                                <span className="v4-item-name">{item.produtos?.nome}</span>
+                                                <span className="v4-item-name">{getItemDisplayName(item)}</span>
                                             </div>
 
                                             {(item.personalizacao || item.observacoes) && (
@@ -866,7 +877,7 @@ export default function OrdersPage() {
                                             <tr key={i}>
                                                 <td>{item.quantidade}</td>
                                                 <td>
-                                                    <div>{item.produtos?.nome?.toUpperCase()}</div>
+                                                    <div>{getItemDisplayName(item)?.toUpperCase()}</div>
                                                     {item.personalizacao && typeof item.personalizacao === 'object' && Object.entries(item.personalizacao).map(([k, v]) => (
                                                         <div key={k} className="receipt-item-details">
                                                             - {k.toUpperCase()}: {String(v).toUpperCase()}
