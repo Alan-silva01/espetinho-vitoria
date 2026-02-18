@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, Heart, Share2, Minus, Plus, Check, ShoppingCart } from 'lucide-react'
+import { ArrowLeft, Heart, Minus, Plus, Check, ShoppingCart } from 'lucide-react'
 import { useProduct } from '../../hooks/useProducts'
 import { useCart } from '../../hooks/useCart'
 import { useFavorites } from '../../hooks/useFavorites'
@@ -322,7 +322,6 @@ export default function ProductPage() {
                                 </div>
                             )}
                         </button>
-                        <button className="product-hero__btn"><Share2 size={20} /></button>
                     </div>
                 </div>
             </header>

@@ -4,7 +4,7 @@ import {
     TrendingUp, ArrowUpRight, ArrowDownRight,
     Flame, Award, Clock, Receipt, Stars, Calendar,
     BarChart3, ChevronRight, MoreHorizontal,
-    Utensils, Truck, Check, Share2, Search, Bell
+    Utensils, Truck, Check, Search, Bell
 } from 'lucide-react'
 import {
     AreaChart, Area, XAxis, YAxis, Tooltip,
