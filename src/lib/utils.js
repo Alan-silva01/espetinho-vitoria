@@ -94,3 +94,13 @@ export function debounce(fn, ms = 300) {
         timer = setTimeout(() => fn(...args), ms)
     }
 }
+/**
+ * Normaliza uma string removendo acentos e convertendo para minúsculo
+ */
+export function normalizeString(str) {
+    if (!str) return ''
+    return str
+        .toLowerCase()
+        .normalize('NFD') // Decompõe caracteres acentuados (ex: 'á' -> 'a' + '´')
+        .replace(/[\u0300-\u036f]/g, '') // Remove os diacríticos (acentos)
+}

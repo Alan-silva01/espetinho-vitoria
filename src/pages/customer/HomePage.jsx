@@ -6,7 +6,7 @@ import { useCart } from '../../hooks/useCart'
 import { useStore } from '../../hooks/useStore'
 import { useCustomer } from '../../context/CustomerContext'
 import { useFavorites } from '../../hooks/useFavorites'
-import { formatCurrency, getImageUrl } from '../../lib/utils'
+import { formatCurrency, getImageUrl, normalizeString } from '../../lib/utils'
 import { supabase } from '../../lib/supabase'
 import Loading from '../../components/ui/Loading'
 import PromoMarquee from '../../components/customer/PromoMarquee'
@@ -63,7 +63,9 @@ export default function HomePage() {
 
     const filteredProducts = products.filter(p => {
         const matchCat = !activeCategory || p.categoria_id === activeCategory
-        const matchSearch = !search || p.nome.toLowerCase().includes(search.toLowerCase())
+        const normalizedSearch = normalizeString(search)
+        const normalizedName = normalizeString(p.nome)
+        const matchSearch = !search || normalizedName.includes(normalizedSearch)
         return matchCat && matchSearch
     })
 
