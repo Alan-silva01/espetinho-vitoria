@@ -24,7 +24,8 @@ export function useProducts() {
                 supabase
                     .from('produtos')
                     .select('*, categorias(nome, icone), variacoes_produto(*)')
-                    .order('ordem_exibicao'),
+                    .order('ordem_exibicao')
+                    .order('ordem_exibicao', { foreignTable: 'variacoes_produto', ascending: true }),
             ])
 
             if (catRes.error) {
@@ -135,6 +136,7 @@ export function useProduct(id) {
                     .from('produtos')
                     .select('*, categorias(nome, icone), variacoes_produto(*)')
                     .eq('id', id)
+                    .order('ordem_exibicao', { foreignTable: 'variacoes_produto', ascending: true })
                     .single()
 
                 if (error) throw error
