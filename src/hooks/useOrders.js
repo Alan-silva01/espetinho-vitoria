@@ -151,18 +151,21 @@ export function useOrderTracking(orderId) {
     useEffect(() => {
         if (!orderId) return
 
-        /* Initial fetch */
-        async function fetch() {
+        let isMounted = true
+
+        /* Fetch full order data */
+        async function fetchOrder() {
             const { data, error } = await supabase
                 .from('pedidos')
                 .select('*, itens_pedido(*, produtos(nome, imagem_url)), entregadores(nome, telefone)')
                 .eq('id', orderId)
                 .single()
 
-            if (!error) setOrder(data)
-            setLoading(false)
+            if (!error && isMounted) setOrder(data)
+            if (isMounted) setLoading(false)
         }
-        fetch()
+
+        fetchOrder()
 
         /* Realtime subscription */
         const channel = supabase
@@ -177,10 +180,8 @@ export function useOrderTracking(orderId) {
                 },
                 (payload) => {
                     console.log('[useOrderTracking] Pedido atualizado:', payload.new)
-                    if (payload.new) {
-                        setOrder(prev => ({ ...prev, ...payload.new }))
-                    } else {
-                        fetch() // Fallback to re-fetch if payload.new is missing
+                    if (payload.new && isMounted) {
+                        setOrder(prev => prev ? { ...prev, ...payload.new } : prev)
                     }
                 }
             )
@@ -188,8 +189,27 @@ export function useOrderTracking(orderId) {
                 console.log(`[useOrderTracking] Status inscricao (${orderId}):`, status)
             })
 
+        /* Visibility change: re-fetch when user returns to the tab/app */
+        function handleVisibilityChange() {
+            if (document.visibilityState === 'visible' && isMounted) {
+                console.log('[useOrderTracking] Tab visible again, re-fetching...')
+                fetchOrder()
+            }
+        }
+        document.addEventListener('visibilitychange', handleVisibilityChange)
+
+        /* Polling fallback: every 15s as safety net for dropped WebSocket */
+        const pollInterval = setInterval(() => {
+            if (document.visibilityState === 'visible' && isMounted) {
+                fetchOrder()
+            }
+        }, 15000)
+
         return () => {
+            isMounted = false
             supabase.removeChannel(channel)
+            document.removeEventListener('visibilitychange', handleVisibilityChange)
+            clearInterval(pollInterval)
         }
     }, [orderId])
 
