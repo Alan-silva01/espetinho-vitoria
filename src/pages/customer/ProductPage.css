@@ -222,18 +222,32 @@
     margin-bottom: 32px;
 }
 
-.product-section h3 {
-    font-family: var(--fonte-destaque);
-    font-size: 18px;
-    font-weight: 700;
-    margin-bottom: 16px;
-}
-
 .product-section__header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 16px;
+    gap: 12px;
+}
+
+.product-section__title {
+    font-family: var(--fonte-destaque);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--texto-principal);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.product-section__selected-value {
+    color: var(--cor-primaria);
+    font-weight: 600;
+    font-size: 14px;
 }
 
 .product-section__badge {

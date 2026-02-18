@@ -358,9 +358,6 @@ export default function ProductPage() {
                     <p className="product-info__desc">{product.descricao}</p>
 
                     <div className="product-info__price-container">
-                        {selectedFlavorLabel && (
-                            <span className="product-info__selected-label">{selectedFlavorLabel}</span>
-                        )}
                         <div className="product-info__price">{formatCurrency(unitPrice)}</div>
                     </div>
                 </div>
