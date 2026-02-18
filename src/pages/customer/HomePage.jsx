@@ -72,6 +72,29 @@ export default function HomePage() {
         toggleLike(productId)
     }, [toggleLike])
 
+    // Helper: find the same default variation used in ProductPage.jsx
+    const getDefaultVariation = (product) => {
+        if (!product.variacoes_produto || product.variacoes_produto.length === 0) return null
+
+        if (product.nome?.toLowerCase().includes('caldo')) {
+            return product.variacoes_produto.find(v => v.nome === '500ml') ||
+                product.variacoes_produto.find(v => v.nome === '300ml') ||
+                product.variacoes_produto[0]
+        }
+
+        if (product.categoria?.nome === 'Espetos' ||
+            product.nome?.toLowerCase().includes('espetinho') ||
+            product.nome?.toLowerCase().includes('medalhão') ||
+            product.nome?.toLowerCase().includes('carne')) {
+            return product.variacoes_produto.find(v => v.nome.toLowerCase().includes('completo')) ||
+                product.variacoes_produto[0]
+        }
+
+        // Default: find 300ml (like Açaí)
+        return product.variacoes_produto.find(v => v.nome === '300ml') ||
+            product.variacoes_produto[0]
+    }
+
     if (loading) return <Loading fullScreen text="Carregando cardápio..." />
 
     return (
@@ -186,24 +209,32 @@ export default function HomePage() {
                                         )}
                                     </button>
                                 </div>
-                                <h3 className="product-card__name">{product.nome}</h3>
+                                <h3 className="product-card__name">
+                                    {product.nome.replace(/\s*\(.*?\)\s*/g, ' ').trim()}
+                                </h3>
                                 <p className="product-card__desc">
                                     {product.descricao || product.categorias?.nome || ''}
                                 </p>
                                 <div className="product-card__footer">
                                     <div className="product-card__price-group">
-                                        {product.variacoes_produto?.length > 0 && (
-                                            <span className="product-card__variation-label">
-                                                {product.variacoes_produto[0].nome}
-                                            </span>
-                                        )}
-                                        <span className="product-card__price">
-                                            {formatCurrency(
-                                                product.variacoes_produto?.length > 0
-                                                    ? product.variacoes_produto[0].preco
-                                                    : product.preco
-                                            )}
-                                        </span>
+                                        {(() => {
+                                            const defaultVar = getDefaultVariation(product)
+                                            const isAcai = product.categoria?.nome === 'Açaí' || product.nome?.toLowerCase().includes('açaí')
+                                            const displayPrice = defaultVar ? defaultVar.preco : product.preco
+
+                                            return (
+                                                <>
+                                                    {isAcai && defaultVar && (
+                                                        <span className="product-card__variation-label">
+                                                            {defaultVar.nome}
+                                                        </span>
+                                                    )}
+                                                    <span className="product-card__price">
+                                                        {formatCurrency(displayPrice)}
+                                                    </span>
+                                                </>
+                                            )
+                                        })()}
                                     </div>
                                     <button
                                         className="product-card__add"
