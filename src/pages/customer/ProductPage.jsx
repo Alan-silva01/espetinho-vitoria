@@ -110,22 +110,6 @@ export default function ProductPage() {
 
     const customizations = product?.opcoes_personalizacao || []
 
-    // Helper: Find the selected flavor name (used for juices/caldos) to show above price
-    const selectedFlavorLabel = useMemo(() => {
-        if (!product?.opcoes_personalizacao) return null
-        // Groups that identify a "flavor" or "sabor"
-        const flavorGroup = product.opcoes_personalizacao.find(g =>
-            g.grupo?.toLowerCase().includes('sabor') ||
-            g.grupo?.toLowerCase().includes('fruta')
-        )
-        if (!flavorGroup) return null
-
-        const selected = selectedOptions[flavorGroup.grupo]
-        if (Array.isArray(selected)) {
-            return selected.length > 0 ? selected.join(', ') : null
-        }
-        return selected || null
-    }, [product, selectedOptions])
 
     // Calculate the unit price (base + extras) for the header display
     const unitPrice = useMemo(() => {
@@ -410,10 +394,15 @@ export default function ProductPage() {
                     const isOptional = group.tipo === 'radio'
                     const badgeText = hasPaid ? 'Selecione' : (isOptional ? 'Escolha 1' : 'Incluso')
 
+                    const selectedValue = group.tipo === 'radio' ? selectedOptions[group.grupo] : null
+
                     return (
                         <section key={gIdx} className="product-section">
                             <div className="product-section__header">
-                                <h3>{group.grupo}</h3>
+                                <h3 className="product-section__title">
+                                    {group.grupo}
+                                    {selectedValue && <span className="product-section__selected-value">: {selectedValue}</span>}
+                                </h3>
                                 <span className={`product-section__badge ${hasPaid ? 'product-section__badge--paid' : ''}`}>
                                     {badgeText}
                                 </span>
@@ -438,6 +427,9 @@ export default function ProductPage() {
                                             onClick={() => handleOptionToggle(group, name)}
                                         >
                                             <div className="product-addon-item__left">
+                                                <div className={`product-addon-item__check ${selected ? 'product-addon-item__check--active' : ''}`}>
+                                                    {selected && <Check size={14} />}
+                                                </div>
                                                 {img && (
                                                     <OptimizedImage
                                                         src={getImageUrl(img)}
@@ -466,9 +458,6 @@ export default function ProductPage() {
                                                         )
                                                     })()}
                                                 </div>
-                                            </div>
-                                            <div className={`product-addon-item__check ${selected ? 'product-addon-item__check--active' : ''}`}>
-                                                {selected && <Check size={14} />}
                                             </div>
                                         </button>
                                     )

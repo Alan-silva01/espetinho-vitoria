@@ -434,8 +434,9 @@
 
 .product-addon-item {
     display: flex;
-    flex-direction: column;
-    padding: 10px 12px;
+    flex-direction: row;
+    align-items: center;
+    padding: 12px 14px;
     background: #fdfdfd;
     border: 1px solid #f0f0f0;
     border-radius: 12px;
@@ -443,8 +444,9 @@
     cursor: pointer;
     width: 100%;
     text-align: left;
-    min-height: 48px;
+    min-height: 56px;
     position: relative;
+    gap: 12px;
 }
 
 .product-addon-item--selected {
