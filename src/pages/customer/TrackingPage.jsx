@@ -22,7 +22,7 @@ const STATUS_INDEX = {
 }
 
 export default function TrackingPage() {
-    const { id } = useParams()
+    const { id, customerCode } = useParams()
     const navigate = useNavigate()
     const { order, loading: orderLoading } = useOrderTracking(id)
     const { orders: comandaOrders, total: comandaTotal, status: comandaStatus, loading: comandaLoading } = useComanda(order?.comanda_id)
@@ -62,7 +62,7 @@ export default function TrackingPage() {
         <div className="tracking-page animate-fade-in">
             {/* Header */}
             <header className="tracking-header">
-                <button className="tracking-header__btn" onClick={() => navigate('/')}>
+                <button className="tracking-header__btn" onClick={() => navigate(customerCode ? `/${customerCode}` : '/')}>
                     <ArrowLeft size={22} />
                 </button>
                 <h1>Status do Pedido</h1>
@@ -121,7 +121,7 @@ export default function TrackingPage() {
                         <div className="tracking-comanda-actions">
                             <button
                                 className="btn-comanda btn-comanda--new"
-                                onClick={() => navigate('/')}
+                                onClick={() => navigate(customerCode ? `/${customerCode}` : '/')}
                                 disabled={comandaStatus === 'paga'}
                             >
                                 <Plus size={18} /> Pedir Mais
@@ -293,7 +293,7 @@ export default function TrackingPage() {
                         <p className="tracking-promo__label">Próxima vez?</p>
                         <h3>Adicione um Caldo<br />ao seu pedido!</h3>
                     </div>
-                    <Link to="/" className="tracking-promo__btn">Ver Menu</Link>
+                    <Link to={customerCode ? `/${customerCode}` : '/'} className="tracking-promo__btn">Ver Menu</Link>
                 </div>
             </main>
 

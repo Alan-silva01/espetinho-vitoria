@@ -15,6 +15,16 @@ export default function CustomerLayout() {
     // Global detection: if URL has CLI-XXXXXX, load that customer
     useEffect(() => {
         if (customerCode && customerCode.startsWith('CLI-')) {
+            // When entering via a customer code, ensure we're not stuck in "table mode"
+            // with stale data from a previous session.
+            const currentTipo = localStorage.getItem('espetinho_tipo_pedido')
+            if (currentTipo === 'mesa') {
+                localStorage.setItem('espetinho_tipo_pedido', 'entrega')
+                localStorage.removeItem('espetinho_mesa_id')
+                localStorage.removeItem('espetinho_mesa_numero')
+                localStorage.removeItem('espetinho_comanda_id')
+            }
+
             // Only fetch if it's different from current
             if (!customer || customer.codigo !== customerCode) {
                 fetchCustomerByCode(customerCode)

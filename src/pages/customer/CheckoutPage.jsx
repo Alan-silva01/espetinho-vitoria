@@ -246,7 +246,7 @@ export default function CheckoutPage() {
 
             clearCart()
             localStorage.setItem('espetinho_ultimo_pedido_id', pedido.id)
-            navigate(`/pedido/${pedido.id}`)
+            navigate(customerCode ? `/${customerCode}/pedido/${pedido.id}` : `/pedido/${pedido.id}`)
         } catch (err) {
             alert('Erro ao confirmar pedido: ' + err.message)
             setIsSubmitting(false)
@@ -259,7 +259,7 @@ export default function CheckoutPage() {
                 <span className="checkout-empty__icon">🛒</span>
                 <h2>Nenhum item no carrinho</h2>
                 <p>Adicione itens antes de finalizar o pedido.</p>
-                <button className="btn btn-primary btn-md" onClick={() => navigate('/')}>
+                <button className="btn btn-primary btn-md" onClick={() => navigate(customerCode ? `/${customerCode}` : '/')}>
                     Ver Cardápio
                 </button>
             </div>
@@ -356,14 +356,14 @@ export default function CheckoutPage() {
                                 </div>
                                 <button
                                     className="checkout-address-card__edit"
-                                    onClick={() => navigate('/carrinho')}
+                                    onClick={() => navigate(customerCode ? `/${customerCode}/carrinho` : '/carrinho')}
                                 >
                                     <Edit3 size={16} />
                                     Editar
                                 </button>
                             </div>
                         ) : (
-                            <div className="checkout-address-empty" onClick={() => navigate('/carrinho')}>
+                            <div className="checkout-address-empty" onClick={() => navigate(customerCode ? `/${customerCode}/carrinho` : '/carrinho')}>
                                 <MapPin size={24} />
                                 <p>Nenhum endereço cadastrado</p>
                                 <span>Toque para adicionar</span>

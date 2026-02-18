@@ -42,7 +42,7 @@ const formatNameWithAccessories = (name) => {
 }
 
 export default function ProductPage() {
-    const { id } = useParams()
+    const { id, customerCode } = useParams()
     const navigate = useNavigate()
     const { product, loading } = useProduct(id)
     const { addItem, items: cartItems } = useCart()
@@ -299,7 +299,7 @@ export default function ProductPage() {
                         <ArrowLeft size={20} />
                     </button>
                     <div className="product-hero__actions">
-                        <button className="product-hero__btn product-hero__cart-btn" onClick={() => navigate('/carrinho')}>
+                        <button className="product-hero__btn product-hero__cart-btn" onClick={() => navigate(customerCode ? `/${customerCode}/carrinho` : '/carrinho')}>
                             <ShoppingCart size={20} />
                             {cartCount > 0 && <span className="product-hero__cart-badge">{cartCount}</span>}
                         </button>
