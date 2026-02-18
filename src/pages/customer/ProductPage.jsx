@@ -8,6 +8,7 @@ import { formatCurrency, getImageUrl } from '../../lib/utils'
 import { optimizeUrl } from '../../lib/cloudinary'
 import Loading from '../../components/ui/Loading'
 import OptimizedImage from '../../components/ui/OptimizedImage'
+import StockWarningModal from '../../components/customer/StockWarningModal'
 import './ProductPage.css'
 
 // Helper: normalize option to always get the name string
@@ -50,6 +51,7 @@ export default function ProductPage() {
 
     const [qty, setQty] = useState(1)
     const [notes, setNotes] = useState('')
+    const [stockWarning, setStockWarning] = useState({ open: false, product: '', qty: 0 })
     const [selectedVariation, setSelectedVariation] = useState(null)
     const [selectedOptions, setSelectedOptions] = useState({})
 
@@ -302,8 +304,6 @@ export default function ProductPage() {
                             {cartCount > 0 && <span className="product-hero__cart-badge">{cartCount}</span>}
                         </button>
 
-
-
                         <button
                             className={`product-hero__btn ${liked[product.id] ? 'product-hero__btn--liked' : ''}`}
                             onClick={() => toggleLike(product.id)}
@@ -517,7 +517,11 @@ export default function ProductPage() {
                         className="product-footer__qty-btn product-footer__qty-btn--plus"
                         onClick={() => {
                             if (product.controlar_estoque && qty >= product.quantidade_disponivel) {
-                                alert(`Infelizmente só temos ${product.quantidade_disponivel} ${product.nome.toLowerCase()}, que tal escolher outro sabor?`)
+                                setStockWarning({
+                                    open: true,
+                                    product: product.nome,
+                                    qty: product.quantidade_disponivel
+                                })
                                 return
                             }
                             setQty(qty + 1)
@@ -542,6 +546,14 @@ export default function ProductPage() {
                     )}
                 </button>
             </div>
+
+            {/* Stock Warning Modal */}
+            <StockWarningModal
+                isOpen={stockWarning.open}
+                onClose={() => setStockWarning(prev => ({ ...prev, open: false }))}
+                productName={stockWarning.product}
+                availableQty={stockWarning.qty}
+            />
         </div>
     )
 }

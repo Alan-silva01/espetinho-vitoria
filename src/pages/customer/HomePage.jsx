@@ -11,6 +11,7 @@ import { supabase } from '../../lib/supabase'
 import Loading from '../../components/ui/Loading'
 import PromoMarquee from '../../components/customer/PromoMarquee'
 import OptimizedImage from '../../components/ui/OptimizedImage'
+import StockWarningModal from '../../components/customer/StockWarningModal'
 import './HomePage.css'
 
 /* session ID logic moved to useFavorites.js */
@@ -27,6 +28,7 @@ export default function HomePage() {
     const [activeCategory, setActiveCategory] = useState(null)
     const [search, setSearch] = useState('')
     const [promoDestaque, setPromoDestaque] = useState(null)
+    const [stockWarning, setStockWarning] = useState({ open: false, product: '', qty: 0 })
 
     // Load featured promo
     const fetchPromoDestaque = async () => {
@@ -253,6 +255,19 @@ export default function HomePage() {
                                                 return
                                             }
 
+                                            const { items: cartItems } = useCart()
+                                            const inCart = cartItems.find(i => i.produto_id === product.id && !i.variacao_id)
+                                            const currentQty = inCart ? inCart.quantidade : 0
+
+                                            if (product.controlar_estoque && (currentQty + qty) > product.quantidade_disponivel) {
+                                                setStockWarning({
+                                                    open: true,
+                                                    product: product.nome,
+                                                    qty: product.quantidade_disponivel
+                                                })
+                                                return
+                                            }
+
                                             // --- Fly-to-Cart animation ---
                                             const btn = e.currentTarget
                                             const rect = btn.getBoundingClientRect()
@@ -273,15 +288,6 @@ export default function HomePage() {
                                                     cart.classList.add('cart-bounce')
                                                     setTimeout(() => cart.classList.remove('cart-bounce'), 400)
                                                 })
-                                            }
-
-                                            const { items: cartItems } = useCart()
-                                            const inCart = cartItems.find(i => i.produto_id === product.id && !i.variacao_id)
-                                            const currentQty = inCart ? inCart.quantidade : 0
-
-                                            if (product.controlar_estoque && currentQty >= product.quantidade_disponivel) {
-                                                alert(`Infelizmente só temos ${product.quantidade_disponivel} ${product.nome.toLowerCase()}, que tal escolher outro sabor?`)
-                                                return
                                             }
 
                                             addItem({
@@ -354,6 +360,13 @@ export default function HomePage() {
                 </div>
             )}
 
+            {/* Stock Warning Modal */}
+            <StockWarningModal
+                isOpen={stockWarning.open}
+                onClose={() => setStockWarning(prev => ({ ...prev, open: false }))}
+                productName={stockWarning.product}
+                availableQty={stockWarning.qty}
+            />
         </div>
     )
 }

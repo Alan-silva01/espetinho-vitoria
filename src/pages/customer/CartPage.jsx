@@ -8,6 +8,7 @@ import { formatCurrency, getImageUrl } from '../../lib/utils'
 import { supabase } from '../../lib/supabase'
 import OptimizedImage from '../../components/ui/OptimizedImage'
 import Button from '../../components/ui/Button'
+import StockWarningModal from '../../components/customer/StockWarningModal'
 import './CartPage.css'
 
 export default function CartPage() {
@@ -18,6 +19,7 @@ export default function CartPage() {
     const { customer, updateCustomerData } = useCustomer()
     const [isGeolocating, setIsGeolocating] = useState(false)
     const [isValidationModalOpen, setIsValidationModalOpen] = useState(false)
+    const [stockWarning, setStockWarning] = useState({ open: false, product: '', qty: 0 })
 
     useEffect(() => {
         window.scrollTo(0, 0)
@@ -375,7 +377,11 @@ export default function CartPage() {
                                                 onClick={() => {
                                                     const prodData = products.find(p => p.id === item.produto_id)
                                                     if (prodData && prodData.controlar_estoque && item.quantidade >= prodData.quantidade_disponivel) {
-                                                        alert(`Infelizmente só temos ${prodData.quantidade_disponivel} ${prodData.nome.toLowerCase()}, que tal escolher outro sabor?`)
+                                                        setStockWarning({
+                                                            open: true,
+                                                            product: prodData.nome,
+                                                            qty: prodData.quantidade_disponivel
+                                                        })
                                                         return
                                                     }
                                                     updateQuantity(item.produto_id, item.variacao_id, item.observacoes, item.quantidade + 1)
@@ -668,6 +674,13 @@ export default function CartPage() {
                     </div>
                 </div>
             )}
+            {/* Stock Warning Modal */}
+            <StockWarningModal
+                isOpen={stockWarning.open}
+                onClose={() => setStockWarning(prev => ({ ...prev, open: false }))}
+                productName={stockWarning.product}
+                availableQty={stockWarning.qty}
+            />
         </div>
     )
 }
