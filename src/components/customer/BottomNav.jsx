@@ -38,20 +38,24 @@ export default function BottomNav() {
 
     const tabs = [
         { path: '/', icon: Home, label: 'Início' },
-        { path: '/carrinho', icon: ShoppingCart, label: '', isCenter: true },
-        showOrdersTab ? (
-            hasActiveOrder ? {
-                path: `/pedido/${activeOrder.id}`,
-                icon: ClipboardList,
-                label: getStatusLabel(activeOrder.status, activeOrder.tipo_pedido),
-                isStatus: true
-            } : {
-                path: '/pedidos',
-                icon: ClipboardList,
-                label: 'Pedidos'
-            }
-        ) : null,
-    ].filter(Boolean)
+        {
+            path: '/carrinho',
+            icon: ShoppingCart,
+            label: '',
+            isCenter: true
+        },
+        hasActiveOrder ? {
+            path: `/pedido/${activeOrder.id}`,
+            icon: ClipboardList,
+            label: getStatusLabel(activeOrder.status, activeOrder.tipo_pedido),
+            showDot: true
+        } : {
+            path: '/pedidos',
+            icon: ClipboardList,
+            label: 'Pedidos',
+            disabled: isMesa && comandaOrders.length === 0
+        },
+    ]
 
     return (
         <nav className="bottom-nav">
@@ -79,12 +83,13 @@ export default function BottomNav() {
                 return (
                     <button
                         key={tab.path}
-                        className={`bottom-nav__item ${isActive ? 'bottom-nav__item--active' : ''}`}
-                        onClick={() => navigate(targetPath)}
+                        className={`bottom-nav__item ${isActive ? 'bottom-nav__item--active' : ''} ${tab.disabled ? 'bottom-nav__item--disabled' : ''}`}
+                        onClick={() => !tab.disabled && navigate(targetPath)}
+                        style={tab.disabled ? { opacity: 0.5, cursor: 'default' } : {}}
                     >
                         <div className="bottom-nav__icon-wrapper">
                             <Icon size={22} />
-                            {tab.isStatus && <div className="status-dot-ping" />}
+                            {tab.showDot && <div className="status-dot-ping" />}
                         </div>
                         <span className="bottom-nav__label">{tab.label}</span>
                     </button>
