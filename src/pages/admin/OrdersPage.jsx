@@ -3,7 +3,7 @@ import {
     Clock, CheckCircle2, Truck, AlertCircle,
     MoreHorizontal, Phone, MapPin, DollarSign,
     User, ChevronRight, X, Utensils, Timer,
-    Store, Bike, Play, Check, Calendar, Search, Bell, Printer
+    Store, Bike, Play, Check, Calendar, Search, Bell, Printer, RefreshCw
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { formatCurrency } from '../../lib/utils'
@@ -33,6 +33,7 @@ export default function OrdersPage() {
     const [activeStage, setActiveStage] = useState('confirmado')
     const [allDrivers, setAllDrivers] = useState([])
     const [error, setError] = useState(null)
+    const [isRefreshing, setIsRefreshing] = useState(false)
     const audioRef = useRef(new Audio('/notificacao.mp3'))
     const selectedOrderRef = useRef(null)
     const inFlightRef = useRef(new Set()) // Guards concurrent updates
@@ -66,8 +67,10 @@ export default function OrdersPage() {
                 console.log('[Realtime] Order event:', payload.eventType, payload.new?.id || payload.old?.id)
 
                 if (payload.eventType === 'INSERT') {
+                    console.log('[Realtime] New order detected, playing sound and fetching...')
                     playNotificationSound()
-                    fetchOrders(true)
+                    // Small delay to ensure DB transaction is fully visible
+                    setTimeout(() => fetchOrders(true), 1000)
                 }
 
                 if (payload.eventType === 'UPDATE') {
@@ -113,6 +116,8 @@ export default function OrdersPage() {
         if (!isSilent) {
             setLoading(true)
             setError(null)
+        } else {
+            setIsRefreshing(true)
         }
         try {
             const brDateStr = new Date().toLocaleDateString('en-US', { timeZone: 'America/Sao_Paulo' })
@@ -140,6 +145,7 @@ export default function OrdersPage() {
             if (!isSilent) setError('Não foi possível carregar os pedidos.')
         } finally {
             if (!isSilent) setLoading(false)
+            setIsRefreshing(false)
         }
     }
 
@@ -470,6 +476,16 @@ export default function OrdersPage() {
                     >
                         <Bell size={18} />
                         <span>Testar Som</span>
+                    </button>
+
+                    <button
+                        className={`btn-refresh-kanban ${isRefreshing ? 'refreshing' : ''}`}
+                        onClick={() => fetchOrders(true)}
+                        disabled={isRefreshing}
+                        title="Atualizar Pedidos"
+                    >
+                        <RefreshCw size={18} />
+                        <span>{isRefreshing ? 'Atualizando...' : 'Atualizar'}</span>
                     </button>
                     <div className="search-box">
                         <Search size={18} />
