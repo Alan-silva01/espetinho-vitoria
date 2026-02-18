@@ -42,6 +42,7 @@ export function formatPhone(phone) {
 export function getImageUrl(path) {
     if (!path) return null
     if (path.startsWith('http')) return path
+    if (path.startsWith('/')) return path
     return `https://vqehwhdlujoajuqunyzu.supabase.co/storage/v1/object/public/imagens-produtos/${path}`
 }
 
