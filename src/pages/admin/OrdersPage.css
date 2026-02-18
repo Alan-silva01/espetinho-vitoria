@@ -1000,80 +1000,68 @@
     }
 }
 
-.comanda-header-row {
+/* Comanda Management Styles - Compact */
+.v4-comanda-summary-compact {
+    margin-top: 10px;
+    padding: 12px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+}
+
+.comanda-header-compact {
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin-bottom: 16px;
+    gap: 8px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
 }
 
-.comanda-header-row h3 {
-    margin: 0;
-    font-size: 16px;
-    font-weight: 800;
-    color: #111827;
+.comanda-title {
+    font-size: 13px;
+    color: #64748b;
 }
 
-.comanda-status-tag {
-    padding: 4px 12px;
+.comanda-status-pill {
+    padding: 2px 8px;
     border-radius: 99px;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 800;
 }
 
-.comanda-status-tag.aberta {
-    background: #ECFDF5;
+.comanda-status-pill.aberta {
+    background: #ecfdf5;
     color: #059669;
 }
 
-.comanda-status-tag.fechamento_solicitado {
-    background: #FFFBEB;
-    color: #D97706;
-    border: 1px solid #F59E0B;
+.comanda-status-pill.fechamento_solicitado {
+    background: #fffbeb;
+    color: #d97706;
+    border: 1px solid #f59e0b;
 }
 
-.comanda-status-tag.paga {
-    background: #F3F4F6;
-    color: #4B5563;
+.comanda-status-pill.paga {
+    background: #f1f5f9;
+    color: #64748b;
 }
 
-.comanda-items-grouped {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin-bottom: 16px;
-}
-
-.comanda-order-mini {
-    font-size: 14px;
-    color: #374151;
-}
-
-.btn-finalize-comanda {
-    margin-top: 20px;
+.btn-finalize-comanda-compact {
     width: 100%;
     background: #059669;
     color: white;
     border: none;
-    padding: 16px;
-    border-radius: 12px;
-    font-size: 16px;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 13px;
     font-weight: 800;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 6px;
     transition: all 0.2s;
-    box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.4);
 }
 
-.btn-finalize-comanda:hover {
+.btn-finalize-comanda-compact:hover {
     background: #047857;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px -2px rgba(5, 150, 105, 0.4);
-}
-
-.btn-finalize-comanda:active {
-    transform: translateY(0);
 }

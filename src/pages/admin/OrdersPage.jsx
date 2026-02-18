@@ -21,39 +21,24 @@ function ComandaSummary({ comandaId, onFinalize }) {
     if (loading || !orders.length) return null
 
     return (
-        <div className="v4-comanda-summary">
-            <div className="v4-info-box" style={{ border: '2px solid var(--cor-primaria)', background: 'rgba(196,30,46,0.02)' }}>
-                <div className="comanda-header-row">
-                    <Receipt size={20} color="var(--cor-primaria)" />
-                    <h3>RESUMO DA COMANDA</h3>
-                    <span className={`comanda-status-tag ${status}`}>
-                        {status === 'fechamento_solicitado' ? 'SOLICITOU FECHAMENTO' :
-                            status === 'paga' ? 'PAGO' : 'ABERTA'}
-                    </span>
-                </div>
-
-                <div className="comanda-items-grouped">
-                    {orders.map((ord) => (
-                        <div key={ord.id} className="comanda-order-mini">
-                            <strong>Pedido #{ord.numero_pedido}:</strong> {formatCurrency(ord.valor_total)}
-                        </div>
-                    ))}
-                </div>
-
-                <div className="v4-total-row" style={{ marginTop: '12px', borderTop: '1px dashed #ddd', paddingTop: '8px' }}>
-                    <span>TOTAL DA COMANDA:</span>
-                    <span style={{ fontSize: '24px', color: 'var(--cor-primaria)' }}>{formatCurrency(total)}</span>
-                </div>
-
-                {status !== 'paga' && (
-                    <button
-                        className="btn-finalize-comanda"
-                        onClick={() => onFinalize(comandaId)}
-                    >
-                        <Check size={20} /> CONFIRMAR PAGAMENTO DA COMANDA
-                    </button>
-                )}
+        <div className="v4-comanda-summary-compact">
+            <div className="comanda-header-compact">
+                <Receipt size={16} color="var(--cor-primaria)" />
+                <span className="comanda-title">TOTAL DA COMANDA: <strong>{formatCurrency(total)}</strong></span>
+                <span className={`comanda-status-pill ${status}`}>
+                    {status === 'fechamento_solicitado' ? 'SOLICITOU FECHAMENTO' :
+                        status === 'paga' ? 'PAGO' : 'ABERTA'}
+                </span>
             </div>
+
+            {status !== 'paga' && (
+                <button
+                    className="btn-finalize-comanda-compact"
+                    onClick={() => onFinalize(comandaId)}
+                >
+                    <Check size={16} /> CONFIRMAR PAGAMENTO TOTAL
+                </button>
+            )}
         </div>
     )
 }
