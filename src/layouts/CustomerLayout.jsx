@@ -34,9 +34,12 @@ export default function CustomerLayout() {
 
     // Redirect to coded URL if we are at root but have a customer in context
     // This ensures that Add to Home Screen works correctly even if it opens at /
+    // IMPORTANT: Only redirect if NOT in mesa mode, otherwise we lose the mesa context
     useEffect(() => {
         const isRoot = location.pathname === '/' || location.pathname === ''
-        if (isRoot && customer?.codigo) {
+        const isMesa = localStorage.getItem('espetinho_tipo_pedido') === 'mesa'
+
+        if (isRoot && customer?.codigo && !isMesa) {
             navigate(`/${customer.codigo}`, { replace: true })
         }
     }, [location.pathname, customer?.codigo, navigate])
