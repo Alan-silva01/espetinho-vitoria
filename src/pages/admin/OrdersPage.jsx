@@ -12,6 +12,8 @@ import './OrdersPage.css'
 // Importando a logo para garantir que ela esteja disponível para o print
 import logoImg from '../../../logo.png'
 
+let _ordersCache = null
+
 const STAGES = [
     { id: 'confirmado', label: 'Recebido', icon: AlertCircle, color: '#FBBF24', next: 'preparando', nextLabel: 'Iniciar Preparo' },
     { id: 'preparando', label: 'Preparando', icon: Utensils, color: '#8B5CF6', next: 'saiu_entrega', nextLabel: 'Entregador a caminho' },
@@ -36,8 +38,8 @@ const getItemDisplayName = (item) => {
 }
 
 export default function OrdersPage() {
-    const [orders, setOrders] = useState([])
-    const [loading, setLoading] = useState(true)
+    const [orders, setOrders] = useState(_ordersCache || [])
+    const [loading, setLoading] = useState(!_ordersCache)
     const [selectedOrder, setSelectedOrder] = useState(null)
     const [searchTerm, setSearchTerm] = useState('')
     const [activeStage, setActiveStage] = useState('confirmado')
@@ -123,10 +125,10 @@ export default function OrdersPage() {
     }, [])
 
     async function fetchOrders(isSilent = false) {
-        if (!isSilent) {
+        if (!isSilent && !_ordersCache) {
             setLoading(true)
             setError(null)
-        } else {
+        } else if (isSilent) {
             setIsRefreshing(true)
         }
         try {
@@ -164,6 +166,7 @@ export default function OrdersPage() {
             if (ordersErr) throw ordersErr
 
             setOrders(data || [])
+            _ordersCache = data || []
         } catch (err) {
             // Don't treat abort as a hard error
             if (err?.name === 'AbortError') {

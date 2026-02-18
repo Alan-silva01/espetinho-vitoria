@@ -9,16 +9,18 @@ import {
 import { supabase } from '../../lib/supabase'
 import './InventoryPage.css'
 
+let _inventoryCache = null
+
 export default function InventoryPage() {
-    const [inventory, setInventory] = useState([])
-    const [loading, setLoading] = useState(true)
+    const [inventory, setInventory] = useState(_inventoryCache?.inventory || [])
+    const [loading, setLoading] = useState(!_inventoryCache)
     const [searchTerm, setSearchTerm] = useState('')
-    const [stats, setStats] = useState({
+    const [stats, setStats] = useState(_inventoryCache?.stats || {
         total: 0,
         sales: 0,
         alerts: 0
     })
-    const [activities, setActivities] = useState([])
+    const [activities, setActivities] = useState(_inventoryCache?.activities || [])
     const [saving, setSaving] = useState(false)
     const [savingItem, setSavingItem] = useState(null)
     const [isAddonsMode, setIsAddonsMode] = useState(false)
@@ -47,12 +49,12 @@ export default function InventoryPage() {
             .on(
                 'postgres_changes',
                 { event: '*', schema: 'public', table: 'produtos' },
-                () => fetchInventory() // Refetch for simplicity, ensure latest totals
+                () => fetchInventory(true) // Silent refetch for realtime
             )
             .on(
                 'postgres_changes',
                 { event: '*', schema: 'public', table: 'estoque_diario' },
-                () => fetchInventory()
+                () => fetchInventory(true)
             )
             .subscribe()
 
@@ -61,9 +63,13 @@ export default function InventoryPage() {
         }
     }, [])
 
-    async function fetchInventory() {
-        setLoading(true)
+    async function fetchInventory(isSilent = false) {
+        if (!isSilent && !_inventoryCache) setLoading(true)
         setError(null)
+
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 15000)
+
         try {
             const today = new Date().toISOString().split('T')[0]
 
@@ -72,6 +78,7 @@ export default function InventoryPage() {
                 .from('produtos')
                 .select('id, nome, imagem_url, quantidade_disponivel, controlar_estoque, categorias(nome), opcoes_personalizacao')
                 .order('nome')
+                .abortSignal(controller.signal)
 
             if (prodErr) throw prodErr
 
@@ -80,6 +87,7 @@ export default function InventoryPage() {
                 .from('estoque_diario')
                 .select('*')
                 .eq('data', today)
+                .abortSignal(controller.signal)
 
             if (stockErr) throw stockErr
 
@@ -134,10 +142,33 @@ export default function InventoryPage() {
                 }))
                 setActivities(formatted)
             }
+
+            // Update cache
+            _inventoryCache = {
+                inventory: merged,
+                stats: {
+                    total: totalStock,
+                    sales: totalSold,
+                    alerts: lowStock
+                },
+                activities: recentItems ? recentItems.map(item => ({
+                    id: item.pedidos?.id,
+                    title: `Pedido #${item.pedidos?.numero_pedido}`,
+                    subtitle: `${item.quantidade}x ${item.produtos?.nome}`,
+                    time: new Date(item.pedidos?.criado_em).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    type: 'blue'
+                })) : []
+            }
         } catch (err) {
-            console.error('[Inventory] Erro ao carregar dados:', err)
-            setError('Não foi possível carregar o estoque. Verifique sua conexão.')
+            if (err.name === 'AbortError') {
+                console.warn('[Inventory] Request timed out')
+                setError('A conexão está lenta. Tente recarregar a página.')
+            } else {
+                console.error('[Inventory] Erro ao carregar dados:', err)
+                setError('Não foi possível carregar o estoque. Verifique sua conexão.')
+            }
         } finally {
+            clearTimeout(timeoutId)
             setLoading(false)
         }
     }
