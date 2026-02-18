@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 
 export function useOrders() {
-    const [orders, setOrders] = useState([])
+    const [orders] = useState([])
     const [loading, setLoading] = useState(false)
 
     async function createOrder(orderData) {
@@ -51,32 +51,73 @@ export function useOrders() {
                 }
             }
 
-            /* 2. Create order */
-            const { data: pedido, error: pedidoErr } = await supabase
-                .from('pedidos')
-                .insert({
-                    cliente_id: clienteId,
-                    nome_cliente: orderData.nome_cliente,
-                    telefone_cliente: orderData.telefone_cliente,
-                    tipo_pedido: orderData.tipo_pedido,
-                    subtotal: orderData.subtotal,
-                    taxa_entrega: orderData.taxa_entrega || 0,
-                    valor_total: orderData.valor_total,
-                    valor_upsell: orderData.valor_upsell || 0,
-                    forma_pagamento: orderData.forma_pagamento,
-                    troco_para: orderData.troco_para,
-                    endereco: orderData.endereco,
-                    observacoes: orderData.observacoes,
-                    mesa_id: orderData.mesa_id || null,
-                    comanda_id: orderData.comanda_id || null,
-                    pago: orderData.pago || false,
-                    comanda_status: orderData.comanda_status || (orderData.comanda_id ? 'aberta' : null),
-                    status: 'confirmado',
-                })
-                .select()
-                .single()
+            /* 2. Check for existing active comanda order */
+            let pedido = null
+            let isExistingComanda = false
 
-            if (pedidoErr) throw pedidoErr
+            if (orderData.comanda_id) {
+                const { data: existingPedido } = await supabase
+                    .from('pedidos')
+                    .select('*')
+                    .eq('comanda_id', orderData.comanda_id)
+                    .eq('pago', false)
+                    .maybeSingle()
+
+                if (existingPedido) {
+                    pedido = existingPedido
+                    isExistingComanda = true
+                }
+            }
+
+            if (isExistingComanda && pedido) {
+                /* Update existing order */
+                const { data: updatedPedido, error: updateErr } = await supabase
+                    .from('pedidos')
+                    .update({
+                        subtotal: pedido.subtotal + orderData.subtotal,
+                        valor_total: pedido.valor_total + orderData.valor_total,
+                        valor_upsell: (pedido.valor_upsell || 0) + (orderData.valor_upsell || 0),
+                        observacoes: orderData.observacoes
+                            ? `${pedido.observacoes || ''}\n[ADICIONAL]: ${orderData.observacoes}`.trim()
+                            : pedido.observacoes,
+                        status: 'confirmado', // Move back to "Received" column
+                        comanda_status: 'aberta' // Reset to open in case it was requesting closing
+                    })
+                    .eq('id', pedido.id)
+                    .select()
+                    .single()
+
+                if (updateErr) throw updateErr
+                pedido = updatedPedido
+            } else {
+                /* Create new order */
+                const { data: newPedido, error: pedidoErr } = await supabase
+                    .from('pedidos')
+                    .insert({
+                        cliente_id: clienteId,
+                        nome_cliente: orderData.nome_cliente,
+                        telefone_cliente: orderData.telefone_cliente,
+                        tipo_pedido: orderData.tipo_pedido,
+                        subtotal: orderData.subtotal,
+                        taxa_entrega: orderData.taxa_entrega || 0,
+                        valor_total: orderData.valor_total,
+                        valor_upsell: orderData.valor_upsell || 0,
+                        forma_pagamento: orderData.forma_pagamento,
+                        troco_para: orderData.troco_para,
+                        endereco: orderData.endereco,
+                        observacoes: orderData.observacoes,
+                        mesa_id: orderData.mesa_id || null,
+                        comanda_id: orderData.comanda_id || null,
+                        pago: orderData.pago || false,
+                        comanda_status: orderData.comanda_status || (orderData.comanda_id ? 'aberta' : null),
+                        status: 'confirmado',
+                    })
+                    .select()
+                    .single()
+
+                if (pedidoErr) throw pedidoErr
+                pedido = newPedido
+            }
 
             /* 3. Create order items */
             const itens = orderData.itens.map(item => ({

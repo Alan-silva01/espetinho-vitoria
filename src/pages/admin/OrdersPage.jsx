@@ -132,12 +132,23 @@ export default function OrdersPage() {
 
                 if (payload.eventType === 'UPDATE') {
                     const orderId = payload.new.id
+                    const oldOrder = ordersRef.current.find(o => o.id === orderId)
 
                     // If this order is currently being updated by US, skip the realtime merge
                     // to avoid reverting our optimistic update. Our handleStatusChange will
                     // handle the final state.
                     if (inFlightRef.current.has(orderId)) {
                         console.log('[Realtime] Skipping merge for in-flight order:', orderId)
+                        return
+                    }
+
+                    // Merged orders for comanda: if status moves back to 'confirmado' OR total changes, 
+                    // we likely have new items that payload.new doesn't include.
+                    const needsFullFetch = payload.new.status === 'confirmado' || payload.new.valor_total !== oldOrder?.valor_total
+
+                    if (needsFullFetch) {
+                        console.log('[Realtime] Order updated with new items/status, re-fetching list...')
+                        setTimeout(() => fetchOrders(true), 1000)
                         return
                     }
 
