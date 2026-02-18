@@ -436,6 +436,20 @@
     align-items: center;
 }
 
+.product-card__price-group {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.product-card__variation-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--texto-secundario);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
 .product-card__price {
     font-family: var(--fonte-destaque);
     font-weight: 700;

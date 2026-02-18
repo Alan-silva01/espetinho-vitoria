@@ -191,7 +191,20 @@ export default function HomePage() {
                                     {product.descricao || product.categorias?.nome || ''}
                                 </p>
                                 <div className="product-card__footer">
-                                    <span className="product-card__price">{formatCurrency(product.preco)}</span>
+                                    <div className="product-card__price-group">
+                                        {product.variacoes_produto?.length > 0 && (
+                                            <span className="product-card__variation-label">
+                                                {product.variacoes_produto[0].nome}
+                                            </span>
+                                        )}
+                                        <span className="product-card__price">
+                                            {formatCurrency(
+                                                product.variacoes_produto?.length > 0
+                                                    ? product.variacoes_produto[0].preco
+                                                    : product.preco
+                                            )}
+                                        </span>
+                                    </div>
                                     <button
                                         className="product-card__add"
                                         disabled={isEsgotado}
