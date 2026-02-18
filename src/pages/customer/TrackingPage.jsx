@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom'
 import { ArrowLeft, Phone, MessageSquare, Headphones, ChevronDown, ChevronUp, Package, Plus, Receipt } from 'lucide-react'
 import { useOrderTracking, useComanda, useOrders } from '../../hooks/useOrders'
 import Loading from '../../components/ui/Loading'
+import Dialog from '../../components/ui/Dialog'
 import { getStatusLabel, formatCurrency } from '../../lib/utils'
 import './TrackingPage.css'
 
@@ -28,6 +29,7 @@ export default function TrackingPage() {
     const { requestComandaClosing } = useOrders()
     const [showDetails, setShowDetails] = useState(false)
     const [requestingClose, setRequestingClose] = useState(false)
+    const [isDialogOpen, setIsDialogOpen] = useState(false)
 
     const loading = orderLoading || (order?.tipo_pedido === 'mesa' && comandaLoading)
 
@@ -99,14 +101,13 @@ export default function TrackingPage() {
                             <div className="tracking-comanda-header__info">
                                 <Receipt size={20} color="var(--cor-primaria)" />
                                 <div>
-                                    <h3>Sua Comanda</h3>
-                                    <span className="tracking-comanda-header__table">Mesa {order.nome_cliente.replace('Mesa ', '')}</span>
+                                    <h3>Resumo da Mesa</h3>
+                                    <span className={`tracking-comanda-status ${comandaStatus}`}>
+                                        {comandaStatus === 'fechamento_solicitado' ? 'Aguardando Pagamento' :
+                                            comandaStatus === 'paga' ? 'Pagamento Confirmado' : 'Conta Aberta'}
+                                    </span>
                                 </div>
                             </div>
-                            <span className={`comanda-status-pill comanda-status-pill--${comandaStatus}`}>
-                                {comandaStatus === 'fechamento_solicitado' ? 'Aguardando Garçom' :
-                                    comandaStatus === 'paga' ? 'Paga' : 'Em Aberto'}
-                            </span>
                         </div>
 
                         <div className="tracking-comanda-total">
@@ -129,18 +130,7 @@ export default function TrackingPage() {
                             {comandaStatus === 'aberta' && (
                                 <button
                                     className="btn-comanda btn-comanda--close"
-                                    onClick={async () => {
-                                        if (confirm('Deseja solicitar o fechamento da conta?')) {
-                                            setRequestingClose(true)
-                                            try {
-                                                await requestComandaClosing(order.comanda_id)
-                                            } catch {
-                                                alert('Erro ao solicitar fechamento. Tente novamente.')
-                                            } finally {
-                                                setRequestingClose(false)
-                                            }
-                                        }
-                                    }}
+                                    onClick={() => setIsDialogOpen(true)}
                                     disabled={requestingClose}
                                 >
                                     {requestingClose ? 'Solicitando...' : 'Fechar Conta'}
@@ -306,6 +296,25 @@ export default function TrackingPage() {
                     <Link to="/" className="tracking-promo__btn">Ver Menu</Link>
                 </div>
             </main>
+
+            {/* Confirmation Dialog */}
+            <Dialog
+                isOpen={isDialogOpen}
+                onClose={() => setIsDialogOpen(false)}
+                onConfirm={async () => {
+                    setIsDialogOpen(false)
+                    setRequestingClose(true)
+                    try {
+                        await requestComandaClosing(order.comanda_id)
+                    } catch {
+                        alert('Erro ao solicitar fechamento. Tente novamente.')
+                    } finally {
+                        setRequestingClose(false)
+                    }
+                }}
+                title="Fechar Conta?"
+                message="Deseja solicitar o fechamento da sua conta agora?"
+            />
         </div>
     )
 }

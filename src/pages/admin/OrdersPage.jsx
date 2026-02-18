@@ -8,6 +8,7 @@ import {
 import { supabase } from '../../lib/supabase'
 import { formatCurrency } from '../../lib/utils'
 import { useOrders, useComanda } from '../../hooks/useOrders'
+import Dialog from '../../components/ui/Dialog'
 import './OrdersPage.css'
 
 // Importando a logo para garantir que ela esteja disponível para o print
@@ -79,6 +80,7 @@ export default function OrdersPage() {
     const audioRef = useRef(new Audio('/notificacao.mp3'))
     const selectedOrderRef = useRef(null)
     const inFlightRef = useRef(new Set()) // Guards concurrent updates
+    const [comandaToFinalize, setComandaToFinalize] = useState(null)
     const ordersRef = useRef(orders) // Always-fresh orders reference
 
     useEffect(() => {
@@ -859,12 +861,7 @@ export default function OrdersPage() {
                                 <div style={{ padding: '0 24px 24px' }}>
                                     <ComandaSummary
                                         comandaId={selectedOrder.comanda_id}
-                                        onFinalize={async (cid) => {
-                                            if (confirm('Confirmar pagamento total desta comanda? Todos os pedidos serão marcados como pagos.')) {
-                                                await finalizeComanda(cid)
-                                                setSelectedOrder(null)
-                                            }
-                                        }}
+                                        onFinalize={(cid) => setComandaToFinalize(cid)}
                                     />
                                 </div>
                             )}
@@ -1013,6 +1010,24 @@ export default function OrdersPage() {
                 </>
             )
             }
-        </div >
+            {/* Finalization Dialog */}
+            <Dialog
+                isOpen={!!comandaToFinalize}
+                onClose={() => setComandaToFinalize(null)}
+                onConfirm={async () => {
+                    const cid = comandaToFinalize
+                    setComandaToFinalize(null)
+                    try {
+                        await finalizeComanda(cid)
+                        setSelectedOrder(null)
+                        fetchOrders(true) // Silent refresh
+                    } catch {
+                        alert('Erro ao finalizar comanda.')
+                    }
+                }}
+                title="Confirmar Pagamento?"
+                message="Deseja confirmar o pagamento total desta comanda? Todos os pedidos vinculados serão marcados como pagos e concluídos."
+            />
+        </div>
     )
 }

@@ -208,7 +208,11 @@ export function useOrders() {
         try {
             const { error } = await supabase
                 .from('pedidos')
-                .update({ comanda_status: 'paga', pago: true })
+                .update({
+                    comanda_status: 'paga',
+                    pago: true,
+                    status: 'entregue' // Immediately mark as delivered/completed
+                })
                 .eq('comanda_id', comandaId)
             if (error) throw error
         } catch (err) {
