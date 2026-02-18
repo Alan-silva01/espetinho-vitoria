@@ -68,6 +68,7 @@ export async function uploadImage(file, options = {}) {
 export function optimizeUrl(url, { width = 400, height = 300, quality = 'auto' } = {}) {
     if (!url) return url
     if (!CLOUD_NAME) return url // Fallback if no cloud name
+    if (url.startsWith('/')) return url // Don't try to fetch local paths through Cloudinary
 
     // If it's already a Cloudinary URL, transform it directly
     if (url.includes('cloudinary.com')) {
