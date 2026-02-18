@@ -3,7 +3,7 @@ import {
     Clock, CheckCircle2, Truck, AlertCircle,
     MoreHorizontal, Phone, MapPin, DollarSign,
     User, ChevronRight, X, Utensils, Timer,
-    Store, Bike, Play, Check, Calendar, Search, Bell, Printer, RefreshCw
+    Store, Bike, Play, Check, Calendar, Search, Bell, Printer, RefreshCw, Receipt
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { formatCurrency } from '../../lib/utils'
