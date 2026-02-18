@@ -120,9 +120,19 @@ export default function OrdersPage() {
             setIsRefreshing(true)
         }
         try {
-            const brDateStr = new Date().toLocaleDateString('en-US', { timeZone: 'America/Sao_Paulo' })
-            const [month, day, year] = brDateStr.split('/')
-            const brMidnightAsUTC = new Date(Date.UTC(year, month - 1, day, 3, 0, 0))
+            // Robust date calculation for São Paulo timezone
+            const now = new Date()
+            const brFormatter = new Intl.DateTimeFormat('en-CA', {
+                timeZone: 'America/Sao_Paulo',
+                year: 'numeric', month: '2-digit', day: '2-digit'
+            })
+            const brDateStr = brFormatter.format(now) // "YYYY-MM-DD"
+            // São Paulo midnight = 03:00 UTC (standard) or 02:00 UTC (DST)
+            const brMidnightAsUTC = new Date(`${brDateStr}T03:00:00Z`)
+
+            // Timeout safeguard: abort after 15 seconds
+            const controller = new AbortController()
+            const timeoutId = setTimeout(() => controller.abort(), 15000)
 
             const { data, error: ordersErr } = await supabase
                 .from('pedidos')
@@ -136,15 +146,25 @@ export default function OrdersPage() {
                 `)
                 .gte('criado_em', brMidnightAsUTC.toISOString())
                 .order('criado_em', { ascending: true })
+                .abortSignal(controller.signal)
+
+            clearTimeout(timeoutId)
 
             if (ordersErr) throw ordersErr
 
             setOrders(data || [])
         } catch (err) {
-            console.error('[Orders] Erro ao carregar pedidos:', err)
-            if (!isSilent) setError('Não foi possível carregar os pedidos.')
+            // Don't treat abort as a hard error
+            if (err?.name === 'AbortError') {
+                console.warn('[Orders] Fetch timeout — request aborted after 15s')
+                if (!isSilent) setError('A conexão demorou demais. Tente atualizar.')
+            } else {
+                console.error('[Orders] Erro ao carregar pedidos:', err)
+                if (!isSilent) setError('Não foi possível carregar os pedidos.')
+            }
         } finally {
-            if (!isSilent) setLoading(false)
+            // ALWAYS clear loading/refreshing states — no matter what happened
+            setLoading(false)
             setIsRefreshing(false)
         }
     }
@@ -442,7 +462,7 @@ export default function OrdersPage() {
         return matchesSearch
     })
 
-    if (loading) return <div className="admin-loading">Sincronizando pedidos...</div>
+    if (loading) return <div className="admin-loading">Carregando pedidos...</div>
 
     if (error) {
         return (
