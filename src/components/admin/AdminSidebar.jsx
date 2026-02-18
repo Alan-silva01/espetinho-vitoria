@@ -20,6 +20,7 @@ import {
     QrCode
 } from 'lucide-react'
 import './AdminSidebar.css'
+import logoImg from '../../../logo.png'
 
 const navItems = [
     { to: '/admin', icon: LayoutDashboard, label: 'Dashboard', end: true },
@@ -87,8 +88,9 @@ export default function AdminSidebar({ adminInfo, currentPath, onLogout, isColla
 
                 <div className="admin-profile-card">
                     <img
-                        src={adminInfo?.avatar_url || 'https://via.placeholder.com/40'}
-                        alt="Admin"
+                        src={logoImg}
+                        alt="Logo"
+                        style={{ objectFit: 'contain', background: '#fff' }}
                     />
                     <div className="profile-info">
                         <span className="profile-name">{adminInfo?.nome || 'Admin'}</span>

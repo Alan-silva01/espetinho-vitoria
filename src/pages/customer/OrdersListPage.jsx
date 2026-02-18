@@ -24,6 +24,16 @@ export default function OrdersListPage() {
 
     const isLoading = customerLoading || ordersLoading
 
+    // Comanda filter for Mesa privacy
+    const isMesa = localStorage.getItem('espetinho_tipo_pedido') === 'mesa'
+    const comandaId = localStorage.getItem('espetinho_comanda_id')
+
+    // If mesa, only show orders from current session that aren't paid
+    // (matches the filter in useComanda)
+    const effectiveOrders = isMesa
+        ? orders.filter(o => o.comanda_id === comandaId && !o.pago)
+        : orders
+
     if (isLoading) return <Loading fullScreen />
 
     return (
@@ -37,7 +47,7 @@ export default function OrdersListPage() {
             </header>
 
             <div className="orders-container">
-                {orders.length === 0 ? (
+                {effectiveOrders.length === 0 ? (
                     <div className="orders-empty">
                         <div className="orders-empty__icon">
                             <Package size={48} strokeWidth={1.5} />
@@ -50,7 +60,7 @@ export default function OrdersListPage() {
                     </div>
                 ) : (
                     <div className="orders-grid">
-                        {orders.map(order => (
+                        {effectiveOrders.map(order => (
                             <div key={order.id} className="order-card" onClick={() => navigate(`/pedido/${order.id}`)}>
                                 <div className="order-card__main">
                                     <div className={`order-card__status-icon ${order.status === 'entregue' ? 'is-finished' : ''}`}>
