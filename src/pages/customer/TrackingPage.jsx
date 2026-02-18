@@ -21,6 +21,7 @@ const STATUS_INDEX = {
     pronto: 3, saiu_entrega: 4, entregue: 5, cancelado: -1,
 }
 
+
 export default function TrackingPage() {
     const { id, customerCode } = useParams()
     const navigate = useNavigate()
