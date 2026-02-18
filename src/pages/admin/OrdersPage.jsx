@@ -113,8 +113,8 @@ export default function OrdersPage() {
                 if (payload.eventType === 'INSERT') {
                     console.log('[Realtime] New order detected, playing sound and fetching...')
                     playNotificationSound()
-                    // Small delay to ensure DB transaction is fully visible
-                    setTimeout(() => fetchOrders(true), 1000)
+                    // Increased delay to 1.5s for safer DB propagation
+                    setTimeout(() => fetchOrders(true), 1500)
                 }
 
                 if (payload.eventType === 'UPDATE') {
@@ -144,7 +144,7 @@ export default function OrdersPage() {
 
                     if (needsFullFetch) {
                         console.log('[Realtime] Order updated, re-fetching list...')
-                        setTimeout(() => fetchOrders(true), 1000)
+                        setTimeout(() => fetchOrders(true), 1500)
                         return
                     }
 
@@ -176,27 +176,42 @@ export default function OrdersPage() {
         }
     }, [])
 
+    const isFetchingRef = useRef(false)
+
     async function fetchOrders(isSilent = false) {
+        // Guard against overlapping fetches
+        if (isFetchingRef.current) {
+            console.log('[Orders] Fetch already in progress, skipping...')
+            return
+        }
+
+        isFetchingRef.current = true
+
         if (!isSilent && !_ordersCache) {
             setLoading(true)
             setError(null)
         } else if (isSilent) {
             setIsRefreshing(true)
         }
-        try {
-            // Robust date calculation for São Paulo timezone
-            const now = new Date()
-            const brFormatter = new Intl.DateTimeFormat('en-CA', {
-                timeZone: 'America/Sao_Paulo',
-                year: 'numeric', month: '2-digit', day: '2-digit'
-            })
-            const brDateStr = brFormatter.format(now) // "YYYY-MM-DD"
-            // São Paulo midnight = 03:00 UTC (standard) or 02:00 UTC (DST)
-            const brMidnightAsUTC = new Date(`${brDateStr}T03:00:00Z`)
 
-            // Timeout safeguard: abort after 15 seconds
-            const controller = new AbortController()
-            const timeoutId = setTimeout(() => controller.abort(), 15000)
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 15000)
+
+        try {
+            // Precise SP start-of-day: Current date at 00:00:00 in America/Sao_Paulo
+            const now = new Date()
+            const spOffset = -3 // Brazil Standard Time (UTC-3)
+
+            // Generate a ISO string for precisely midnight last night in BRT
+            // We go back slightly more (to 00:00 of current day SP)
+            const spDate = new Date(now.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }))
+            spDate.setHours(0, 0, 0, 0)
+
+            // Compensate manually for ISO conversion which is always UTC
+            // spDate is now local midnight. We want to tell Supabase "show me everything after this"
+            // To be safe and avoid timezone jitter, we just use local-relative comparison or 
+            // the simple ISO string of that midnight.
+            const midnightISO = spDate.toISOString()
 
             const { data, error: ordersErr } = await supabase
                 .from('pedidos')
@@ -209,7 +224,7 @@ export default function OrdersPage() {
                     ),
                     clientes(telefone, nome)
                 `)
-                .gte('criado_em', brMidnightAsUTC.toISOString())
+                .gte('criado_em', midnightISO)
                 .order('criado_em', { ascending: true })
                 .abortSignal(controller.signal)
 
@@ -219,8 +234,8 @@ export default function OrdersPage() {
 
             setOrders(data || [])
             _ordersCache = data || []
+            if (isSilent) setError(null) // Clear errors on successful silent refresh
         } catch (err) {
-            // Don't treat abort as a hard error
             if (err?.name === 'AbortError') {
                 console.warn('[Orders] Fetch timeout — request aborted after 15s')
                 if (!isSilent) setError('A conexão demorou demais. Tente atualizar.')
@@ -229,9 +244,10 @@ export default function OrdersPage() {
                 if (!isSilent) setError('Não foi possível carregar os pedidos.')
             }
         } finally {
-            // ALWAYS clear loading/refreshing states — no matter what happened
+            isFetchingRef.current = false
             setLoading(false)
             setIsRefreshing(false)
+            clearTimeout(timeoutId)
         }
     }
 
