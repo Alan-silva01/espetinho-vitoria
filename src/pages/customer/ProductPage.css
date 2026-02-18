@@ -420,28 +420,28 @@
 
 .product-addon-item {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 8px 12px;
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
+    flex-direction: column;
+    padding: 10px 12px;
+    background: #fdfdfd;
+    border: 1px solid #f0f0f0;
     border-radius: 12px;
     transition: all 0.2s;
     cursor: pointer;
     width: 100%;
     text-align: left;
-    min-height: 72px;
+    min-height: 48px;
+    position: relative;
 }
 
 .product-addon-item--selected {
+    border-color: rgba(196, 30, 46, 0.5);
     background: rgba(196, 30, 46, 0.05);
-    border-color: var(--cor-primaria);
 }
 
 .product-addon-item__left {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
 }
 
 .product-addon-item__img,

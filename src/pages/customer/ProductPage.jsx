@@ -441,7 +441,7 @@ export default function ProductPage() {
                                             onClick={() => handleOptionToggle(group, name)}
                                         >
                                             <div className="product-addon-item__left">
-                                                {img ? (
+                                                {img && (
                                                     <OptimizedImage
                                                         src={getImageUrl(img)}
                                                         alt={name}
@@ -449,10 +449,6 @@ export default function ProductPage() {
                                                         width={80}
                                                         height={80}
                                                     />
-                                                ) : (
-                                                    <div className="product-addon-item__img-placeholder">
-                                                        <span>{name.charAt(0)}</span>
-                                                    </div>
                                                 )}
                                                 <div className="product-addon-item__info">
                                                     <span className="product-addon-item__name">{name}</span>
