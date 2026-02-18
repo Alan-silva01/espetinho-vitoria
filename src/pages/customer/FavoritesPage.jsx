@@ -5,6 +5,7 @@ import { supabase } from '../../lib/supabase'
 import { useCart } from '../../hooks/useCart'
 import { formatCurrency, getImageUrl } from '../../lib/utils'
 import Loading from '../../components/ui/Loading'
+import Button from '../../components/ui/Button'
 import './FavoritesPage.css'
 
 export default function FavoritesPage() {
@@ -82,9 +83,9 @@ export default function FavoritesPage() {
                         </div>
                         <h2>Nenhum favorito ainda</h2>
                         <p>Os produtos mais curtidos aparecerão aqui!</p>
-                        <button className="btn btn-primary" onClick={() => navigate('/')}>
+                        <Button onClick={() => navigate('/')}>
                             Ver Cardápio
-                        </button>
+                        </Button>
                     </div>
                 ) : (
                     <div className="top-favorites-list">

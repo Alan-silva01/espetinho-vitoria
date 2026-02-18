@@ -7,6 +7,7 @@ import { useCustomer } from '../../context/CustomerContext'
 import { formatCurrency, getImageUrl } from '../../lib/utils'
 import { supabase } from '../../lib/supabase'
 import OptimizedImage from '../../components/ui/OptimizedImage'
+import Button from '../../components/ui/Button'
 import './CartPage.css'
 
 export default function CartPage() {
@@ -291,9 +292,9 @@ export default function CartPage() {
                 <span className="cart-empty__icon">🛒</span>
                 <h2>Seu carrinho está vazio</h2>
                 <p>Adicione itens do cardápio para fazer um pedido delicioso!</p>
-                <button className="cart-empty__btn btn btn-primary btn-md" onClick={() => navigate(customerCode ? `/${customerCode}` : '/')}>
+                <Button onClick={() => navigate(customerCode ? `/${customerCode}` : '/')}>
                     Ver Cardápio
-                </button>
+                </Button>
             </div>
         )
     }

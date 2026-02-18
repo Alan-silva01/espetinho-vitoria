@@ -5,6 +5,7 @@ import { useCustomer } from '../../context/CustomerContext'
 import { useCustomerOrders } from '../../hooks/useOrders'
 import { formatCurrency, getStatusLabel } from '../../lib/utils'
 import Loading from '../../components/ui/Loading'
+import Button from '../../components/ui/Button'
 import './OrdersListPage.css'
 
 export default function OrdersListPage() {
@@ -43,9 +44,9 @@ export default function OrdersListPage() {
                         </div>
                         <h2>Nenhum pedido ainda</h2>
                         <p>Seus pedidos aparecerão aqui após você fazer seu primeiro pedido!</p>
-                        <button className="btn btn-primary btn-md" onClick={() => navigate('/')}>
+                        <Button onClick={() => navigate('/')}>
                             Ver Cardápio
-                        </button>
+                        </Button>
                     </div>
                 ) : (
                     <div className="orders-grid">
