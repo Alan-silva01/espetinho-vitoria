@@ -28,6 +28,18 @@ function getDisplayName(baseName, selectedVariation) {
     return `${cleanBase} - ${selectedVariation.nome}`
 }
 
+// Helper: Format name to make text inside parentheses smaller
+const formatNameWithAccessories = (name) => {
+    if (!name) return name
+    const parts = name.split(/(\(.*?\))/g)
+    return parts.map((part, i) => {
+        if (part.startsWith('(') && part.endsWith(')')) {
+            return <span key={i} className="product-name-accessories">{part}</span>
+        }
+        return part
+    })
+}
+
 export default function ProductPage() {
     const { id } = useParams()
     const navigate = useNavigate()
@@ -319,7 +331,9 @@ export default function ProductPage() {
             <main className="product-content">
                 {/* Header Info */}
                 <div className="product-info">
-                    <h1 className="product-info__name">{getDisplayName(product.nome, selectedVariation)}</h1>
+                    <h1 className="product-info__name">
+                        {formatNameWithAccessories(getDisplayName(product.nome, selectedVariation))}
+                    </h1>
 
                     {/* Tags conditionally rendered to avoid "too many highlights" */}
                     {(product.categoria?.nome === 'Espetos' || product.categoria?.nome === 'Açaí' || product.categoria?.nome === 'Caldos') && (
@@ -368,7 +382,9 @@ export default function ProductPage() {
                                                 checked={selectedVariation?.id === v.id}
                                                 onChange={() => setSelectedVariation(v)}
                                             />
-                                            <span className="product-option__label">{v.nome}</span>
+                                            <span className="product-option__label">
+                                                {formatNameWithAccessories(v.nome)}
+                                            </span>
                                         </div>
                                         <span className="product-option__price">{formatCurrency(v.preco)}</span>
                                     </label>
