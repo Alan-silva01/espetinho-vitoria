@@ -94,8 +94,8 @@ export default function TrackingPage() {
                     </div>
                 </div>
 
-                {/* Comanda Summary (Mesa Only) */}
-                {isMesa && order.comanda_id && (
+                {/* Comanda Summary (Mesa Only) - Only show if there are active orders */}
+                {isMesa && order.comanda_id && comandaOrders.length > 0 && (
                     <div className="tracking-comanda-card animate-slide-down">
                         <div className="tracking-comanda-header">
                             <div className="tracking-comanda-header__info">

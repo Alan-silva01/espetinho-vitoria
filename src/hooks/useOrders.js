@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 
 export function useOrders() {
@@ -379,7 +379,7 @@ export function useComanda(comandaId) {
     const [orders, setOrders] = useState([])
     const [loading, setLoading] = useState(true)
 
-    const fetchOrders = async () => {
+    const fetchOrders = useCallback(async () => {
         if (!comandaId) {
             setLoading(false)
             return
@@ -389,6 +389,7 @@ export function useComanda(comandaId) {
                 .from('pedidos')
                 .select('*, itens_pedido(*, produtos(nome, imagem_url), variacoes_produto(nome))')
                 .eq('comanda_id', comandaId)
+                .eq('pago', false) // Only show unpaid orders (current session)
                 .order('criado_em', { ascending: true })
 
             if (error) throw error
@@ -398,7 +399,7 @@ export function useComanda(comandaId) {
         } finally {
             setLoading(false)
         }
-    }
+    }, [comandaId])
 
     useEffect(() => {
         fetchOrders()
@@ -411,10 +412,15 @@ export function useComanda(comandaId) {
                     event: '*',
                     schema: 'public',
                     table: 'pedidos',
-                    filter: `comanda_id=eq.${comandaId}`,
+                    filter: `comanda_id=eq.${comandaId}`, // We filter in JS or filter precisely here
                 },
-                () => {
-                    fetchOrders()
+                (payload) => {
+                    // Refresh if the updated/inserted order is not paid
+                    if (payload.new && payload.new.pago === true) {
+                        fetchOrders() // This will clear the items because of the .eq('pago', false) filter
+                    } else {
+                        fetchOrders()
+                    }
                 }
             )
             .subscribe()
@@ -422,7 +428,7 @@ export function useComanda(comandaId) {
         return () => {
             supabase.removeChannel(channel)
         }
-    }, [comandaId])
+    }, [comandaId, fetchOrders])
 
     const total = orders.reduce((acc, order) => acc + (order.pago ? 0 : order.valor_total), 0)
     const status = orders[0]?.comanda_status || 'aberta'
