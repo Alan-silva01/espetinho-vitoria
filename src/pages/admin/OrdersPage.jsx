@@ -19,13 +19,11 @@ const STAGES = [
     { id: 'entregue', label: 'Servido / Finalizado', icon: CheckCircle2, color: '#10B981' }
 ]
 
-// Valid forward transitions for drag-and-drop
-const VALID_TRANSITIONS = {
-    'confirmado': ['preparando'],
-    'preparando': ['saiu_entrega', 'entregue'], // entregue for mesa orders
-    'saiu_entrega': ['entregue'],
-    'entregue': [] // final state, no forward transitions
-}
+// Valid transitions for drag-and-drop (all directions allowed for admin flexibility)
+const ALL_STAGES = ['confirmado', 'preparando', 'saiu_entrega', 'entregue']
+const VALID_TRANSITIONS = Object.fromEntries(
+    ALL_STAGES.map(stage => [stage, ALL_STAGES.filter(s => s !== stage)])
+)
 
 export default function OrdersPage() {
     const [orders, setOrders] = useState([])
