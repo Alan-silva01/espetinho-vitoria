@@ -480,8 +480,15 @@
 .tracking-item-row__extras {
     font-size: 12px;
     color: #6B7280;
-    margin-top: 2px;
-    line-height: 1.4;
+    margin-top: 4px;
+    line-height: 1.5;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.tracking-item-row__extra-line strong {
+    color: #4B5563;
 }
 
 .tracking-item-row__obs {

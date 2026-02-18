@@ -122,19 +122,23 @@ export default function TrackingPage() {
                                     <div className="tracking-item-row__info">
                                         <div className="tracking-item-row__name">
                                             {item.produtos?.nome}
-                                            {item.variacao_id && (
+                                            {item.variacao_id && item.variacoes_produto?.nome && (
                                                 <span className="tracking-item-row__variation">
-                                                    • {item.variacoes_produto?.nome || 'Padrão'}
+                                                    - {item.variacoes_produto.nome}
                                                 </span>
                                             )}
                                         </div>
-                                        {item.personalizacao && item.personalizacao.length > 0 && (
+                                        {item.personalizacao && typeof item.personalizacao === 'object' && !Array.isArray(item.personalizacao) && (
                                             <div className="tracking-item-row__extras">
-                                                {item.personalizacao.map((opt, i) => (
-                                                    <span key={i}>
-                                                        {opt.nome}{i < item.personalizacao.length - 1 ? ', ' : ''}
-                                                    </span>
-                                                ))}
+                                                {Object.entries(item.personalizacao).map(([group, val]) => {
+                                                    const displayVal = Array.isArray(val) ? val.join(', ') : val
+                                                    if (!displayVal) return null
+                                                    return (
+                                                        <div key={group} className="tracking-item-row__extra-line">
+                                                            <strong>{group}:</strong> {String(displayVal)}
+                                                        </div>
+                                                    )
+                                                })}
                                             </div>
                                         )}
                                         {item.observacoes && (

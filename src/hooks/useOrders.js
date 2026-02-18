@@ -157,7 +157,7 @@ export function useOrderTracking(orderId) {
         async function fetchOrder() {
             const { data, error } = await supabase
                 .from('pedidos')
-                .select('*, itens_pedido(*, produtos(nome, imagem_url)), entregadores(nome, telefone)')
+                .select('*, itens_pedido(*, produtos(nome, imagem_url), variacoes_produto(nome)), entregadores(nome, telefone)')
                 .eq('id', orderId)
                 .single()
 
