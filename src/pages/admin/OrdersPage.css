@@ -55,6 +55,36 @@
     color: #94A3B8;
 }
 
+.date-picker-trigger {
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s;
+}
+
+.date-picker-trigger:hover {
+    background: #FF6A00;
+    color: white;
+    box-shadow: 0 4px 12px rgba(255, 106, 0, 0.2);
+}
+
+.dark .date-picker-trigger:hover {
+    background: #FF6A00;
+    color: white;
+}
+
+.hidden-date-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
 .header-right {
     display: flex;
     gap: 16px;

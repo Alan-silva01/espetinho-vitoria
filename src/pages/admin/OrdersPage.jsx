@@ -77,6 +77,11 @@ export default function OrdersPage() {
     const [allDrivers, setAllDrivers] = useState([])
     const [error, setError] = useState(null)
     const [isRefreshing, setIsRefreshing] = useState(false)
+    const [selectedDate, setSelectedDate] = useState(() => {
+        const now = new Date()
+        return now.toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' })
+    })
+    const dateInputRef = useRef(null)
     const audioRef = useRef(new Audio('/notificacao.mp3'))
     const selectedOrderRef = useRef(null)
     const inFlightRef = useRef(new Set()) // Guards concurrent updates
@@ -174,7 +179,7 @@ export default function OrdersPage() {
         return () => {
             supabase.removeChannel(channel)
         }
-    }, [])
+    }, [selectedDate])
 
     const isFetchingRef = useRef(false)
 
@@ -198,20 +203,14 @@ export default function OrdersPage() {
         const timeoutId = setTimeout(() => controller.abort(), 15000)
 
         try {
-            // Precise SP start-of-day: Current date at 00:00:00 in America/Sao_Paulo
-            const now = new Date()
-            const spOffset = -3 // Brazil Standard Time (UTC-3)
-
-            // Generate a ISO string for precisely midnight last night in BRT
-            // We go back slightly more (to 00:00 of current day SP)
-            const spDate = new Date(now.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }))
-            spDate.setHours(0, 0, 0, 0)
-
-            // Compensate manually for ISO conversion which is always UTC
-            // spDate is now local midnight. We want to tell Supabase "show me everything after this"
-            // To be safe and avoid timezone jitter, we just use local-relative comparison or 
-            // the simple ISO string of that midnight.
+            // Use selectedDate to compute midnight boundary
+            const [year, month, day] = selectedDate.split('-').map(Number)
+            const spDate = new Date(year, month - 1, day, 0, 0, 0, 0)
             const midnightISO = spDate.toISOString()
+
+            // End of day for filtering (next day midnight)
+            const endDate = new Date(year, month - 1, day + 1, 0, 0, 0, 0)
+            const endISO = endDate.toISOString()
 
             const { data, error: ordersErr } = await supabase
                 .from('pedidos')
@@ -225,6 +224,7 @@ export default function OrdersPage() {
                     clientes(telefone, nome)
                 `)
                 .gte('criado_em', midnightISO)
+                .lt('criado_em', endISO)
                 .order('criado_em', { ascending: true })
                 .abortSignal(controller.signal)
 
@@ -565,9 +565,28 @@ export default function OrdersPage() {
             <header className="orders-header-premium">
                 <div className="header-left">
                     <h1>Gerenciamento de Pedidos</h1>
-                    <div className="date-badge">
+                    <div className="date-badge date-picker-trigger" onClick={() => dateInputRef.current?.showPicker?.() || dateInputRef.current?.click()}>
                         <Calendar size={14} />
-                        <span>Hoje, {new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}</span>
+                        <span>
+                            {(() => {
+                                const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' })
+                                const [y, m, d] = selectedDate.split('-').map(Number)
+                                const dateObj = new Date(y, m - 1, d)
+                                if (selectedDate === today) {
+                                    return `Hoje, ${dateObj.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}`
+                                }
+                                return dateObj.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })
+                            })()}
+                        </span>
+                        <input
+                            ref={dateInputRef}
+                            type="date"
+                            value={selectedDate}
+                            onChange={(e) => {
+                                if (e.target.value) setSelectedDate(e.target.value)
+                            }}
+                            className="hidden-date-input"
+                        />
                     </div>
                 </div>
                 <div className="orders-actions">
