@@ -181,8 +181,8 @@ export default function CheckoutPage() {
                 pago: false,
                 comanda_status: comandaId ? 'aberta' : null,
                 itens: items,
-                cliente_id: customer?.id || null,
-                codigo_cliente: customerCode
+                cliente_id: tipoPedido === 'mesa' ? null : (customer?.id || null),
+                codigo_cliente: tipoPedido === 'mesa' ? null : customerCode
             }
 
             const summary = items.map(item => {
@@ -199,7 +199,7 @@ export default function CheckoutPage() {
             const pedido = await createOrder(orderData)
             const targetClientId = pedido.cliente_id || customer?.id
 
-            if (targetClientId) {
+            if (tipoPedido !== 'mesa' && targetClientId) {
                 await updateLastOrder(
                     `Pedido #${pedido.numero_pedido || pedido.id.slice(0, 5)}: ${summary}`,
                     tipoPedido === 'entrega' ? addressData : null,
