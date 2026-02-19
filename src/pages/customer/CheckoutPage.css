@@ -435,32 +435,37 @@
 }
 
 .checkout-address-card__receiver {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
     margin-top: 12px;
     padding-top: 12px;
     border-top: 1px solid #F3F4F6;
 }
 
+.checkout-address-card__receiver-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    row-gap: 8px;
+}
+
 .checkout-address-card__receiver-item {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     font-size: 14px;
     color: #4B5563;
     font-weight: 500;
 }
 
-.checkout-address-card__receiver-item span:first-of-type {
+.receiver-item-icon {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 20px;
+    color: #9CA3AF;
 }
 
-.checkout-address-card__receiver-item svg {
-    color: #9CA3AF;
+.receiver-item-text {
+    white-space: nowrap;
 }
 
 .checkout-address-card__edit {

@@ -350,13 +350,15 @@ export default function CheckoutPage() {
                                         </p>
                                     )}
                                     <div className="checkout-address-card__receiver">
-                                        <div className="checkout-address-card__receiver-item">
-                                            <User size={14} />
-                                            <span>{addressData.nome_recebedor}</span>
-                                        </div>
-                                        <div className="checkout-address-card__receiver-item">
-                                            <span style={{ fontSize: '14px' }}>📱</span>
-                                            <span>{addressData.telefone_recebedor.replace(/@s.whatsapp.net/g, '')}</span>
+                                        <div className="checkout-address-card__receiver-group">
+                                            <div className="checkout-address-card__receiver-item">
+                                                <span className="receiver-item-icon"><User size={14} /></span>
+                                                <span className="receiver-item-text">{addressData.nome_recebedor}</span>
+                                            </div>
+                                            <div className="checkout-address-card__receiver-item">
+                                                <span className="receiver-item-icon" style={{ fontSize: '14px' }}>📱</span>
+                                                <span className="receiver-item-text">{addressData.telefone_recebedor.replace(/@s.whatsapp.net/g, '')}</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
