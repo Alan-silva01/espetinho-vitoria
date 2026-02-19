@@ -114,7 +114,7 @@ export default function CheckoutPage() {
                 if (isActuallyEmpty || noManualOverride) {
                     const newData = {
                         nome_recebedor: dados.nome_recebedor || dados.receiverName || dados.nome || customer.nome || '',
-                        telefone_recebedor: dados.telefone_recebedor || dados.receiverPhone || dados.whatsapp || customer.telefone || '',
+                        telefone_recebedor: (dados.whatsapp || dados.telefone_recebedor || dados.receiverPhone || customer.telefone || '').replace(/@s.whatsapp.net/g, ''),
                         rua: dbAddr.rua || dbAddr.street || dbAddr.logradouro || '',
                         numero: dbAddr.numero || dbAddr.number || '',
                         bairro: dbAddr.bairro || dbAddr.neighborhood || '',
@@ -350,8 +350,14 @@ export default function CheckoutPage() {
                                         </p>
                                     )}
                                     <div className="checkout-address-card__receiver">
-                                        <span>👤 {addressData.nome_recebedor}</span>
-                                        <span>📱 {addressData.telefone_recebedor}</span>
+                                        <div className="checkout-address-card__receiver-item">
+                                            <User size={14} />
+                                            <span>{addressData.nome_recebedor}</span>
+                                        </div>
+                                        <div className="checkout-address-card__receiver-item">
+                                            <span style={{ fontSize: '14px' }}>📱</span>
+                                            <span>{addressData.telefone_recebedor.replace(/@s.whatsapp.net/g, '')}</span>
+                                        </div>
                                     </div>
                                 </div>
                                 <button
