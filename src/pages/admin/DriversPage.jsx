@@ -11,13 +11,13 @@ import { supabase, supabaseUrl, supabaseAnonKey } from '../../lib/supabase'
 import { formatCurrency } from '../../lib/utils'
 import './DriversPage.css'
 
-let _driversCache = null
+
 
 export default function DriversPage() {
-    const [drivers, setDrivers] = useState(_driversCache?.drivers || [])
-    const [loading, setLoading] = useState(!_driversCache)
-    const [pendingOrders, setPendingOrders] = useState(_driversCache?.pendingOrders || [])
-    const [stats, setStats] = useState(_driversCache?.stats || {
+    const [drivers, setDrivers] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [pendingOrders, setPendingOrders] = useState([])
+    const [stats, setStats] = useState({
         todayDeliveries: 0,
         activeDrivers: 0,
         avgTime: 0
@@ -54,7 +54,7 @@ export default function DriversPage() {
     }, [])
 
     async function fetchDriversData() {
-        if (!_driversCache) setLoading(true)
+        setLoading(true)
         try {
             const today = new Date()
             today.setHours(0, 0, 0, 0)
@@ -102,7 +102,7 @@ export default function DriversPage() {
                 }
                 setStats(newStats)
                 setPendingOrders(pending || [])
-                _driversCache = { drivers: enriched, stats: newStats, pendingOrders: pending || [] }
+
             }
         } catch (err) {
             console.error('Erro Drivers:', err)

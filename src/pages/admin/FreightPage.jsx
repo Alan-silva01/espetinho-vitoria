@@ -4,11 +4,11 @@ import { supabase } from '../../lib/supabase'
 import { formatCurrency } from '../../lib/utils'
 import './FreightPage.css'
 
-let _freightCache = null
+
 
 export default function FreightPage() {
-    const [loading, setLoading] = useState(!_freightCache)
-    const [freightFees, setFreightFees] = useState(_freightCache?.fees || [])
+    const [loading, setLoading] = useState(true)
+    const [freightFees, setFreightFees] = useState([])
     const [searchTerm, setSearchTerm] = useState('')
     const [isAdding, setIsAdding] = useState(false)
     const [feedback, setFeedback] = useState({ type: '', msg: '' })
@@ -22,7 +22,7 @@ export default function FreightPage() {
     }, [])
 
     async function fetchFreightFees() {
-        if (!_freightCache) setLoading(true)
+        setLoading(true)
         try {
             const { data, error } = await supabase
                 .from('taxas_entrega')
@@ -30,7 +30,7 @@ export default function FreightPage() {
                 .order('local')
             if (error) throw error
             setFreightFees(data || [])
-            _freightCache = { fees: data || [] }
+
         } catch (err) {
             console.error('Erro ao buscar fretes:', err)
         } finally {

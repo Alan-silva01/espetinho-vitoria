@@ -9,12 +9,12 @@ import { uploadImage, isCloudinaryConfigured } from '../../lib/cloudinary'
 import { formatCurrency } from '../../lib/utils'
 import './PromotionsPage.css'
 
-let _promotionsCache = null
+
 
 export default function PromotionsPage() {
-    const [promotions, setPromotions] = useState(_promotionsCache?.promotions || [])
-    const [products, setProducts] = useState(_promotionsCache?.products || [])
-    const [loading, setLoading] = useState(!_promotionsCache)
+    const [promotions, setPromotions] = useState([])
+    const [products, setProducts] = useState([])
+    const [loading, setLoading] = useState(true)
     const [editId, setEditId] = useState(null)
     const [editData, setEditData] = useState({})
     const [filter, setFilter] = useState('Todas')
@@ -40,14 +40,13 @@ export default function PromotionsPage() {
     }, [])
 
     async function fetchPromotions() {
-        if (!_promotionsCache) setLoading(true)
+        setLoading(true)
         const { data } = await supabase
             .from('promocoes')
             .select('*')
             .order('ordem', { ascending: true })
         if (data) {
             setPromotions(data)
-            _promotionsCache = { ...(_promotionsCache || {}), promotions: data }
         }
         setLoading(false)
     }
@@ -59,7 +58,6 @@ export default function PromotionsPage() {
             .eq('disponivel', true)
         if (data) {
             setProducts(data)
-            _promotionsCache = { ...(_promotionsCache || {}), products: data }
         }
     }
 

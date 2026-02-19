@@ -9,11 +9,11 @@ import { supabase } from '../../lib/supabase'
 import { formatCurrency } from '../../lib/utils'
 import './CustomersPage.css'
 
-let _customersCache = null
+
 
 export default function CustomersPage() {
-    const [customers, setCustomers] = useState(_customersCache?.customers || [])
-    const [loading, setLoading] = useState(!_customersCache)
+    const [customers, setCustomers] = useState([])
+    const [loading, setLoading] = useState(true)
     const [searchTerm, setSearchTerm] = useState('')
     const [deleteConfirm, setDeleteConfirm] = useState({ open: false, id: null, nome: '' })
     const [editModal, setEditModal] = useState({ open: false, mode: 'create', customer: null })
@@ -25,7 +25,7 @@ export default function CustomersPage() {
     }, [])
 
     async function fetchCustomers() {
-        if (!_customersCache) setLoading(true)
+        setLoading(true)
         try {
             const { data: customersData } = await supabase
                 .from('clientes')
@@ -59,7 +59,7 @@ export default function CustomersPage() {
                     }
                 })
                 setCustomers(enriched)
-                _customersCache = { customers: enriched }
+
             }
         } catch (err) {
             console.error('[fetchCustomers] Erro:', err)

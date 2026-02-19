@@ -7,11 +7,11 @@ import {
 import { supabase } from '../../lib/supabase'
 import './TablesPage.css'
 
-let _tablesCache = null
+
 
 export default function TablesPage() {
-    const [mesas, setMesas] = useState(_tablesCache?.mesas || [])
-    const [loading, setLoading] = useState(!_tablesCache)
+    const [mesas, setMesas] = useState([])
+    const [loading, setLoading] = useState(true)
     const [novaMesa, setNovaMesa] = useState('')
     const [showQR, setShowQR] = useState(null) // mesa id to show full QR
     const [saving, setSaving] = useState(false)
@@ -30,7 +30,7 @@ export default function TablesPage() {
 
         if (!error) {
             setMesas(data || [])
-            _tablesCache = { mesas: data || [] }
+
         }
         setLoading(false)
     }

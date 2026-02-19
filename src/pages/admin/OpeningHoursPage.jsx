@@ -6,13 +6,13 @@ import {
 import { supabase } from '../../lib/supabase'
 import './OpeningHoursPage.css'
 
-let _hoursCache = null
+
 
 export default function OpeningHoursPage() {
-    const [loading, setLoading] = useState(!_hoursCache)
+    const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
-    const [horarios, setHorarios] = useState(_hoursCache?.horarios || [])
-    const [config, setConfig] = useState(_hoursCache?.config || {})
+    const [horarios, setHorarios] = useState([])
+    const [config, setConfig] = useState({})
     const [feedback, setFeedback] = useState({ type: '', msg: '' })
 
     const diasNomes = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado']
@@ -22,7 +22,7 @@ export default function OpeningHoursPage() {
     }, [])
 
     async function fetchSettings() {
-        if (!_hoursCache) setLoading(true)
+        setLoading(true)
         try {
             const [configRes, horariosRes] = await Promise.all([
                 supabase.from('configuracoes_loja').select('*').single(),
@@ -38,7 +38,7 @@ export default function OpeningHoursPage() {
                     horario_fechamento: h.horario_fechamento || '22:00:00'
                 }))
                 setHorarios(formatted)
-                _hoursCache = { horarios: formatted, config: configRes.data }
+
             } else {
                 handleResetDefaults()
             }

@@ -14,22 +14,21 @@ import { supabase } from '../../lib/supabase'
 import { formatCurrency } from '../../lib/utils'
 import './DashboardPage.css'
 
-// Module-level cache to persist data between navigations
-let _dashCache = null
+
 
 export default function DashboardPage() {
-    const [stats, setStats] = useState(_dashCache?.stats || {
+    const [stats, setStats] = useState({
         revenue: 0,
         orders: 0,
         ticket: 0,
         upsell: 0
     })
-    const [topProducts, setTopProducts] = useState(_dashCache?.topProducts || [])
-    const [recentOrders, setRecentOrders] = useState(_dashCache?.recentOrders || [])
-    const [categorySales, setCategorySales] = useState(_dashCache?.categorySales || [])
-    const [lowStockProducts, setLowStockProducts] = useState(_dashCache?.lowStockProducts || [])
-    const [chartData, setChartData] = useState(_dashCache?.chartData || [])
-    const [loading, setLoading] = useState(!_dashCache)
+    const [topProducts, setTopProducts] = useState([])
+    const [recentOrders, setRecentOrders] = useState([])
+    const [categorySales, setCategorySales] = useState([])
+    const [lowStockProducts, setLowStockProducts] = useState([])
+    const [chartData, setChartData] = useState([])
+    const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
 
     useEffect(() => {
@@ -37,7 +36,7 @@ export default function DashboardPage() {
     }, [])
 
     async function fetchDashboardData() {
-        if (!_dashCache) setLoading(true)
+        setLoading(true)
         setError(null)
         try {
             const today = new Date()
@@ -146,19 +145,11 @@ export default function DashboardPage() {
             if (stockErr) throw stockErr
             setLowStockProducts(lowStockData || [])
 
-            // Update module-level cache
-            _dashCache = {
-                stats: { revenue: totalRevenue, orders: totalOrdersCount, ticket: avgTicket, upsell: 12 },
-                topProducts: Object.values(prodMap).sort((a, b) => b.vendas - a.vendas).slice(0, 5),
-                recentOrders: orders.slice(0, 4),
-                categorySales: categoryData,
-                lowStockProducts: lowStockData || [],
-                chartData: last7Days,
-            }
+
 
         } catch (error) {
             console.error('[Dashboard] Erro ao carregar dados:', error)
-            if (!_dashCache) setError('Falha ao sincronizar métricas.')
+            setError('Falha ao sincronizar métricas.')
         } finally {
             setLoading(false)
         }

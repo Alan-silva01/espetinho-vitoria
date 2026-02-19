@@ -9,18 +9,18 @@ import {
 import { supabase } from '../../lib/supabase'
 import './InventoryPage.css'
 
-let _inventoryCache = null
+
 
 export default function InventoryPage() {
-    const [inventory, setInventory] = useState(_inventoryCache?.inventory || [])
-    const [loading, setLoading] = useState(!_inventoryCache)
+    const [inventory, setInventory] = useState([])
+    const [loading, setLoading] = useState(true)
     const [searchTerm, setSearchTerm] = useState('')
-    const [stats, setStats] = useState(_inventoryCache?.stats || {
+    const [stats, setStats] = useState({
         total: 0,
         sales: 0,
         alerts: 0
     })
-    const [activities, setActivities] = useState(_inventoryCache?.activities || [])
+    const [activities, setActivities] = useState([])
     const [saving, setSaving] = useState(false)
     const [savingItem, setSavingItem] = useState(null)
     const [isAddonsMode, setIsAddonsMode] = useState(false)
@@ -64,7 +64,7 @@ export default function InventoryPage() {
     }, [])
 
     async function fetchInventory(isSilent = false) {
-        if (!isSilent && !_inventoryCache) setLoading(true)
+        if (!isSilent) setLoading(true)
         setError(null)
 
         const controller = new AbortController()
@@ -143,22 +143,7 @@ export default function InventoryPage() {
                 setActivities(formatted)
             }
 
-            // Update cache
-            _inventoryCache = {
-                inventory: merged,
-                stats: {
-                    total: totalStock,
-                    sales: totalSold,
-                    alerts: lowStock
-                },
-                activities: recentItems ? recentItems.map(item => ({
-                    id: item.pedidos?.id,
-                    title: `Pedido #${item.pedidos?.numero_pedido}`,
-                    subtitle: `${item.quantidade}x ${item.produtos?.nome}`,
-                    time: new Date(item.pedidos?.criado_em).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                    type: 'blue'
-                })) : []
-            }
+
         } catch (err) {
             if (err.name === 'AbortError') {
                 console.warn('[Inventory] Request timed out')

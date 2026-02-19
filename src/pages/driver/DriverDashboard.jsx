@@ -52,7 +52,7 @@ function getItemsSummary(itens) {
 export default function DriverDashboard() {
     const { driver, logout, loading: authLoading, initializing } = useDriverAuth()
     const [orders, setOrders] = useState([])
-    const [loading, setLoading] = useState(false)
+    const [initialLoading, setInitialLoading] = useState(true)
     const [selectedOrder, setSelectedOrder] = useState(null)
     const [paymentModal, setPaymentModal] = useState({ open: false, order: null })
     const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null)
@@ -103,10 +103,9 @@ export default function DriverDashboard() {
     };
 
 
-    const fetchDriverOrders = useCallback(async (isSilent = false) => {
+    const fetchDriverOrders = useCallback(async () => {
         if (!driver?.id) return
 
-        if (!isSilent) setLoading(true)
         try {
             const now = new Date()
             const brTimeStr = now.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' })
@@ -139,14 +138,14 @@ export default function DriverDashboard() {
         } catch (err) {
             console.error('Critical Error in fetchDriverOrders:', err)
         } finally {
-            setLoading(false)
+            setInitialLoading(false)
         }
     }, [driver])
 
     useEffect(() => {
         let channel = null
         if (driver?.id) {
-            fetchDriverOrders()
+            fetchDriverOrders()  // initial load — will set initialLoading=false in finally
 
             try {
                 channel = supabase
@@ -163,7 +162,7 @@ export default function DriverDashboard() {
 
                                 // 2. Silent Refresh: Sync full data (items, etc) after a small delay
                                 setTimeout(() => {
-                                    fetchDriverOrders(true).then(() => {
+                                    fetchDriverOrders().then(() => {
                                         // Sync payment modal if the updated order is the one being viewed
                                         if (paymentModalRef.current?.open && paymentModalRef.current?.order?.id === payload.new.id) {
                                             setOrders(currentOrders => {
@@ -175,8 +174,8 @@ export default function DriverDashboard() {
                                     })
                                 }, 800)
                             } else {
-                                // For INSERT/DELETE or other, just silent refresh
-                                fetchDriverOrders(true)
+                                // For INSERT/DELETE or other, just refresh
+                                fetchDriverOrders()
                             }
                         }
                     )
@@ -230,8 +229,15 @@ export default function DriverDashboard() {
                 throw new Error('Sem permissão para atualizar este pedido. Verifique as permissões do banco.')
             }
 
+            // Optimistic update: move order to 'entregue' in local state immediately
+            setOrders(prev => prev.map(o =>
+                o.id === paymentModal.order.id ? { ...o, ...updatePayload } : o
+            ))
+
             setPaymentModal({ open: false, order: null })
-            await fetchDriverOrders()
+
+            // Silent background refresh — does NOT block UI
+            fetchDriverOrders()
         } catch (err) {
             console.error('[Driver] Erro ao finalizar:', err)
             alert('Erro ao finalizar pedido: ' + err.message)
@@ -240,7 +246,7 @@ export default function DriverDashboard() {
         }
     }
 
-    if (initializing || authLoading || loading) return (
+    if (initializing || authLoading || initialLoading) return (
         <div className="driver-loading">
             <Bike size={40} className="animate-bounce" />
             <p>{initializing ? 'Iniciando sistema...' : 'Carregando pedidos...'}</p>

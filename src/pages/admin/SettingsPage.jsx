@@ -11,13 +11,13 @@ import { supabase } from '../../lib/supabase'
 import { formatCurrency } from '../../lib/utils'
 import './SettingsPage.css'
 
-let _settingsCache = null
+
 
 export default function SettingsPage() {
-    const [loading, setLoading] = useState(!_settingsCache)
+    const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
     const [activeTab, setActiveTab] = useState('Geral')
-    const [config, setConfig] = useState(_settingsCache?.config || {})
+    const [config, setConfig] = useState({})
     const [feedback, setFeedback] = useState({ type: '', msg: '' })
 
 
@@ -26,12 +26,11 @@ export default function SettingsPage() {
     }, [])
 
     async function fetchSettings() {
-        if (!_settingsCache) setLoading(true)
+        setLoading(true)
         try {
             const { data, error } = await supabase.from('configuracoes_loja').select('*').single()
             if (data) {
                 setConfig(data)
-                _settingsCache = { config: data }
             }
             if (error) throw error
         } catch (err) {

@@ -14,7 +14,7 @@ import './OrdersPage.css'
 // Importando a logo para garantir que ela esteja disponível para o print
 import logoImg from '../../../logo.png'
 
-let _ordersCache = null
+
 
 function ComandaSummary({ comandaId, onFinalize }) {
     const { orders, total, status, loading } = useComanda(comandaId)
@@ -69,8 +69,8 @@ const getItemDisplayName = (item) => {
 
 export default function OrdersPage() {
     const { finalizeComanda } = useOrders()
-    const [orders, setOrders] = useState(_ordersCache || [])
-    const [loading, setLoading] = useState(!_ordersCache)
+    const [orders, setOrders] = useState([])
+    const [loading, setLoading] = useState(true)
     const [selectedOrder, setSelectedOrder] = useState(null)
     const [searchTerm, setSearchTerm] = useState('')
     const [activeStage, setActiveStage] = useState('confirmado')
@@ -187,7 +187,7 @@ export default function OrdersPage() {
 
         isFetchingRef.current = true
 
-        if (!isSilent && !_ordersCache) {
+        if (!isSilent) {
             setLoading(true)
             setError(null)
         } else if (isSilent) {
@@ -233,7 +233,7 @@ export default function OrdersPage() {
             if (ordersErr) throw ordersErr
 
             setOrders(data || [])
-            _ordersCache = data || []
+
             if (isSilent) setError(null) // Clear errors on successful silent refresh
         } catch (err) {
             if (err?.name === 'AbortError') {
