@@ -308,8 +308,8 @@ export default function OrdersPage() {
                     // Increased delay to 1.5s for safer DB propagation
                     setTimeout(() => fetchOrders(true), 1500)
 
-                    // Auto-print if enabled
-                    if (autoPrintRef.current && payload.new?.id) {
+                    // Auto-print if enabled (skip table orders)
+                    if (autoPrintRef.current && payload.new?.id && payload.new?.tipo_pedido !== 'mesa') {
                         // Wait for items to be fully saved before printing
                         setTimeout(() => autoPrintOrder(payload.new.id), 2500)
                     }
