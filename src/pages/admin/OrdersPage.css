@@ -130,6 +130,47 @@
     color: inherit;
 }
 
+.btn-auto-print {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: white;
+    border: 1px solid #E2E8F0;
+    padding: 10px 16px;
+    border-radius: 14px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #64748B;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.btn-auto-print.active {
+    background: #059669;
+    color: white;
+    border-color: #059669;
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+}
+
+.btn-auto-print:hover:not(.active) {
+    background: #f0fdf4;
+    border-color: #059669;
+    color: #059669;
+}
+
+.dark .btn-auto-print {
+    background: #1E293B;
+    border-color: #334155;
+    color: #94A3B8;
+}
+
+.dark .btn-auto-print.active {
+    background: #059669;
+    color: white;
+    border-color: #059669;
+}
+
 .btn-refresh-kanban {
     display: flex;
     align-items: center;

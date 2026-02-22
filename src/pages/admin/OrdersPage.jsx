@@ -87,6 +87,10 @@ export default function OrdersPage() {
     const inFlightRef = useRef(new Set()) // Guards concurrent updates
     const [comandaToFinalize, setComandaToFinalize] = useState(null)
     const ordersRef = useRef(orders) // Always-fresh orders reference
+    const [autoPrint, setAutoPrint] = useState(() => {
+        return localStorage.getItem('espetinho_auto_print') === 'true'
+    })
+    const autoPrintRef = useRef(autoPrint)
 
     useEffect(() => {
         ordersRef.current = orders
@@ -95,6 +99,189 @@ export default function OrdersPage() {
     useEffect(() => {
         selectedOrderRef.current = selectedOrder
     }, [selectedOrder])
+
+    useEffect(() => {
+        autoPrintRef.current = autoPrint
+    }, [autoPrint])
+
+    const toggleAutoPrint = () => {
+        setAutoPrint(prev => {
+            const next = !prev
+            localStorage.setItem('espetinho_auto_print', next)
+            return next
+        })
+    }
+
+    // Auto-print: fetch full order data and print via hidden iframe
+    const autoPrintOrder = async (orderId) => {
+        try {
+            const { data: order, error } = await supabase
+                .from('pedidos')
+                .select(`
+                    *,
+                    itens:itens_pedido(
+                        *,
+                        produtos(nome),
+                        variacoes_produto(nome)
+                    ),
+                    clientes(telefone, nome)
+                `)
+                .eq('id', orderId)
+                .single()
+
+            if (error || !order) {
+                console.error('[AutoPrint] Erro ao buscar pedido:', error)
+                return
+            }
+
+            const itemDisplayName = (item) => {
+                const baseName = item.produtos?.nome || 'Item'
+                const variationName = item.variacoes_produto?.nome
+                if (!variationName) return baseName
+                const cleanBase = baseName.replace(/\s*[-–]\s*(Completo|Com .+|Só .+)$/i, '').trim()
+                return `${cleanBase} - ${variationName}`
+            }
+
+            const fmtCurrency = (v) => {
+                const num = Number(v) || 0
+                return num.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+            }
+
+            const tipoLabel = order.tipo_pedido === 'entrega' ? 'ENTREGA PARCEIRA' : order.tipo_pedido === 'mesa' ? order.nome_cliente?.toUpperCase() : 'RETIRADA NA LOJA'
+            const dataStr = new Date(order.criado_em).toLocaleDateString('pt-BR')
+            const horaStr = new Date(order.criado_em).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+
+            let enderecoHTML = ''
+            if (order.tipo_pedido === 'entrega' && order.endereco) {
+                const end = order.endereco
+                const addr = typeof end === 'string' ? end.toUpperCase() : `${end.rua?.toUpperCase()}, ${end.numero}`
+                const bairro = end.bairro?.toUpperCase() || ''
+                const ref = end.referencia ? `<div>REF: ${end.referencia.toUpperCase()}</div>` : ''
+                enderecoHTML = `
+                    <div style="border-top:1px dashed black;margin:3mm 0"></div>
+                    <div style="text-align:center;font-weight:900;font-size:13px;margin-bottom:2mm">ENDEREÇO DE ENTREGA</div>
+                    <div>${addr}</div>
+                    <div>${bairro}</div>
+                    ${ref}`
+            }
+
+            const itensHTML = (order.itens || []).map(item => {
+                let details = ''
+                if (item.personalizacao && typeof item.personalizacao === 'object') {
+                    details += Object.entries(item.personalizacao).map(([k, v]) =>
+                        `<div style="font-size:9px;padding-left:1mm">- ${k.toUpperCase()}: ${String(v).toUpperCase()}</div>`
+                    ).join('')
+                }
+                if (item.observacoes) {
+                    details += `<div style="font-size:9px;padding-left:1mm;font-weight:bold">* OBS: ${item.observacoes.toUpperCase()}</div>`
+                }
+                return `<tr>
+                    <td>${item.quantidade}</td>
+                    <td><div>${itemDisplayName(item)?.toUpperCase()}</div>${details}</td>
+                    <td style="text-align:right">${fmtCurrency(item.preco_unitario * item.quantidade)}</td>
+                </tr>`
+            }).join('')
+
+            let taxaHTML = ''
+            if (order.taxa_entrega > 0) {
+                taxaHTML = `<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:1mm">
+                    <span>TAXA DE ENTREGA</span><span>${fmtCurrency(order.taxa_entrega)}</span></div>`
+            }
+
+            let trocoHTML = ''
+            if (order.troco_para) {
+                trocoHTML = `<div style="display:flex;justify-content:space-between;margin-top:2mm">
+                    <span style="font-weight:900">TROCO PARA:</span><span>${fmtCurrency(order.troco_para)}</span></div>`
+            }
+
+            let obsHTML = ''
+            if (order.observacoes) {
+                obsHTML = `<div style="border-top:1px dashed black;margin:3mm 0"></div>
+                    <div style="text-align:center;font-weight:900;font-size:13px;margin-bottom:2mm">OBSERVAÇÃO GERAL</div>
+                    <div style="text-align:center;font-weight:bold">${order.observacoes.toUpperCase()}</div>`
+            }
+
+            const receiptHTML = `<!DOCTYPE html><html><head><meta charset="utf-8">
+            <style>
+                * { margin:0; padding:0; box-sizing:border-box; }
+                body { width:58mm; padding:2mm; font-family:'Courier New',Courier,monospace; font-size:11px; line-height:1.2; text-transform:uppercase; color:black; }
+                .divider { border-top:1px dashed black; margin:3mm 0; }
+                .section-title { text-align:center; font-weight:900; font-size:13px; margin-bottom:2mm; }
+                .header-info { text-align:center; margin-bottom:4mm; }
+                .order-num { font-size:18px; font-weight:950; }
+                .data-row { display:flex; justify-content:space-between; margin-bottom:1mm; }
+                .label { font-weight:900; }
+                table { width:100%; border-collapse:collapse; margin:4mm 0; }
+                th { text-align:left; border-bottom:1px solid black; padding-bottom:1mm; font-size:10px; }
+                td { padding:2mm 0; vertical-align:top; font-size:11px; }
+                .total-big { font-size:16px; font-weight:950; margin-top:2mm; border-top:1px solid black; padding-top:2mm; display:flex; justify-content:space-between; }
+                .footer { text-align:center; margin-top:8mm; font-size:11px; }
+            </style></head><body>
+                <div class="header-info">
+                    <div class="order-num">PEDIDO #${order.numero_pedido}</div>
+                    <div>${tipoLabel}</div>
+                    <div>${dataStr} - ${horaStr}</div>
+                </div>
+                <div class="divider"></div>
+                <div><div class="section-title">ESTABELECIMENTO</div>
+                <div style="text-align:center">ESPETINHO VITÓRIA - ESPETOS, AÇAÍ E CALDOS</div></div>
+                <div class="divider"></div>
+                <div><div class="section-title">CLIENTE</div>
+                <div class="data-row"><span class="label">NOME:</span><span>${order.nome_cliente?.toUpperCase() || 'N/A'}</span></div>
+                <div class="data-row"><span class="label">TEL:</span><span>${order.telefone_cliente || order.clientes?.telefone || 'N/A'}</span></div></div>
+                ${enderecoHTML}
+                <div class="divider"></div>
+                <div><div class="section-title">ITENS DO PEDIDO</div>
+                <table><thead><tr><th style="width:10%">QTD</th><th style="width:65%">ITENS</th><th style="width:25%;text-align:right">PREÇO</th></tr></thead>
+                <tbody>${itensHTML}</tbody></table></div>
+                <div class="divider"></div>
+                <div>
+                    <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:1mm">
+                        <span>ITENS DO PEDIDO</span><span>${fmtCurrency(order.subtotal)}</span></div>
+                    ${taxaHTML}
+                    <div class="total-big"><span>TOTAL</span><span>${fmtCurrency(order.valor_total)}</span></div>
+                </div>
+                <div class="divider"></div>
+                <div><div class="section-title">FORMA DE PAGAMENTO</div>
+                <div class="data-row"><span>${order.forma_pagamento?.toUpperCase()}</span><span>${fmtCurrency(order.valor_total)}</span></div>
+                ${trocoHTML}</div>
+                ${obsHTML}
+                <div class="footer">OBRIGADO PELA PREFERÊNCIA!<br>ESPETINHO VITÓRIA</div>
+            </body></html>`
+
+            // Print via hidden iframe
+            const iframe = document.createElement('iframe')
+            iframe.style.position = 'fixed'
+            iframe.style.top = '-10000px'
+            iframe.style.left = '-10000px'
+            iframe.style.width = '58mm'
+            iframe.style.height = '0'
+            document.body.appendChild(iframe)
+
+            iframe.contentDocument.open()
+            iframe.contentDocument.write(receiptHTML)
+            iframe.contentDocument.close()
+
+            // Wait for content to render then print
+            iframe.onload = () => {
+                setTimeout(() => {
+                    try {
+                        iframe.contentWindow.print()
+                    } catch (e) {
+                        console.error('[AutoPrint] Print failed:', e)
+                    }
+                    // Cleanup after print dialog closes
+                    setTimeout(() => {
+                        document.body.removeChild(iframe)
+                    }, 2000)
+                }, 300)
+            }
+
+            console.log('[AutoPrint] Imprimindo pedido #' + order.numero_pedido)
+        } catch (err) {
+            console.error('[AutoPrint] Erro:', err)
+        }
+    }
 
 
     const playNotificationSound = () => {
@@ -120,6 +307,12 @@ export default function OrdersPage() {
                     playNotificationSound()
                     // Increased delay to 1.5s for safer DB propagation
                     setTimeout(() => fetchOrders(true), 1500)
+
+                    // Auto-print if enabled
+                    if (autoPrintRef.current && payload.new?.id) {
+                        // Wait for items to be fully saved before printing
+                        setTimeout(() => autoPrintOrder(payload.new.id), 2500)
+                    }
                 }
 
                 if (payload.eventType === 'UPDATE') {
@@ -597,6 +790,15 @@ export default function OrdersPage() {
                     >
                         <Bell size={18} />
                         <span>Testar Som</span>
+                    </button>
+
+                    <button
+                        className={`btn-auto-print ${autoPrint ? 'active' : ''}`}
+                        onClick={toggleAutoPrint}
+                        title={autoPrint ? 'Auto-impressão ATIVADA' : 'Auto-impressão DESATIVADA'}
+                    >
+                        <Printer size={18} />
+                        <span>{autoPrint ? 'Auto Print ✓' : 'Auto Print'}</span>
                     </button>
 
                     <button
