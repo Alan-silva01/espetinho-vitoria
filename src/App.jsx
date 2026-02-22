@@ -4,8 +4,20 @@ import { CartProvider } from './hooks/useCart'
 import Loading from './components/ui/Loading'
 import { registerSW } from 'virtual:pwa-register'
 
-// Force PWA update
-registerSW()
+// Controlled PWA update — prevent reload storms
+const updateSW = registerSW({
+  onRegisteredSW(swUrl, registration) {
+    if (registration) {
+      // Check for updates every 60 seconds instead of aggressive auto-reload
+      setInterval(() => {
+        registration.update()
+      }, 60 * 1000)
+    }
+  },
+  onOfflineReady() {
+    console.log('[PWA] App ready for offline use')
+  }
+})
 
 /* Customer Pages */
 const HomePage = lazy(() => import('./pages/customer/HomePage'))
