@@ -62,6 +62,7 @@ export default function DriverDashboard() {
         window.Notification ? Notification.permission : 'default'
     )
     const paymentModalRef = useRef(null)
+    const inFlightOrdersRef = useRef(new Set()) // Guards against realtime reverting optimistic updates
 
     useEffect(() => {
         paymentModalRef.current = paymentModal
@@ -155,6 +156,13 @@ export default function DriverDashboard() {
                         { event: '*', schema: 'public', table: 'pedidos', filter: 'tipo_pedido=eq.entrega' },
                         (payload) => {
                             if (payload.eventType === 'UPDATE') {
+                                // Skip realtime merge for orders we are currently updating
+                                // to prevent reverting our optimistic update
+                                if (inFlightOrdersRef.current.has(payload.new.id)) {
+                                    console.log('[Realtime] Skipping merge for in-flight order:', payload.new.id)
+                                    return
+                                }
+
                                 // 1. Optimistic Update: Update order properties instantly in UI
                                 setOrders(prev => prev.map(order =>
                                     order.id === payload.new.id ? { ...order, ...payload.new } : order
@@ -162,6 +170,9 @@ export default function DriverDashboard() {
 
                                 // 2. Silent Refresh: Sync full data (items, etc) after a small delay
                                 setTimeout(() => {
+                                    // Double-check the order is still not in-flight before refreshing
+                                    if (inFlightOrdersRef.current.has(payload.new.id)) return
+
                                     fetchDriverOrders().then(() => {
                                         // Sync payment modal if the updated order is the one being viewed
                                         if (paymentModalRef.current?.open && paymentModalRef.current?.order?.id === payload.new.id) {
@@ -200,25 +211,36 @@ export default function DriverDashboard() {
     }
 
     const confirmPayment = async () => {
+        // Guard: prevent double-clicks
+        if (savingPayment) return
         if (!paymentModal.order || !selectedPaymentMethod) return
+
+        // Capture order ID immediately to prevent stale closure issues
+        const orderId = paymentModal.order.id
+        const orderNumero = paymentModal.order.numero_pedido
+
         setSavingPayment(true)
+        // Mark this order as in-flight so realtime won't revert our update
+        inFlightOrdersRef.current.add(orderId)
+
         try {
+            const now = new Date().toISOString()
             const updatePayload = {
                 status: 'entregue',
-                entregue_em: new Date().toISOString(),
+                entregue_em: now,
                 entregador_id: driver.id,
                 recebido_por_status: true,
-                recebido_valor: Number(receivedValor),
+                recebido_valor: Number(receivedValor) || 0,
                 recebido_metodo: selectedPaymentMethod,
-                recebido_em: new Date().toISOString()
+                recebido_em: now
             }
 
-            console.log('[Driver] Updating order:', paymentModal.order.id, updatePayload)
+            console.log('[Driver] Updating order:', orderId, '(#' + orderNumero + ')', updatePayload)
 
             const { data, error } = await supabase
                 .from('pedidos')
                 .update(updatePayload)
-                .eq('id', paymentModal.order.id)
+                .eq('id', orderId)
                 .select()
 
             console.log('[Driver] Update result:', { data, error })
@@ -231,15 +253,20 @@ export default function DriverDashboard() {
 
             // Optimistic update: move order to 'entregue' in local state immediately
             setOrders(prev => prev.map(o =>
-                o.id === paymentModal.order.id ? { ...o, ...updatePayload } : o
+                o.id === orderId ? { ...o, ...updatePayload } : o
             ))
 
             setPaymentModal({ open: false, order: null })
 
-            // Silent background refresh — does NOT block UI
-            fetchDriverOrders()
+            // Release in-flight guard after a delay, then do a silent refresh
+            setTimeout(() => {
+                inFlightOrdersRef.current.delete(orderId)
+                fetchDriverOrders()
+            }, 2000)
         } catch (err) {
             console.error('[Driver] Erro ao finalizar:', err)
+            // Release in-flight guard on error
+            inFlightOrdersRef.current.delete(orderId)
             alert('Erro ao finalizar pedido: ' + err.message)
         } finally {
             setSavingPayment(false)
