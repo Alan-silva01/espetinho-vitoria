@@ -27,7 +27,7 @@ export function CustomerProvider({ children }) {
         try {
             const { data, error } = await supabase
                 .from('clientes')
-                .select('*')
+                .select('id, codigo, nome, telefone, dados, criado_em, autorizado')
                 .eq('codigo', code)
                 .single()
 
@@ -69,7 +69,7 @@ export function CustomerProvider({ children }) {
         try {
             const { data, error } = await supabase
                 .from('clientes')
-                .select('*')
+                .select('id, codigo, nome, telefone, dados, criado_em, autorizado')
                 .eq('id', id)
                 .single()
 

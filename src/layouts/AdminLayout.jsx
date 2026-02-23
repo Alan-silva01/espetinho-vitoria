@@ -25,6 +25,8 @@ export default function AdminLayout() {
         setIsMobileMenuOpen(prev => !prev)
     }
 
+    console.log('[AdminLayout] Status:', { loading, isAuthenticated, user: !!user, admin: !!adminInfo })
+
     if (loading) {
         return (
             <div className="loading-wrapper-fullscreen">
@@ -35,8 +37,11 @@ export default function AdminLayout() {
 
     // Strict check: No user or no admin info means not allowed
     if (!isAuthenticated) {
+        console.log('[AdminLayout] Não autenticado, redirecionando para login...')
         return <Navigate to="/admin/login" replace />
     }
+
+    console.log('[AdminLayout] Autenticado com sucesso. Renderizando...')
 
     return (
         <div className={`admin-container ${isCollapsed ? 'sidebar-collapsed' : ''} ${isMobileMenuOpen ? 'mobile-menu-open' : ''}`}>

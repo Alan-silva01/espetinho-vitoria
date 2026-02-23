@@ -13,7 +13,9 @@ export function AuthProvider({ children }) {
     const initializedRef = useRef(false)
 
     async function resolveAdmin(authUser) {
+        console.log('[AuthContext] Resolvendo admin para:', authUser?.email)
         if (!mounted.current || !authUser) {
+            console.log('[AuthContext] Resolve abortado: não montado ou sem user')
             if (mounted.current) setState(prev => ({ ...prev, loading: false }))
             return
         }
@@ -45,66 +47,72 @@ export function AuthProvider({ children }) {
                 .single()
 
             if (mounted.current) {
+                console.log('[AuthContext] Admin resolvido com sucesso:', data?.nome)
                 setState({
                     user: authUser,
                     adminInfo: data || null,
                     loading: false
                 })
                 if (error || !data) {
-                    console.warn('[AuthContext] Not an admin:', error?.message)
+                    console.warn('[AuthContext] Não é um admin:', error?.message)
                 }
             }
         } catch (err) {
-            console.error('[AuthContext] Admin fetch error:', err)
+            console.error('[AuthContext] Erro ao resolver admin:', err)
             if (mounted.current) setState(prev => ({ ...prev, loading: false }))
+        }
+    }
+
+    async function init() {
+        console.log('[AuthContext] Inicializando...')
+        try {
+            // 1. Check for existing session
+            const { data: { session } } = await supabase.auth.getSession()
+            console.log('[AuthContext] Sessão inicial:', session ? 'Encontrada' : 'Nula')
+
+            if (session?.user) {
+                console.log('[AuthContext] Sessão existente encontrada, resolvendo admin...')
+                await resolveAdmin(session.user)
+                initializedRef.current = true
+                return
+            }
+
+            // 2. No session — check bypass
+            const bypass = localStorage.getItem('espetinho_admin_bypass')
+            if (bypass === 'true') {
+                console.log('[AuthContext] Bypass de login detectado, tentando login automático...')
+                const email = localStorage.getItem('espetinho_admin_email') || 'teste@gmail.com'
+                const password = localStorage.getItem('espetinho_admin_password') || '123321'
+                try {
+                    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+                    if (error) throw error
+                    if (data?.user) {
+                        console.log('[AuthContext] Login por bypass bem-sucedido.')
+                        await resolveAdmin(data.user)
+                        initializedRef.current = true
+                        return
+                    }
+                } catch (err) {
+                    console.error('[AuthContext] Falha no login por bypass:', err.message)
+                    localStorage.removeItem('espetinho_admin_bypass')
+                }
+            }
+
+            // 3. Not authenticated
+            console.log('[AuthContext] Nenhum usuário autenticado ou bypass falhou.')
+            if (mounted.current) {
+                setState({ user: null, adminInfo: null, loading: false })
+            }
+            initializedRef.current = true
+        } catch (err) {
+            console.error('[AuthContext] Erro na inicialização:', err)
+            if (mounted.current) setState(prev => ({ ...prev, loading: false }))
+            initializedRef.current = true
         }
     }
 
     useEffect(() => {
         mounted.current = true
-
-        async function init() {
-            try {
-                // 1. Check for existing session
-                const { data: { session } } = await supabase.auth.getSession()
-
-                if (session?.user) {
-                    await resolveAdmin(session.user)
-                    initializedRef.current = true
-                    return
-                }
-
-                // 2. No session — check bypass
-                const bypass = localStorage.getItem('espetinho_admin_bypass')
-                if (bypass === 'true') {
-                    const email = localStorage.getItem('espetinho_admin_email') || 'teste@gmail.com'
-                    const password = localStorage.getItem('espetinho_admin_password') || '123321'
-                    try {
-                        const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-                        if (error) throw error
-                        if (data?.user) {
-                            await resolveAdmin(data.user)
-                            initializedRef.current = true
-                            return
-                        }
-                    } catch (err) {
-                        console.error('[AuthContext] Bypass login failed:', err.message)
-                        localStorage.removeItem('espetinho_admin_bypass')
-                    }
-                }
-
-                // 3. Not authenticated
-                if (mounted.current) {
-                    setState({ user: null, adminInfo: null, loading: false })
-                }
-                initializedRef.current = true
-            } catch (err) {
-                console.error('[AuthContext] Init error:', err)
-                if (mounted.current) setState(prev => ({ ...prev, loading: false }))
-                initializedRef.current = true
-            }
-        }
-
         init()
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
