@@ -6,7 +6,7 @@ import Loading from '../components/ui/Loading'
 import './AdminLayout.css'
 
 export default function AdminLayout() {
-    const { isAuthenticated, loading, adminInfo, logout } = useAuth()
+    const { isAuthenticated, loading, user, adminInfo, logout } = useAuth()
     const location = useLocation()
     const [isCollapsed, setIsCollapsed] = useState(() => {
         return localStorage.getItem('admin_sidebar_collapsed') === 'true'
