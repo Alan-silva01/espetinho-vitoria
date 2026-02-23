@@ -28,26 +28,15 @@ export default function AdminLayout() {
     if (loading) {
         return (
             <div className="loading-wrapper-fullscreen">
-                <Loading fullScreen text="Carregando painel...">
-                    <button
-                        onClick={logout}
-                        style={{
-                            marginTop: '20px',
-                            padding: '10px 20px',
-                            background: 'transparent',
-                            border: '1px solid #ccc',
-                            borderRadius: '8px',
-                            cursor: 'pointer',
-                            color: '#666'
-                        }}
-                    >
-                        Cancelar e Sair
-                    </button>
-                </Loading>
+                <Loading fullScreen text="Verificando acesso..." />
             </div>
         )
     }
-    if (!isAuthenticated) return <Navigate to="/admin/login" replace />
+
+    // Strict check: No user or no admin info means not allowed
+    if (!isAuthenticated) {
+        return <Navigate to="/admin/login" replace />
+    }
 
     return (
         <div className={`admin-container ${isCollapsed ? 'sidebar-collapsed' : ''} ${isMobileMenuOpen ? 'mobile-menu-open' : ''}`}>

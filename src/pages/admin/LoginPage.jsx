@@ -30,11 +30,10 @@ export default function LoginPage() {
             if (cleanEmail === 'teste@gmail.com' && cleanPass === '123321') {
                 console.log('[Login] Ativando bypass via Login Form')
                 localStorage.setItem('espetinho_admin_bypass', 'true')
-                window.location.reload()
-                return
+                // No reload needed, context will handle login
             }
 
-            const { data } = await login(email, password)
+            const { data } = await login(cleanEmail, cleanPass)
             navigate('/admin')
         } catch (err) {
             setError('Email ou senha incorretos')

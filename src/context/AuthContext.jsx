@@ -4,28 +4,34 @@ import { supabase } from '../lib/supabase'
 const AuthContext = createContext()
 
 export function AuthProvider({ children }) {
-    const [user, setUser] = useState(null)
-    const [adminInfo, setAdminInfo] = useState(null)
-    const [loading, setLoading] = useState(true)
+    const [state, setState] = useState({
+        user: null,
+        adminInfo: null,
+        loading: true
+    })
     const mounted = useRef(true)
     const initializedRef = useRef(false)
 
     async function resolveAdmin(authUser) {
-        if (!mounted.current || !authUser) return
-
-        setUser(authUser)
+        if (!mounted.current || !authUser) {
+            if (mounted.current) setState(prev => ({ ...prev, loading: false }))
+            return
+        }
 
         // Fast-track for known test user
         if (authUser.email === 'teste@gmail.com') {
             if (mounted.current) {
-                setAdminInfo({
-                    id: authUser.id,
-                    nome: 'Admin Teste',
-                    email: 'teste@gmail.com',
-                    cargo: 'dono',
-                    permissoes: { all: true }
+                setState({
+                    user: authUser,
+                    adminInfo: {
+                        id: authUser.id,
+                        nome: 'Admin Teste',
+                        email: 'teste@gmail.com',
+                        cargo: 'dono',
+                        permissoes: { all: true }
+                    },
+                    loading: false
                 })
-                setLoading(false)
             }
             return
         }
@@ -39,17 +45,18 @@ export function AuthProvider({ children }) {
                 .single()
 
             if (mounted.current) {
-                if (!error && data) {
-                    setAdminInfo(data)
-                } else {
+                setState({
+                    user: authUser,
+                    adminInfo: data || null,
+                    loading: false
+                })
+                if (error || !data) {
                     console.warn('[AuthContext] Not an admin:', error?.message)
-                    setAdminInfo(null)
                 }
-                setLoading(false)
             }
         } catch (err) {
             console.error('[AuthContext] Admin fetch error:', err)
-            if (mounted.current) setLoading(false)
+            if (mounted.current) setState(prev => ({ ...prev, loading: false }))
         }
     }
 
@@ -88,14 +95,12 @@ export function AuthProvider({ children }) {
 
                 // 3. Not authenticated
                 if (mounted.current) {
-                    setUser(null)
-                    setAdminInfo(null)
-                    setLoading(false)
+                    setState({ user: null, adminInfo: null, loading: false })
                 }
                 initializedRef.current = true
             } catch (err) {
                 console.error('[AuthContext] Init error:', err)
-                if (mounted.current) setLoading(false)
+                if (mounted.current) setState(prev => ({ ...prev, loading: false }))
                 initializedRef.current = true
             }
         }
@@ -109,9 +114,7 @@ export function AuthProvider({ children }) {
                 if (session?.user) await resolveAdmin(session.user)
             } else if (event === 'SIGNED_OUT') {
                 if (mounted.current) {
-                    setUser(null)
-                    setAdminInfo(null)
-                    setLoading(false)
+                    setState({ user: null, adminInfo: null, loading: false })
                 }
             }
         })
@@ -123,10 +126,10 @@ export function AuthProvider({ children }) {
     }, [])
 
     async function login(email, password) {
-        setLoading(true)
+        setState(prev => ({ ...prev, loading: true }))
         const { data, error } = await supabase.auth.signInWithPassword({ email, password })
         if (error) {
-            setLoading(false)
+            setState(prev => ({ ...prev, loading: false }))
             throw error
         }
         if (data?.user) {
@@ -136,23 +139,24 @@ export function AuthProvider({ children }) {
     }
 
     async function logout() {
-        setLoading(true)
+        setState(prev => ({ ...prev, loading: true }))
         localStorage.removeItem('espetinho_admin_bypass')
         await supabase.auth.signOut()
         if (mounted.current) {
-            setUser(null)
-            setAdminInfo(null)
-            setLoading(false)
+            setState({ user: null, adminInfo: null, loading: false })
         }
     }
 
     const value = {
-        user,
-        adminInfo,
-        loading,
-        isAuthenticated: !!user && !!adminInfo,
+        ...state,
+        isAuthenticated: !!state.user && !!state.adminInfo,
         login,
         logout,
+        checkBypass: async () => {
+            // Force a re-check for the bypass login if needed
+            initializedRef.current = false
+            // (Re-init logic could go here if needed)
+        }
     }
 
     return (
