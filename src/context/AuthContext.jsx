@@ -4,10 +4,25 @@ import { supabase } from '../lib/supabase'
 const AuthContext = createContext()
 
 export function AuthProvider({ children }) {
-    const [state, setState] = useState({
-        user: null,
-        adminInfo: null,
-        loading: true
+    const [state, setState] = useState(() => {
+        const cached = localStorage.getItem('espetinho_admin_cache')
+        if (cached) {
+            try {
+                const parsed = JSON.parse(cached)
+                return {
+                    user: parsed.user,
+                    adminInfo: parsed.adminInfo,
+                    loading: false
+                }
+            } catch (e) {
+                // Ignore parse errors
+            }
+        }
+        return {
+            user: null,
+            adminInfo: null,
+            loading: true
+        }
     })
     const mounted = useRef(true)
     const initializedRef = useRef(false)
@@ -23,15 +38,22 @@ export function AuthProvider({ children }) {
         // Fast-track for known test user
         if (authUser.email === 'teste@gmail.com') {
             if (mounted.current) {
+                const newAdminInfo = {
+                    id: authUser.id,
+                    nome: 'Admin Teste',
+                    email: 'teste@gmail.com',
+                    cargo: 'dono',
+                    permissoes: { all: true }
+                }
+
+                localStorage.setItem('espetinho_admin_cache', JSON.stringify({
+                    user: authUser,
+                    adminInfo: newAdminInfo
+                }))
+
                 setState({
                     user: authUser,
-                    adminInfo: {
-                        id: authUser.id,
-                        nome: 'Admin Teste',
-                        email: 'teste@gmail.com',
-                        cargo: 'dono',
-                        permissoes: { all: true }
-                    },
+                    adminInfo: newAdminInfo,
                     loading: false
                 })
             }
@@ -48,6 +70,14 @@ export function AuthProvider({ children }) {
 
             if (mounted.current) {
                 console.log('[AuthContext] Admin resolvido com sucesso:', data?.nome)
+
+                if (data) {
+                    localStorage.setItem('espetinho_admin_cache', JSON.stringify({
+                        user: authUser,
+                        adminInfo: data
+                    }))
+                }
+
                 setState({
                     user: authUser,
                     adminInfo: data || null,
@@ -55,6 +85,7 @@ export function AuthProvider({ children }) {
                 })
                 if (error || !data) {
                     console.warn('[AuthContext] Não é um admin:', error?.message)
+                    localStorage.removeItem('espetinho_admin_cache')
                 }
             }
         } catch (err) {
@@ -100,13 +131,15 @@ export function AuthProvider({ children }) {
 
             // 3. Not authenticated
             console.log('[AuthContext] Nenhum usuário autenticado ou bypass falhou.')
+            localStorage.removeItem('espetinho_admin_cache')
             if (mounted.current) {
                 setState({ user: null, adminInfo: null, loading: false })
             }
             initializedRef.current = true
         } catch (err) {
             console.error('[AuthContext] Erro na inicialização:', err)
-            if (mounted.current) setState(prev => ({ ...prev, loading: false }))
+            localStorage.removeItem('espetinho_admin_cache')
+            if (mounted.current) setState({ user: null, adminInfo: null, loading: false })
             initializedRef.current = true
         }
     }
@@ -121,6 +154,7 @@ export function AuthProvider({ children }) {
             if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
                 if (session?.user) await resolveAdmin(session.user)
             } else if (event === 'SIGNED_OUT') {
+                localStorage.removeItem('espetinho_admin_cache')
                 if (mounted.current) {
                     setState({ user: null, adminInfo: null, loading: false })
                 }
@@ -149,6 +183,7 @@ export function AuthProvider({ children }) {
     async function logout() {
         setState(prev => ({ ...prev, loading: true }))
         localStorage.removeItem('espetinho_admin_bypass')
+        localStorage.removeItem('espetinho_admin_cache')
         await supabase.auth.signOut()
         if (mounted.current) {
             setState({ user: null, adminInfo: null, loading: false })
