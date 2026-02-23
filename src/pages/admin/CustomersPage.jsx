@@ -27,14 +27,19 @@ export default function CustomersPage() {
     async function fetchCustomers() {
         setLoading(true)
         try {
-            const { data: customersData } = await supabase
+            // Specify columns explicitly to avoid 406 errors and optimize fetch
+            const { data: customersData, error: custErr } = await supabase
                 .from('clientes')
-                .select('*')
+                .select('id, codigo, nome, telefone, dados, criado_em, autorizado')
                 .order('criado_em', { ascending: false })
 
-            const { data: allOrders } = await supabase
+            if (custErr) throw custErr
+
+            const { data: allOrders, error: ordersErr } = await supabase
                 .from('pedidos')
                 .select('valor_total, criado_em, telefone_cliente, cliente_id')
+
+            if (ordersErr) console.warn('[fetchCustomers] Erro ao buscar pedidos relacionados:', ordersErr)
 
             if (customersData) {
                 const enriched = customersData.map(c => {
@@ -59,10 +64,10 @@ export default function CustomersPage() {
                     }
                 })
                 setCustomers(enriched)
-
             }
         } catch (err) {
-            console.error('[fetchCustomers] Erro:', err)
+            console.error('[fetchCustomers] Erro crítico:', err)
+            // Error is handled by not setting customers, keeping loading false
         } finally {
             setLoading(false)
         }

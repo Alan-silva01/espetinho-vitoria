@@ -177,7 +177,7 @@ export default function DashboardPage() {
             <header className="dashboard-header-premium">
                 <div className="header-titles">
                     <h1>Visão Geral</h1>
-                    <p>Olá, Admin 👋 Aqui está o resumo de hoje.</p>
+                    <p>Olá, Aqui está o resumo de hoje.</p>
                 </div>
                 <div className="header-actions">
                     <div className="search-pill">
