@@ -204,19 +204,20 @@ export default function OrdersPage() {
 
             const receiptHTML = `<!DOCTYPE html><html><head><meta charset="utf-8">
             <style>
+                @page { margin: 0; }
                 * { margin:0; padding:0; box-sizing:border-box; }
-                body { width:58mm; padding:2mm; font-family:'Courier New',Courier,monospace; font-size:11px; line-height:1.2; text-transform:uppercase; color:black; }
-                .divider { border-top:1px dashed black; margin:3mm 0; }
-                .section-title { text-align:center; font-weight:900; font-size:13px; margin-bottom:2mm; }
-                .header-info { text-align:center; margin-bottom:4mm; }
-                .order-num { font-size:18px; font-weight:950; }
-                .data-row { display:flex; justify-content:space-between; margin-bottom:1mm; }
+                body { width:58mm; padding:1mm 4mm; font-family:'Courier New',Courier,monospace; font-size:11px; line-height:1.1; text-transform:uppercase; color:black; overflow:hidden; }
+                .divider { border-top:1px dashed black; margin:2mm 0; }
+                .section-title { text-align:center; font-weight:900; font-size:12px; margin-bottom:1.5mm; }
+                .header-info { text-align:center; margin-bottom:3mm; }
+                .order-num { font-size:16px; font-weight:950; }
+                .data-row { display:flex; justify-content:space-between; margin-bottom:0.5mm; }
                 .label { font-weight:900; }
-                table { width:100%; border-collapse:collapse; margin:4mm 0; }
-                th { text-align:left; border-bottom:1px solid black; padding-bottom:1mm; font-size:10px; }
-                td { padding:2mm 0; vertical-align:top; font-size:11px; }
-                .total-big { font-size:16px; font-weight:950; margin-top:2mm; border-top:1px solid black; padding-top:2mm; display:flex; justify-content:space-between; }
-                .footer { text-align:center; margin-top:8mm; font-size:11px; }
+                table { width:100%; border-collapse:collapse; margin:2mm 0; }
+                th { text-align:left; border-bottom:1px solid black; padding-bottom:0.5mm; font-size:10px; }
+                td { padding:1.5mm 0; vertical-align:top; font-size:11px; }
+                .total-big { font-size:15px; font-weight:950; margin-top:1.5mm; border-top:1px solid black; padding-top:1.5mm; display:flex; justify-content:space-between; }
+                .footer { text-align:center; margin-top:6mm; font-size:10px; padding-bottom:4mm; }
             </style></head><body>
                 <div class="header-info">
                     <div class="order-num">PEDIDO #${order.numero_pedido}</div>
