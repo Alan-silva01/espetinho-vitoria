@@ -223,6 +223,9 @@ export default function DriverDashboard() {
         // Mark this order as in-flight so realtime won't revert our update
         inFlightOrdersRef.current.add(orderId)
 
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 10000)
+
         try {
             const now = new Date().toISOString()
             const updatePayload = {
@@ -242,6 +245,7 @@ export default function DriverDashboard() {
                 .update(updatePayload)
                 .eq('id', orderId)
                 .select()
+                .abortSignal(controller.signal)
 
             console.log('[Driver] Update result:', { data, error })
 
@@ -267,8 +271,13 @@ export default function DriverDashboard() {
             console.error('[Driver] Erro ao finalizar:', err)
             // Release in-flight guard on error
             inFlightOrdersRef.current.delete(orderId)
-            alert('Erro ao finalizar pedido: ' + err.message)
+            if (err.name === 'AbortError') {
+                alert('A requisição demorou demais. Verifique sua conexão e tente novamente.')
+            } else {
+                alert('Erro ao finalizar pedido: ' + err.message)
+            }
         } finally {
+            clearTimeout(timeoutId)
             setSavingPayment(false)
         }
     }

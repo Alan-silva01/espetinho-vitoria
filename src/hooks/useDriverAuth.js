@@ -6,6 +6,10 @@ export function useDriverAuth() {
     const [loading, setLoading] = useState(false)
     const [initializing, setInitializing] = useState(true)
     const initializedRef = useRef(false)
+    const driverRef = useRef(null) // Always-current driver for event handlers
+
+    // Keep ref in sync
+    driverRef.current = driver
 
     useEffect(() => {
         let cancelled = false
@@ -36,6 +40,13 @@ export function useDriverAuth() {
                 return
             }
 
+            // Skip re-fetching if driver is already loaded — prevents freeze from
+            // SDK's internal token refresh firing SIGNED_IN/TOKEN_REFRESHED
+            if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && driverRef.current) {
+                console.log('[useDriverAuth]', event, '— driver already loaded, skipping')
+                return
+            }
+
             if (session?.user) {
                 await fetchDriverProfile(session.user.id)
             } else {
@@ -43,9 +54,29 @@ export function useDriverAuth() {
             }
         })
 
+        // Wake-from-sleep: refresh session silently
+        let hiddenAt = null
+        function handleVisibilityChange() {
+            if (document.visibilityState === 'hidden') {
+                hiddenAt = Date.now()
+            }
+            if (document.visibilityState === 'visible') {
+                const elapsed = hiddenAt ? Date.now() - hiddenAt : 0
+                if (elapsed >= 10_000) {
+                    console.log('[useDriverAuth] Woke after', Math.round(elapsed / 1000), 's — refreshing session')
+                    supabase.auth.refreshSession().catch(err => {
+                        console.warn('[useDriverAuth] Session refresh failed:', err.message)
+                    })
+                }
+                hiddenAt = null
+            }
+        }
+        document.addEventListener('visibilitychange', handleVisibilityChange)
+
         return () => {
             cancelled = true
             subscription.unsubscribe()
+            document.removeEventListener('visibilitychange', handleVisibilityChange)
         }
     }, [])
 
