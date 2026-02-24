@@ -53,7 +53,7 @@ export default defineConfig({
         name: 'Espetinho Vitoria',
         short_name: 'Espetinho',
         description: 'Os melhores espetinhos, açaí e caldos da região.',
-        theme_color: '#C41E2E',
+        theme_color: '#ffffff',
         background_color: '#ffffff',
         display: 'standalone',
         start_url: '.',
