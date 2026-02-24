@@ -178,8 +178,8 @@ export default function OrdersPage() {
                 }
                 return `<tr>
                     <td>${item.quantidade}</td>
-                    <td><div>${itemDisplayName(item)?.toUpperCase()}</div>${details}</td>
-                    <td style="text-align:right">${fmtCurrency(item.preco_unitario * item.quantidade)}</td>
+                    <td style="word-break:break-word;overflow-wrap:break-word"><div>${itemDisplayName(item)?.toUpperCase()}</div>${details}</td>
+                    <td style="text-align:right;white-space:nowrap">${fmtCurrency(item.preco_unitario * item.quantidade)}</td>
                 </tr>`
             }).join('')
 
@@ -214,9 +214,11 @@ export default function OrdersPage() {
                 .order-num { font-size:24px; font-weight:950; margin-bottom:1mm; }
                 .data-row { display:flex; justify-content:space-between; margin-bottom:1mm; }
                 .label { font-weight:900; }
-                table { width:100%; border-collapse:collapse; margin:3mm 0; }
+                table { width:100%; border-collapse:collapse; margin:3mm 0; table-layout:fixed; }
                 th { text-align:left; border-bottom:2px solid black; padding-bottom:1mm; font-size:13px; font-weight:900; }
                 td { padding:2mm 0; vertical-align:top; font-size:15px; font-weight:800; }
+                td:nth-child(2) { word-break:break-word; overflow-wrap:break-word; }
+                td:nth-child(3) { white-space:nowrap; }
                 .total-big { font-size:22px; font-weight:950; margin-top:2.5mm; border-top:2px solid black; padding-top:2.5mm; display:flex; justify-content:space-between; }
                 .footer { text-align:center; margin-top:6mm; font-size:14px; font-weight:800; }
             </style></head><body>

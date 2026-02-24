@@ -1018,6 +1018,7 @@
         width: 100%;
         border-collapse: collapse;
         margin: 3mm 0;
+        table-layout: fixed;
     }
 
     .receipt-table th {
@@ -1033,6 +1034,15 @@
         vertical-align: top;
         font-size: 15px;
         font-weight: 800;
+    }
+
+    .receipt-table td:nth-child(2) {
+        word-break: break-word;
+        overflow-wrap: break-word;
+    }
+
+    .receipt-table td:nth-child(3) {
+        white-space: nowrap;
     }
 
     .receipt-item-details {
