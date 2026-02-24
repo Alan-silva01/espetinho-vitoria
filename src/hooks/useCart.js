@@ -25,8 +25,12 @@ function cartReducer(state, action) {
             )
             if (existing) {
                 newState = state.map(i =>
-                    `${i.produto_id}-${i.variacao_id || 'default'}` === key
-                        ? { ...i, quantidade: i.quantidade + (action.item.quantidade || 1) }
+                    `${i.produto_id}-${i.variacao_id || 'default'}-${i.observacoes || ''}` === key
+                        ? {
+                            ...i,
+                            quantidade: i.quantidade + (action.item.quantidade || 1),
+                            eh_upsell: i.eh_upsell || action.item.eh_upsell // Preserva se já era ou se o novo é upsell
+                        }
                         : i
                 )
             } else {

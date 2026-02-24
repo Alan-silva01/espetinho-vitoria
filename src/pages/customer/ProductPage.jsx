@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { ArrowLeft, Heart, Minus, Plus, Check, ShoppingCart } from 'lucide-react'
 import { useProduct } from '../../hooks/useProducts'
 import { useCart } from '../../hooks/useCart'
@@ -43,8 +43,10 @@ const formatNameWithAccessories = (name) => {
 
 export default function ProductPage() {
     const { id, customerCode } = useParams()
+    const [searchParams] = useSearchParams()
     const navigate = useNavigate()
     const { product, loading } = useProduct(id)
+    const isUpsell = searchParams.get('upsell') === 'true'
     const { addItem, items: cartItems } = useCart()
     const cartCount = cartItems.reduce((sum, i) => sum + i.quantidade, 0)
     const { liked, toggleLike, animatingHearts } = useFavorites()
@@ -241,7 +243,7 @@ export default function ProductPage() {
             quantidade: qty,
             observacoes: notes,
             personalizacao: selectedOptions,
-            eh_upsell: false,
+            eh_upsell: isUpsell,
         })
 
         // --- Fly-to-Cart Animation ---

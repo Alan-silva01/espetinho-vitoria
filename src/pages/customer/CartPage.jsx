@@ -434,7 +434,10 @@ export default function CartPage() {
                                                 const hasOptions = (p.variacoes_produto?.length > 0) || (p.opcoes_personalizacao?.length > 0)
 
                                                 if (hasOptions) {
-                                                    navigate(customerCode ? `/${customerCode}/produto/${p.id}` : `/produto/${p.id}`)
+                                                    navigate(customerCode
+                                                        ? `/${customerCode}/produto/${p.id}?upsell=true`
+                                                        : `/produto/${p.id}?upsell=true`
+                                                    )
                                                     return
                                                 }
 
