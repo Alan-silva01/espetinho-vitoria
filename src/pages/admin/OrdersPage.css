@@ -954,11 +954,11 @@
         top: 0;
         width: 58mm;
         margin: 0 auto;
-        padding: 1mm 1.5mm;
+        padding: 1mm 3mm;
         background: white !important;
         color: black !important;
         font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        font-size: 14px;
+        font-size: 15px;
         line-height: 1.2;
         text-transform: uppercase;
         overflow: hidden;
@@ -987,7 +987,7 @@
     .receipt-section-title {
         text-align: center;
         font-weight: 900;
-        font-size: 15px;
+        font-size: 16px;
         margin-bottom: 2mm;
         border: 1px solid black;
         padding: 0.5mm;
@@ -999,7 +999,7 @@
     }
 
     .receipt-order-num {
-        font-size: 22px;
+        font-size: 24px;
         font-weight: 950;
         margin-bottom: 1mm;
     }
@@ -1024,19 +1024,19 @@
         text-align: left;
         border-bottom: 2px solid black;
         padding-bottom: 1mm;
-        font-size: 12px;
+        font-size: 13px;
         font-weight: 900;
     }
 
     .receipt-table td {
         padding: 2mm 0;
         vertical-align: top;
-        font-size: 14px;
+        font-size: 15px;
         font-weight: 800;
     }
 
     .receipt-item-details {
-        font-size: 11px;
+        font-size: 12px;
         padding-left: 1mm;
     }
 
@@ -1047,12 +1047,12 @@
     .receipt-total-row {
         display: flex;
         justify-content: space-between;
-        font-size: 13px;
+        font-size: 14px;
         margin-bottom: 1mm;
     }
 
     .receipt-total-big {
-        font-size: 20px;
+        font-size: 22px;
         font-weight: 950;
         margin-top: 2.5mm;
         border-top: 2px dashed black;
@@ -1064,7 +1064,7 @@
     .receipt-footer-msg {
         text-align: center;
         margin-top: 8mm;
-        font-size: 13px;
+        font-size: 14px;
         padding-bottom: 12mm;
         font-weight: 800;
     }
