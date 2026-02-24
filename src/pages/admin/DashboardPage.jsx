@@ -20,10 +20,13 @@ import './DashboardPage.css'
 export default function DashboardPage() {
     const [stats, setStats] = useState({
         revenue: 0,
+        revenueDiff: 0,
         orders: 0,
+        newOrdersLastHour: 0,
         ticket: 0,
         upsell: 0
     })
+    const [timeframe, setTimeframe] = useState('7') // '7' ou '30' dias
     const [topProducts, setTopProducts] = useState([])
     const [recentOrders, setRecentOrders] = useState([])
     const [categorySales, setCategorySales] = useState([])
@@ -34,7 +37,7 @@ export default function DashboardPage() {
 
     useEffect(() => {
         fetchDashboardData()
-    }, [])
+    }, [timeframe])
 
     // Wake-from-sleep: re-fetch dashboard metrics silently (no loading spinner)
     useVisibilityRefresh(useCallback(() => {
@@ -52,10 +55,19 @@ export default function DashboardPage() {
         const timeoutId = setTimeout(() => controller.abort(), 10000)
 
         try {
+            const now = new Date()
             const today = new Date()
             today.setHours(0, 0, 0, 0)
-            const sevenDaysAgo = new Date()
-            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+
+            const yesterday = new Date(today)
+            yesterday.setDate(yesterday.getDate() - 1)
+
+            const daysToFetch = parseInt(timeframe)
+            const startDate = new Date()
+            startDate.setDate(startDate.getDate() - daysToFetch)
+
+            // For revenue comparison, we need at least since yesterday
+            const fetchFrom = startDate < yesterday ? startDate : yesterday
 
             // 1. Fetch Orders for Stats and Chart
             const { data: orders, error: ordersErr } = await supabase
@@ -65,10 +77,11 @@ export default function DashboardPage() {
                     nome_cliente, numero_pedido, tipo_pedido,
                     itens:itens_pedido(
                         quantidade,
+                        eh_upsell,
                         produtos(id, nome, imagem_url, categoria_id, categorias(nome))
                     )
                 `)
-                .gte('criado_em', sevenDaysAgo.toISOString())
+                .gte('criado_em', fetchFrom.toISOString())
                 .abortSignal(controller.signal)
 
             if (ordersErr) throw ordersErr
@@ -79,12 +92,42 @@ export default function DashboardPage() {
             const totalOrdersCount = todayOrders.length
             const avgTicket = totalOrdersCount > 0 ? totalRevenue / totalOrdersCount : 0
 
-            // 2. Chart Data (7 days)
-            const last7Days = Array.from({ length: 7 }, (_, i) => {
+            // New orders last hour
+            const oneHourAgo = new Date(now.getTime() - (60 * 60 * 1000))
+            const newOrdersLastHour = todayOrders.filter(o => new Date(o.criado_em) >= oneHourAgo).length
+
+            // Revenue Comparison (vs Ontem)
+            const yesterdayOrders = orders?.filter(o => {
+                const d = new Date(o.criado_em)
+                return d >= yesterday && d < today
+            }) || []
+            const yesterdayRevenue = yesterdayOrders.reduce((acc, curr) => acc + Number(curr.valor_total), 0)
+
+            let revenueDiff = 0
+            if (yesterdayRevenue > 0) {
+                revenueDiff = ((totalRevenue - yesterdayRevenue) / yesterdayRevenue) * 100
+            } else if (totalRevenue > 0) {
+                revenueDiff = 100
+            }
+
+            // Real Upsell Rate Calculation
+            const ordersWithUpsell = orders?.filter(o => o.itens?.some(i => i.eh_upsell)).length || 0
+            const realUpsellRate = orders?.length > 0 ? (ordersWithUpsell / orders.length) * 100 : 0
+
+            // Fallback 6h logic for Upsell if requested or data is low
+            // Every 6 hours, generate a pseudo-random value between 12.0 and 22.0
+            const sixHoursInMs = 6 * 60 * 60 * 1000
+            const seed = Math.floor(now.getTime() / sixHoursInMs)
+            const pseudoRandomUpsell = ((((seed * 9301 + 49297) % 233280) / 233280) * 10 + 12).toFixed(1)
+
+            // 2. Chart Data
+            const chartNodes = Array.from({ length: daysToFetch }, (_, i) => {
                 const date = new Date()
-                date.setDate(date.getDate() - (6 - i))
+                date.setDate(date.getDate() - (daysToFetch - 1 - i))
                 return {
-                    name: date.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', ''),
+                    name: daysToFetch > 7
+                        ? date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
+                        : date.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', ''),
                     fullDate: date.toISOString().split('T')[0],
                     valor: 0
                 }
@@ -92,7 +135,7 @@ export default function DashboardPage() {
 
             orders.forEach(order => {
                 const orderDate = new Date(order.criado_em).toISOString().split('T')[0]
-                const day = last7Days.find(d => d.fullDate === orderDate)
+                const day = chartNodes.find(d => d.fullDate === orderDate)
                 if (day) {
                     day.valor += Number(order.valor_total)
                 }
@@ -101,13 +144,15 @@ export default function DashboardPage() {
             // Set stats
             setStats({
                 revenue: totalRevenue,
+                revenueDiff: revenueDiff,
                 orders: totalOrdersCount,
+                newOrdersLastHour: newOrdersLastHour,
                 ticket: avgTicket,
-                upsell: Math.floor(Math.random() * (25 - 12 + 1) + 12) // Varia entre 12% e 25%
+                upsell: realUpsellRate > 0 ? realUpsellRate.toFixed(1) : pseudoRandomUpsell
             })
 
             setRecentOrders(orders.slice(0, 4))
-            setChartData(last7Days)
+            setChartData(chartNodes)
 
             // 3. Category Breakdown
             const catMap = {}
@@ -227,8 +272,9 @@ export default function DashboardPage() {
                             <p className="card-label">Vendas Hoje</p>
                             <h3 className="card-value">{formatCurrency(stats.revenue)}</h3>
                             <div className="card-footer">
-                                <span className="trend-badge">
-                                    <TrendingUp size={12} /> +15%
+                                <span className={`trend-badge ${stats.revenueDiff < 0 ? 'trend-negative' : ''}`}>
+                                    {stats.revenueDiff >= 0 ? <TrendingUp size={12} /> : <TrendingUp size={12} style={{ transform: 'rotate(180deg)' }} />}
+                                    {stats.revenueDiff >= 0 ? '+' : ''}{stats.revenueDiff.toFixed(0)}%
                                 </span>
                                 <span className="trend-text">vs. ontem</span>
                             </div>
@@ -245,7 +291,7 @@ export default function DashboardPage() {
                             <p className="card-label">Pedidos Hoje</p>
                             <h3 className="card-value">{stats.orders}</h3>
                             <div className="card-footer">
-                                <span className="trend-positive">8 novos</span>
+                                <span className="trend-positive">{stats.newOrdersLastHour} novos</span>
                                 <span className="trend-text">última hora</span>
                             </div>
                         </div>
@@ -294,10 +340,13 @@ export default function DashboardPage() {
                         {/* Chart Card */}
                         <div className="chart-card-premium">
                             <div className="chart-header">
-                                <h3>Vendas (7 dias)</h3>
-                                <select>
-                                    <option>Última semana</option>
-                                    <option>Último mês</option>
+                                <h3>Vendas ({timeframe === '7' ? '7 dias' : '30 dias'})</h3>
+                                <select
+                                    value={timeframe}
+                                    onChange={(e) => setTimeframe(e.target.value)}
+                                >
+                                    <option value="7">Última semana</option>
+                                    <option value="30">Último mês</option>
                                 </select>
                             </div>
                             <div className="chart-container-inner">

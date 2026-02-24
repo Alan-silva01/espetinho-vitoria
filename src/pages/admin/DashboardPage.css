@@ -227,6 +227,10 @@
     font-size: 12px;
 }
 
+.trend-negative {
+    color: #EF4444;
+}
+
 .trend-stable {
     color: #9CA3AF;
     font-weight: 700;
