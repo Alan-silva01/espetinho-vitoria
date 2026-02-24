@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
     DollarSign, ShoppingBag, Users, Heart,
     TrendingUp, ArrowUpRight, ArrowDownRight,
@@ -12,6 +12,7 @@ import {
 } from 'recharts'
 import { supabase } from '../../lib/supabase'
 import { formatCurrency } from '../../lib/utils'
+import { useVisibilityRefresh } from '../../hooks/useVisibilityRefresh'
 import './DashboardPage.css'
 
 
@@ -34,6 +35,12 @@ export default function DashboardPage() {
     useEffect(() => {
         fetchDashboardData()
     }, [])
+
+    // Wake-from-sleep: re-fetch dashboard metrics silently
+    useVisibilityRefresh(useCallback(() => {
+        console.log('[Dashboard] Woke from sleep — refreshing metrics')
+        fetchDashboardData()
+    }, []))
 
     async function fetchDashboardData() {
         setLoading(true)

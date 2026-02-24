@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import {
     Plus, Search, MoreVertical, Edit2,
@@ -8,6 +8,7 @@ import {
 import { supabase } from '../../lib/supabase'
 import { uploadImage, isCloudinaryConfigured } from '../../lib/cloudinary'
 import { formatCurrency } from '../../lib/utils'
+import { useVisibilityRefresh } from '../../hooks/useVisibilityRefresh'
 import './MenuPage.css'
 
 
@@ -52,6 +53,12 @@ export default function MenuPage() {
     useEffect(() => {
         fetchData()
     }, [])
+
+    // Wake-from-sleep: re-fetch menu data
+    useVisibilityRefresh(useCallback(() => {
+        console.log('[MenuPage] Woke from sleep — refreshing')
+        fetchData()
+    }, []))
 
     async function fetchData() {
         setLoading(true)

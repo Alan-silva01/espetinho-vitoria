@@ -161,9 +161,35 @@ export function AuthProvider({ children }) {
             }
         })
 
+        // Wake-from-sleep: refresh Supabase session when the page becomes visible
+        // This prevents stale auth tokens from breaking all API calls after OS sleep
+        let hiddenAt = null
+        function handleVisibilityChange() {
+            if (document.visibilityState === 'hidden') {
+                hiddenAt = Date.now()
+            }
+            if (document.visibilityState === 'visible' && mounted.current) {
+                const elapsed = hiddenAt ? Date.now() - hiddenAt : Infinity
+                if (elapsed >= 30_000) {
+                    console.log('[AuthContext] Page woke after', Math.round(elapsed / 1000), 's — refreshing session')
+                    supabase.auth.getSession().then(({ data: { session } }) => {
+                        if (session?.user && mounted.current) {
+                            // Force token refresh to get a fresh JWT
+                            supabase.auth.refreshSession().catch(err => {
+                                console.warn('[AuthContext] Session refresh failed:', err.message)
+                            })
+                        }
+                    })
+                }
+                hiddenAt = null
+            }
+        }
+        document.addEventListener('visibilitychange', handleVisibilityChange)
+
         return () => {
             mounted.current = false
             subscription.unsubscribe()
+            document.removeEventListener('visibilitychange', handleVisibilityChange)
         }
     }, [])
 

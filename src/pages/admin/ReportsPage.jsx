@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
     BarChart3, TrendingUp, DollarSign,
     Receipt, Stars, ChevronDown, Download,
@@ -10,6 +10,7 @@ import {
 } from 'recharts'
 import { supabase } from '../../lib/supabase'
 import { formatCurrency } from '../../lib/utils'
+import { useVisibilityRefresh } from '../../hooks/useVisibilityRefresh'
 import './ReportsPage.css'
 
 
@@ -37,6 +38,12 @@ export default function ReportsPage() {
     useEffect(() => {
         fetchReportsData()
     }, [period, filterMode, advancedType, selectedDate, selectedMonth, selectedYear])
+
+    // Wake-from-sleep: re-fetch reports data
+    useVisibilityRefresh(useCallback(() => {
+        console.log('[ReportsPage] Woke from sleep — refreshing')
+        fetchReportsData()
+    }, [period, filterMode, advancedType, selectedDate, selectedMonth, selectedYear]))
 
     async function fetchReportsData() {
         setLoading(true)

@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
     Clock, Save, AlertCircle, CheckCircle2,
     Calendar, Moon, Sun, ToggleRight, ToggleLeft, Send
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
+import { useVisibilityRefresh } from '../../hooks/useVisibilityRefresh'
 import './OpeningHoursPage.css'
 
 
@@ -20,6 +21,12 @@ export default function OpeningHoursPage() {
     useEffect(() => {
         fetchSettings()
     }, [])
+
+    // Wake-from-sleep: re-fetch opening hours
+    useVisibilityRefresh(useCallback(() => {
+        console.log('[OpeningHoursPage] Woke from sleep — refreshing')
+        fetchSettings()
+    }, []))
 
     async function fetchSettings() {
         setLoading(true)

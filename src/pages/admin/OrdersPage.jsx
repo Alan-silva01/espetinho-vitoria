@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import {
     Clock, CheckCircle2, Truck, AlertCircle,
     MoreHorizontal, Phone, MapPin, DollarSign,
@@ -8,6 +8,7 @@ import {
 import { supabase } from '../../lib/supabase'
 import { formatCurrency } from '../../lib/utils'
 import { useOrders, useComanda } from '../../hooks/useOrders'
+import { useVisibilityRefresh } from '../../hooks/useVisibilityRefresh'
 import Dialog from '../../components/ui/Dialog'
 import './OrdersPage.css'
 
@@ -373,6 +374,15 @@ export default function OrdersPage() {
             supabase.removeChannel(channel)
         }
     }, [selectedDate])
+
+    // Wake-from-sleep recovery: reset stuck guards + re-fetch data
+    useVisibilityRefresh(useCallback(() => {
+        console.log('[OrdersPage] Woke from sleep — recovering...')
+        // Reset the fetch guard in case it was stuck mid-flight during sleep
+        isFetchingRef.current = false
+        // Re-fetch orders silently (won't show loading spinner)
+        fetchOrders(true)
+    }, [selectedDate]))
 
     const isFetchingRef = useRef(false)
 

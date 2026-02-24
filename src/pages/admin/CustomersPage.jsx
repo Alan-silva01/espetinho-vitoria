@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
     Users, Search, Filter, Mail,
     Phone, ShoppingBag, Calendar,
@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { formatCurrency } from '../../lib/utils'
+import { useVisibilityRefresh } from '../../hooks/useVisibilityRefresh'
 import './CustomersPage.css'
 
 
@@ -23,6 +24,12 @@ export default function CustomersPage() {
     useEffect(() => {
         fetchCustomers()
     }, [])
+
+    // Wake-from-sleep: re-fetch customers
+    useVisibilityRefresh(useCallback(() => {
+        console.log('[CustomersPage] Woke from sleep — refreshing')
+        fetchCustomers()
+    }, []))
 
     async function fetchCustomers() {
         setLoading(true)

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
     Search, Plus, Filter, ArrowUpRight,
     ArrowDownRight, AlertTriangle, Package,
@@ -7,6 +7,7 @@ import {
     History, Download
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
+import { useVisibilityRefresh } from '../../hooks/useVisibilityRefresh'
 import './InventoryPage.css'
 
 
@@ -62,6 +63,12 @@ export default function InventoryPage() {
             supabase.removeChannel(channel)
         }
     }, [])
+
+    // Wake-from-sleep: re-fetch inventory data
+    useVisibilityRefresh(useCallback(() => {
+        console.log('[InventoryPage] Woke from sleep — refreshing')
+        fetchInventory()
+    }, []))
 
     async function fetchInventory(isSilent = false) {
         if (!isSilent) setLoading(true)

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import {
     Settings, Clock, MapPin, Truck,
@@ -9,6 +9,7 @@ import {
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { formatCurrency } from '../../lib/utils'
+import { useVisibilityRefresh } from '../../hooks/useVisibilityRefresh'
 import './SettingsPage.css'
 
 
@@ -24,6 +25,12 @@ export default function SettingsPage() {
     useEffect(() => {
         fetchSettings()
     }, [])
+
+    // Wake-from-sleep: re-fetch settings
+    useVisibilityRefresh(useCallback(() => {
+        console.log('[SettingsPage] Woke from sleep — refreshing')
+        fetchSettings()
+    }, []))
 
     async function fetchSettings() {
         setLoading(true)
