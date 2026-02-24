@@ -952,9 +952,10 @@
         left: 0;
         right: 0;
         top: 0;
-        width: 58mm;
-        margin: 0 auto;
-        padding: 2mm 2mm 5mm 2mm;
+        width: 100%;
+        margin: 0;
+        padding: 2mm 3mm 5mm 3mm;
+        box-sizing: border-box;
         background: white !important;
         color: black !important;
         font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;

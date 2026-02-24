@@ -206,8 +206,8 @@ export default function OrdersPage() {
             <style>
                 @page { margin: 0; size: 58mm auto; }
                 * { margin:0; padding:0; box-sizing:border-box; }
-                html, body { width:58mm; margin:0; padding:0; background:white; }
-                .receipt-content { width:58mm; padding:2mm 2mm 5mm 2mm; font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:15px; line-height:1.2; text-transform:uppercase; color:black; overflow:hidden; font-weight:700; }
+                html, body { width:100%; margin:0; padding:0; background:white; }
+                .receipt-content { width:100%; padding:2mm 3mm 5mm 3mm; font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:15px; line-height:1.2; text-transform:uppercase; color:black; overflow:hidden; font-weight:700; }
                 .divider { border-top:2px dashed black; margin:2.5mm 0; }
                 .section-title { text-align:center; font-weight:900; font-size:16px; margin-bottom:2mm; border:1px solid black; padding:0.5mm; }
                 .header-info { text-align:center; margin-bottom:4mm; margin-top:2mm; }
