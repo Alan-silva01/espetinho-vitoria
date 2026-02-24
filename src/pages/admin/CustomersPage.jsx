@@ -25,14 +25,14 @@ export default function CustomersPage() {
         fetchCustomers()
     }, [])
 
-    // Wake-from-sleep: re-fetch customers
+    // Wake-from-sleep: re-fetch customers silently
     useVisibilityRefresh(useCallback(() => {
-        console.log('[CustomersPage] Woke from sleep — refreshing')
-        fetchCustomers()
+        console.log('[CustomersPage] Woke from sleep — refreshing silently')
+        fetchCustomers(true)
     }, []))
 
-    async function fetchCustomers() {
-        setLoading(true)
+    async function fetchCustomers(isSilent = false) {
+        if (!isSilent) setLoading(true)
         try {
             // Specify columns explicitly to avoid 406 errors and optimize fetch
             const { data: customersData, error: custErr } = await supabase

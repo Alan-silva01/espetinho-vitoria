@@ -254,14 +254,13 @@
     display: flex;
     gap: 20px;
     height: 100%;
-    width: max-content;
-    min-width: 100%;
+    width: 100%;
     padding: 4px;
 }
 
 .kanban-col {
-    width: 340px;
-    flex-shrink: 0;
+    flex: 1;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -589,9 +588,9 @@
 
 /* RESPONSIVE OVERRIDES */
 @media (max-width: 1024px) {
-    .kanban-col {
-        width: 290px;
-        /* Slightly narrower for tablets to fit better */
+    .kanban-board {
+        min-width: 900px;
+        /* Allow horizontal scroll on small tablets if needed */
     }
 }
 

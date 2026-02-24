@@ -26,43 +26,70 @@ export function StoreProvider({ children }) {
     useEffect(() => {
         fetchStoreStatus()
 
-        // Real-time synchronization
+        // Real-time synchronization with auto-reconnect
         console.log('[StoreContext] Setting up Realtime channel...')
-        const channel = supabase
-            .channel('global-store-status')
-            .on('postgres_changes',
-                { event: '*', schema: 'public', table: 'configuracoes_loja' },
-                (payload) => {
-                    console.log('[StoreContext] Mudança detectada em configuracoes_loja:', payload.eventType)
-                    fetchStoreStatus()
-                }
-            )
-            .on('postgres_changes',
-                { event: '*', schema: 'public', table: 'horarios_funcionamento' },
-                () => {
-                    console.log('[StoreContext] Mudança detectada em horarios_funcionamento')
-                    fetchStoreStatus()
-                }
-            )
-            .subscribe((status) => {
-                console.log(`[StoreContext] Status da inscrição Realtime: ${status}`)
-                if (status === 'SUBSCRIBED') {
-                    console.log('[StoreContext] Conexão Realtime estabelecida com sucesso!')
-                }
-                // Evitamos loop infinito de re-fetch se a conexão estiver instável
-                if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
-                    console.warn('[StoreContext] Problema na conexão Realtime.')
-                    // O heartbeat de 30s já servirá como fallback seguro
-                }
-            })
+        let retryTimeout = null
+        let retryCount = 0
 
-        // Heartbeat fallback (30s)
-        const heartbeat = setInterval(fetchStoreStatus, 30000)
+        const setupChannel = () => {
+            const channel = supabase
+                .channel('global-store-status-' + Date.now())
+                .on('postgres_changes',
+                    { event: '*', schema: 'public', table: 'configuracoes_loja' },
+                    (payload) => {
+                        console.log('[StoreContext] Mudança detectada em configuracoes_loja:', payload.eventType)
+                        fetchStoreStatus()
+                    }
+                )
+                .on('postgres_changes',
+                    { event: '*', schema: 'public', table: 'horarios_funcionamento' },
+                    () => {
+                        console.log('[StoreContext] Mudança detectada em horarios_funcionamento')
+                        fetchStoreStatus()
+                    }
+                )
+                .subscribe((status) => {
+                    console.log(`[StoreContext] Status da inscrição Realtime: ${status}`)
+                    if (status === 'SUBSCRIBED') {
+                        console.log('[StoreContext] Conexão Realtime estabelecida com sucesso!')
+                        retryCount = 0
+                    }
+                    if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
+                        console.warn('[StoreContext] Problema na conexão Realtime — tentando reconectar...')
+                        supabase.removeChannel(channel)
+                        const delay = Math.min(5000 * Math.pow(2, retryCount), 30000)
+                        retryCount++
+                        retryTimeout = setTimeout(setupChannel, delay)
+                    }
+                })
+
+            return channel
+        }
+
+        let currentChannel = setupChannel()
+
+        // Wake-from-sleep: re-fetch and let realtime reconnect naturally
+        let hiddenAt = null
+        function handleVisibilityChange() {
+            if (document.visibilityState === 'hidden') {
+                hiddenAt = Date.now()
+            }
+            if (document.visibilityState === 'visible') {
+                const elapsed = hiddenAt ? Date.now() - hiddenAt : 0
+                if (elapsed >= 10_000) {
+                    console.log('[StoreContext] Page woke after', Math.round(elapsed / 1000), 's — refreshing')
+                    fetchStoreStatus()
+                }
+                hiddenAt = null
+            }
+        }
+        document.addEventListener('visibilitychange', handleVisibilityChange)
 
         return () => {
             console.log('[StoreContext] Cleaning up Realtime channel')
-            supabase.removeChannel(channel)
-            clearInterval(heartbeat)
+            if (retryTimeout) clearTimeout(retryTimeout)
+            supabase.removeChannel(currentChannel)
+            document.removeEventListener('visibilitychange', handleVisibilityChange)
         }
     }, [fetchStoreStatus])
 

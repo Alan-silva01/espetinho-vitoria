@@ -39,14 +39,14 @@ export default function ReportsPage() {
         fetchReportsData()
     }, [period, filterMode, advancedType, selectedDate, selectedMonth, selectedYear])
 
-    // Wake-from-sleep: re-fetch reports data
+    // Wake-from-sleep: re-fetch reports data silently
     useVisibilityRefresh(useCallback(() => {
-        console.log('[ReportsPage] Woke from sleep — refreshing')
-        fetchReportsData()
+        console.log('[ReportsPage] Woke from sleep — refreshing silently')
+        fetchReportsData(true)
     }, [period, filterMode, advancedType, selectedDate, selectedMonth, selectedYear]))
 
-    async function fetchReportsData() {
-        setLoading(true)
+    async function fetchReportsData(isSilent = false) {
+        if (!isSilent) setLoading(true)
         try {
             let startDate = new Date()
             let endDate = new Date()

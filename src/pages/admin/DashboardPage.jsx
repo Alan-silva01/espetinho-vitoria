@@ -36,15 +36,21 @@ export default function DashboardPage() {
         fetchDashboardData()
     }, [])
 
-    // Wake-from-sleep: re-fetch dashboard metrics silently
+    // Wake-from-sleep: re-fetch dashboard metrics silently (no loading spinner)
     useVisibilityRefresh(useCallback(() => {
-        console.log('[Dashboard] Woke from sleep — refreshing metrics')
-        fetchDashboardData()
+        console.log('[Dashboard] Woke from sleep — refreshing metrics silently')
+        fetchDashboardData(true)
     }, []))
 
-    async function fetchDashboardData() {
-        setLoading(true)
-        setError(null)
+    async function fetchDashboardData(isSilent = false) {
+        if (!isSilent) {
+            setLoading(true)
+            setError(null)
+        }
+
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 10000)
+
         try {
             const today = new Date()
             today.setHours(0, 0, 0, 0)
@@ -62,6 +68,7 @@ export default function DashboardPage() {
                     )
                 `)
                 .gte('criado_em', sevenDaysAgo.toISOString())
+                .abortSignal(controller.signal)
 
             if (ordersErr) throw ordersErr
 
@@ -148,16 +155,22 @@ export default function DashboardPage() {
                 .eq('controlar_estoque', true)
                 .lte('quantidade_disponivel', 5)
                 .order('quantidade_disponivel', { ascending: true })
+                .abortSignal(controller.signal)
 
             if (stockErr) throw stockErr
             setLowStockProducts(lowStockData || [])
 
-
-
         } catch (error) {
-            console.error('[Dashboard] Erro ao carregar dados:', error)
-            setError('Falha ao sincronizar métricas.')
+            if (error.name === 'AbortError') {
+                console.warn('[Dashboard] Request timed out')
+            } else {
+                console.error('[Dashboard] Erro ao carregar dados:', error)
+            }
+            if (!isSilent) {
+                setError('Falha ao sincronizar métricas.')
+            }
         } finally {
+            clearTimeout(timeoutId)
             setLoading(false)
         }
     }

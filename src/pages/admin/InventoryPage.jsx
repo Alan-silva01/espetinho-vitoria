@@ -64,10 +64,10 @@ export default function InventoryPage() {
         }
     }, [])
 
-    // Wake-from-sleep: re-fetch inventory data
+    // Wake-from-sleep: re-fetch inventory data silently
     useVisibilityRefresh(useCallback(() => {
-        console.log('[InventoryPage] Woke from sleep — refreshing')
-        fetchInventory()
+        console.log('[InventoryPage] Woke from sleep — refreshing silently')
+        fetchInventory(true)
     }, []))
 
     async function fetchInventory(isSilent = false) {

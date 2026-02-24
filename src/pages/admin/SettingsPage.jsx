@@ -26,14 +26,14 @@ export default function SettingsPage() {
         fetchSettings()
     }, [])
 
-    // Wake-from-sleep: re-fetch settings
+    // Wake-from-sleep: re-fetch settings silently
     useVisibilityRefresh(useCallback(() => {
-        console.log('[SettingsPage] Woke from sleep — refreshing')
-        fetchSettings()
+        console.log('[SettingsPage] Woke from sleep — refreshing silently')
+        fetchSettings(true)
     }, []))
 
-    async function fetchSettings() {
-        setLoading(true)
+    async function fetchSettings(isSilent = false) {
+        if (!isSilent) setLoading(true)
         try {
             const { data, error } = await supabase.from('configuracoes_loja').select('*').single()
             if (data) {

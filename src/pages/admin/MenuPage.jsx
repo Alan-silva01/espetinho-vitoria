@@ -54,17 +54,25 @@ export default function MenuPage() {
         fetchData()
     }, [])
 
-    // Wake-from-sleep: re-fetch menu data
+    // Wake-from-sleep: re-fetch menu data silently (no loading spinner)
     useVisibilityRefresh(useCallback(() => {
-        console.log('[MenuPage] Woke from sleep — refreshing')
-        fetchData()
+        console.log('[MenuPage] Woke from sleep — refreshing silently')
+        fetchData(true)
     }, []))
 
-    async function fetchData() {
-        setLoading(true)
-        setError(null)
+    async function fetchData(isSilent = false) {
+        if (!isSilent) {
+            setLoading(true)
+            setError(null)
+        }
+
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 10000)
+
         try {
-            const { data: catData, error: catErr } = await supabase.from('categorias').select('*').order('nome')
+            const { data: catData, error: catErr } = await supabase
+                .from('categorias').select('*').order('nome')
+                .abortSignal(controller.signal)
             if (catErr) throw catErr
 
             const { data: prodData, error: prodErr } = await supabase
@@ -75,15 +83,23 @@ export default function MenuPage() {
                     variacoes_produto(*)
                 `)
                 .order('nome')
+                .abortSignal(controller.signal)
             if (prodErr) throw prodErr
 
             setCategories(catData || [])
             setProducts(prodData || [])
 
         } catch (err) {
-            console.error('[MenuPage] Erro ao carregar dados:', err)
-            setError('Não foi possível carregar o cardápio. Verifique sua conexão.')
+            if (err.name === 'AbortError') {
+                console.warn('[MenuPage] Request timed out')
+            } else {
+                console.error('[MenuPage] Erro ao carregar dados:', err)
+            }
+            if (!isSilent) {
+                setError('Não foi possível carregar o cardápio. Verifique sua conexão.')
+            }
         } finally {
+            clearTimeout(timeoutId)
             setLoading(false)
         }
     }

@@ -151,8 +151,12 @@ export function AuthProvider({ children }) {
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
             if (!initializedRef.current || !mounted.current) return
 
-            if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+            if (event === 'SIGNED_IN') {
                 if (session?.user) await resolveAdmin(session.user)
+            } else if (event === 'TOKEN_REFRESHED') {
+                // Token was refreshed silently — do NOT re-run resolveAdmin
+                // to avoid re-render loops that cause child pages to remount
+                console.log('[AuthContext] Token refreshed silently')
             } else if (event === 'SIGNED_OUT') {
                 localStorage.removeItem('espetinho_admin_cache')
                 if (mounted.current) {
@@ -172,13 +176,8 @@ export function AuthProvider({ children }) {
                 const elapsed = hiddenAt ? Date.now() - hiddenAt : Infinity
                 if (elapsed >= 30_000) {
                     console.log('[AuthContext] Page woke after', Math.round(elapsed / 1000), 's — refreshing session')
-                    supabase.auth.getSession().then(({ data: { session } }) => {
-                        if (session?.user && mounted.current) {
-                            // Force token refresh to get a fresh JWT
-                            supabase.auth.refreshSession().catch(err => {
-                                console.warn('[AuthContext] Session refresh failed:', err.message)
-                            })
-                        }
+                    supabase.auth.refreshSession().catch(err => {
+                        console.warn('[AuthContext] Session refresh failed:', err.message)
                     })
                 }
                 hiddenAt = null

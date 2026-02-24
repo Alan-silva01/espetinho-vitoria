@@ -22,14 +22,14 @@ export default function OpeningHoursPage() {
         fetchSettings()
     }, [])
 
-    // Wake-from-sleep: re-fetch opening hours
+    // Wake-from-sleep: re-fetch opening hours silently
     useVisibilityRefresh(useCallback(() => {
-        console.log('[OpeningHoursPage] Woke from sleep — refreshing')
-        fetchSettings()
+        console.log('[OpeningHoursPage] Woke from sleep — refreshing silently')
+        fetchSettings(true)
     }, []))
 
-    async function fetchSettings() {
-        setLoading(true)
+    async function fetchSettings(isSilent = false) {
+        if (!isSilent) setLoading(true)
         try {
             const [configRes, horariosRes] = await Promise.all([
                 supabase.from('configuracoes_loja').select('*').single(),
