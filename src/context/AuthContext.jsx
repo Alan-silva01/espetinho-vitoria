@@ -26,6 +26,10 @@ export function AuthProvider({ children }) {
     })
     const mounted = useRef(true)
     const initializedRef = useRef(false)
+    const stateRef = useRef(state) // Always-current state for use in event handlers
+
+    // Keep ref in sync with state
+    stateRef.current = state
 
     async function resolveAdmin(authUser) {
         console.log('[AuthContext] Resolvendo admin para:', authUser?.email)
@@ -151,12 +155,16 @@ export function AuthProvider({ children }) {
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
             if (!initializedRef.current || !mounted.current) return
 
-            if (event === 'SIGNED_IN') {
-                if (session?.user) await resolveAdmin(session.user)
-            } else if (event === 'TOKEN_REFRESHED') {
-                // Token was refreshed silently — do NOT re-run resolveAdmin
-                // to avoid re-render loops that cause child pages to remount
-                console.log('[AuthContext] Token refreshed silently')
+            if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+                // Skip if we already have this user resolved — prevents re-render cascade
+                // that unmounts child pages and shows loading spinners
+                if (session?.user?.id && stateRef.current.user?.id === session.user.id && stateRef.current.adminInfo) {
+                    console.log('[AuthContext]', event, '— same user already resolved, skipping')
+                    return
+                }
+                if (event === 'SIGNED_IN' && session?.user) {
+                    await resolveAdmin(session.user)
+                }
             } else if (event === 'SIGNED_OUT') {
                 localStorage.removeItem('espetinho_admin_cache')
                 if (mounted.current) {
