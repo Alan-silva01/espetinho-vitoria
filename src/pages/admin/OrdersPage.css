@@ -950,11 +950,10 @@
         display: block !important;
         position: absolute;
         left: 0;
-        right: 0;
         top: 0;
         width: 58mm;
-        margin: 0 auto;
-        padding: 0mm 2mm 0mm 2mm;
+        margin: 0;
+        padding: 0mm 1mm 0mm 0mm;
         box-sizing: border-box;
         background: white !important;
         color: black !important;
