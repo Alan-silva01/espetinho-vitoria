@@ -206,18 +206,18 @@ export default function OrdersPage() {
             <style>
                 @page { margin: 0; size: 58mm auto; }
                 * { margin:0; padding:0; box-sizing:border-box; }
-                body { width:58mm; margin: 0 auto; padding:1mm 1.5mm; font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:13px; line-height:1.2; text-transform:uppercase; color:black; overflow:hidden; font-weight:700; }
+                body { width:58mm; margin: 0 auto; padding:1mm 1.5mm; font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:14px; line-height:1.2; text-transform:uppercase; color:black; overflow:hidden; font-weight:700; }
                 .divider { border-top:2px dashed black; margin:2.5mm 0; }
-                .section-title { text-align:center; font-weight:900; font-size:14px; margin-bottom:2mm; border:1px solid black; padding:0.5mm; }
+                .section-title { text-align:center; font-weight:900; font-size:15px; margin-bottom:2mm; border:1px solid black; padding:0.5mm; }
                 .header-info { text-align:center; margin-bottom:4mm; }
-                .order-num { font-size:20px; font-weight:950; margin-bottom:1mm; }
+                .order-num { font-size:22px; font-weight:950; margin-bottom:1mm; }
                 .data-row { display:flex; justify-content:space-between; margin-bottom:1mm; }
                 .label { font-weight:900; }
                 table { width:100%; border-collapse:collapse; margin:3mm 0; }
-                th { text-align:left; border-bottom:2px solid black; padding-bottom:1mm; font-size:11px; font-weight:900; }
-                td { padding:2mm 0; vertical-align:top; font-size:13px; font-weight:800; }
-                .total-big { font-size:18px; font-weight:950; margin-top:2.5mm; border-top:2px solid black; padding-top:2.5mm; display:flex; justify-content:space-between; }
-                .footer { text-align:center; margin-top:8mm; font-size:12px; padding-bottom:10mm; font-weight:800; }
+                th { text-align:left; border-bottom:2px solid black; padding-bottom:1mm; font-size:12px; font-weight:900; }
+                td { padding:2mm 0; vertical-align:top; font-size:14px; font-weight:800; }
+                .total-big { font-size:20px; font-weight:950; margin-top:2.5mm; border-top:2px solid black; padding-top:2.5mm; display:flex; justify-content:space-between; }
+                .footer { text-align:center; margin-top:8mm; font-size:13px; padding-bottom:12mm; font-weight:800; }
             </style></head><body>
                 <div class="header-info">
                     <div class="order-num">PEDIDO #${order.numero_pedido}</div>
@@ -234,7 +234,7 @@ export default function OrdersPage() {
                 ${enderecoHTML}
                 <div class="divider"></div>
                 <div><div class="section-title">ITENS DO PEDIDO</div>
-                <table><thead><tr><th style="width:10%">QTD</th><th style="width:65%">ITENS</th><th style="width:25%;text-align:right">PREÇO</th></tr></thead>
+                <table><thead><tr><th style="width:10%">QTD</th><th style="width:50%">ITENS</th><th style="width:40%;text-align:right">PREÇO</th></tr></thead>
                 <tbody>${itensHTML}</tbody></table></div>
                 <div class="divider"></div>
                 <div>
@@ -1185,8 +1185,8 @@ export default function OrdersPage() {
                                     <thead>
                                         <tr>
                                             <th style={{ width: '10%' }}>QTD</th>
-                                            <th style={{ width: '65%' }}>ITENS</th>
-                                            <th style={{ width: '25%', textAlign: 'right' }}>PREÇO</th>
+                                            <th style={{ width: '50%' }}>ITENS</th>
+                                            <th style={{ width: '40%', textAlign: 'right' }}>PREÇO</th>
                                         </tr>
                                     </thead>
                                     <tbody>
