@@ -929,6 +929,7 @@
 @media print {
     @page {
         margin: 0;
+        size: 58mm auto;
     }
 
     body * {
@@ -949,10 +950,11 @@
         display: block !important;
         position: absolute;
         left: 0;
+        right: 0;
         top: 0;
         width: 58mm;
-        margin: 0;
-        padding: 1mm 2.5mm;
+        margin: 0 auto;
+        padding: 1mm 1.5mm;
         background: white !important;
         color: black !important;
         font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
