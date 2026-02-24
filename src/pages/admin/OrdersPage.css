@@ -952,9 +952,9 @@
         left: 0;
         right: 0;
         top: 0;
-        width: 100%;
-        margin: 0;
-        padding: 2mm 3mm 5mm 3mm;
+        width: 58mm;
+        margin: 0 auto;
+        padding: 0mm 2mm 0mm 2mm;
         box-sizing: border-box;
         background: white !important;
         color: black !important;
@@ -997,6 +997,7 @@
     .receipt-header-info {
         text-align: center;
         margin-bottom: 4mm;
+        margin-top: 0mm;
     }
 
     .receipt-order-num {
@@ -1074,7 +1075,8 @@
 
     .receipt-footer-msg {
         text-align: center;
-        margin-top: 6mm;
+        margin-top: 4mm;
+        margin-bottom: 0;
         font-size: 14px;
         padding-bottom: 0;
         font-weight: 800;

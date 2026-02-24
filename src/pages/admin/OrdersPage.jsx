@@ -206,11 +206,11 @@ export default function OrdersPage() {
             <style>
                 @page { margin: 0; size: 58mm auto; }
                 * { margin:0; padding:0; box-sizing:border-box; }
-                html, body { width:100%; margin:0; padding:0; background:white; }
-                .receipt-content { width:100%; padding:2mm 3mm 5mm 3mm; font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:15px; line-height:1.2; text-transform:uppercase; color:black; overflow:hidden; font-weight:700; }
+                html, body { width:58mm; margin:0; padding:0; background:white; }
+                .receipt-content { width:58mm; padding:0mm 2mm 0mm 2mm; font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:15px; line-height:1.2; text-transform:uppercase; color:black; overflow:hidden; font-weight:700; }
                 .divider { border-top:2px dashed black; margin:2.5mm 0; }
                 .section-title { text-align:center; font-weight:900; font-size:16px; margin-bottom:2mm; border:1px solid black; padding:0.5mm; }
-                .header-info { text-align:center; margin-bottom:4mm; margin-top:2mm; }
+                .header-info { text-align:center; margin-bottom:4mm; margin-top:0mm; }
                 .order-num { font-size:24px; font-weight:950; margin-bottom:1mm; }
                 .data-row { display:flex; justify-content:space-between; margin-bottom:1mm; }
                 .label { font-weight:900; }
@@ -220,7 +220,7 @@ export default function OrdersPage() {
                 td:nth-child(2) { word-break:break-word; overflow-wrap:break-word; }
                 td:nth-child(3) { white-space:nowrap; }
                 .total-big { font-size:22px; font-weight:950; margin-top:2.5mm; border-top:2px solid black; padding-top:2.5mm; display:flex; justify-content:space-between; }
-                .footer { text-align:center; margin-top:6mm; font-size:14px; font-weight:800; }
+                .footer { text-align:center; margin-top:4mm; margin-bottom:0; font-size:14px; font-weight:800; }
             </style></head><body>
             <div class="receipt-content">
                 <div class="header-info">
