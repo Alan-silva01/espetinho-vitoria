@@ -114,12 +114,6 @@ export default function DashboardPage() {
             const ordersWithUpsell = orders?.filter(o => o.itens?.some(i => i.eh_upsell)).length || 0
             const realUpsellRate = orders?.length > 0 ? (ordersWithUpsell / orders.length) * 100 : 0
 
-            // Fallback 6h logic for Upsell if requested or data is low
-            // Every 6 hours, generate a pseudo-random value between 12.0 and 22.0
-            const sixHoursInMs = 6 * 60 * 60 * 1000
-            const seed = Math.floor(now.getTime() / sixHoursInMs)
-            const pseudoRandomUpsell = ((((seed * 9301 + 49297) % 233280) / 233280) * 10 + 12).toFixed(1)
-
             // 2. Chart Data
             const chartNodes = Array.from({ length: daysToFetch }, (_, i) => {
                 const date = new Date()
@@ -148,7 +142,7 @@ export default function DashboardPage() {
                 orders: totalOrdersCount,
                 newOrdersLastHour: newOrdersLastHour,
                 ticket: avgTicket,
-                upsell: realUpsellRate > 0 ? realUpsellRate.toFixed(1) : pseudoRandomUpsell
+                upsell: realUpsellRate.toFixed(1)
             })
 
             setRecentOrders(orders.slice(0, 4))
