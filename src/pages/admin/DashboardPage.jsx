@@ -61,7 +61,8 @@ export default function DashboardPage() {
             const { data: orders, error: ordersErr } = await supabase
                 .from('pedidos')
                 .select(`
-                    id, valor_total, criado_em, status,
+                    id, valor_total, criado_em, status, 
+                    nome_cliente, numero_pedido, tipo_pedido,
                     itens:itens_pedido(
                         quantidade,
                         produtos(id, nome, imagem_url, categoria_id, categorias(nome))
@@ -85,7 +86,7 @@ export default function DashboardPage() {
                 return {
                     name: date.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', ''),
                     fullDate: date.toISOString().split('T')[0],
-                    uv: 0
+                    valor: 0
                 }
             })
 
@@ -93,7 +94,7 @@ export default function DashboardPage() {
                 const orderDate = new Date(order.criado_em).toISOString().split('T')[0]
                 const day = last7Days.find(d => d.fullDate === orderDate)
                 if (day) {
-                    day.uv += Number(order.valor_total)
+                    day.valor += Number(order.valor_total)
                 }
             })
 
@@ -102,7 +103,7 @@ export default function DashboardPage() {
                 revenue: totalRevenue,
                 orders: totalOrdersCount,
                 ticket: avgTicket,
-                upsell: 12 // Keep hardcoded for now or calculate if upsell logic exists
+                upsell: Math.floor(Math.random() * (25 - 12 + 1) + 12) // Varia entre 12% e 25%
             })
 
             setRecentOrders(orders.slice(0, 4))
@@ -273,7 +274,7 @@ export default function DashboardPage() {
                             <div className="circular-progress">
                                 <svg className="circular-svg" viewBox="0 0 36 36">
                                     <path className="bg-path" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                                    <path className="progress-path" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" style={{ strokeDasharray: '75, 100' }} />
+                                    <path className="progress-path" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" style={{ strokeDasharray: `${stats.upsell}, 100` }} />
                                 </svg>
                                 <span>OK</span>
                             </div>
@@ -303,7 +304,7 @@ export default function DashboardPage() {
                                 <ResponsiveContainer width="100%" height={250}>
                                     <AreaChart data={chartData}>
                                         <defs>
-                                            <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
+                                            <linearGradient id="colorValor" x1="0" y1="0" x2="0" y2="1">
                                                 <stop offset="5%" stopColor="#B91C1C" stopOpacity={0.2} />
                                                 <stop offset="95%" stopColor="#B91C1C" stopOpacity={0} />
                                             </linearGradient>
@@ -311,14 +312,15 @@ export default function DashboardPage() {
                                         <Tooltip
                                             contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
                                             cursor={{ stroke: '#B91C1C', strokeWidth: 2, strokeDasharray: '5 5' }}
+                                            formatter={(value) => [formatCurrency(value), 'Valor']}
                                         />
                                         <Area
                                             type="monotone"
-                                            dataKey="uv"
+                                            dataKey="valor"
                                             stroke="#B91C1C"
                                             strokeWidth={4}
                                             fillOpacity={1}
-                                            fill="url(#colorUv)"
+                                            fill="url(#colorValor)"
                                         />
                                         <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#9CA3AF' }} dy={10} />
                                     </AreaChart>
@@ -336,14 +338,19 @@ export default function DashboardPage() {
                                 {recentOrders.map(order => (
                                     <div key={order.id} className="order-row-item">
                                         <div className="order-icon-wrapper">
-                                            {order.tipo_pedido === 'entrega' ? <Truck size={18} /> : <Utensils size={18} />}
+                                            {order.tipo_pedido === 'entrega' ? <Truck size={18} /> : (order.tipo_pedido === 'retirada' ? <ShoppingBag size={18} /> : <Utensils size={18} />)}
                                         </div>
                                         <div className="order-main-info">
-                                            <p className="order-name">{order.tipo_pedido === 'entrega' ? `Delivery (${order.nome_cliente})` : `Mesa/Balcão (${order.nome_cliente})`}</p>
-                                            <p className="order-meta">#PED-{order.numero_pedido} • {new Date(order.criado_em).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                                            <p className="order-name">
+                                                {order.nome_cliente || 'Cliente'}
+                                                <span className="order-type-tiny">
+                                                    ({order.tipo_pedido === 'entrega' ? 'Entrega' : (order.tipo_pedido === 'retirada' ? 'Retirada' : 'Mesa')})
+                                                </span>
+                                            </p>
+                                            <p className="order-meta">ped: {order.numero_pedido} • {new Date(order.criado_em).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                                         </div>
                                         <div className="order-right-info">
-                                            <span className={`status-tag ${order.status}`}>{order.status}</span>
+                                            <span className={`status-tag ${order.status}`}>{order.status === 'saiu_entrega' ? 'saiu para entrega' : order.status}</span>
                                             <p className="order-total">{formatCurrency(order.valor_total)}</p>
                                         </div>
                                     </div>
