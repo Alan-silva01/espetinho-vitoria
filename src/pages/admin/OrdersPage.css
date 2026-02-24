@@ -951,13 +951,15 @@
         position: absolute;
         left: 0;
         top: 0;
-        width: 69mm;
+        width: 74mm;
+        height: fit-content;
         margin: 0;
         padding: 0mm 1mm 0mm 0mm;
         box-sizing: border-box;
         background: white !important;
         color: black !important;
         font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        page-break-after: avoid;
         font-size: 15px;
         line-height: 1.2;
         text-transform: uppercase;
@@ -975,7 +977,7 @@
     }
 
     .receipt-logo {
-        max-width: 25mm;
+        max-width: 35mm;
         filter: grayscale(1) contrast(2);
     }
 
