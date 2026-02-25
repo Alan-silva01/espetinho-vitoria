@@ -3,7 +3,7 @@ import BottomNav from '../components/customer/BottomNav'
 import StoreClosedOverlay from '../components/customer/StoreClosedOverlay'
 import { useStore } from '../hooks/useStore'
 import { useCustomer } from '../context/CustomerContext'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 
 export default function CustomerLayout() {
     const location = useLocation()
@@ -11,6 +11,8 @@ export default function CustomerLayout() {
     const { fetchCustomerByCode, customer } = useCustomer()
     const { isOpen, config, loading, closureInfo } = useStore()
     const navigate = useNavigate()
+
+    const fetchingCodeRef = useRef(null)
 
     // Global detection: if URL has CLI-XXXXXX, load that customer
     useEffect(() => {
@@ -25,13 +27,15 @@ export default function CustomerLayout() {
                 localStorage.removeItem('espetinho_comanda_id')
             }
 
-            // Only fetch if it's different from current
-            if (!customer || customer.codigo !== customerCode) {
-                fetchCustomerByCode(customerCode)
+            // Only fetch if it's different from current AND we are not already fetching it
+            if ((!customer || customer.codigo !== customerCode) && fetchingCodeRef.current !== customerCode) {
+                fetchingCodeRef.current = customerCode
+                fetchCustomerByCode(customerCode).finally(() => {
+                    fetchingCodeRef.current = null
+                })
             }
         }
-    }, [customerCode, customer, fetchCustomerByCode])
-
+    }, [customerCode, customer]) // Removed fetchCustomerByCode as it changes on every render in Provider
     // Redirect to coded URL if we are at root but have a customer in context
     // This ensures that Add to Home Screen works correctly even if it opens at /
     // IMPORTANT: Only redirect if NOT in mesa mode, otherwise we lose the mesa context
