@@ -217,52 +217,66 @@ export default function OrdersPage() {
                 * { margin:0; padding:0; box-sizing:border-box; }
                 html, body { width:71mm; height:fit-content; margin:0; padding:0; background:white; }
                 .receipt-content { width:71mm; height:fit-content; padding:0mm 1mm 0mm 0mm; font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:15px; line-height:1.2; text-transform:uppercase; color:black; overflow:hidden; font-weight:700; page-break-after:avoid; }
-                .divider { border-top:2px dashed black; margin:2.5mm 0; }
-                .section-title { text-align:center; font-weight:900; font-size:16px; margin-bottom:2mm; border:1px solid black; padding:0.5mm; }
-                .header-info { text-align:center; margin-bottom:4mm; margin-top:0mm; }
-                .order-num { font-size:24px; font-weight:950; margin-bottom:1mm; }
-                .data-row { display:flex; justify-content:space-between; margin-bottom:1mm; }
-                .label { font-weight:900; }
-                table { width:100%; border-collapse:collapse; margin:3mm 0; table-layout:fixed; }
-                th { text-align:left; border-bottom:2px solid black; padding-bottom:1mm; font-size:13px; font-weight:900; }
-                td { padding:2mm 0; vertical-align:top; font-size:15px; font-weight:800; }
-                td:nth-child(2) { word-break:break-word; overflow-wrap:break-word; }
-                td:nth-child(3) { white-space:nowrap; }
-                .total-big { font-size:22px; font-weight:950; margin-top:2.5mm; border-top:2px solid black; padding-top:2.5mm; display:flex; justify-content:space-between; }
-                .footer { text-align:center; margin-top:4mm; margin-bottom:0; font-size:14px; font-weight:800; }
+                .receipt-logo-container { text-align:center; margin-bottom:2mm; }
+                .receipt-logo { max-width:35mm; filter:grayscale(1) contrast(2); }
+                .receipt-divider { border-top:2px dashed black; margin:2.5mm 0; }
+                .receipt-section-title { text-align:center; font-weight:900; font-size:16px; margin-bottom:2mm; border:1px solid black; padding:0.5mm; }
+                .receipt-header-info { text-align:center; margin-bottom:4mm; margin-top:0mm; }
+                .receipt-order-num { font-size:24px; font-weight:950; margin-bottom:1mm; }
+                .receipt-data-row { display:flex; justify-content:space-between; margin-bottom:1mm; }
+                .receipt-label { font-weight:900; }
+                .receipt-table { width:100%; border-collapse:collapse; margin:3mm 0; table-layout:fixed; }
+                .receipt-table th { text-align:left; border-bottom:2px solid black; padding-bottom:1mm; font-size:13px; font-weight:900; }
+                .receipt-table td { padding:2mm 0; vertical-align:top; font-size:15px; font-weight:800; }
+                .receipt-table td:nth-child(2) { word-break:break-word; overflow-wrap:break-word; }
+                .receipt-table td:nth-child(3) { white-space:nowrap; }
+                .receipt-total-big { font-size:22px; font-weight:950; margin-top:2.5mm; border-top:2px dashed black; padding-top:2.5mm; display:flex; justify-content:space-between; }
+                .receipt-footer-msg { text-align:center; margin-top:4mm; margin-bottom:0; font-size:14px; font-weight:800; }
+                .receipt-item-details { font-size:12px; padding-left:1mm; }
             </style></head><body>
             <div class="receipt-content">
-                <div class="header-info">
-                    <div class="order-num">PEDIDO #${order.numero_pedido}</div>
+                <div class="receipt-logo-container">
+                    <img src="${logoImg}" alt="VITORIA" class="receipt-logo" />
+                </div>
+                <div class="receipt-header-info">
+                    <div class="receipt-order-num">PEDIDO #${order.numero_pedido}</div>
                     <div>${tipoLabel}</div>
                     <div>${dataStr} - ${horaStr}</div>
                 </div>
-                <div class="divider"></div>
-                <div><div class="section-title">ESTABELECIMENTO</div>
-                <div style="text-align:center">ESPETINHO VITÓRIA - ESPETOS, AÇAÍ E CALDOS</div></div>
-                <div class="divider"></div>
-                <div><div class="section-title">CLIENTE</div>
-                <div class="data-row"><span class="label">NOME:</span><span>${order.nome_cliente?.toUpperCase() || 'N/A'}</span></div>
-                <div class="data-row"><span class="label">TEL:</span><span>${order.telefone_cliente || order.clientes?.telefone || 'N/A'}</span></div></div>
+                <div class="receipt-divider"></div>
+                <div class="receipt-section">
+                    <div class="receipt-section-title">ESTABELECIMENTO</div>
+                    <div style="text-align:center">ESPETINHO VITÓRIA - ESPETOS, AÇAÍ E CALDOS</div>
+                </div>
+                <div class="receipt-divider"></div>
+                <div class="receipt-section">
+                    <div class="receipt-section-title">CLIENTE</div>
+                    <div class="receipt-data-row"><span class="receipt-label">NOME:</span><span>${order.nome_cliente?.toUpperCase() || 'N/A'}</span></div>
+                    <div class="receipt-data-row"><span class="receipt-label">TEL:</span><span>${order.telefone_cliente || order.clientes?.telefone || 'N/A'}</span></div>
+                </div>
                 ${enderecoHTML}
-                <div class="divider"></div>
-                <div><div class="section-title">ITENS DO PEDIDO</div>
-                <table><thead><tr><th style="width:15%">QTD</th><th style="width:53%; padding-left:1mm;">ITENS</th><th style="width:32%;text-align:right">PREÇO</th></tr></thead>
-                <tbody>${itensHTML}</tbody></table></div>
-                <div class="divider"></div>
-                <div>
+                <div class="receipt-divider"></div>
+                <div class="receipt-section">
+                    <div class="receipt-section-title">ITENS DO PEDIDO</div>
+                    <table class="receipt-table"><thead><tr><th style="width:15%">QTD</th><th style="width:53%; padding-left:1mm;">ITENS</th><th style="width:32%;text-align:right">PREÇO</th></tr></thead>
+                    <tbody>${itensHTML}</tbody></table>
+                </div>
+                <div class="receipt-divider"></div>
+                <div class="receipt-section">
                     <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:1mm">
                         <span>ITENS DO PEDIDO</span><span>${fmtCurrency(order.subtotal)}</span></div>
                     ${taxaHTML}
-                    <div class="total-big"><span>TOTAL</span><span>${fmtCurrency(order.valor_total)}</span></div>
+                    <div class="receipt-total-big"><span>TOTAL</span><span>${fmtCurrency(order.valor_total)}</span></div>
                 </div>
-                <div class="divider"></div>
-                <div><div class="section-title">FORMA DE PAGAMENTO</div>
-                <div class="data-row"><span>${order.forma_pagamento?.toUpperCase()}</span><span>${fmtCurrency(order.valor_total)}</span></div>
-                ${trocoHTML}</div>
+                <div class="receipt-divider"></div>
+                <div class="receipt-section">
+                    <div class="receipt-section-title">FORMA DE PAGAMENTO</div>
+                    <div class="receipt-data-row"><span>${order.forma_pagamento?.toUpperCase()}</span><span>${fmtCurrency(order.valor_total)}</span></div>
+                    ${trocoHTML}
+                </div>
                 ${obsHTML}
-                <div class="footer">OBRIGADO PELA PREFERÊNCIA!<br>ESPETINHO VITÓRIA</div>
-            </body></html>`
+                <div class="receipt-footer-msg">OBRIGADO PELA PREFERÊNCIA!<br>ESPETINHO VITÓRIA</div>
+            </div></body></html>`
 
             // Try QZ Tray first (silent print), fallback to iframe
             const currentQz = qzTrayRef.current
@@ -280,7 +294,7 @@ export default function OrdersPage() {
             iframe.style.position = 'fixed'
             iframe.style.top = '-10000px'
             iframe.style.left = '-10000px'
-            iframe.style.width = '58mm'
+            iframe.style.width = '71mm'
             iframe.style.height = '0'
             document.body.appendChild(iframe)
 

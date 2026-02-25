@@ -124,7 +124,7 @@ export default function useQzTray() {
                 format: 'plain',
                 data: htmlContent,
                 options: {
-                    pageWidth: 2.28  // ~58mm in inches
+                    pageWidth: 2.8  // ~71mm in inches (was 2.28 / 58mm)
                 }
             }]
 
