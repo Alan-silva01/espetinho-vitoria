@@ -265,7 +265,7 @@ export default function OrdersPage() {
             iframe.style.position = 'fixed'
             iframe.style.top = '-10000px'
             iframe.style.left = '-10000px'
-            iframe.style.width = '58mm'
+            iframe.style.width = '71mm'
             iframe.style.height = '0'
             document.body.appendChild(iframe)
 
