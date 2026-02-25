@@ -184,12 +184,14 @@ export default function ProductPage() {
     }, [product, selectedVariation, extrasTotal])
 
     // Validation: check if all "Escolha X" groups have exactly X items
+    // + when Completo is selected, arroz group is required
     const isSelectionValid = useMemo(() => {
         if (!product?.opcoes_personalizacao) return true
-        return product.opcoes_personalizacao.every(group => {
+
+        // Check "Escolha X" groups
+        const escolhaValid = product.opcoes_personalizacao.every(group => {
             const groupName = group.grupo?.toLowerCase() || ''
             if (groupName.includes('escolha')) {
-                // Extract number from "Escolha 2", "Escolha 3", etc.
                 const match = groupName.match(/escolha\s*(\d+)/i)
                 if (match) {
                     const required = parseInt(match[1])
@@ -200,7 +202,25 @@ export default function ProductPage() {
             }
             return true
         })
-    }, [product, selectedOptions])
+        if (!escolhaValid) return false
+
+        // When Completo is selected, arroz group is required
+        const isCompleto = selectedVariation?.nome?.toLowerCase().includes('completo')
+        if (isCompleto) {
+            const arrozKeywords = ['arroz', 'tipo de arroz']
+            const arrozGroup = product.opcoes_personalizacao.find(g =>
+                arrozKeywords.some(kw => g.grupo.toLowerCase().includes(kw))
+            )
+            if (arrozGroup) {
+                const arrozSelection = selectedOptions[arrozGroup.grupo]
+                if (!arrozSelection || (Array.isArray(arrozSelection) && arrozSelection.length === 0)) {
+                    return false
+                }
+            }
+        }
+
+        return true
+    }, [product, selectedOptions, selectedVariation])
 
     if (loading) return <Loading fullScreen />
     if (!product) return <div className="page-padding" style={{ paddingTop: 80 }}>Produto não encontrado</div>
@@ -274,6 +294,21 @@ export default function ProductPage() {
                 return `Selecione ${required} itens`
             }
         }
+        // Check arroz requirement for Completo
+        const isCompletoVar = selectedVariation?.nome?.toLowerCase().includes('completo')
+        if (isCompletoVar && product?.opcoes_personalizacao) {
+            const arrozKeywords = ['arroz', 'tipo de arroz']
+            const arrozGroup = product.opcoes_personalizacao.find(g =>
+                arrozKeywords.some(kw => g.grupo.toLowerCase().includes(kw))
+            )
+            if (arrozGroup) {
+                const arrozSelection = selectedOptions[arrozGroup.grupo]
+                if (!arrozSelection || (Array.isArray(arrozSelection) && arrozSelection.length === 0)) {
+                    return 'Escolha o tipo de arroz'
+                }
+            }
+        }
+
         return 'Adicionar'
     }
 
