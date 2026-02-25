@@ -9,7 +9,7 @@ import { supabase } from '../../lib/supabase'
 import { formatCurrency } from '../../lib/utils'
 import { useOrders, useComanda } from '../../hooks/useOrders'
 import { useVisibilityRefresh } from '../../hooks/useVisibilityRefresh'
-import useQzTray from '../../hooks/useQzTray'
+
 import Dialog from '../../components/ui/Dialog'
 import './OrdersPage.css'
 
@@ -94,10 +94,6 @@ export default function OrdersPage() {
     })
     const autoPrintRef = useRef(autoPrint)
 
-    // QZ Tray for silent printing
-    const qzTray = useQzTray()
-    const qzTrayRef = useRef(qzTray)
-
     useEffect(() => {
         ordersRef.current = orders
     }, [orders])
@@ -110,10 +106,6 @@ export default function OrdersPage() {
         autoPrintRef.current = autoPrint
     }, [autoPrint])
 
-    useEffect(() => {
-        qzTrayRef.current = qzTray
-    }, [qzTray])
-
     const toggleAutoPrint = () => {
         setAutoPrint(prev => {
             const next = !prev
@@ -122,7 +114,7 @@ export default function OrdersPage() {
         })
     }
 
-    // Auto-print: fetch order, render #thermal-receipt, try QZ Tray → fallback window.print()
+    // Auto-print: fetch order, render #thermal-receipt, window.print() — SAME as manual
     const autoPrintOrder = async (orderId) => {
         try {
             const { data: order, error } = await supabase
@@ -150,57 +142,8 @@ export default function OrdersPage() {
             // Wait for React to render
             await new Promise(resolve => setTimeout(resolve, 400))
 
-            // Try QZ Tray first (silent print — no popup!)
-            const currentQz = qzTrayRef.current
-            if (currentQz?.connectedRef?.current && currentQz?.selectedPrinter) {
-                // Capture the real rendered DOM for QZ Tray
-                const receiptEl = document.getElementById('thermal-receipt')
-                if (receiptEl) {
-                    const capturedHTML = receiptEl.outerHTML
-                    // Build standalone HTML with the same @media print CSS
-                    const qzHTML = `<!DOCTYPE html><html><head><meta charset="utf-8">
-                    <style>
-                        * { margin:0; padding:0; box-sizing:border-box; }
-                        html, body { width:71mm; margin:0; padding:0; background:white; }
-                        #thermal-receipt {
-                            display:block; width:71mm; margin:0; padding:0mm 1mm 0mm 0mm;
-                            box-sizing:border-box; background:white; color:black;
-                            font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
-                            font-size:15px; line-height:1.2; text-transform:uppercase;
-                            overflow:hidden; font-weight:700;
-                        }
-                        .receipt-print-container { width:100%; }
-                        .receipt-logo-container { text-align:center; margin-bottom:2mm; }
-                        .receipt-logo { max-width:35mm; filter:grayscale(1) contrast(2); }
-                        .receipt-divider { border-top:2px dashed black; margin:2.5mm 0; }
-                        .receipt-section-title { text-align:center; font-weight:900; font-size:16px; margin-bottom:2mm; border:1px solid black; padding:0.5mm; }
-                        .receipt-header-info { text-align:center; margin-bottom:4mm; }
-                        .receipt-order-num { font-size:24px; font-weight:950; margin-bottom:1mm; }
-                        .receipt-data-row { display:flex; justify-content:space-between; margin-bottom:1mm; }
-                        .receipt-label { font-weight:900; }
-                        .receipt-table { width:100%; border-collapse:collapse; margin:3mm 0; table-layout:fixed; }
-                        .receipt-table th { text-align:left; border-bottom:2px solid black; padding-bottom:1mm; font-size:13px; font-weight:900; }
-                        .receipt-table td { padding:2mm 0; vertical-align:top; font-size:15px; font-weight:800; }
-                        .receipt-table td:nth-child(2) { word-break:break-word; overflow-wrap:break-word; }
-                        .receipt-table td:nth-child(3) { white-space:nowrap; }
-                        .receipt-item-details { font-size:12px; padding-left:1mm; }
-                        .receipt-total-section { margin-top:2mm; }
-                        .receipt-total-row { display:flex; justify-content:space-between; font-size:14px; margin-bottom:1mm; }
-                        .receipt-total-big { font-size:22px; font-weight:950; margin-top:2.5mm; border-top:2px dashed black; padding-top:2.5mm; display:flex; justify-content:space-between; }
-                        .receipt-footer-msg { text-align:center; margin-top:4mm; font-size:14px; font-weight:800; }
-                    </style></head><body>${capturedHTML}</body></html>`
-
-                    const success = await currentQz.printHtml(qzHTML)
-                    if (success) {
-                        console.log('[AutoPrint/QZ] Impressão silenciosa enviada para pedido #' + order.numero_pedido)
-                        setSelectedOrder(null)
-                        return
-                    }
-                    console.warn('[AutoPrint/QZ] Falhou, usando fallback window.print()...')
-                }
-            }
-
-            // Fallback: window.print() — IDENTICAL to manual print
+            // window.print() — IDENTICAL to manual print
+            // The @media print CSS hides everything except #thermal-receipt
             window.print()
 
             // After print dialog closes, clear selectedOrder
@@ -741,31 +684,7 @@ export default function OrdersPage() {
                         <span>{autoPrint ? 'Auto Print ✓' : 'Auto Print'}</span>
                     </button>
 
-                    {/* QZ Tray Status & Printer Selector */}
-                    {autoPrint && (
-                        <div className="qz-tray-controls">
-                            <div className={`qz-status-dot ${qzTray.connected ? 'connected' : 'disconnected'}`}
-                                title={qzTray.connected ? 'QZ Tray Conectado' : 'QZ Tray Desconectado'}
-                                onClick={() => !qzTray.connected && qzTray.connect()}
-                            />
-                            {qzTray.connected && qzTray.printers.length > 0 && (
-                                <select
-                                    className="qz-printer-select"
-                                    value={qzTray.selectedPrinter}
-                                    onChange={(e) => qzTray.selectPrinter(e.target.value)}
-                                    title="Selecione a impressora"
-                                >
-                                    <option value="">Impressora...</option>
-                                    {qzTray.printers.map(p => (
-                                        <option key={p} value={p}>{p}</option>
-                                    ))}
-                                </select>
-                            )}
-                            {qzTray.connected && !qzTray.selectedPrinter && (
-                                <span className="qz-hint">← Selecione</span>
-                            )}
-                        </div>
-                    )}
+
 
                     <button
                         className={`btn-refresh-kanban ${isRefreshing ? 'refreshing' : ''}`}
