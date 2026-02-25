@@ -141,17 +141,9 @@ export default function OrdersPage() {
             // Wait for React to render
             await new Promise(resolve => setTimeout(resolve, 400))
 
-            // Clone receipt into body, hide #root, print, restore
-            const receipt = document.getElementById('thermal-receipt')
-            if (!receipt) return
-            const clone = receipt.cloneNode(true)
-            clone.id = 'thermal-receipt-print'
-            document.body.appendChild(clone)
-            const root = document.getElementById('root')
-            root.style.display = 'none'
+            // window.print() — IDENTICAL to manual print
+            // The @media print CSS hides everything except #thermal-receipt
             window.print()
-            root.style.display = ''
-            clone.remove()
 
             // After print dialog closes, clear selectedOrder
             setTimeout(() => {
@@ -468,16 +460,7 @@ export default function OrdersPage() {
     }
 
     const handlePrint = () => {
-        const receipt = document.getElementById('thermal-receipt')
-        if (!receipt) return
-        const clone = receipt.cloneNode(true)
-        clone.id = 'thermal-receipt-print'
-        document.body.appendChild(clone)
-        const root = document.getElementById('root')
-        root.style.display = 'none'
-        window.print()
-        root.style.display = ''
-        clone.remove()
+        window.print();
     }
 
     const onDragStart = (e, orderId) => {

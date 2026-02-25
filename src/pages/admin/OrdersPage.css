@@ -934,11 +934,20 @@
         size: 58mm auto;
     }
 
+    body * {
+        visibility: hidden;
+        overflow: visible !important;
+    }
+
     .no-print {
         display: none !important;
     }
 
-    #thermal-receipt-print,
+    #thermal-receipt,
+    #thermal-receipt * {
+        visibility: visible;
+    }
+
     #thermal-receipt {
         display: block !important;
         position: absolute;
