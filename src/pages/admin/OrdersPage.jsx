@@ -6,7 +6,7 @@ import {
     Store, Bike, Play, Check, Calendar, Search, Bell, Printer, RefreshCw, Receipt
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
-import { formatCurrency } from '../../lib/utils'
+import { formatCurrency, filterPersonalizacao } from '../../lib/utils'
 import { useOrders, useComanda } from '../../hooks/useOrders'
 import { useVisibilityRefresh } from '../../hooks/useVisibilityRefresh'
 
@@ -878,15 +878,11 @@ export default function OrdersPage() {
 
                                             {(item.personalizacao || item.observacoes) && (
                                                 <div className="v4-item-details">
-                                                    {item.personalizacao && typeof item.personalizacao === 'object' && Object.entries(item.personalizacao).map(([k, v]) => {
-                                                        const displayVal = Array.isArray(v) ? v.join(', ') : v;
-                                                        if (!displayVal) return null;
-                                                        return (
-                                                            <div key={k} className="v4-detail-row">
-                                                                {k}: {String(displayVal)}
-                                                            </div>
-                                                        );
-                                                    })}
+                                                    {item.personalizacao && typeof item.personalizacao === 'object' && filterPersonalizacao(item.personalizacao, getItemDisplayName(item)).map(({ key, value }) => (
+                                                        <div key={key} className="v4-detail-row">
+                                                            {key}: {value}
+                                                        </div>
+                                                    ))}
                                                     {item.observacoes && (
                                                         <div className="v4-item-obs">
                                                             OBS: {item.observacoes}
@@ -1069,9 +1065,9 @@ export default function OrdersPage() {
                                                 <td>{item.quantidade}</td>
                                                 <td>
                                                     <div>{getItemDisplayName(item)?.toUpperCase()}</div>
-                                                    {item.personalizacao && typeof item.personalizacao === 'object' && Object.entries(item.personalizacao).map(([k, v]) => (
-                                                        <div key={k} className="receipt-item-details">
-                                                            - {k.toUpperCase()}: {String(v).toUpperCase()}
+                                                    {item.personalizacao && typeof item.personalizacao === 'object' && filterPersonalizacao(item.personalizacao, getItemDisplayName(item)).map(({ key, value }) => (
+                                                        <div key={key} className="receipt-item-details">
+                                                            - {key.toUpperCase()}: {value.toUpperCase()}
                                                         </div>
                                                     ))}
                                                     {item.observacoes && (

@@ -4,7 +4,7 @@ import { ArrowLeft, X, Minus, Plus, MapPin, Truck, Store, Navigation, MapPinOff 
 import { useCart } from '../../hooks/useCart'
 import { useProducts } from '../../hooks/useProducts'
 import { useCustomer } from '../../context/CustomerContext'
-import { formatCurrency, getImageUrl } from '../../lib/utils'
+import { formatCurrency, getImageUrl, filterPersonalizacao } from '../../lib/utils'
 import { supabase } from '../../lib/supabase'
 import OptimizedImage from '../../components/ui/OptimizedImage'
 import Button from '../../components/ui/Button'
@@ -346,19 +346,18 @@ export default function CartPage() {
                                     {item.descricao && (
                                         <p className="cart-item__desc">{item.descricao}</p>
                                     )}
-                                    {item.personalizacao && typeof item.personalizacao === 'object' && (
-                                        <div className="cart-item__details">
-                                            {Object.entries(item.personalizacao).map(([group, val]) => {
-                                                const displayVal = Array.isArray(val) ? val.join(', ') : val
-                                                if (!displayVal) return null
-                                                return (
-                                                    <p key={group} className="cart-item__detail">
-                                                        <strong>{group}:</strong> {displayVal}
+                                    {item.personalizacao && typeof item.personalizacao === 'object' && (() => {
+                                        const filtered = filterPersonalizacao(item.personalizacao, item.nome)
+                                        return filtered.length > 0 && (
+                                            <div className="cart-item__details">
+                                                {filtered.map(({ key, value }) => (
+                                                    <p key={key} className="cart-item__detail">
+                                                        <strong>{key}:</strong> {value}
                                                     </p>
-                                                )
-                                            })}
-                                        </div>
-                                    )}
+                                                ))}
+                                            </div>
+                                        )
+                                    })()}
                                     {item.observacoes && (
                                         <p className="cart-item__obs">OBS: {item.observacoes}</p>
                                     )}

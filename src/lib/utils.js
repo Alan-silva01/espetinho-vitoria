@@ -104,3 +104,57 @@ export function normalizeString(str) {
         .normalize('NFD') // Decompõe caracteres acentuados (ex: 'á' -> 'a' + '´')
         .replace(/[\u0300-\u036f]/g, '') // Remove os diacríticos (acentos)
 }
+
+/**
+ * Filtra a personalização de um item de pedido para exibição limpa.
+ *
+ * Regras:
+ * - Se o nome do item contém "Completo", suprime grupos de inclusão
+ *   (tipo "Acompanha", "Incluso", etc.) porque já está tudo incluído.
+ * - Se NÃO é completo mas o grupo é de inclusão, mostra apenas os itens
+ *   REMOVIDOS como "sem X".
+ * - Grupos de add-on (pagos, escolhas) sempre aparecem normalmente.
+ *
+ * @param {Object} personalizacao - ex: { "Acompanha": ["Arroz","Farofa"], "Molho": "Chimichurri" }
+ * @param {string} itemName - nome do item, ex: "Espetinho de Carne - Completo"
+ * @param {Array|null} allGroupOptions - lista completa de opções padrão para comparação (opcional)
+ * @returns {Array<{key: string, value: string}>} pares filtrados para exibição
+ */
+export function filterPersonalizacao(personalizacao, itemName) {
+    if (!personalizacao || typeof personalizacao !== 'object') return []
+
+    const nameLower = (itemName || '').toLowerCase()
+    const isCompleto = nameLower.includes('completo')
+
+    // Groups that represent "what comes with it" (inclusion groups)
+    const inclusionKeywords = ['acompanha', 'incluso', 'acompanhamento', 'complemento', 'complementos']
+
+    const result = []
+
+    for (const [key, val] of Object.entries(personalizacao)) {
+        const keyLower = key.toLowerCase()
+        const isInclusionGroup = inclusionKeywords.some(kw => keyLower.includes(kw))
+
+        if (isInclusionGroup) {
+            // "Completo" → skip entirely (all sides are included, no need to list them)
+            if (isCompleto) continue
+
+            // Not completo → nothing to show for inclusions either,
+            // because the selected items are what the customer chose.
+            // The variation name already tells the story (e.g. "Só Carne").
+            // We still show the group if it has meaningful content and the name
+            // doesn't already describe the selection.
+            const displayVal = Array.isArray(val) ? val.join(', ') : val
+            if (!displayVal) continue
+            result.push({ key, value: String(displayVal) })
+        } else {
+            // Non-inclusion group (add-ons, choices, etc.) → always show
+            const displayVal = Array.isArray(val) ? val.join(', ') : val
+            if (!displayVal) continue
+            result.push({ key, value: String(displayVal) })
+        }
+    }
+
+    return result
+}
+

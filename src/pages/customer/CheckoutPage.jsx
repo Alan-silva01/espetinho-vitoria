@@ -4,7 +4,7 @@ import { ArrowLeft, MapPin, CreditCard, Receipt, Edit3, CheckCircle, User } from
 import { useCart } from '../../hooks/useCart'
 import { useOrders } from '../../hooks/useOrders'
 import { useCustomer } from '../../context/CustomerContext'
-import { formatCurrency, getImageUrl } from '../../lib/utils'
+import { formatCurrency, getImageUrl, filterPersonalizacao } from '../../lib/utils'
 import { supabase } from '../../lib/supabase'
 import './CheckoutPage.css'
 
@@ -435,19 +435,18 @@ export default function CheckoutPage() {
                                                 <h4>{item.nome}</h4>
                                                 <span>{formatCurrency(item.preco * item.quantidade)}</span>
                                             </div>
-                                            {item.personalizacao && typeof item.personalizacao === 'object' && (
-                                                <div className="checkout-item__details">
-                                                    {Object.entries(item.personalizacao).map(([group, val]) => {
-                                                        const displayVal = Array.isArray(val) ? val.join(', ') : val
-                                                        if (!displayVal) return null
-                                                        return (
-                                                            <p key={group} className="checkout-item__detail">
-                                                                <strong>{group}:</strong> {displayVal}
+                                            {item.personalizacao && typeof item.personalizacao === 'object' && (() => {
+                                                const filtered = filterPersonalizacao(item.personalizacao, item.nome)
+                                                return filtered.length > 0 && (
+                                                    <div className="checkout-item__details">
+                                                        {filtered.map(({ key, value }) => (
+                                                            <p key={key} className="checkout-item__detail">
+                                                                <strong>{key}:</strong> {value}
                                                             </p>
-                                                        )
-                                                    })}
-                                                </div>
-                                            )}
+                                                        ))}
+                                                    </div>
+                                                )
+                                            })()}
 
                                             {item.observacoes && (
                                                 <p className="checkout-item__obs" style={{ color: 'var(--cor-destaque)', fontWeight: '500' }}>

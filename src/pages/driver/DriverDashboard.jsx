@@ -8,7 +8,7 @@ import {
 } from 'lucide-react'
 import { useDriverAuth } from '../../hooks/useDriverAuth'
 import { supabase } from '../../lib/supabase'
-import { formatCurrency } from '../../lib/utils'
+import { formatCurrency, filterPersonalizacao } from '../../lib/utils'
 import './DriverDashboard.css'
 
 function getAddressString(endereco) {
@@ -652,9 +652,9 @@ export default function DriverDashboard() {
                                                 <span className="item-qty">{item.quantidade}x</span>
                                                 <div className="item-details">
                                                     <span className="item-name">{item.nome}</span>
-                                                    {item.personalizacao && (
+                                                    {item.personalizacao && filterPersonalizacao(item.personalizacao, item.nome).length > 0 && (
                                                         <span className="item-extras">
-                                                            {Object.values(item.personalizacao).flat().filter(Boolean).join(', ')}
+                                                            {filterPersonalizacao(item.personalizacao, item.nome).map(p => p.value).join(', ')}
                                                         </span>
                                                     )}
                                                     {item.observacoes && (

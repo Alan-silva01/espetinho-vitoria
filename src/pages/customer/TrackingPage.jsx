@@ -4,7 +4,7 @@ import { ArrowLeft, Phone, MessageSquare, Headphones, ChevronDown, ChevronUp, Pa
 import { useOrderTracking, useComanda, useOrders } from '../../hooks/useOrders'
 import Loading from '../../components/ui/Loading'
 import Dialog from '../../components/ui/Dialog'
-import { getStatusLabel, formatCurrency } from '../../lib/utils'
+import { getStatusLabel, formatCurrency, filterPersonalizacao } from '../../lib/utils'
 import './TrackingPage.css'
 
 const STEPS = [
@@ -182,19 +182,19 @@ export default function TrackingPage() {
                                                 </span>
                                             )}
                                         </div>
-                                        {item.personalizacao && typeof item.personalizacao === 'object' && !Array.isArray(item.personalizacao) && (
-                                            <div className="tracking-item-row__extras">
-                                                {Object.entries(item.personalizacao).map(([group, val]) => {
-                                                    const displayVal = Array.isArray(val) ? val.join(', ') : val
-                                                    if (!displayVal) return null
-                                                    return (
-                                                        <div key={group} className="tracking-item-row__extra-line">
-                                                            <strong>{group}:</strong> {String(displayVal)}
+                                        {(() => {
+                                            const fullName = (item.produtos?.nome || '') + (item.variacoes_produto?.nome ? ' - ' + item.variacoes_produto.nome : '')
+                                            const filtered = filterPersonalizacao(item.personalizacao, fullName)
+                                            return item.personalizacao && typeof item.personalizacao === 'object' && !Array.isArray(item.personalizacao) && filtered.length > 0 && (
+                                                <div className="tracking-item-row__extras">
+                                                    {filtered.map(({ key, value }) => (
+                                                        <div key={key} className="tracking-item-row__extra-line">
+                                                            <strong>{key}:</strong> {value}
                                                         </div>
-                                                    )
-                                                })}
-                                            </div>
-                                        )}
+                                                    ))}
+                                                </div>
+                                            )
+                                        })()}
                                         {item.observacoes && (
                                             <div className="tracking-item-row__obs">
                                                 "{item.observacoes}"
