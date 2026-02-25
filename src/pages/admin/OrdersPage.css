@@ -934,26 +934,11 @@
         size: 58mm auto;
     }
 
-    body * {
-        visibility: hidden;
-        overflow: visible !important;
-    }
-
-    /* Collapse the React root to prevent blank pages */
-    #root {
-        height: 0 !important;
-        overflow: visible !important;
-    }
-
     .no-print {
         display: none !important;
     }
 
-    #thermal-receipt,
-    #thermal-receipt * {
-        visibility: visible;
-    }
-
+    #thermal-receipt-print,
     #thermal-receipt {
         display: block !important;
         position: absolute;
