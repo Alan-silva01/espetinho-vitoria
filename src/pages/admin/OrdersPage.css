@@ -934,9 +934,18 @@
         size: 58mm auto;
     }
 
-    body * {
-        visibility: hidden;
-        overflow: visible !important;
+    html,
+    body {
+        height: auto !important;
+        min-height: 0 !important;
+        overflow: hidden !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Hide EVERYTHING — use display:none to prevent blank pages from hidden elements */
+    body>*:not(#thermal-receipt) {
+        display: none !important;
     }
 
     .no-print {
@@ -945,27 +954,28 @@
 
     #thermal-receipt,
     #thermal-receipt * {
-        visibility: visible;
+        visibility: visible !important;
     }
 
     #thermal-receipt {
         display: block !important;
-        position: absolute;
+        position: fixed;
         left: 0;
         top: 0;
-        width: 71mm;
-        height: fit-content;
+        width: 56mm;
+        height: auto;
         margin: 0;
-        padding: 0mm 1mm 0mm 0mm;
+        padding: 1mm;
         box-sizing: border-box;
         background: white !important;
         color: black !important;
         font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        page-break-after: avoid;
+        page-break-inside: avoid;
+        page-break-after: always;
         font-size: 15px;
         line-height: 1.2;
         text-transform: uppercase;
-        overflow: hidden;
+        overflow: visible;
         font-weight: 700;
     }
 
