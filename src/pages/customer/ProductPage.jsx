@@ -100,6 +100,55 @@ export default function ProductPage() {
         setSelectedOptions(defaults)
     }, [product])
 
+    // Sync accompaniment checkboxes when variation changes
+    useEffect(() => {
+        if (!selectedVariation || !product?.opcoes_personalizacao) return
+
+        const variationName = selectedVariation.nome || ''
+        const varLower = variationName.toLowerCase()
+
+        // Find the inclusion/accompaniment group
+        const inclusionKeywords = ['acompanha', 'incluso', 'acompanhamento', 'complemento', 'complementos']
+        const accompGroup = product.opcoes_personalizacao.find(g =>
+            inclusionKeywords.some(kw => g.grupo.toLowerCase().includes(kw))
+        )
+        if (!accompGroup) return
+
+        // Get all available option names for this group
+        const allOptions = accompGroup.opcoes.map(opt => optName(opt))
+
+        // Parse items from variation parenthetical: "Com X e Y (X, Y)" → ["X", "Y"]
+        const parenMatch = variationName.match(/\((.+)\)\s*$/)
+        const parenItems = parenMatch
+            ? parenMatch[1].split(',').map(s => s.trim())
+            : []
+
+        let newSelection
+        if (varLower.includes('só') || varLower.includes('so ')) {
+            // "Só a Carne" → deselect all accompaniments
+            newSelection = []
+        } else if (varLower.includes('completo') && parenItems.length === 0) {
+            // "Completo" without parenthetical → select all defaults
+            newSelection = accompGroup.padrao ? [...accompGroup.padrao] : [...allOptions]
+        } else if (parenItems.length > 0) {
+            // Has parenthetical items → select only those that match available options
+            newSelection = allOptions.filter(opt =>
+                parenItems.some(pi => opt.toLowerCase() === pi.toLowerCase())
+            )
+        } else if (varLower.includes('completo')) {
+            // "Completo" with variations that have paren → select all
+            newSelection = accompGroup.padrao ? [...accompGroup.padrao] : [...allOptions]
+        } else {
+            // Unknown variation → don't change
+            return
+        }
+
+        setSelectedOptions(prev => ({
+            ...prev,
+            [accompGroup.grupo]: newSelection
+        }))
+    }, [selectedVariation, product])
+
     // Calculate extras cost from selected add-on options
     const extrasTotal = useMemo(() => {
         if (!product?.opcoes_personalizacao) return 0
