@@ -175,20 +175,49 @@ export function getSmartItemName(productName, variationName, personalizacao) {
     return `${baseName} - ${cleanVariation}`
 }
 
-/**
- * Filtra a personalização de um item de pedido para exibição.
- * Mostra todos os grupos (inclusão + add-ons) com o que o cliente selecionou.
- *
- * @param {Object} personalizacao - ex: { "Acompanha": ["Arroz","Farofa"], "Tipo de Arroz": "Baião de 2" }
- * @param {string} itemName - nome do item (não usado atualmente)
- * @returns {Array<{key: string, value: string}>} pares para exibição
- */
 export function filterPersonalizacao(personalizacao, itemName) {
     if (!personalizacao || typeof personalizacao !== 'object') return []
 
     const result = []
 
+    // Attempt to extract variation if it exists in itemName
+    // e.g., "Espetinho de Carne - Completo (Arroz, Farofa, Macarrão, Vinagrete)"
+    const matchVariation = itemName ? itemName.split('-').pop().trim() : ''
+    const isCompleto = matchVariation.toLowerCase().includes('completo')
+
+    let defaults = []
+    let selectedInclusions = []
+
+    if (isCompleto) {
+        defaults = parseVariationDefaults(matchVariation)
+        selectedInclusions = getSelectedInclusionItems(personalizacao) || []
+
+        // Find which items were removed from the defaults
+        const removedItems = defaults.filter(def =>
+            !selectedInclusions.some(sel => sel.includes(def) || def.includes(sel))
+        )
+
+        if (removedItems.length > 0) {
+            result.push({
+                key: 'Modificações',
+                value: `Sem ${removedItems.join(', Sem ')}`
+            })
+        }
+    }
+
+    const inclusionKeywords = ['acompanha', 'incluso', 'acompanhamento', 'complemento', 'complementos']
+
     for (const [key, val] of Object.entries(personalizacao)) {
+        const keyLower = key.toLowerCase()
+        const isInclusionGroup = inclusionKeywords.some(kw => keyLower.includes(kw))
+
+        // If it's a "Completo" item and this is the inclusion group, hide it because 
+        // the word "Completo" already implies all items are included, except the removed ones
+        // which we've already accounted for above.
+        if (isCompleto && isInclusionGroup) {
+            continue
+        }
+
         const displayVal = Array.isArray(val) ? val.join(', ') : val
         if (!displayVal) continue
         result.push({ key, value: String(displayVal) })
