@@ -57,6 +57,7 @@ export default function ProductPage() {
     const [stockWarning, setStockWarning] = useState({ open: false, product: '', qty: 0 })
     const [selectedVariation, setSelectedVariation] = useState(null)
     const [selectedOptions, setSelectedOptions] = useState({})
+    const [disabledGroups, setDisabledGroups] = useState(new Set())
 
     // Pre-select 300ml variation for Açaí or 500ml for Caldos on load
     useEffect(() => {
@@ -100,53 +101,52 @@ export default function ProductPage() {
         setSelectedOptions(defaults)
     }, [product])
 
-    // Sync accompaniment checkboxes when variation changes
+    // Sync accompaniment/arroz groups when variation changes
     useEffect(() => {
         if (!selectedVariation || !product?.opcoes_personalizacao) return
 
         const variationName = selectedVariation.nome || ''
         const varLower = variationName.toLowerCase()
+        const isCompleto = varLower.includes('completo')
 
-        // Find the inclusion/accompaniment group
+        // Find accompaniment and arroz-type groups
         const inclusionKeywords = ['acompanha', 'incluso', 'acompanhamento', 'complemento', 'complementos']
+        const arrozKeywords = ['arroz', 'tipo de arroz']
+
         const accompGroup = product.opcoes_personalizacao.find(g =>
             inclusionKeywords.some(kw => g.grupo.toLowerCase().includes(kw))
         )
-        if (!accompGroup) return
+        const arrozGroup = product.opcoes_personalizacao.find(g =>
+            arrozKeywords.some(kw => g.grupo.toLowerCase().includes(kw))
+        )
 
-        // Get all available option names for this group
-        const allOptions = accompGroup.opcoes.map(opt => optName(opt))
-
-        // Parse items from variation parenthetical: "Com X e Y (X, Y)" → ["X", "Y"]
-        const parenMatch = variationName.match(/\((.+)\)\s*$/)
-        const parenItems = parenMatch
-            ? parenMatch[1].split(',').map(s => s.trim())
-            : []
-
-        let newSelection
-        if (varLower.includes('só') || varLower.includes('so ')) {
-            // "Só a Carne" → deselect all accompaniments
-            newSelection = []
-        } else if (varLower.includes('completo') && parenItems.length === 0) {
-            // "Completo" without parenthetical → select all defaults
-            newSelection = accompGroup.padrao ? [...accompGroup.padrao] : [...allOptions]
-        } else if (parenItems.length > 0) {
-            // Has parenthetical items → select only those that match available options
-            newSelection = allOptions.filter(opt =>
-                parenItems.some(pi => opt.toLowerCase() === pi.toLowerCase())
-            )
-        } else if (varLower.includes('completo')) {
-            // "Completo" with variations that have paren → select all
-            newSelection = accompGroup.padrao ? [...accompGroup.padrao] : [...allOptions]
+        if (isCompleto) {
+            // Completo → enable all groups, select all accompaniments
+            setDisabledGroups(new Set())
+            if (accompGroup) {
+                const allOptions = accompGroup.opcoes.map(opt => optName(opt))
+                setSelectedOptions(prev => ({
+                    ...prev,
+                    [accompGroup.grupo]: accompGroup.padrao ? [...accompGroup.padrao] : [...allOptions]
+                }))
+            }
         } else {
-            // Unknown variation → don't change
-            return
-        }
+            // Non-Completo → disable and clear accomp + arroz groups
+            const groupsToDisable = new Set()
+            const optionUpdates = {}
 
-        setSelectedOptions(prev => ({
-            ...prev,
-            [accompGroup.grupo]: newSelection
-        }))
+            if (accompGroup) {
+                groupsToDisable.add(accompGroup.grupo)
+                optionUpdates[accompGroup.grupo] = []
+            }
+            if (arrozGroup) {
+                groupsToDisable.add(arrozGroup.grupo)
+                optionUpdates[arrozGroup.grupo] = arrozGroup.tipo === 'radio' ? '' : []
+            }
+
+            setDisabledGroups(groupsToDisable)
+            setSelectedOptions(prev => ({ ...prev, ...optionUpdates }))
+        }
     }, [selectedVariation, product])
 
     // Calculate extras cost from selected add-on options
@@ -487,11 +487,14 @@ export default function ProductPage() {
                                     if (!isAvailable) return null
 
                                     const selected = isOptionSelected(group.grupo, name, group.tipo)
+                                    const isGroupDisabled = disabledGroups.has(group.grupo)
                                     return (
                                         <button
                                             key={oIdx}
-                                            className={`product-addon-item ${selected ? 'product-addon-item--selected' : ''}`}
-                                            onClick={() => handleOptionToggle(group, name)}
+                                            className={`product-addon-item ${selected ? 'product-addon-item--selected' : ''} ${isGroupDisabled ? 'product-addon-item--disabled' : ''}`}
+                                            onClick={() => !isGroupDisabled && handleOptionToggle(group, name)}
+                                            disabled={isGroupDisabled}
+                                            style={isGroupDisabled ? { opacity: 0.4, pointerEvents: 'none' } : {}}
                                         >
                                             <div className="product-addon-item__left">
                                                 <div className={`product-addon-item__check ${selected ? 'product-addon-item__check--active' : ''}`}>
