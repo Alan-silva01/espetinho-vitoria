@@ -136,12 +136,14 @@ function getSelectedInclusionItems(personalizacao) {
 
 /**
  * Monta um nome limpo para o item do pedido.
- * Limpa o parêntese da variação: "Completo (Arroz, Farofa, Macarrão, Vinagrete)" → "Completo"
+ * - Limpa o parêntese da variação
+ * - Se a variação é "Completo" mas o cliente desmarcou algum acompanhamento,
+ *   remove "Completo" do nome (só mostra "Completo" quando TUDO está selecionado)
  *
  * @param {string} productName - Nome do produto, ex: "Espetinho de Carne"
  * @param {string|null} variationName - Nome da variação, ex: "Completo (Arroz, Farofa, Macarrão, Vinagrete)"
- * @param {Object|null} personalizacao - Dados de personalização (não usado atualmente)
- * @returns {string} Nome limpo, ex: "Espetinho de Carne - Completo"
+ * @param {Object|null} personalizacao - Dados de personalização do item
+ * @returns {string} Nome limpo
  */
 export function getSmartItemName(productName, variationName, personalizacao) {
     let baseName = productName || 'Item'
@@ -154,8 +156,21 @@ export function getSmartItemName(productName, variationName, personalizacao) {
 
     if (!variationName) return baseName
 
+    // Parse defaults from variation parenthetical before stripping
+    const defaults = parseVariationDefaults(variationName)
+
     // Strip parenthetical from variation name for clean display
     const cleanVariation = variationName.replace(/\s*\(.*?\)\s*$/, '').trim()
+
+    // If variation is "Completo" and has defaults, check if customer removed any item
+    const isCompleto = cleanVariation.toLowerCase().includes('completo')
+    if (isCompleto && defaults.length > 0 && personalizacao) {
+        const selected = getSelectedInclusionItems(personalizacao)
+        if (selected !== null && selected.length < defaults.length) {
+            // Customer removed something → NOT completo, show just the base name
+            return baseName
+        }
+    }
 
     return `${baseName} - ${cleanVariation}`
 }
