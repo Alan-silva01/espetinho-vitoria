@@ -213,12 +213,11 @@ export default function OrdersPage() {
 
             const receiptHTML = `<!DOCTYPE html><html><head><meta charset="utf-8">
             <style>
-                @page { margin: 0; size: 58mm auto; }
                 * { margin:0; padding:0; box-sizing:border-box; }
                 html, body { width:71mm; height:fit-content; margin:0; padding:0; background:white; }
-                .receipt-content { width:71mm; height:fit-content; padding:0mm 1mm 0mm 0mm; font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:15px; line-height:1.2; text-transform:uppercase; color:black; overflow:hidden; font-weight:700; page-break-after:avoid; }
+                .receipt-content { width:71mm; height:fit-content; padding:0mm 1mm 0mm 0mm; font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:15px; line-height:1.1; text-transform:uppercase; color:black; overflow:hidden; font-weight:700; }
                 .receipt-logo-container { text-align:center; margin-bottom:2mm; }
-                .receipt-logo { max-width:35mm; filter:grayscale(1) contrast(2); }
+                .receipt-logo { max-width:32mm; filter:grayscale(1) contrast(2); }
                 .receipt-divider { border-top:2px dashed black; margin:2.5mm 0; }
                 .receipt-section-title { text-align:center; font-weight:900; font-size:16px; margin-bottom:2mm; border:1px solid black; padding:0.5mm; }
                 .receipt-header-info { text-align:center; margin-bottom:4mm; margin-top:0mm; }
