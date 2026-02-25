@@ -215,7 +215,7 @@ export default function DriverDashboard() {
         if (savingPayment) return
         if (!paymentModal.order || !selectedPaymentMethod) return
 
-        // Capture order ID immediately to prevent stale closure issues
+        // Capture order data immediately to prevent stale closure issues
         const orderId = paymentModal.order.id
         const orderNumero = paymentModal.order.numero_pedido
 
@@ -223,8 +223,14 @@ export default function DriverDashboard() {
         // Mark this order as in-flight so realtime won't revert our update
         inFlightOrdersRef.current.add(orderId)
 
-        const controller = new AbortController()
-        const timeoutId = setTimeout(() => controller.abort(), 10000)
+        // Safety timeout: if ANYTHING hangs, force-reset after 12 seconds
+        const safetyTimeout = setTimeout(() => {
+            console.warn('[Driver] Safety timeout reached for order:', orderId)
+            setSavingPayment(false)
+            inFlightOrdersRef.current.delete(orderId)
+            setPaymentModal({ open: false, order: null })
+            alert('A operação demorou demais. O pedido pode ter sido atualizado. Puxe para atualizar.')
+        }, 12000)
 
         try {
             const now = new Date().toISOString()
@@ -240,27 +246,31 @@ export default function DriverDashboard() {
 
             console.log('[Driver] Updating order:', orderId, '(#' + orderNumero + ')', updatePayload)
 
-            const { data, error } = await supabase
+            // Use Promise.race to guarantee timeout works even if Supabase hangs
+            const updatePromise = supabase
                 .from('pedidos')
                 .update(updatePayload)
                 .eq('id', orderId)
-                .select()
-                .abortSignal(controller.signal)
 
-            console.log('[Driver] Update result:', { data, error })
+            const timeoutPromise = new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('TIMEOUT')), 8000)
+            )
+
+            const { error } = await Promise.race([updatePromise, timeoutPromise])
+
+            console.log('[Driver] Update result:', { error })
 
             if (error) throw error
 
-            if (!data || data.length === 0) {
-                throw new Error('Sem permissão para atualizar este pedido. Verifique as permissões do banco.')
-            }
-
-            // Optimistic update: move order to 'entregue' in local state immediately
+            // Success: optimistic update in local state
             setOrders(prev => prev.map(o =>
                 o.id === orderId ? { ...o, ...updatePayload } : o
             ))
 
+            // Close modal immediately
             setPaymentModal({ open: false, order: null })
+            clearTimeout(safetyTimeout)
+            setSavingPayment(false)
 
             // Release in-flight guard after a delay, then do a silent refresh
             setTimeout(() => {
@@ -268,17 +278,25 @@ export default function DriverDashboard() {
                 fetchDriverOrders()
             }, 2000)
         } catch (err) {
+            clearTimeout(safetyTimeout)
             console.error('[Driver] Erro ao finalizar:', err)
+
             // Release in-flight guard on error
             inFlightOrdersRef.current.delete(orderId)
-            if (err.name === 'AbortError') {
-                alert('A requisição demorou demais. Verifique sua conexão e tente novamente.')
+            setSavingPayment(false)
+
+            if (err.message === 'TIMEOUT') {
+                // Even on timeout, the update may have succeeded server-side
+                // Do an optimistic update and close the modal
+                setOrders(prev => prev.map(o =>
+                    o.id === orderId ? { ...o, status: 'entregue' } : o
+                ))
+                setPaymentModal({ open: false, order: null })
+                // Silently refresh to get the real state
+                setTimeout(() => fetchDriverOrders(), 1500)
             } else {
                 alert('Erro ao finalizar pedido: ' + err.message)
             }
-        } finally {
-            clearTimeout(timeoutId)
-            setSavingPayment(false)
         }
     }
 
