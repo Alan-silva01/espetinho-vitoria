@@ -1066,7 +1066,7 @@ export default function OrdersPage() {
                                                     <div>{getItemDisplayName(item)?.toUpperCase()}</div>
                                                     {item.personalizacao && typeof item.personalizacao === 'object' && filterPersonalizacao(item.personalizacao, getItemDisplayName(item)).map(({ key, value }) => (
                                                         <div key={key} className="receipt-item-details">
-                                                            - {key.toUpperCase()}: {value.toUpperCase()}
+                                                            {key}: {value}
                                                         </div>
                                                     ))}
                                                     {item.observacoes && (

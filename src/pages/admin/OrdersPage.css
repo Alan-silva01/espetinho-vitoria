@@ -1051,8 +1051,12 @@
     }
 
     .receipt-item-details {
-        font-size: 12px;
-        padding-left: 1mm;
+        font-size: 13px;
+        font-weight: 700;
+        padding-left: 2mm;
+        margin-top: 1mm;
+        word-break: break-word;
+        overflow-wrap: break-word;
     }
 
     .receipt-total-section {
