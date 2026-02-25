@@ -560,7 +560,7 @@ export default function CartPage() {
                                     ? 'Obtendo localização...'
                                     : tempData.google_maps_link
                                         ? 'Localização vinculada ✅'
-                                        : 'Vincular minha localização (GPS)'}
+                                        : 'Usar localização atual 📍'}
                             </button>
 
                             {tempData.google_maps_link && (
