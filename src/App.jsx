@@ -14,6 +14,18 @@ const updateSW = registerSW({
       }, 60 * 1000)
     }
   },
+  onNeedRefresh() {
+    // Guard against reload storms: if we already reloaded recently, skip
+    const lastReload = Number(sessionStorage.getItem('pwa_last_reload') || 0)
+    const now = Date.now()
+    if (now - lastReload < 10_000) {
+      console.warn('[PWA] Reload suppressed — already reloaded within 10s')
+      return
+    }
+    sessionStorage.setItem('pwa_last_reload', String(now))
+    console.log('[PWA] New content available — reloading...')
+    updateSW(true)
+  },
   onOfflineReady() {
     console.log('[PWA] App ready for offline use')
   }
