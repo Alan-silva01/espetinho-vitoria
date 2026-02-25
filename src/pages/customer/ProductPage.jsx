@@ -105,6 +105,17 @@ export default function ProductPage() {
     useEffect(() => {
         if (!selectedVariation || !product?.opcoes_personalizacao) return
 
+        // Only apply this restriction logic if the product actually HAS a "Completo" variation (e.g., Espetinhos)
+        // For Açai, Drinks, etc. where there is no "Completo", this restriction should not apply
+        const hasCompletoVariation = product.variacoes_produto?.some(
+            v => v.nome.toLowerCase().includes('completo')
+        )
+
+        if (!hasCompletoVariation) {
+            setDisabledGroups(new Set())
+            return
+        }
+
         const variationName = selectedVariation.nome || ''
         const varLower = variationName.toLowerCase()
         const isCompleto = varLower.includes('completo')
