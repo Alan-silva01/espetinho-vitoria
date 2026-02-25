@@ -122,7 +122,7 @@ export default function OrdersPage() {
         })
     }
 
-    // Auto-print: fetch order, render #thermal-receipt, capture & print
+    // Auto-print: fetch order, set selectedOrder, call window.print() — SAME as manual
     const autoPrintOrder = async (orderId) => {
         try {
             const { data: order, error } = await supabase
@@ -144,120 +144,20 @@ export default function OrdersPage() {
                 return
             }
 
-            // Set selectedOrder so React renders #thermal-receipt with exact same JSX as manual print
+            // Set selectedOrder — React renders #thermal-receipt (exact same component as manual print)
             setSelectedOrder(order)
 
-            // Wait for React to render the #thermal-receipt DOM
-            await new Promise(resolve => setTimeout(resolve, 300))
+            // Wait for React to render
+            await new Promise(resolve => setTimeout(resolve, 400))
 
-            // Capture the rendered receipt HTML from the actual DOM
-            const receiptEl = document.getElementById('thermal-receipt')
-            if (!receiptEl) {
-                console.error('[AutoPrint] #thermal-receipt not found in DOM')
+            // Call window.print() directly — IDENTICAL to clicking "Imprimir" manually
+            // The @media print CSS in OrdersPage.css hides everything except #thermal-receipt
+            window.print()
+
+            // After print dialog closes, clear selectedOrder
+            setTimeout(() => {
                 setSelectedOrder(null)
-                return
-            }
-            const capturedHTML = receiptEl.innerHTML
-
-            // Extract the @media print CSS rules from the page stylesheets
-            let printCSS = ''
-            try {
-                for (const sheet of document.styleSheets) {
-                    try {
-                        for (const rule of sheet.cssRules) {
-                            if (rule.cssText && rule.cssText.includes('receipt-')) {
-                                // Get rules that mention receipt classes
-                                printCSS += rule.cssText + '\n'
-                            }
-                        }
-                    } catch (e) { /* cross-origin sheet, skip */ }
-                }
-            } catch (e) { /* stylesheet access error */ }
-
-            // Build a standalone HTML document using the EXACT same CSS from @media print
-            const receiptHTML = `<!DOCTYPE html><html><head><meta charset="utf-8">
-            <style>
-                @page { margin: 0; size: 58mm auto; }
-                * { margin:0; padding:0; box-sizing:border-box; }
-                html, body { width:71mm; height:fit-content; margin:0; padding:0; background:white; }
-                #thermal-receipt {
-                    display: block !important;
-                    position: relative;
-                    left: 0; top: 0;
-                    width: 71mm; height: fit-content;
-                    margin: 0; padding: 0mm 1mm 0mm 0mm;
-                    box-sizing: border-box;
-                    background: white; color: black;
-                    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-                    page-break-after: avoid;
-                    font-size: 15px; line-height: 1.2;
-                    text-transform: uppercase;
-                    overflow: hidden; font-weight: 700;
-                }
-                .receipt-print-container { width: 100%; }
-                .receipt-logo-container { text-align: center; margin-bottom: 2mm; }
-                .receipt-logo { max-width: 35mm; filter: grayscale(1) contrast(2); }
-                .receipt-divider { border-top: 2px dashed black; margin: 2.5mm 0; }
-                .receipt-section-title { text-align: center; font-weight: 900; font-size: 16px; margin-bottom: 2mm; border: 1px solid black; padding: 0.5mm; }
-                .receipt-header-info { text-align: center; margin-bottom: 4mm; margin-top: 0mm; }
-                .receipt-order-num { font-size: 24px; font-weight: 950; margin-bottom: 1mm; }
-                .receipt-data-row { display: flex; justify-content: space-between; margin-bottom: 1mm; }
-                .receipt-label { font-weight: 900; }
-                .receipt-table { width: 100%; border-collapse: collapse; margin: 3mm 0; table-layout: fixed; }
-                .receipt-table th { text-align: left; border-bottom: 2px solid black; padding-bottom: 1mm; font-size: 13px; font-weight: 900; }
-                .receipt-table td { padding: 2mm 0; vertical-align: top; font-size: 15px; font-weight: 800; }
-                .receipt-table td:nth-child(2) { word-break: break-word; overflow-wrap: break-word; }
-                .receipt-table td:nth-child(3) { white-space: nowrap; }
-                .receipt-item-details { font-size: 12px; padding-left: 1mm; }
-                .receipt-total-section { margin-top: 2mm; }
-                .receipt-total-row { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 1mm; }
-                .receipt-total-big { font-size: 22px; font-weight: 950; margin-top: 2.5mm; border-top: 2px dashed black; padding-top: 2.5mm; display: flex; justify-content: space-between; }
-                .receipt-footer-msg { text-align: center; margin-top: 4mm; margin-bottom: 0; font-size: 14px; padding-bottom: 0; font-weight: 800; }
-            </style></head><body>
-            <div id="thermal-receipt">${capturedHTML}</div>
-            </body></html>`
-
-            // Clear the selectedOrder (close the modal)
-            setSelectedOrder(null)
-
-            // Try QZ Tray first (silent print), fallback to iframe
-            const currentQz = qzTrayRef.current
-            if (currentQz?.connectedRef?.current && currentQz?.selectedPrinter) {
-                const success = await currentQz.printHtml(receiptHTML)
-                if (success) {
-                    console.log('[AutoPrint/QZ] Impressão silenciosa enviada para pedido #' + order.numero_pedido)
-                    return
-                }
-                console.warn('[AutoPrint/QZ] Falhou, usando fallback do iframe...')
-            }
-
-            // Fallback: Print via hidden iframe (shows print dialog)
-            const iframe = document.createElement('iframe')
-            iframe.style.position = 'fixed'
-            iframe.style.top = '-10000px'
-            iframe.style.left = '-10000px'
-            iframe.style.width = '71mm'
-            iframe.style.height = '0'
-            document.body.appendChild(iframe)
-
-            iframe.contentDocument.open()
-            iframe.contentDocument.write(receiptHTML)
-            iframe.contentDocument.close()
-
-            // Wait for content to render then print
-            iframe.onload = () => {
-                setTimeout(() => {
-                    try {
-                        iframe.contentWindow.print()
-                    } catch (e) {
-                        console.error('[AutoPrint] Print failed:', e)
-                    }
-                    // Cleanup after print dialog closes
-                    setTimeout(() => {
-                        document.body.removeChild(iframe)
-                    }, 2000)
-                }, 300)
-            }
+            }, 1000)
 
             console.log('[AutoPrint] Imprimindo pedido #' + order.numero_pedido)
         } catch (err) {
