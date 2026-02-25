@@ -8,7 +8,7 @@ import {
 } from 'lucide-react'
 import { useDriverAuth } from '../../hooks/useDriverAuth'
 import { supabase } from '../../lib/supabase'
-import { formatCurrency, filterPersonalizacao } from '../../lib/utils'
+import { formatCurrency, filterPersonalizacao, getSmartItemName } from '../../lib/utils'
 import './DriverDashboard.css'
 
 function getAddressString(endereco) {
@@ -116,7 +116,7 @@ export default function DriverDashboard() {
 
             const { data, error } = await supabase
                 .from('pedidos')
-                .select('*, entregadores(nome), itens_pedido(*, produtos(nome, imagem_url))')
+                .select('*, entregadores(nome), itens_pedido(*, produtos(nome, imagem_url), variacoes_produto(nome))')
                 .eq('tipo_pedido', 'entrega')
                 .gte('criado_em', brMidnightAsUTC.toISOString())
                 .order('criado_em', { ascending: false })
@@ -126,7 +126,7 @@ export default function DriverDashboard() {
                     ...order,
                     itens: (order.itens_pedido || []).map(ip => ({
                         quantidade: ip.quantidade,
-                        nome: ip.produtos?.nome || 'Item',
+                        nome: getSmartItemName(ip.produtos?.nome, ip.variacoes_produto?.nome, ip.personalizacao),
                         preco: ip.preco_unitario,
                         observacoes: ip.observacoes,
                         personalizacao: ip.personalizacao

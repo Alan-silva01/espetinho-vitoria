@@ -6,7 +6,7 @@ import {
     Store, Bike, Play, Check, Calendar, Search, Bell, Printer, RefreshCw, Receipt
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
-import { formatCurrency, filterPersonalizacao } from '../../lib/utils'
+import { formatCurrency, filterPersonalizacao, getSmartItemName } from '../../lib/utils'
 import { useOrders, useComanda } from '../../hooks/useOrders'
 import { useVisibilityRefresh } from '../../hooks/useVisibilityRefresh'
 
@@ -61,12 +61,11 @@ const VALID_TRANSITIONS = Object.fromEntries(
 
 // Helper: build display name including variation (e.g. "Espetinho de Carne - Só a Carne")
 const getItemDisplayName = (item) => {
-    const baseName = item.produtos?.nome || 'Item'
-    const variationName = item.variacoes_produto?.nome
-    if (!variationName) return baseName
-    // Strip existing variation from product name if it's already embedded (e.g. "Espetinho de Carne – Completo")
-    const cleanBase = baseName.replace(/\s*[-–]\s*(Completo|Com .+|Só .+)$/i, '').trim()
-    return `${cleanBase} - ${variationName}`
+    return getSmartItemName(
+        item.produtos?.nome,
+        item.variacoes_produto?.nome,
+        item.personalizacao
+    )
 }
 
 export default function OrdersPage() {

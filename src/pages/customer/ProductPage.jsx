@@ -4,7 +4,7 @@ import { ArrowLeft, Heart, Minus, Plus, Check, ShoppingCart } from 'lucide-react
 import { useProduct } from '../../hooks/useProducts'
 import { useCart } from '../../hooks/useCart'
 import { useFavorites } from '../../hooks/useFavorites'
-import { formatCurrency, getImageUrl } from '../../lib/utils'
+import { formatCurrency, getImageUrl, getSmartItemName } from '../../lib/utils'
 import { optimizeUrl } from '../../lib/cloudinary'
 import Loading from '../../components/ui/Loading'
 import OptimizedImage from '../../components/ui/OptimizedImage'
@@ -24,9 +24,10 @@ const optImg = (opt) => (typeof opt === 'string' ? null : opt.imagem_url || opt.
 // Helper: Get clean product name for display (strips current size in parenthesis if variation is selected)
 function getDisplayName(baseName, selectedVariation) {
     if (!selectedVariation) return baseName
-    // Strip (300ml) or (500ml) etc from base name to avoid "(300ml) - 500ml"
+    // Strip parenthetical from both base and variation name
     const cleanBase = baseName.replace(/\s*\(.*?\)\s*/g, ' ').trim()
-    return `${cleanBase} - ${selectedVariation.nome}`
+    const cleanVar = selectedVariation.nome.replace(/\s*\(.*?\)\s*$/, '').trim()
+    return `${cleanBase} - ${cleanVar}`
 }
 
 // Helper: Format name to make text inside parentheses smaller
@@ -237,7 +238,7 @@ export default function ProductPage() {
         addItem({
             produto_id: product.id,
             variacao_id: selectedVariation?.id,
-            nome: getDisplayName(product.nome, selectedVariation),
+            nome: getSmartItemName(product.nome, selectedVariation?.nome, selectedOptions),
             preco: (selectedVariation?.preco || product.preco) + extrasTotal,
             imagem_url: product.imagem_url,
             quantidade: qty,

@@ -106,55 +106,80 @@ export function normalizeString(str) {
 }
 
 /**
- * Filtra a personalização de um item de pedido para exibição limpa.
+ * Extrai os itens default de um nome de variação com parênteses.
+ * Ex: "Completo (Arroz, Farofa, Macarrão, Vinagrete)" → ["arroz", "farofa", "macarrão", "vinagrete"]
+ */
+function parseVariationDefaults(variationName) {
+    if (!variationName) return []
+    const match = variationName.match(/\((.+)\)\s*$/)
+    if (!match) return []
+    return match[1].split(',').map(s => normalizeString(s.trim()))
+}
+
+/**
+ * Extrai os itens selecionados de um grupo de inclusão da personalização.
+ */
+function getSelectedInclusionItems(personalizacao) {
+    if (!personalizacao || typeof personalizacao !== 'object') return null
+
+    const inclusionKeywords = ['acompanha', 'incluso', 'acompanhamento', 'complemento', 'complementos']
+
+    for (const [key, val] of Object.entries(personalizacao)) {
+        const keyLower = key.toLowerCase()
+        if (inclusionKeywords.some(kw => keyLower.includes(kw))) {
+            const items = Array.isArray(val) ? val : (val ? [val] : [])
+            return items.map(s => normalizeString(String(s)))
+        }
+    }
+    return null
+}
+
+/**
+ * Monta um nome limpo para o item do pedido.
+ * Limpa o parêntese da variação: "Completo (Arroz, Farofa, Macarrão, Vinagrete)" → "Completo"
  *
- * Regras:
- * - Se o nome do item contém "Completo", suprime grupos de inclusão
- *   (tipo "Acompanha", "Incluso", etc.) porque já está tudo incluído.
- * - Se NÃO é completo mas o grupo é de inclusão, mostra apenas os itens
- *   REMOVIDOS como "sem X".
- * - Grupos de add-on (pagos, escolhas) sempre aparecem normalmente.
+ * @param {string} productName - Nome do produto, ex: "Espetinho de Carne"
+ * @param {string|null} variationName - Nome da variação, ex: "Completo (Arroz, Farofa, Macarrão, Vinagrete)"
+ * @param {Object|null} personalizacao - Dados de personalização (não usado atualmente)
+ * @returns {string} Nome limpo, ex: "Espetinho de Carne - Completo"
+ */
+export function getSmartItemName(productName, variationName, personalizacao) {
+    let baseName = productName || 'Item'
+
+    // Strip existing variation suffix and parentheticals from base name
+    baseName = baseName
+        .replace(/\s*[-–]\s*(Completo|Com .+|Só .+)$/i, '')
+        .replace(/\s*\(.*?\)\s*/g, ' ')
+        .trim()
+
+    if (!variationName) return baseName
+
+    // Strip parenthetical from variation name for clean display
+    const cleanVariation = variationName.replace(/\s*\(.*?\)\s*$/, '').trim()
+
+    return `${baseName} - ${cleanVariation}`
+}
+
+/**
+ * Filtra a personalização de um item de pedido para exibição.
+ * Mostra todos os grupos (inclusão + add-ons) com o que o cliente selecionou.
  *
- * @param {Object} personalizacao - ex: { "Acompanha": ["Arroz","Farofa"], "Molho": "Chimichurri" }
- * @param {string} itemName - nome do item, ex: "Espetinho de Carne - Completo"
- * @param {Array|null} allGroupOptions - lista completa de opções padrão para comparação (opcional)
- * @returns {Array<{key: string, value: string}>} pares filtrados para exibição
+ * @param {Object} personalizacao - ex: { "Acompanha": ["Arroz","Farofa"], "Tipo de Arroz": "Baião de 2" }
+ * @param {string} itemName - nome do item (não usado atualmente)
+ * @returns {Array<{key: string, value: string}>} pares para exibição
  */
 export function filterPersonalizacao(personalizacao, itemName) {
     if (!personalizacao || typeof personalizacao !== 'object') return []
 
-    const nameLower = (itemName || '').toLowerCase()
-    const isCompleto = nameLower.includes('completo')
-
-    // Groups that represent "what comes with it" (inclusion groups)
-    const inclusionKeywords = ['acompanha', 'incluso', 'acompanhamento', 'complemento', 'complementos']
-
     const result = []
 
     for (const [key, val] of Object.entries(personalizacao)) {
-        const keyLower = key.toLowerCase()
-        const isInclusionGroup = inclusionKeywords.some(kw => keyLower.includes(kw))
-
-        if (isInclusionGroup) {
-            // "Completo" → skip entirely (all sides are included, no need to list them)
-            if (isCompleto) continue
-
-            // Not completo → nothing to show for inclusions either,
-            // because the selected items are what the customer chose.
-            // The variation name already tells the story (e.g. "Só Carne").
-            // We still show the group if it has meaningful content and the name
-            // doesn't already describe the selection.
-            const displayVal = Array.isArray(val) ? val.join(', ') : val
-            if (!displayVal) continue
-            result.push({ key, value: String(displayVal) })
-        } else {
-            // Non-inclusion group (add-ons, choices, etc.) → always show
-            const displayVal = Array.isArray(val) ? val.join(', ') : val
-            if (!displayVal) continue
-            result.push({ key, value: String(displayVal) })
-        }
+        const displayVal = Array.isArray(val) ? val.join(', ') : val
+        if (!displayVal) continue
+        result.push({ key, value: String(displayVal) })
     }
 
     return result
 }
+
 

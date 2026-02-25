@@ -4,7 +4,7 @@ import { ArrowLeft, Phone, MessageSquare, Headphones, ChevronDown, ChevronUp, Pa
 import { useOrderTracking, useComanda, useOrders } from '../../hooks/useOrders'
 import Loading from '../../components/ui/Loading'
 import Dialog from '../../components/ui/Dialog'
-import { getStatusLabel, formatCurrency, filterPersonalizacao } from '../../lib/utils'
+import { getStatusLabel, formatCurrency, filterPersonalizacao, getSmartItemName } from '../../lib/utils'
 import './TrackingPage.css'
 
 const STEPS = [
@@ -175,15 +175,10 @@ export default function TrackingPage() {
                                     </div>
                                     <div className="tracking-item-row__info">
                                         <div className="tracking-item-row__name">
-                                            {item.produtos?.nome}
-                                            {item.variacao_id && item.variacoes_produto?.nome && (
-                                                <span className="tracking-item-row__variation">
-                                                    - {item.variacoes_produto.nome}
-                                                </span>
-                                            )}
+                                            {getSmartItemName(item.produtos?.nome, item.variacoes_produto?.nome, item.personalizacao)}
                                         </div>
                                         {(() => {
-                                            const fullName = (item.produtos?.nome || '') + (item.variacoes_produto?.nome ? ' - ' + item.variacoes_produto.nome : '')
+                                            const fullName = getSmartItemName(item.produtos?.nome, item.variacoes_produto?.nome, item.personalizacao)
                                             const filtered = filterPersonalizacao(item.personalizacao, fullName)
                                             return item.personalizacao && typeof item.personalizacao === 'object' && !Array.isArray(item.personalizacao) && filtered.length > 0 && (
                                                 <div className="tracking-item-row__extras">
