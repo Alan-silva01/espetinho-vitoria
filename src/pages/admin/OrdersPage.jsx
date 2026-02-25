@@ -9,6 +9,7 @@ import { supabase } from '../../lib/supabase'
 import { formatCurrency } from '../../lib/utils'
 import { useOrders, useComanda } from '../../hooks/useOrders'
 import { useVisibilityRefresh } from '../../hooks/useVisibilityRefresh'
+import useQzTray from '../../hooks/useQzTray'
 import Dialog from '../../components/ui/Dialog'
 import './OrdersPage.css'
 
@@ -93,6 +94,10 @@ export default function OrdersPage() {
     })
     const autoPrintRef = useRef(autoPrint)
 
+    // QZ Tray for silent printing
+    const qzTray = useQzTray()
+    const qzTrayRef = useRef(qzTray)
+
     useEffect(() => {
         ordersRef.current = orders
     }, [orders])
@@ -104,6 +109,10 @@ export default function OrdersPage() {
     useEffect(() => {
         autoPrintRef.current = autoPrint
     }, [autoPrint])
+
+    useEffect(() => {
+        qzTrayRef.current = qzTray
+    }, [qzTray])
 
     const toggleAutoPrint = () => {
         setAutoPrint(prev => {
@@ -255,7 +264,18 @@ export default function OrdersPage() {
                 <div class="footer">OBRIGADO PELA PREFERÊNCIA!<br>ESPETINHO VITÓRIA</div>
             </body></html>`
 
-            // Print via hidden iframe
+            // Try QZ Tray first (silent print), fallback to iframe
+            const currentQz = qzTrayRef.current
+            if (currentQz?.connectedRef?.current && currentQz?.selectedPrinter) {
+                const success = await currentQz.printHtml(receiptHTML)
+                if (success) {
+                    console.log('[AutoPrint/QZ] Impressão silenciosa enviada para pedido #' + order.numero_pedido)
+                    return
+                }
+                console.warn('[AutoPrint/QZ] Falhou, usando fallback do iframe...')
+            }
+
+            // Fallback: Print via hidden iframe (shows print dialog)
             const iframe = document.createElement('iframe')
             iframe.style.position = 'fixed'
             iframe.style.top = '-10000px'
@@ -815,6 +835,32 @@ export default function OrdersPage() {
                         <Printer size={18} />
                         <span>{autoPrint ? 'Auto Print ✓' : 'Auto Print'}</span>
                     </button>
+
+                    {/* QZ Tray Status & Printer Selector */}
+                    {autoPrint && (
+                        <div className="qz-tray-controls">
+                            <div className={`qz-status-dot ${qzTray.connected ? 'connected' : 'disconnected'}`}
+                                title={qzTray.connected ? 'QZ Tray Conectado' : 'QZ Tray Desconectado'}
+                                onClick={() => !qzTray.connected && qzTray.connect()}
+                            />
+                            {qzTray.connected && qzTray.printers.length > 0 && (
+                                <select
+                                    className="qz-printer-select"
+                                    value={qzTray.selectedPrinter}
+                                    onChange={(e) => qzTray.selectPrinter(e.target.value)}
+                                    title="Selecione a impressora"
+                                >
+                                    <option value="">Impressora...</option>
+                                    {qzTray.printers.map(p => (
+                                        <option key={p} value={p}>{p}</option>
+                                    ))}
+                                </select>
+                            )}
+                            {qzTray.connected && !qzTray.selectedPrinter && (
+                                <span className="qz-hint">← Selecione</span>
+                            )}
+                        </div>
+                    )}
 
                     <button
                         className={`btn-refresh-kanban ${isRefreshing ? 'refreshing' : ''}`}
