@@ -31,9 +31,9 @@ export function useVisibilityRefresh(onWake, { sleepThresholdMs = 30_000 } = {})
                 const hiddenAt = hiddenAtRef.current
                 const now = Date.now()
 
-                // If we don't know when it was hidden, or if the gap exceeds threshold
-                if (!hiddenAt || (now - hiddenAt) >= sleepThresholdMs) {
-                    console.log(`[useVisibilityRefresh] Page woke after ${hiddenAt ? Math.round((now - hiddenAt) / 1000) : '?'}s — triggering refresh`)
+                // Only trigger if we KNOW it was hidden and the gap exceeds threshold
+                if (hiddenAt && (now - hiddenAt) >= sleepThresholdMs) {
+                    console.log(`[useVisibilityRefresh] Page woke after ${Math.round((now - hiddenAt) / 1000)}s — triggering refresh`)
                     callbackRef.current?.()
                 }
 

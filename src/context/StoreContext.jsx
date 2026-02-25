@@ -75,9 +75,8 @@ export function StoreProvider({ children }) {
                 hiddenAt = Date.now()
             }
             if (document.visibilityState === 'visible') {
-                const elapsed = hiddenAt ? Date.now() - hiddenAt : 0
-                if (elapsed >= 10_000) {
-                    console.log('[StoreContext] Page woke after', Math.round(elapsed / 1000), 's — refreshing')
+                if (hiddenAt && (Date.now() - hiddenAt) >= 10_000) {
+                    console.log('[StoreContext] Page woke after', Math.round((Date.now() - hiddenAt) / 1000), 's — refreshing')
                     fetchStoreStatus()
                 }
                 hiddenAt = null

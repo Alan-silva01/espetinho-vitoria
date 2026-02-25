@@ -181,9 +181,9 @@ export function AuthProvider({ children }) {
                 hiddenAt = Date.now()
             }
             if (document.visibilityState === 'visible' && mounted.current) {
-                const elapsed = hiddenAt ? Date.now() - hiddenAt : Infinity
-                if (elapsed >= 30_000) {
-                    console.log('[AuthContext] Page woke after', Math.round(elapsed / 1000), 's — refreshing session')
+                // Only trigger if we KNOW it was hidden and the gap exceeds threshold
+                if (hiddenAt && (Date.now() - hiddenAt) >= 30_000) {
+                    console.log('[AuthContext] Page woke after', Math.round((Date.now() - hiddenAt) / 1000), 's — refreshing session')
                     supabase.auth.refreshSession().catch(err => {
                         console.warn('[AuthContext] Session refresh failed:', err.message)
                     })
