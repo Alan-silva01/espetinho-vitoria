@@ -171,70 +171,7 @@
     border-color: #059669;
 }
 
-/* QZ Tray Controls */
-.qz-tray-controls {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
 
-.qz-status-dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: all 0.2s;
-    flex-shrink: 0;
-}
-
-.qz-status-dot.connected {
-    background: #10B981;
-    box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
-}
-
-.qz-status-dot.disconnected {
-    background: #EF4444;
-    box-shadow: 0 0 8px rgba(239, 68, 68, 0.3);
-    animation: pulse-dot 1.5s ease-in-out infinite;
-}
-
-@keyframes pulse-dot {
-
-    0%,
-    100% {
-        opacity: 1;
-    }
-
-    50% {
-        opacity: 0.4;
-    }
-}
-
-.qz-printer-select {
-    background: white;
-    border: 1px solid #E2E8F0;
-    border-radius: 10px;
-    padding: 6px 10px;
-    font-size: 12px;
-    font-weight: 600;
-    color: #334155;
-    cursor: pointer;
-    max-width: 180px;
-    text-overflow: ellipsis;
-}
-
-.dark .qz-printer-select {
-    background: #1E293B;
-    border-color: #334155;
-    color: #CBD5E1;
-}
-
-.qz-hint {
-    font-size: 11px;
-    color: #F59E0B;
-    font-weight: 600;
-    white-space: nowrap;
-}
 
 .btn-refresh-kanban {
     display: flex;
