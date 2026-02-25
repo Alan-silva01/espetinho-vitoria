@@ -208,6 +208,8 @@ export default function OrdersPage() {
                 * { margin:0; padding:0; box-sizing:border-box; }
                 html, body { width:71mm; height:fit-content; margin:0; padding:0; background:white; }
                 .receipt-content { width:71mm; height:fit-content; padding:0mm 1mm 0mm 0mm; font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:15px; line-height:1.2; text-transform:uppercase; color:black; overflow:hidden; font-weight:700; page-break-after:avoid; }
+                .logo-container { text-align:center; margin-bottom:2mm; }
+                .logo { max-width:35mm; filter:grayscale(1) contrast(2); }
                 .divider { border-top:2px dashed black; margin:2.5mm 0; }
                 .section-title { text-align:center; font-weight:900; font-size:16px; margin-bottom:2mm; border:1px solid black; padding:0.5mm; }
                 .header-info { text-align:center; margin-bottom:4mm; margin-top:0mm; }
@@ -223,6 +225,9 @@ export default function OrdersPage() {
                 .footer { text-align:center; margin-top:4mm; margin-bottom:0; font-size:14px; font-weight:800; }
             </style></head><body>
             <div class="receipt-content">
+                <div class="logo-container">
+                    <img src="${logoImg}" alt="VITORIA" class="logo" />
+                </div>
                 <div class="header-info">
                     <div class="order-num">PEDIDO #${order.numero_pedido}</div>
                     <div>${tipoLabel}</div>
@@ -278,11 +283,12 @@ export default function OrdersPage() {
                     }
                     // Cleanup after print dialog closes
                     setTimeout(() => {
-                        document.body.removeChild(iframe)
+                        if (document.body.contains(iframe)) {
+                            document.body.removeChild(iframe)
+                        }
                     }, 2000)
-                }, 300)
+                }, 1000) // Changed from 500ms to 1000ms to ensure logo loads
             }
-
             console.log('[AutoPrint] Imprimindo pedido #' + order.numero_pedido)
         } catch (err) {
             console.error('[AutoPrint] Erro:', err)
