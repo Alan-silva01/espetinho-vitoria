@@ -943,160 +943,174 @@
         padding: 0 !important;
     }
 
-    /* Hide EVERYTHING — use display:none to prevent blank pages from hidden elements */
-    body>*:not(#thermal-receipt) {
-        display: none !important;
+    /* Hide everything and collapse their space */
+    body * {
+        visibility: hidden;
+        height: 0 !important;
+        min-height: 0 !important;
+        max-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+        overflow: hidden !important;
+        line-height: 0 !important;
+        font-size: 0 !important;
     }
 
     .no-print {
         display: none !important;
     }
 
+    /* Make receipt and all children visible with proper sizing */
     #thermal-receipt,
     #thermal-receipt * {
         visibility: visible !important;
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        overflow: visible !important;
+        line-height: 1.2 !important;
+        font-size: 15px !important;
     }
 
     #thermal-receipt {
         display: block !important;
-        position: fixed;
+        position: fixed !important;
         left: 0;
         top: 0;
         width: 56mm;
-        height: auto;
         margin: 0;
-        padding: 1mm;
+        padding: 1mm !important;
         box-sizing: border-box;
         background: white !important;
         color: black !important;
         font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         page-break-inside: avoid;
-        page-break-after: always;
-        font-size: 15px;
-        line-height: 1.2;
+        font-size: 15px !important;
+        line-height: 1.2 !important;
         text-transform: uppercase;
-        overflow: visible;
         font-weight: 700;
+        z-index: 999999;
     }
 
     .receipt-print-container {
-        width: 100%;
+        width: 100% !important;
     }
 
     .receipt-logo-container {
-        text-align: center;
-        margin-bottom: 2mm;
+        text-align: center !important;
+        margin-bottom: 2mm !important;
     }
 
     .receipt-logo {
-        max-width: 35mm;
-        filter: grayscale(1) contrast(2);
+        max-width: 35mm !important;
+        filter: grayscale(1) contrast(2) !important;
     }
 
     .receipt-divider {
-        border-top: 2px dashed black;
-        margin: 2.5mm 0;
+        border-top: 2px dashed black !important;
+        margin: 2.5mm 0 !important;
     }
 
     .receipt-section-title {
-        text-align: center;
-        font-weight: 900;
-        font-size: 16px;
-        margin-bottom: 2mm;
-        border: 1px solid black;
-        padding: 0.5mm;
+        text-align: center !important;
+        font-weight: 900 !important;
+        font-size: 16px !important;
+        margin-bottom: 2mm !important;
+        border: 1px solid black !important;
+        padding: 0.5mm !important;
     }
 
     .receipt-header-info {
-        text-align: center;
-        margin-bottom: 4mm;
-        margin-top: 0mm;
+        text-align: center !important;
+        margin-bottom: 4mm !important;
+        margin-top: 0mm !important;
     }
 
     .receipt-order-num {
-        font-size: 24px;
-        font-weight: 950;
-        margin-bottom: 1mm;
+        font-size: 24px !important;
+        font-weight: 950 !important;
+        margin-bottom: 1mm !important;
     }
 
     .receipt-data-row {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 1mm;
+        display: flex !important;
+        justify-content: space-between !important;
+        margin-bottom: 1mm !important;
     }
 
     .receipt-label {
-        font-weight: 900;
+        font-weight: 900 !important;
     }
 
     .receipt-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin: 3mm 0;
-        table-layout: fixed;
+        width: 100% !important;
+        border-collapse: collapse !important;
+        margin: 3mm 0 !important;
+        table-layout: fixed !important;
     }
 
     .receipt-table th {
-        text-align: left;
-        border-bottom: 2px solid black;
-        padding-bottom: 1mm;
-        font-size: 13px;
-        font-weight: 900;
+        text-align: left !important;
+        border-bottom: 2px solid black !important;
+        padding-bottom: 1mm !important;
+        font-size: 13px !important;
+        font-weight: 900 !important;
     }
 
     .receipt-table td {
-        padding: 2mm 0;
-        vertical-align: top;
-        font-size: 15px;
-        font-weight: 800;
+        padding: 2mm 0 !important;
+        vertical-align: top !important;
+        font-size: 15px !important;
+        font-weight: 800 !important;
     }
 
     .receipt-table td:nth-child(2) {
-        word-break: break-word;
-        overflow-wrap: break-word;
+        word-break: break-word !important;
+        overflow-wrap: break-word !important;
     }
 
     .receipt-table td:nth-child(3) {
-        white-space: nowrap;
+        white-space: nowrap !important;
     }
 
     .receipt-item-details {
-        font-size: 13px;
-        font-weight: 700;
-        padding-left: 2mm;
-        margin-top: 1mm;
-        word-break: break-word;
-        overflow-wrap: break-word;
+        font-size: 13px !important;
+        font-weight: 700 !important;
+        padding-left: 2mm !important;
+        margin-top: 1mm !important;
+        word-break: break-word !important;
+        overflow-wrap: break-word !important;
     }
 
     .receipt-total-section {
-        margin-top: 2mm;
+        margin-top: 2mm !important;
     }
 
     .receipt-total-row {
-        display: flex;
-        justify-content: space-between;
-        font-size: 14px;
-        margin-bottom: 1mm;
+        display: flex !important;
+        justify-content: space-between !important;
+        font-size: 14px !important;
+        margin-bottom: 1mm !important;
     }
 
     .receipt-total-big {
-        font-size: 22px;
-        font-weight: 950;
-        margin-top: 2.5mm;
-        border-top: 2px dashed black;
-        padding-top: 2.5mm;
-        display: flex;
-        justify-content: space-between;
+        font-size: 22px !important;
+        font-weight: 950 !important;
+        margin-top: 2.5mm !important;
+        border-top: 2px dashed black !important;
+        padding-top: 2.5mm !important;
+        display: flex !important;
+        justify-content: space-between !important;
     }
 
     .receipt-footer-msg {
-        text-align: center;
-        margin-top: 4mm;
-        margin-bottom: 0;
-        font-size: 14px;
-        padding-bottom: 0;
-        font-weight: 800;
+        text-align: center !important;
+        margin-top: 4mm !important;
+        margin-bottom: 0 !important;
+        font-size: 14px !important;
+        padding-bottom: 0 !important;
+        font-weight: 800 !important;
     }
 }
 
