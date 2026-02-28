@@ -80,10 +80,10 @@ export default function ProductPage() {
         }
     }, [product])
 
-    // Scroll to top on mount
+    // Scroll to top on product change
     useEffect(() => {
         window.scrollTo(0, 0)
-    }, [])
+    }, [id])
 
     // Initialize defaults from product customization data
     useEffect(() => {
