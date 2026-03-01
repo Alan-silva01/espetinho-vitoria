@@ -113,7 +113,9 @@
           autoResubscribe: true,
           notifyButton: { enable: false },
           serviceWorkerParam: { scope: "/" },
-          serviceWorkerPath: "/OneSignalSDKWorker.js",
+          // CRITICAL FIX: Use Vite PWA's sw.js explicitly so they don't fight over the same scope
+          // which causes the 1-second infinite reload loop on tab switch
+          serviceWorkerPath: "/sw.js",
         });
 
         // Tag users based on route
