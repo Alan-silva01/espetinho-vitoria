@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 
 const CustomerContext = createContext()
@@ -208,15 +208,17 @@ export function CustomerProvider({ children }) {
         }
     }, [customer?.id])
 
+    const value = useMemo(() => ({
+        customer,
+        loading,
+        fetchCustomerByCode,
+        updateCustomerStatus: () => { },
+        updateCustomerData,
+        updateLastOrder
+    }), [customer, loading])
+
     return (
-        <CustomerContext.Provider value={{
-            customer,
-            loading,
-            fetchCustomerByCode,
-            updateCustomerStatus: () => { }, // placeholder if needed
-            updateCustomerData,
-            updateLastOrder
-        }}>
+        <CustomerContext.Provider value={value}>
             {children}
         </CustomerContext.Provider>
     )

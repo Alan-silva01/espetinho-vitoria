@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react'
 import { supabase } from '../lib/supabase'
 
 const StoreContext = createContext()
@@ -159,11 +159,15 @@ export function StoreProvider({ children }) {
         return { type: 'closed_indefinitely', message: 'Fechado temporariamente. Verifique nossos horários.' }
     }
 
-    const closureInfo = getClosureInfo()
+    const closureInfo = useMemo(() => getClosureInfo(), [config, horarios])
     const isOpen = closureInfo === null
 
+    const value = useMemo(() => ({
+        config, horarios, loading, isOpen, closureInfo, fetchStoreStatus
+    }), [config, horarios, loading, isOpen, closureInfo, fetchStoreStatus])
+
     return (
-        <StoreContext.Provider value={{ config, horarios, loading, isOpen, closureInfo, fetchStoreStatus }}>
+        <StoreContext.Provider value={value}>
             {children}
         </StoreContext.Provider>
     )

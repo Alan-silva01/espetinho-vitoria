@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useRef } from 'react'
+import { createContext, useContext, useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 
 const AuthContext = createContext()
@@ -200,7 +200,7 @@ export function AuthProvider({ children }) {
         }
     }, [])
 
-    async function login(email, password) {
+    const login = useCallback(async function login(email, password) {
         setState(prev => ({ ...prev, loading: true }))
         const { data, error } = await supabase.auth.signInWithPassword({ email, password })
         if (error) {
@@ -211,9 +211,9 @@ export function AuthProvider({ children }) {
             await resolveAdmin(data.user)
         }
         return data
-    }
+    }, [])
 
-    async function logout() {
+    const logout = useCallback(async function logout() {
         setState(prev => ({ ...prev, loading: true }))
         localStorage.removeItem('espetinho_admin_bypass')
         localStorage.removeItem('espetinho_admin_cache')
@@ -221,19 +221,14 @@ export function AuthProvider({ children }) {
         if (mounted.current) {
             setState({ user: null, adminInfo: null, loading: false })
         }
-    }
+    }, [])
 
-    const value = {
+    const value = useMemo(() => ({
         ...state,
         isAuthenticated: !!state.user && !!state.adminInfo,
         login,
-        logout,
-        checkBypass: async () => {
-            // Force a re-check for the bypass login if needed
-            initializedRef.current = false
-            // (Re-init logic could go here if needed)
-        }
-    }
+        logout
+    }), [state, login, logout])
 
     return (
         <AuthContext.Provider value={value}>
