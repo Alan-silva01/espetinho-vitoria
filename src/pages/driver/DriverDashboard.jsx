@@ -223,14 +223,21 @@ export default function DriverDashboard() {
         // Mark this order as in-flight so realtime won't revert our update
         inFlightOrdersRef.current.add(orderId)
 
-        // Safety timeout: if ANYTHING hangs, force-reset after 12 seconds
+        // Hard timeout flag — guarantees cleanup even if everything else fails
+        let didFinish = false
         const safetyTimeout = setTimeout(() => {
+            if (didFinish) return
+            didFinish = true
             console.warn('[Driver] Safety timeout reached for order:', orderId)
             setSavingPayment(false)
             inFlightOrdersRef.current.delete(orderId)
+            // Optimistic: assume it worked server-side, close modal
+            setOrders(prev => prev.map(o =>
+                o.id === orderId ? { ...o, status: 'entregue' } : o
+            ))
             setPaymentModal({ open: false, order: null })
-            alert('A operação demorou demais. O pedido pode ter sido atualizado. Puxe para atualizar.')
-        }, 12000)
+            setTimeout(() => fetchDriverOrders(), 1500)
+        }, 10000)
 
         try {
             const now = new Date().toISOString()
@@ -246,30 +253,35 @@ export default function DriverDashboard() {
 
             console.log('[Driver] Updating order:', orderId, '(#' + orderNumero + ')', updatePayload)
 
-            // Use Promise.race to guarantee timeout works even if Supabase hangs
-            const updatePromise = supabase
+            // Ensure auth session is fresh before the update
+            // This prevents first-call hangs caused by stale/expired tokens
+            await supabase.auth.getSession()
+
+            // Execute the update — await it directly (NOT via Promise.race)
+            // The Supabase query builder is a thenable, not a real Promise,
+            // so Promise.race can behave unpredictably with it
+            const { data, error } = await supabase
                 .from('pedidos')
                 .update(updatePayload)
                 .eq('id', orderId)
+                .select('id')
 
-            const timeoutPromise = new Promise((_, reject) =>
-                setTimeout(() => reject(new Error('TIMEOUT')), 8000)
-            )
+            if (didFinish) return // Safety timeout already fired
 
-            const { error } = await Promise.race([updatePromise, timeoutPromise])
-
-            console.log('[Driver] Update result:', { error })
+            console.log('[Driver] Update result:', { data, error })
 
             if (error) throw error
 
             // Success: optimistic update in local state
+            didFinish = true
+            clearTimeout(safetyTimeout)
+
             setOrders(prev => prev.map(o =>
                 o.id === orderId ? { ...o, ...updatePayload } : o
             ))
 
             // Close modal immediately
             setPaymentModal({ open: false, order: null })
-            clearTimeout(safetyTimeout)
             setSavingPayment(false)
 
             // Release in-flight guard after a delay, then do a silent refresh
@@ -278,25 +290,22 @@ export default function DriverDashboard() {
                 fetchDriverOrders()
             }, 2000)
         } catch (err) {
+            if (didFinish) return // Safety timeout already handled it
+            didFinish = true
             clearTimeout(safetyTimeout)
+
             console.error('[Driver] Erro ao finalizar:', err)
 
             // Release in-flight guard on error
             inFlightOrdersRef.current.delete(orderId)
             setSavingPayment(false)
 
-            if (err.message === 'TIMEOUT') {
-                // Even on timeout, the update may have succeeded server-side
-                // Do an optimistic update and close the modal
-                setOrders(prev => prev.map(o =>
-                    o.id === orderId ? { ...o, status: 'entregue' } : o
-                ))
-                setPaymentModal({ open: false, order: null })
-                // Silently refresh to get the real state
-                setTimeout(() => fetchDriverOrders(), 1500)
-            } else {
-                alert('Erro ao finalizar pedido: ' + err.message)
-            }
+            // Even on error, assume it may have worked, close modal and refresh
+            setOrders(prev => prev.map(o =>
+                o.id === orderId ? { ...o, status: 'entregue' } : o
+            ))
+            setPaymentModal({ open: false, order: null })
+            setTimeout(() => fetchDriverOrders(), 1500)
         }
     }
 
