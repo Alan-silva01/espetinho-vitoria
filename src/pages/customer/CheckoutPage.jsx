@@ -208,7 +208,7 @@ export default function CheckoutPage() {
                 )
             }
 
-            // Webhook notification
+            // Webhook notification (espetinho domain)
             try {
                 const webhookBody = {
                     ...orderData,
