@@ -4,27 +4,21 @@ import { CartProvider } from './hooks/useCart'
 import Loading from './components/ui/Loading'
 import { registerSW } from 'virtual:pwa-register'
 
-// Controlled PWA update — prevent reload storms
+// PWA: passive update strategy — NEVER auto-reload the page
+// Users get the latest version naturally on their next manual refresh
 const updateSW = registerSW({
   onRegisteredSW(swUrl, registration) {
     if (registration) {
-      // Check for updates every 60 seconds instead of aggressive auto-reload
+      // Check for SW updates every 5 minutes (no page reload)
       setInterval(() => {
         registration.update()
-      }, 60 * 1000)
+      }, 5 * 60 * 1000)
     }
   },
   onNeedRefresh() {
-    // Guard against reload storms: if we already reloaded recently, skip
-    const lastReload = Number(sessionStorage.getItem('pwa_last_reload') || 0)
-    const now = Date.now()
-    if (now - lastReload < 10_000) {
-      console.warn('[PWA] Reload suppressed — already reloaded within 10s')
-      return
-    }
-    sessionStorage.setItem('pwa_last_reload', String(now))
-    console.log('[PWA] New content available — reloading...')
-    updateSW(true)
+    // DO NOT call updateSW(true) — that triggers location.reload()
+    // which causes reload storms when multiple tabs are open
+    console.log('[PWA] New version available — will apply on next manual refresh')
   },
   onOfflineReady() {
     console.log('[PWA] App ready for offline use')
