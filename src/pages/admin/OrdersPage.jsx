@@ -88,6 +88,8 @@ export default function OrdersPage() {
     const inFlightRef = useRef(new Set()) // Guards concurrent updates
     const [comandaToFinalize, setComandaToFinalize] = useState(null)
     const ordersRef = useRef(orders) // Always-fresh orders reference
+    const lastFetchTimeRef = useRef(0) // Cooldown: prevents rapid-fire fetches
+    const pendingFetchTimerRef = useRef(null) // Debounce: coalesces multiple realtime events
     const [autoPrint, setAutoPrint] = useState(() => {
         return localStorage.getItem('espetinho_auto_print') === 'true'
     })
@@ -166,6 +168,23 @@ export default function OrdersPage() {
         })
     }
 
+    // Debounced fetch: coalesces multiple realtime events into one fetch
+    // Prevents the 1-second infinite loop caused by rapid-fire realtime events
+    const scheduleFetch = useCallback((delayMs = 1500) => {
+        // If a fetch was done very recently, extend the delay to prevent cascading
+        const elapsed = Date.now() - lastFetchTimeRef.current
+        const cooldown = 3000 // Minimum 3s between fetches
+        const actualDelay = elapsed < cooldown ? Math.max(delayMs, cooldown - elapsed) : delayMs
+
+        if (pendingFetchTimerRef.current) {
+            clearTimeout(pendingFetchTimerRef.current)
+        }
+        pendingFetchTimerRef.current = setTimeout(() => {
+            pendingFetchTimerRef.current = null
+            fetchOrders(true)
+        }, actualDelay)
+    }, [selectedDate])
+
     useEffect(() => {
         fetchOrders()
         fetchAllDrivers()
@@ -176,14 +195,12 @@ export default function OrdersPage() {
                 console.log('[Realtime] Order event:', payload.eventType, payload.new?.id || payload.old?.id)
 
                 if (payload.eventType === 'INSERT') {
-                    console.log('[Realtime] New order detected, playing sound and fetching...')
+                    console.log('[Realtime] New order detected, playing sound and scheduling fetch...')
                     playNotificationSound()
-                    // Increased delay to 1.5s for safer DB propagation
-                    setTimeout(() => fetchOrders(true), 1500)
+                    scheduleFetch(1500)
 
                     // Auto-print if enabled (skip table orders)
                     if (autoPrintRef.current && payload.new?.id && payload.new?.tipo_pedido !== 'mesa') {
-                        // Wait for items to be fully saved before printing
                         setTimeout(() => autoPrintOrder(payload.new.id), 2500)
                     }
                 }
@@ -193,8 +210,6 @@ export default function OrdersPage() {
                     const oldOrder = ordersRef.current.find(o => o.id === orderId)
 
                     // If this order is currently being updated by US, skip the realtime merge
-                    // to avoid reverting our optimistic update. Our handleStatusChange will
-                    // handle the final state.
                     if (inFlightRef.current.has(orderId)) {
                         console.log('[Realtime] Skipping merge for in-flight order:', orderId)
                         return
@@ -214,8 +229,8 @@ export default function OrdersPage() {
                     const needsFullFetch = payload.new.status === 'confirmado' || isNewItemAdded || isClosingRequested
 
                     if (needsFullFetch) {
-                        console.log('[Realtime] Order updated, re-fetching list...')
-                        setTimeout(() => fetchOrders(true), 1500)
+                        console.log('[Realtime] Order updated, scheduling debounced fetch...')
+                        scheduleFetch(1500)
                         return
                     }
 
@@ -243,17 +258,20 @@ export default function OrdersPage() {
             })
 
         return () => {
+            if (pendingFetchTimerRef.current) clearTimeout(pendingFetchTimerRef.current)
             supabase.removeChannel(channel)
         }
-    }, [selectedDate])
+    }, [selectedDate, scheduleFetch])
 
     // Wake-from-sleep recovery: reset stuck guards + re-fetch data
     useVisibilityRefresh(useCallback(() => {
         console.log('[OrdersPage] Woke from sleep — recovering...')
         // Reset the fetch guard in case it was stuck mid-flight during sleep
         isFetchingRef.current = false
+        lastFetchTimeRef.current = 0 // Allow immediate fetch on wake
         // Re-fetch orders silently (won't show loading spinner)
         fetchOrders(true)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedDate]))
 
     const isFetchingRef = useRef(false)
@@ -262,6 +280,13 @@ export default function OrdersPage() {
         // Guard against overlapping fetches
         if (isFetchingRef.current) {
             console.log('[Orders] Fetch already in progress, skipping...')
+            return
+        }
+
+        // Cooldown guard: prevent rapid-fire fetches (the core loop-breaker)
+        const now = Date.now()
+        if (isSilent && (now - lastFetchTimeRef.current) < 2000) {
+            console.log('[Orders] Cooldown active, skipping silent fetch')
             return
         }
 
@@ -320,6 +345,7 @@ export default function OrdersPage() {
             }
         } finally {
             isFetchingRef.current = false
+            lastFetchTimeRef.current = Date.now()
             setLoading(false)
             setIsRefreshing(false)
             clearTimeout(timeoutId)
