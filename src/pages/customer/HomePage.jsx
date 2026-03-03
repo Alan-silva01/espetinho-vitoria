@@ -178,7 +178,12 @@ export default function HomePage() {
             {/* Section Title */}
             <div className="home-section-title">
                 <h2>Destaques</h2>
-                <button className="home-section-title__link">Ver tudo</button>
+                <button
+                    className="home-section-title__link"
+                    onClick={() => setActiveCategory(null)}
+                >
+                    Ver tudo
+                </button>
             </div>
 
             {/* Products Grid */}
