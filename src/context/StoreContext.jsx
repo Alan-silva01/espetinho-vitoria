@@ -3,19 +3,30 @@ import { supabase } from '../lib/supabase'
 
 const StoreContext = createContext()
 
+let globalConfigCache = null
+let globalHorariosCache = null
+
 export function StoreProvider({ children }) {
-    const [config, setConfig] = useState(null)
-    const [horarios, setHorarios] = useState([])
-    const [loading, setLoading] = useState(true)
+    const [config, setConfig] = useState(globalConfigCache)
+    const [horarios, setHorarios] = useState(globalHorariosCache || [])
+    const [loading, setLoading] = useState(!globalConfigCache)
 
     const fetchStoreStatus = useCallback(async () => {
         try {
+            if (!globalConfigCache) setLoading(true)
+
             const [configRes, horariosRes] = await Promise.all([
                 supabase.from('configuracoes_loja').select('*').single(),
                 supabase.from('horarios_funcionamento').select('*')
             ])
-            if (configRes.data) setConfig(configRes.data)
-            if (horariosRes.data) setHorarios(horariosRes.data)
+            if (configRes.data) {
+                globalConfigCache = configRes.data
+                setConfig(configRes.data)
+            }
+            if (horariosRes.data) {
+                globalHorariosCache = horariosRes.data
+                setHorarios(horariosRes.data)
+            }
         } catch (err) {
             console.error('[StoreContext] Erro ao buscar status:', err)
         } finally {

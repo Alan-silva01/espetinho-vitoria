@@ -1,14 +1,21 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 
+// Simple memory cache
+let globalProductsCache = null
+let globalCategoriesCache = null
+let globalProductDetailsCache = {}
+
 export function useProducts() {
-    const [products, setProducts] = useState([])
-    const [categories, setCategories] = useState([])
-    const [loading, setLoading] = useState(true)
+    const [products, setProducts] = useState(globalProductsCache || [])
+    const [categories, setCategories] = useState(globalCategoriesCache || [])
+    const [loading, setLoading] = useState(!globalProductsCache)
     const [error, setError] = useState(null)
 
     useEffect(() => {
-        fetchAll()
+        if (!globalProductsCache) {
+            fetchAll()
+        }
     }, [])
 
     async function fetchAll() {
@@ -38,8 +45,10 @@ export function useProducts() {
             }
 
             console.log(`[useProducts] Sucesso: ${catRes.data?.length} categorias, ${prodRes.data?.length} produtos`)
-            setCategories(catRes.data || [])
-            setProducts(prodRes.data || [])
+            globalCategoriesCache = catRes.data || []
+            globalProductsCache = prodRes.data || []
+            setCategories(globalCategoriesCache)
+            setProducts(globalProductsCache)
         } catch (err) {
             console.error('[useProducts] Falha ao carregar dados:', err)
             setError(err.message)
@@ -56,32 +65,57 @@ export function useProducts() {
             .on('postgres_changes', { event: '*', schema: 'public', table: 'produtos' }, (payload) => {
                 console.log('[useProducts] Mudança em produtos:', payload)
                 if (payload.eventType === 'INSERT') {
-                    setProducts(current => [...current, payload.new])
+                    setProducts(current => {
+                        const next = [...current, payload.new]
+                        globalProductsCache = next
+                        return next
+                    })
                 } else if (payload.eventType === 'UPDATE') {
-                    setProducts(current => current.map(p => p.id === payload.new.id ? { ...p, ...payload.new } : p))
+                    setProducts(current => {
+                        const next = current.map(p => p.id === payload.new.id ? { ...p, ...payload.new } : p)
+                        globalProductsCache = next
+                        // Also clear detailed cache for this product
+                        delete globalProductDetailsCache[payload.new.id]
+                        return next
+                    })
                 } else if (payload.eventType === 'DELETE') {
-                    setProducts(current => current.filter(p => p.id === payload.old.id))
+                    setProducts(current => {
+                        const next = current.filter(p => p.id === payload.old.id)
+                        globalProductsCache = next
+                        delete globalProductDetailsCache[payload.old.id]
+                        return next
+                    })
                 }
             })
             // Categories
             .on('postgres_changes', { event: '*', schema: 'public', table: 'categorias' }, (payload) => {
                 console.log('[useProducts] Mudança em categorias:', payload)
                 if (payload.eventType === 'INSERT') {
-                    setCategories(current => [...current, payload.new].sort((a, b) => a.ordem_exibicao - b.ordem_exibicao))
+                    setCategories(current => {
+                        const next = [...current, payload.new].sort((a, b) => a.ordem_exibicao - b.ordem_exibicao)
+                        globalCategoriesCache = next
+                        return next
+                    })
                 } else if (payload.eventType === 'UPDATE') {
-                    setCategories(current => current.map(c => c.id === payload.new.id ? { ...c, ...payload.new } : c).sort((a, b) => a.ordem_exibicao - b.ordem_exibicao))
+                    setCategories(current => {
+                        const next = current.map(c => c.id === payload.new.id ? { ...c, ...payload.new } : c).sort((a, b) => a.ordem_exibicao - b.ordem_exibicao)
+                        globalCategoriesCache = next
+                        return next
+                    })
                 } else if (payload.eventType === 'DELETE') {
-                    setCategories(current => current.filter(c => c.id === payload.old.id))
+                    setCategories(current => {
+                        const next = current.filter(c => c.id === payload.old.id)
+                        globalCategoriesCache = next
+                        return next
+                    })
                 }
             })
             // Variations
             .on('postgres_changes', { event: '*', schema: 'public', table: 'variacoes_produto' }, (payload) => {
                 console.log('[useProducts] Mudança em variacoes:', payload)
-                setProducts(current => current.map(p => {
+                setProducts(current => Object.assign([], current.map(p => {
                     if (p.id === payload.new?.produto_id || p.id === payload.old?.produto_id) {
-                        // For variations, it's easier to just trigger a re-fetch or find/update in the nested array
-                        // But since variety is nested, let's keep it simple: any variety change -> re-fetch might be safer
-                        // Or we can try to update the nested array:
+                        delete globalProductDetailsCache[p.id]
                         let newVariations = [...(p.variacoes_produto || [])]
                         if (payload.eventType === 'INSERT') {
                             newVariations.push(payload.new)
@@ -93,7 +127,7 @@ export function useProducts() {
                         return { ...p, variacoes_produto: newVariations }
                     }
                     return p
-                }))
+                })))
             })
             .subscribe()
 
@@ -123,8 +157,8 @@ export function useProducts() {
 }
 
 export function useProduct(id) {
-    const [product, setProduct] = useState(null)
-    const [loading, setLoading] = useState(true)
+    const [product, setProduct] = useState(globalProductDetailsCache[id] || null)
+    const [loading, setLoading] = useState(!globalProductDetailsCache[id])
 
     useEffect(() => {
         if (!id) return
@@ -132,6 +166,13 @@ export function useProduct(id) {
         async function fetch() {
             setLoading(true)
             try {
+                if (globalProductDetailsCache[id]) {
+                    // Already in cache, skip fetch
+                    setProduct(globalProductDetailsCache[id])
+                    setLoading(false)
+                    return
+                }
+
                 const { data, error } = await supabase
                     .from('produtos')
                     .select('*, categorias(nome, icone), variacoes_produto(*)')
@@ -140,6 +181,7 @@ export function useProduct(id) {
                     .single()
 
                 if (error) throw error
+                globalProductDetailsCache[id] = data
                 setProduct(data)
             } catch (err) {
                 console.error('[useProduct] Erro ao carregar produto:', err.message)
@@ -162,7 +204,11 @@ export function useProduct(id) {
                 },
                 (payload) => {
                     console.log('[useProduct] Produto atualizado via Realtime:', payload.new)
-                    setProduct(current => ({ ...current, ...payload.new }))
+                    setProduct(current => {
+                        const next = { ...current, ...payload.new }
+                        globalProductDetailsCache[id] = next
+                        return next
+                    })
                 }
             )
             .subscribe()
