@@ -25,9 +25,23 @@ export default function HomePage() {
     const { addItem } = useCart()
     const { isOpen, config } = useStore()
     const { liked, toggleLike, animatingHearts } = useFavorites()
-    const [activeCategory, setActiveCategory] = useState(null)
-    const [search, setSearch] = useState('')
+    const [activeCategory, setActiveCategoryState] = useState(() => sessionStorage.getItem('espetinho_home_category') || null)
+    const [search, setSearchState] = useState(() => sessionStorage.getItem('espetinho_home_search') || '')
     const [promoDestaque, setPromoDestaque] = useState(null)
+
+    const setActiveCategory = (categoryId) => {
+        if (categoryId) {
+            sessionStorage.setItem('espetinho_home_category', categoryId)
+        } else {
+            sessionStorage.removeItem('espetinho_home_category')
+        }
+        setActiveCategoryState(categoryId)
+    }
+
+    const setSearch = (value) => {
+        sessionStorage.setItem('espetinho_home_search', value)
+        setSearchState(value)
+    }
     const [stockWarning, setStockWarning] = useState({ open: false, product: '', qty: 0 })
 
     // Load featured promo
