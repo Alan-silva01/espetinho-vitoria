@@ -830,11 +830,8 @@ export default function OrdersPage() {
                                             </div>
 
                                             <div className="card-title-group">
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center' }}>
-                                                    <span className="order-id" style={{ margin: 0 }}>PEDIDO - {order.numero_pedido}</span>
-                                                    <span style={{ color: '#cbd5e1' }}>•</span>
-                                                    <h4 style={{ fontSize: '15px', fontWeight: '800', color: '#0f172a', margin: 0 }}>{order.nome_cliente || 'Sem nome'}</h4>
-                                                </div>
+                                                <span className="order-id">PEDIDO - {order.numero_pedido}</span>
+                                                <h4 className="customer-name-v2">{order.nome_cliente || 'Sem nome'}</h4>
                                             </div>
 
                                             <div className="items-preview">
