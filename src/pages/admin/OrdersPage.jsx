@@ -831,7 +831,7 @@ export default function OrdersPage() {
 
                                             <div className="card-title-group">
                                                 <span className="order-id">PEDIDO - {order.numero_pedido}</span>
-                                                <h4 className="customer-name-v2">{order.nome_cliente || 'Sem nome'}</h4>
+                                                <h4 className="customer-name-v2">Cliente: {order.nome_cliente || 'Sem nome'}</h4>
                                             </div>
 
                                             <div className="items-preview">
@@ -918,7 +918,7 @@ export default function OrdersPage() {
                                                 </div>
                                             </div>
                                             <p className="summary-meta">
-                                                {new Date(selectedOrder.criado_em).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })} • {new Date(selectedOrder.criado_em).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} • {selectedOrder.tipo_pedido === 'mesa' ? `Mesa ${selectedOrder.nome_cliente}` : selectedOrder.tipo_pedido?.toUpperCase()}
+                                                {new Date(selectedOrder.criado_em).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })} • {new Date(selectedOrder.criado_em).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} • Cliente: {selectedOrder.nome_cliente} • {selectedOrder.tipo_pedido?.toUpperCase()}
                                             </p>
                                         </div>
 
