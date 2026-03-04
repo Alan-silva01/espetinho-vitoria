@@ -3,7 +3,8 @@ import {
     Clock, CheckCircle2, Truck, AlertCircle,
     MoreHorizontal, Phone, MapPin, DollarSign,
     User, ChevronRight, X, Utensils, Timer,
-    Store, Bike, Play, Check, Calendar, Search, Bell, Printer, RefreshCw, Receipt, Trash2
+    Store, Bike, Play, Check, Calendar, Search, Bell, Printer, RefreshCw, Receipt, Trash2,
+    ReceiptText, ChefHat, GlassWater, IceCreamCone, UtensilsCrossed, XCircle, CheckCircle, ArrowRight
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { formatCurrency, filterPersonalizacao, getSmartItemName } from '../../lib/utils'
@@ -683,12 +684,27 @@ export default function OrdersPage() {
 
     return (
         <div className="orders-kanban-wrapper animate-fade-in">
-            <header className="orders-header-premium">
-                <div className="header-left">
-                    <h1>Gerenciamento de Pedidos</h1>
-                    <div className="date-badge date-picker-trigger" onClick={() => dateInputRef.current?.showPicker?.() || dateInputRef.current?.click()}>
-                        <Calendar size={14} />
-                        <span>
+            <header className="orders-header-premium" style={{ background: 'white', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 32px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '24px', flex: 1 }}>
+                    <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: '#0f172a', margin: 0 }}>Gerenciamento de Pedidos</h2>
+                    <div className="search-box">
+                        <Search size={20} color="#94A3B8" />
+                        <input
+                            type="text"
+                            placeholder="Buscar pedido ou cliente..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
+                </div>
+
+                <div className="header-right" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div
+                        onClick={() => dateInputRef.current?.showPicker?.() || dateInputRef.current?.click()}
+                        style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#f1f5f9', padding: '8px 12px', borderRadius: '8px', color: '#475569', cursor: 'pointer' }}
+                    >
+                        <Calendar size={16} />
+                        <span style={{ fontSize: '12px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                             {(() => {
                                 const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' })
                                 const [y, m, d] = selectedDate.split('-').map(Number)
@@ -696,59 +712,42 @@ export default function OrdersPage() {
                                 if (selectedDate === today) {
                                     return `Hoje, ${dateObj.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}`
                                 }
-                                return dateObj.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })
+                                return dateObj.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
                             })()}
                         </span>
                         <input
-                            ref={dateInputRef}
                             type="date"
+                            ref={dateInputRef}
                             value={selectedDate}
                             onChange={(e) => {
                                 if (e.target.value) setSelectedDate(e.target.value)
                             }}
-                            className="hidden-date-input"
+                            style={{ position: 'absolute', opacity: 0, width: 0, height: 0 }}
                         />
                     </div>
-                </div>
-                <div className="orders-actions">
+
                     <button
-                        className="btn-test-sound"
-                        onClick={playNotificationSound}
-                        title="Testar som de notificação"
+                        className="btn-refresh-kanban"
+                        onClick={() => fetchOrders(true)} // true forces a clear+fetch
+                        disabled={isRefreshing}
+                        title="Atualizar Pedidos"
                     >
-                        <Bell size={18} />
-                        <span>Testar Som</span>
+                        <RefreshCw size={16} className={isRefreshing ? 'spin' : ''} />
+                    </button>
+
+                    <button className="btn-sound-test" onClick={playNotificationSound}>
+                        <Play size={16} />
+                        Ativar Som
                     </button>
 
                     <button
                         className={`btn-auto-print ${autoPrint ? 'active' : ''}`}
                         onClick={toggleAutoPrint}
-                        title={autoPrint ? 'Auto-impressão ATIVADA' : 'Auto-impressão DESATIVADA'}
+                        title={autoPrint ? 'Impressão automática ativada' : 'Impressão automática desativada'}
                     >
                         <Printer size={18} />
-                        <span>{autoPrint ? 'Auto Print ✓' : 'Auto Print'}</span>
+                        Impressão Auto
                     </button>
-
-
-
-                    <button
-                        className={`btn-refresh-kanban ${isRefreshing ? 'refreshing' : ''}`}
-                        onClick={() => fetchOrders(true)}
-                        disabled={isRefreshing}
-                        title="Atualizar Pedidos"
-                    >
-                        <RefreshCw size={18} />
-                        <span>{isRefreshing ? 'Atualizando...' : 'Atualizar'}</span>
-                    </button>
-                    <div className="search-box">
-                        <Search size={18} />
-                        <input
-                            type="text"
-                            placeholder="Buscar pedido, cliente..."
-                            value={searchTerm}
-                            onChange={e => setSearchTerm(e.target.value)}
-                        />
-                    </div>
                 </div>
             </header>
 
@@ -784,12 +783,12 @@ export default function OrdersPage() {
                                 onDragOver={onDragOver}
                                 onDrop={(e) => onDrop(e, stage.id)}
                             >
-                                <div className="col-header" style={{ borderTop: `4px solid ${stage.color}` }}>
+                                <div className="col-header">
                                     <div className="header-label">
-                                        <stage.icon size={18} color={stage.color} />
                                         <h3>{stage.id === 'entregue' && selectedOrder?.tipo_pedido === 'mesa' ? 'Servido' : stage.label}</h3>
+                                        <span className="order-count">{stageOrders.length}</span>
                                     </div>
-                                    <span className="order-count">{stageOrders.length}</span>
+                                    <MoreHorizontal size={20} color="#94A3B8" style={{ cursor: 'pointer' }} />
                                 </div>
 
                                 <div className="cards-stack">
@@ -819,83 +818,65 @@ export default function OrdersPage() {
                                             className={`order-card-v2 ${(order.status === 'preparando' || order.status === 'pronto') ? 'border-purple' : order.status === 'saiu_entrega' ? 'border-orange' : order.status === 'entregue' ? 'border-green' : ''}`}
                                             onClick={() => setSelectedOrder(order)}
                                         >
-                                            <div className="card-top">
-                                                <span className="order-id">#PED-{order.numero_pedido}</span>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
                                                 <span className={`type-tag ${order.tipo_pedido}`}>
-                                                    {order.tipo_pedido === 'entrega' ? <Bike size={10} /> : order.tipo_pedido === 'mesa' ? <Utensils size={10} /> : <Store size={10} />}
+                                                    {order.tipo_pedido === 'entrega' ? <Bike size={12} /> : order.tipo_pedido === 'mesa' ? <Utensils size={12} /> : <Store size={12} />}
                                                     {order.tipo_pedido === 'mesa' ? order.nome_cliente : order.tipo_pedido}
                                                 </span>
-                                                {order.comanda_status === 'fechamento_solicitado' && (
-                                                    <span className="closing-alert-badge">
-                                                        FECHAR CONTA!
-                                                    </span>
-                                                )}
+                                                <div style={{ fontSize: '12px', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                    <Timer size={12} />
+                                                    <span>{getMinutesAgo(order.criado_em)} min atrás</span>
+                                                </div>
                                             </div>
 
-                                            <div className="customer-row">
-                                                <div className="avatar-circle" style={{ backgroundColor: stage.color + '15', color: stage.color }}>
-                                                    {(order.nome_cliente || 'Cliente').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
-                                                </div>
-                                                <div className="customer-info">
-                                                    <h4>{order.nome_cliente || 'Sem nome'}</h4>
-                                                    <span className="item-count-badge">
-                                                        {order.itens?.reduce((acc, i) => acc + i.quantidade, 0)} itens
-                                                    </span>
+                                            <div className="card-title-group">
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center' }}>
+                                                    <span className="order-id" style={{ margin: 0 }}>PEDIDO - {order.numero_pedido}</span>
+                                                    <span style={{ color: '#cbd5e1' }}>•</span>
+                                                    <h4 style={{ fontSize: '15px', fontWeight: '800', color: '#0f172a', margin: 0 }}>{order.nome_cliente || 'Sem nome'}</h4>
                                                 </div>
                                             </div>
 
                                             <div className="items-preview">
                                                 {order.itens?.map((item, idx) => (
-                                                    <div key={idx} className="item-detail-row">
-                                                        <div className="item-main">
-                                                            <span className="qnt">{item.quantidade}x</span>
-                                                            <span className="name">{getItemDisplayName(item)}</span>
-                                                        </div>
+                                                    <div key={idx} style={{ display: 'inline' }}>
+                                                        <span style={{ fontWeight: 'bold', color: '#334155' }}>{item.quantidade}x </span>
+                                                        <span style={{ fontWeight: 'bold', color: '#0f172a' }}>{getItemDisplayName(item)}{idx < order.itens.length - 1 ? ', ' : ''}</span>
                                                     </div>
                                                 ))}
                                             </div>
 
-                                            {order.endereco && (
-                                                <div className="address-preview">
-                                                    <MapPin size={12} />
-                                                    <span>
-                                                        {typeof order.endereco === 'string'
-                                                            ? order.endereco
-                                                            : `${order.endereco.rua || order.endereco.street}, ${order.endereco.numero || order.endereco.number} - ${order.endereco.bairro || order.endereco.neighborhood}`}
-                                                    </span>
+                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #f8fafc' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                    <button
+                                                        className="btn-cancel-card"
+                                                        title="Cancelar pedido"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation()
+                                                            setOrderToCancel(order)
+                                                        }}
+                                                    >
+                                                        <Trash2 size={16} />
+                                                    </button>
+                                                    <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#0f172a' }}>{formatCurrency(order.valor_total)}</span>
                                                 </div>
-                                            )}
 
-                                            <div className="card-footer-v2">
-                                                <div className="time-ago">
-                                                    <Timer size={14} />
-                                                    <span>{getMinutesAgo(order.criado_em)}m</span>
+                                                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                                    {stage.next && (
+                                                        <button
+                                                            className={`quick-action stage-${stage.next}`}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                const nextStatus = (order.tipo_pedido === 'mesa' && stage.id === 'preparando') ? 'entregue' : stage.next;
+                                                                handleStatusChange(order.id, nextStatus);
+                                                            }}
+                                                        >
+                                                            {order.tipo_pedido === 'mesa' && stage.id === 'preparando' ? 'Servir' : (stage.id === 'preparando' ? 'Detalhes' : 'Iniciar')}
+                                                        </button>
+                                                    )}
                                                 </div>
-                                                <span className="price">{formatCurrency(order.valor_total)}</span>
-                                                <button
-                                                    className="btn-cancel-card"
-                                                    title="Cancelar pedido"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation()
-                                                        setOrderToCancel(order)
-                                                    }}
-                                                >
-                                                    <Trash2 size={14} />
-                                                </button>
                                             </div>
 
-                                            {stage.next && (
-                                                <button
-                                                    className={`quick-action stage-${stage.next}`}
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        const nextStatus = (order.tipo_pedido === 'mesa' && stage.id === 'preparando') ? 'entregue' : stage.next;
-                                                        handleStatusChange(order.id, nextStatus);
-                                                    }}
-                                                >
-                                                    {order.tipo_pedido === 'mesa' && stage.id === 'preparando' ? 'Servir Pedido' : stage.nextLabel}
-                                                </button>
-                                            )}
                                         </div>
                                     ))}
                                 </div>
@@ -905,313 +886,320 @@ export default function OrdersPage() {
                 </div>
             </div>
 
-            {selectedOrder && (
-                <>
-                    {/* MODAL VIEW (SCREEN) */}
-                    <div className="modal-overlay-v4 no-print" onClick={() => setSelectedOrder(null)}>
-                        <div className="modal-kitchen-v4" onClick={e => e.stopPropagation()}>
-                            <div className="modal-v4-header">
-                                <h2>PEDIDO #{selectedOrder.numero_pedido}</h2>
-                                <button className="close-v4-btn" onClick={() => setSelectedOrder(null)}>
-                                    <X size={24} />
-                                </button>
-                            </div>
+            {
+                selectedOrder && (
+                    <>
+                        <div className="modal-overlay-v4" onClick={() => setSelectedOrder(null)}>
+                            <div className="modal-kitchen-v4" onClick={e => e.stopPropagation()}>
+                                {/* NEW PREMIUM HEADER */}
+                                <header className="modal-v5-header">
+                                    <div className="header-title-group">
+                                        <div className="header-icon-box">
+                                            <ReceiptText size={20} />
+                                        </div>
+                                        <div className="header-text">
+                                            <h2>Detalhes do Pedido</h2>
+                                            <p>Espetinho Vitória</p>
+                                        </div>
+                                    </div>
+                                    <button className="btn-close-v5" onClick={() => setSelectedOrder(null)}>
+                                        <X size={24} />
+                                    </button>
+                                </header>
 
-                            <div className="modal-v4-body hide-scrollbar">
-                                <div className="v4-customer-info">
-                                    <h3>{selectedOrder.nome_cliente?.toUpperCase()}</h3>
-                                    <p>{selectedOrder.telefone_cliente}</p>
-                                </div>
-
-                                <div className="v4-items-list">
-                                    {selectedOrder.itens?.map((item, idx) => (
-                                        <div key={idx} className="v4-item-card">
-                                            <div className="v4-item-main">
-                                                <span className="v4-item-qty">{item.quantidade}X</span>
-                                                <span className="v4-item-name">{getItemDisplayName(item)}</span>
-                                            </div>
-
-                                            {(item.personalizacao || item.observacoes) && (
-                                                <div className="v4-item-details">
-                                                    {item.personalizacao && typeof item.personalizacao === 'object' && filterPersonalizacao(item.personalizacao, getItemDisplayName(item)).map(({ key, value }) => (
-                                                        <div key={key} className="v4-detail-row">
-                                                            {key}: {value}
-                                                        </div>
-                                                    ))}
-                                                    {item.observacoes && (
-                                                        <div className="v4-item-obs">
-                                                            OBS: {item.observacoes}
-                                                        </div>
-                                                    )}
+                                {/* SUMMARY SECTION */}
+                                <div className="modal-v5-summary">
+                                    <div className="summary-main">
+                                        <div className="summary-id-group">
+                                            <div className="summary-id-row">
+                                                <h3>Pedido {selectedOrder.numero_pedido}</h3>
+                                                <div className={`status-badge-v5 ${selectedOrder.status}`}>
+                                                    <Timer size={14} />
+                                                    {selectedOrder.status === 'confirmado' ? 'Confirmado' :
+                                                        selectedOrder.status === 'preparando' ? 'Em Preparo' :
+                                                            selectedOrder.status === 'saiu_entrega' ? 'Em Entrega' : 'Entregue'}
                                                 </div>
+                                            </div>
+                                            <p className="summary-meta">
+                                                {new Date(selectedOrder.criado_em).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })} • {new Date(selectedOrder.criado_em).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} • {selectedOrder.tipo_pedido === 'mesa' ? `Mesa ${selectedOrder.nome_cliente}` : selectedOrder.tipo_pedido?.toUpperCase()}
+                                            </p>
+                                        </div>
+
+                                        <div className="summary-actions">
+                                            <button className="btn-v5-secondary" onClick={handlePrint}>
+                                                <Printer size={18} />
+                                                Imprimir
+                                            </button>
+
+                                            {selectedOrder.status === 'confirmado' && (
+                                                <button className="btn-v5-primary" onClick={() => {
+                                                    handleStatusChange(selectedOrder.id, 'preparando');
+                                                    setSelectedOrder(null);
+                                                }}>
+                                                    <ChefHat size={18} />
+                                                    Mandar p/ Cozinha
+                                                </button>
+                                            )}
+
+                                            {selectedOrder.status === 'preparando' && (
+                                                <button className="btn-v5-primary" onClick={() => {
+                                                    handleStatusChange(selectedOrder.id, selectedOrder.tipo_pedido === 'mesa' ? 'entregue' : 'saiu_entrega');
+                                                    setSelectedOrder(null);
+                                                }}>
+                                                    <Bike size={18} />
+                                                    {selectedOrder.tipo_pedido === 'mesa' ? 'Servir Pedido' : 'Saiu Entrega'}
+                                                </button>
                                             )}
                                         </div>
-                                    ))}
+                                    </div>
                                 </div>
 
-                                <div className="v4-info-box">
-                                    <div className="v4-row">
-                                        <span>TIPO:</span>
-                                        <span>{selectedOrder.tipo_pedido === 'mesa' ? selectedOrder.nome_cliente?.toUpperCase() : selectedOrder.tipo_pedido?.toUpperCase()}</span>
+                                {/* BODY SECTION (ITEMS) */}
+                                <div className="modal-v5-body">
+                                    <h3 className="items-section-title">Itens do Pedido ({selectedOrder.itens?.length || 0})</h3>
+                                    <div className="v5-items-list">
+                                        {selectedOrder.itens?.map((item, idx) => (
+                                            <div key={idx} className="v5-item-row">
+                                                <div className="v5-item-main">
+                                                    <div className="v5-item-icon">
+                                                        {item.produtos?.categoria?.nome?.toLowerCase()?.includes('bebida') ? <GlassWater size={20} /> :
+                                                            item.produtos?.categoria?.nome?.toLowerCase()?.includes('açai') ? <IceCreamCone size={20} /> : <UtensilsCrossed size={20} />}
+                                                    </div>
+                                                    <div className="v5-item-info">
+                                                        <h4>{item.quantidade}x {getItemDisplayName(item)}</h4>
+                                                        <p>
+                                                            {item.personalizacao && typeof item.personalizacao === 'object' && filterPersonalizacao(item.personalizacao, getItemDisplayName(item)).map(p => `${p.key}: ${p.value}`).join(', ')}
+                                                        </p>
+                                                        {item.observacoes && (
+                                                            <p className="v5-item-obs">Obs: {item.observacoes}</p>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <span className="v5-item-price">{formatCurrency(item.preco_unitario * item.quantidade)}</span>
+                                            </div>
+                                        ))}
                                     </div>
+
+                                    {selectedOrder.observacoes && (
+                                        <div style={{ marginTop: '24px', padding: '16px', background: '#fef2f2', borderRadius: '12px', border: '1px solid #fee2e2' }}>
+                                            <p style={{ margin: 0, fontSize: '13px', fontWeight: '800', color: '#991b1b', textTransform: 'uppercase' }}>Observações Gerais</p>
+                                            <p style={{ margin: '4px 0 0', fontSize: '14px', color: '#b91c1c' }}>{selectedOrder.observacoes}</p>
+                                        </div>
+                                    )}
+
                                     {selectedOrder.tipo_pedido === 'entrega' && selectedOrder.endereco && (
-                                        <div className="v4-row" style={{ flexDirection: 'column', gap: '4px' }}>
-                                            <span>ENDEREÇO:</span>
-                                            <span style={{ fontSize: '20px', color: '#111827' }}>
+                                        <div style={{ marginTop: '24px', padding: '20px', background: '#f1f5f9', borderRadius: '14px' }}>
+                                            <p style={{ margin: 0, fontSize: '12px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase' }}>Endereço de Entrega</p>
+                                            <p style={{ margin: '6px 0 0', fontSize: '13px', fontWeight: '600', color: '#475569', lineHeight: '1.4' }}>
+                                                {typeof selectedOrder.endereco === 'string'
+                                                    ? selectedOrder.endereco
+                                                    : `${selectedOrder.endereco.rua}, ${selectedOrder.endereco.numero} - ${selectedOrder.endereco.bairro}`}
+                                            </p>
+                                            {selectedOrder.endereco.referencia && (
+                                                <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#64748b', fontStyle: 'italic' }}>Ref: {selectedOrder.endereco.referencia}</p>
+                                            )}
+
+
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* FOOTER SECTION */}
+                                <div className="modal-v5-footer">
+                                    <div className="v5-totals">
+                                        <div className="v5-total-line">
+                                            <span>Subtotal</span>
+                                            <span>{formatCurrency(selectedOrder.subtotal)}</span>
+                                        </div>
+                                        {selectedOrder.taxa_entrega > 0 && (
+                                            <div className="v5-total-line">
+                                                <span>Taxa de Entrega</span>
+                                                <span>{formatCurrency(selectedOrder.taxa_entrega)}</span>
+                                            </div>
+                                        )}
+                                        <div className="v5-total-final">
+                                            <span>Total do Pedido</span>
+                                            <span className="amount">{formatCurrency(selectedOrder.valor_total)}</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="v5-footer-actions">
+                                        <button className="btn-v5-cancel" onClick={() => setOrderToCancel(selectedOrder)}>
+                                            <XCircle size={20} />
+                                            CANCELAR PEDIDO
+                                        </button>
+
+                                        {selectedOrder.status === 'saiu_entrega' ? (
+                                            <button className="btn-v5-finish" onClick={() => {
+                                                handleStatusChange(selectedOrder.id, 'entregue');
+                                                setSelectedOrder(null);
+                                            }}>
+                                                <CheckCircle size={20} />
+                                                FINALIZAR ENTREGA
+                                            </button>
+                                        ) : (
+                                            <button className="btn-v5-finish" onClick={() => setSelectedOrder(null)}>
+                                                <ArrowRight size={20} />
+                                                VOLTAR AO KANBAN
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    {selectedOrder.comanda_id && (
+                                        <div style={{ marginTop: '24px' }}>
+                                            <ComandaSummary
+                                                comandaId={selectedOrder.comanda_id}
+                                                onFinalize={(cid) => setComandaToFinalize(cid)}
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* THERMAL RECEIPT (PRINT ONLY) */}
+                        <div id="thermal-receipt">
+                            <div className="receipt-print-container">
+                                <div className="receipt-logo-container">
+                                    <img src={logoImg} alt="VITORIA" className="receipt-logo" />
+                                </div>
+
+                                <div className="receipt-header-info">
+                                    <div className="receipt-order-num">PEDIDO #{selectedOrder.numero_pedido}</div>
+                                    <div className="receipt-type">{selectedOrder.tipo_pedido === 'entrega' ? 'ENTREGA PARCEIRA' : selectedOrder.tipo_pedido === 'mesa' ? selectedOrder.nome_cliente?.toUpperCase() : 'RETIRADA NA LOJA'}</div>
+                                    <div className="receipt-date">
+                                        {new Date(selectedOrder.criado_em).toLocaleDateString('pt-BR')} - {new Date(selectedOrder.criado_em).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                                    </div>
+                                </div>
+
+                                <div className="receipt-divider"></div>
+
+                                <div className="receipt-section">
+                                    <div className="receipt-section-title">ESTABELECIMENTO</div>
+                                    <div style={{ textAlign: 'center' }}>ESPETINHO VITÓRIA - ESPETOS, AÇAÍ E CALDOS</div>
+                                </div>
+
+                                <div className="receipt-divider"></div>
+
+                                <div className="receipt-section">
+                                    <div className="receipt-section-title">CLIENTE</div>
+                                    <div className="receipt-data-row">
+                                        <span className="receipt-label">NOME:</span>
+                                        <span>{selectedOrder.nome_cliente?.toUpperCase() || 'N/A'}</span>
+                                    </div>
+                                    <div className="receipt-data-row">
+                                        <span className="receipt-label">TEL:</span>
+                                        <span>{selectedOrder.telefone_cliente || selectedOrder.clientes?.telefone || 'N/A'}</span>
+                                    </div>
+                                </div>
+
+                                {selectedOrder.tipo_pedido === 'entrega' && selectedOrder.endereco && (
+                                    <>
+                                        <div className="receipt-divider"></div>
+                                        <div className="receipt-section">
+                                            <div className="receipt-section-title">ENDEREÇO DE ENTREGA</div>
+                                            <div>
                                                 {typeof selectedOrder.endereco === 'string'
                                                     ? selectedOrder.endereco.toUpperCase()
-                                                    : `${selectedOrder.endereco.rua?.toUpperCase()}, ${selectedOrder.endereco.numero} - ${selectedOrder.endereco.bairro?.toUpperCase()}`}
-                                                {selectedOrder.endereco.referencia && <><br /><small>REF: {selectedOrder.endereco.referencia?.toUpperCase()}</small></>}
-                                            </span>
+                                                    : `${selectedOrder.endereco.rua?.toUpperCase()}, ${selectedOrder.endereco.numero}`}
+                                            </div>
+                                            <div>{selectedOrder.endereco.bairro?.toUpperCase()}</div>
+                                            {selectedOrder.endereco.referencia && <div>REF: {selectedOrder.endereco.referencia.toUpperCase()}</div>}
                                         </div>
-                                    )}
-                                    {selectedOrder.observacoes && (
-                                        <div className="v4-item-obs" style={{ marginTop: '8px' }}>
-                                            OBS GERAL: {selectedOrder.observacoes?.toUpperCase()}
-                                        </div>
-                                    )}
+                                    </>
+                                )}
+
+                                <div className="receipt-divider"></div>
+
+                                <div className="receipt-section">
+                                    <div className="receipt-section-title">ITENS DO PEDIDO</div>
+                                    <table className="receipt-table">
+                                        <thead>
+                                            <tr>
+                                                <th style={{ width: '15%' }}>QTD</th>
+                                                <th style={{ width: '53%', paddingLeft: '1mm' }}>ITENS</th>
+                                                <th style={{ width: '32%', textAlign: 'right' }}>PREÇO</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {selectedOrder.itens?.map((item, i) => (
+                                                <tr key={i}>
+                                                    <td>{item.quantidade}</td>
+                                                    <td>
+                                                        <div>{getItemDisplayName(item)?.toUpperCase()}</div>
+                                                        {item.personalizacao && typeof item.personalizacao === 'object' && filterPersonalizacao(item.personalizacao, getItemDisplayName(item)).map(({ key, value }) => (
+                                                            <div key={key} className="receipt-item-details">
+                                                                {key}: {value}
+                                                            </div>
+                                                        ))}
+                                                        {item.observacoes && (
+                                                            <div className="receipt-item-details" style={{ fontWeight: 'bold' }}>
+                                                                * OBS: {item.observacoes.toUpperCase()}
+                                                            </div>
+                                                        )}
+                                                    </td>
+                                                    <td style={{ textAlign: 'right' }}>{formatCurrency(item.preco_unitario * item.quantidade)}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
                                 </div>
 
-                                <div className="v4-info-box">
-                                    <div className="v4-row">
-                                        <span>SUBTOTAL:</span>
+                                <div className="receipt-divider"></div>
+
+                                <div className="receipt-total-section">
+                                    <div className="receipt-total-row">
+                                        <span>ITENS DO PEDIDO</span>
                                         <span>{formatCurrency(selectedOrder.subtotal)}</span>
                                     </div>
                                     {selectedOrder.taxa_entrega > 0 && (
-                                        <div className="v4-row">
-                                            <span>FRETE:</span>
+                                        <div className="receipt-total-row">
+                                            <span>TAXA DE ENTREGA</span>
                                             <span>{formatCurrency(selectedOrder.taxa_entrega)}</span>
                                         </div>
                                     )}
-                                    <div className="v4-total-row">
-                                        <span>TOTAL:</span>
+                                    <div className="receipt-total-big">
+                                        <span>TOTAL</span>
                                         <span>{formatCurrency(selectedOrder.valor_total)}</span>
                                     </div>
                                 </div>
 
-                                <div className="v4-payment-pill">
-                                    {selectedOrder.forma_pagamento === 'pagar_na_mesa' ? 'PAGAR NA MESA' : selectedOrder.forma_pagamento?.toUpperCase()}
-                                    {selectedOrder.troco_para && ` (TROCO P/ ${formatCurrency(selectedOrder.troco_para)})`}
-                                </div>
+                                <div className="receipt-divider"></div>
 
-                                {selectedOrder.tipo_pedido === 'entrega' && (
-                                    <div className="v4-driver-assign">
-                                        <label>ENTREGADOR:</label>
-                                        <select
-                                            value={selectedOrder.entregador_id || ''}
-                                            onChange={(e) => handleAssignDriver(selectedOrder.id, e.target.value)}
-                                        >
-                                            <option value="">Não atribuído</option>
-                                            {allDrivers.map(d => (
-                                                <option key={d.id} value={d.id}>{d.nome}</option>
-                                            ))}
-                                        </select>
+                                <div className="receipt-section">
+                                    <div className="receipt-section-title">FORMA DE PAGAMENTO</div>
+                                    <div className="receipt-data-row">
+                                        <span>{selectedOrder.forma_pagamento?.toUpperCase()}</span>
+                                        <span>{formatCurrency(selectedOrder.valor_total)}</span>
                                     </div>
-                                )}
-                            </div>
-
-
-                            <div className="v4-actions">
-                                <button className="v4-btn-print" onClick={handlePrint}>
-                                    <Printer size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
-                                    IMPRIMIR
-                                </button>
-
-                                {selectedOrder.status === 'confirmado' && (
-                                    <button className="v4-btn-status" onClick={() => {
-                                        handleStatusChange(selectedOrder.id, 'preparando');
-                                        setSelectedOrder(null);
-                                    }}>
-                                        MANDAR P/ COZINHA
-                                    </button>
-                                )}
-
-                                {selectedOrder.status === 'preparando' && (
-                                    <button
-                                        className="v4-btn-status"
-                                        onClick={() => {
-                                            handleStatusChange(selectedOrder.id, selectedOrder.tipo_pedido === 'mesa' ? 'entregue' : 'saiu_entrega');
-                                            setSelectedOrder(null);
-                                        }}
-                                    >
-                                        {selectedOrder.tipo_pedido === 'mesa' ? 'SERVIR PEDIDO' : 'SAIU P/ ENTREGA'}
-                                    </button>
-                                )}
-
-                                {selectedOrder.status === 'saiu_entrega' && (
-                                    <button className="v4-btn-status" onClick={() => {
-                                        handleStatusChange(selectedOrder.id, 'entregue');
-                                        setSelectedOrder(null);
-                                    }}>
-                                        FINALIZAR PEDIDO
-                                    </button>
-                                )}
-
-                                <button
-                                    className="v4-btn-cancel"
-                                    onClick={() => {
-                                        setOrderToCancel(selectedOrder)
-                                    }}
-                                >
-                                    <Trash2 size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
-                                    CANCELAR PEDIDO
-                                </button>
-                            </div>
-
-                            {selectedOrder.comanda_id && (
-                                <div style={{ padding: '0 24px 24px' }}>
-                                    <ComandaSummary
-                                        comandaId={selectedOrder.comanda_id}
-                                        onFinalize={(cid) => setComandaToFinalize(cid)}
-                                    />
-                                </div>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* THERMAL RECEIPT (PRINT ONLY) */}
-                    <div id="thermal-receipt">
-                        <div className="receipt-print-container">
-                            <div className="receipt-logo-container">
-                                <img src={logoImg} alt="VITORIA" className="receipt-logo" />
-                            </div>
-
-                            <div className="receipt-header-info">
-                                <div className="receipt-order-num">PEDIDO #{selectedOrder.numero_pedido}</div>
-                                <div className="receipt-type">{selectedOrder.tipo_pedido === 'entrega' ? 'ENTREGA PARCEIRA' : selectedOrder.tipo_pedido === 'mesa' ? selectedOrder.nome_cliente?.toUpperCase() : 'RETIRADA NA LOJA'}</div>
-                                <div className="receipt-date">
-                                    {new Date(selectedOrder.criado_em).toLocaleDateString('pt-BR')} - {new Date(selectedOrder.criado_em).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
-                                </div>
-                            </div>
-
-                            <div className="receipt-divider"></div>
-
-                            <div className="receipt-section">
-                                <div className="receipt-section-title">ESTABELECIMENTO</div>
-                                <div style={{ textAlign: 'center' }}>ESPETINHO VITÓRIA - ESPETOS, AÇAÍ E CALDOS</div>
-                            </div>
-
-                            <div className="receipt-divider"></div>
-
-                            <div className="receipt-section">
-                                <div className="receipt-section-title">CLIENTE</div>
-                                <div className="receipt-data-row">
-                                    <span className="receipt-label">NOME:</span>
-                                    <span>{selectedOrder.nome_cliente?.toUpperCase() || 'N/A'}</span>
-                                </div>
-                                <div className="receipt-data-row">
-                                    <span className="receipt-label">TEL:</span>
-                                    <span>{selectedOrder.telefone_cliente || selectedOrder.clientes?.telefone || 'N/A'}</span>
-                                </div>
-                            </div>
-
-                            {selectedOrder.tipo_pedido === 'entrega' && selectedOrder.endereco && (
-                                <>
-                                    <div className="receipt-divider"></div>
-                                    <div className="receipt-section">
-                                        <div className="receipt-section-title">ENDEREÇO DE ENTREGA</div>
-                                        <div>
-                                            {typeof selectedOrder.endereco === 'string'
-                                                ? selectedOrder.endereco.toUpperCase()
-                                                : `${selectedOrder.endereco.rua?.toUpperCase()}, ${selectedOrder.endereco.numero}`}
+                                    {selectedOrder.troco_para && (
+                                        <div className="receipt-data-row" style={{ marginTop: '2mm' }}>
+                                            <span className="receipt-label">TROCO PARA:</span>
+                                            <span>{formatCurrency(selectedOrder.troco_para)}</span>
                                         </div>
-                                        <div>{selectedOrder.endereco.bairro?.toUpperCase()}</div>
-                                        {selectedOrder.endereco.referencia && <div>REF: {selectedOrder.endereco.referencia.toUpperCase()}</div>}
-                                    </div>
-                                </>
-                            )}
-
-                            <div className="receipt-divider"></div>
-
-                            <div className="receipt-section">
-                                <div className="receipt-section-title">ITENS DO PEDIDO</div>
-                                <table className="receipt-table">
-                                    <thead>
-                                        <tr>
-                                            <th style={{ width: '15%' }}>QTD</th>
-                                            <th style={{ width: '53%', paddingLeft: '1mm' }}>ITENS</th>
-                                            <th style={{ width: '32%', textAlign: 'right' }}>PREÇO</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {selectedOrder.itens?.map((item, i) => (
-                                            <tr key={i}>
-                                                <td>{item.quantidade}</td>
-                                                <td>
-                                                    <div>{getItemDisplayName(item)?.toUpperCase()}</div>
-                                                    {item.personalizacao && typeof item.personalizacao === 'object' && filterPersonalizacao(item.personalizacao, getItemDisplayName(item)).map(({ key, value }) => (
-                                                        <div key={key} className="receipt-item-details">
-                                                            {key}: {value}
-                                                        </div>
-                                                    ))}
-                                                    {item.observacoes && (
-                                                        <div className="receipt-item-details" style={{ fontWeight: 'bold' }}>
-                                                            * OBS: {item.observacoes.toUpperCase()}
-                                                        </div>
-                                                    )}
-                                                </td>
-                                                <td style={{ textAlign: 'right' }}>{formatCurrency(item.preco_unitario * item.quantidade)}</td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            <div className="receipt-divider"></div>
-
-                            <div className="receipt-total-section">
-                                <div className="receipt-total-row">
-                                    <span>ITENS DO PEDIDO</span>
-                                    <span>{formatCurrency(selectedOrder.subtotal)}</span>
+                                    )}
                                 </div>
-                                {selectedOrder.taxa_entrega > 0 && (
-                                    <div className="receipt-total-row">
-                                        <span>TAXA DE ENTREGA</span>
-                                        <span>{formatCurrency(selectedOrder.taxa_entrega)}</span>
-                                    </div>
+
+                                {selectedOrder.observacoes && (
+                                    <>
+                                        <div className="receipt-divider"></div>
+                                        <div className="receipt-section">
+                                            <div className="receipt-section-title">OBSERVAÇÃO GERAL</div>
+                                            <div style={{ textAlign: 'center', fontWeight: 'bold' }}>{selectedOrder.observacoes.toUpperCase()}</div>
+                                        </div>
+                                    </>
                                 )}
-                                <div className="receipt-total-big">
-                                    <span>TOTAL</span>
-                                    <span>{formatCurrency(selectedOrder.valor_total)}</span>
-                                </div>
-                            </div>
 
-                            <div className="receipt-divider"></div>
-
-                            <div className="receipt-section">
-                                <div className="receipt-section-title">FORMA DE PAGAMENTO</div>
-                                <div className="receipt-data-row">
-                                    <span>{selectedOrder.forma_pagamento?.toUpperCase()}</span>
-                                    <span>{formatCurrency(selectedOrder.valor_total)}</span>
-                                </div>
-                                {selectedOrder.troco_para && (
-                                    <div className="receipt-data-row" style={{ marginTop: '2mm' }}>
-                                        <span className="receipt-label">TROCO PARA:</span>
-                                        <span>{formatCurrency(selectedOrder.troco_para)}</span>
+                                <div className="receipt-footer-msg">
+                                    <div className="footer">
+                                        OBRIGADO PELA PREFERÊNCIA!<br />
+                                        ESPETINHO VITÓRIA
                                     </div>
-                                )}
-                            </div>
-
-                            {selectedOrder.observacoes && (
-                                <>
-                                    <div className="receipt-divider"></div>
-                                    <div className="receipt-section">
-                                        <div className="receipt-section-title">OBSERVAÇÃO GERAL</div>
-                                        <div style={{ textAlign: 'center', fontWeight: 'bold' }}>{selectedOrder.observacoes.toUpperCase()}</div>
-                                    </div>
-                                </>
-                            )}
-
-                            <div className="receipt-footer-msg">
-                                <div className="footer">
-                                    OBRIGADO PELA PREFERÊNCIA!<br />
-                                    ESPETINHO VITÓRIA
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </>
-            )
+                    </>
+                )
             }
             {/* Finalization Dialog */}
             <Dialog

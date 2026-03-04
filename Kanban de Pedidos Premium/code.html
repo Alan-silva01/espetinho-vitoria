@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .premium-shadow {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.04), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen flex items-center justify-center p-4">
+<div class="w-full max-w-[640px] bg-white dark:bg-slate-900 rounded-xl premium-shadow overflow-hidden flex flex-col">
+<!-- Header -->
+<header class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 px-8 py-5">
+<div class="flex items-center gap-3">
+<div class="bg-primary/10 p-2 rounded-lg">
+<span class="material-symbols-outlined text-primary text-2xl">receipt_long</span>
+</div>
+<div>
+<h2 class="text-xl font-bold tracking-tight">Detalhes do Pedido</h2>
+<p class="text-xs text-slate-500 font-medium uppercase tracking-wider">Restaurante Gourmet</p>
+</div>
+</div>
+<button class="flex items-center justify-center rounded-full h-10 w-10 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined text-slate-400">close</span>
+</button>
+</header>
+<!-- Order Info Summary -->
+<div class="px-8 py-6 bg-slate-50/50 dark:bg-slate-800/30 border-b border-slate-100 dark:border-slate-800">
+<div class="flex flex-wrap justify-between items-end gap-4">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="text-3xl font-extrabold text-slate-900 dark:text-white">Pedido 2489</span>
+<div class="bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">schedule</span>
+                            Em Preparo
+                        </div>
+</div>
+<p class="text-slate-500 text-sm font-medium">15 de Outubro, 2023 • 19:42 • Mesa 04</p>
+</div>
+<div class="flex gap-2">
+<button class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition-all">
+<span class="material-symbols-outlined text-lg">print</span>
+                        Imprimir
+                    </button>
+<button class="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-semibold hover:bg-primary/90 transition-all shadow-md shadow-primary/20">
+<span class="material-symbols-outlined text-lg">restaurant</span>
+                        Mandar p/ Cozinha
+                    </button>
+</div>
+</div>
+</div>
+<!-- Items List -->
+<div class="px-8 py-6 overflow-y-auto max-h-[400px]">
+<h3 class="text-slate-900 dark:text-white text-sm font-bold uppercase tracking-widest mb-4">Itens do Pedido (3)</h3>
+<div class="space-y-4">
+<!-- Item 1 -->
+<div class="flex items-start justify-between py-3 border-b border-slate-50 dark:border-slate-800 last:border-0">
+<div class="flex gap-4">
+<div class="w-12 h-12 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-slate-400">local_pizza</span>
+</div>
+<div>
+<p class="text-base font-semibold text-slate-900 dark:text-white">1x Pizza Margherita</p>
+<p class="text-sm text-slate-500 mt-0.5">Tamanho G, Massa Fina, Extra Manjericão</p>
+<p class="text-xs text-primary font-medium mt-1">Obs: Sem cebola por favor.</p>
+</div>
+</div>
+<p class="text-base font-bold text-slate-900 dark:text-white italic">R$ 64,90</p>
+</div>
+<!-- Item 2 -->
+<div class="flex items-start justify-between py-3 border-b border-slate-50 dark:border-slate-800 last:border-0">
+<div class="flex gap-4">
+<div class="w-12 h-12 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-slate-400">local_bar</span>
+</div>
+<div>
+<p class="text-base font-semibold text-slate-900 dark:text-white">2x Coca-Cola Zero</p>
+<p class="text-sm text-slate-500 mt-0.5">Lata 350ml, Gelada com limão</p>
+</div>
+</div>
+<p class="text-base font-bold text-slate-900 dark:text-white italic">R$ 16,00</p>
+</div>
+<!-- Item 3 -->
+<div class="flex items-start justify-between py-3 border-b border-slate-50 dark:border-slate-800 last:border-0">
+<div class="flex gap-4">
+<div class="w-12 h-12 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-slate-400">icecream</span>
+</div>
+<div>
+<p class="text-base font-semibold text-slate-900 dark:text-white">1x Petit Gâteau</p>
+<p class="text-sm text-slate-500 mt-0.5">Chocolate Belga com sorvete de baunilha</p>
+</div>
+</div>
+<p class="text-base font-bold text-slate-900 dark:text-white italic">R$ 28,50</p>
+</div>
+</div>
+</div>
+<!-- Summary Footer -->
+<div class="mt-auto px-8 py-8 border-t border-slate-100 dark:border-slate-800">
+<div class="flex flex-col gap-2 mb-6">
+<div class="flex justify-between text-sm">
+<span class="text-slate-500">Subtotal</span>
+<span class="text-slate-900 dark:text-white font-medium">R$ 109,40</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-slate-500">Taxa de Serviço (10%)</span>
+<span class="text-slate-900 dark:text-white font-medium">R$ 10,94</span>
+</div>
+<div class="flex justify-between items-center mt-2 pt-4 border-t border-slate-100 dark:border-slate-800">
+<span class="text-lg font-bold text-slate-900 dark:text-white">Total do Pedido</span>
+<span class="text-2xl font-black text-primary">R$ 120,34</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<button class="flex items-center justify-center gap-2 py-4 rounded-xl border-2 border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-400 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">
+<span class="material-symbols-outlined">cancel</span>
+                    Cancelar Pedido
+                </button>
+<button class="flex items-center justify-center gap-2 py-4 rounded-xl bg-slate-900 dark:bg-primary text-white font-bold hover:opacity-90 transition-all shadow-lg">
+<span class="material-symbols-outlined">payments</span>
+                    Finalizar Pagamento
+                </button>
+</div>
+</div>
+</div>
+</body></html>
