@@ -954,11 +954,11 @@
     grid-column: 1 / -1;
     background: white;
     color: #DC2626;
-    border: 2px solid #FCA5A5;
-    height: 52px;
-    border-radius: 16px;
-    font-size: 16px;
-    font-weight: 800;
+    border: 1px solid #FCA5A5;
+    height: 40px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
     cursor: pointer;
     transition: all 0.2s;
     display: flex;

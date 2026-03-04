@@ -1018,7 +1018,10 @@ export default function OrdersPage() {
                                 </button>
 
                                 {selectedOrder.status === 'confirmado' && (
-                                    <button className="v4-btn-status" onClick={() => handleStatusChange(selectedOrder.id, 'preparando')}>
+                                    <button className="v4-btn-status" onClick={() => {
+                                        handleStatusChange(selectedOrder.id, 'preparando');
+                                        setSelectedOrder(null);
+                                    }}>
                                         MANDAR P/ COZINHA
                                     </button>
                                 )}
@@ -1026,14 +1029,20 @@ export default function OrdersPage() {
                                 {selectedOrder.status === 'preparando' && (
                                     <button
                                         className="v4-btn-status"
-                                        onClick={() => handleStatusChange(selectedOrder.id, selectedOrder.tipo_pedido === 'mesa' ? 'entregue' : 'saiu_entrega')}
+                                        onClick={() => {
+                                            handleStatusChange(selectedOrder.id, selectedOrder.tipo_pedido === 'mesa' ? 'entregue' : 'saiu_entrega');
+                                            setSelectedOrder(null);
+                                        }}
                                     >
                                         {selectedOrder.tipo_pedido === 'mesa' ? 'SERVIR PEDIDO' : 'SAIU P/ ENTREGA'}
                                     </button>
                                 )}
 
                                 {selectedOrder.status === 'saiu_entrega' && (
-                                    <button className="v4-btn-status" onClick={() => handleStatusChange(selectedOrder.id, 'entregue')}>
+                                    <button className="v4-btn-status" onClick={() => {
+                                        handleStatusChange(selectedOrder.id, 'entregue');
+                                        setSelectedOrder(null);
+                                    }}>
                                         FINALIZAR PEDIDO
                                     </button>
                                 )}
@@ -1044,7 +1053,7 @@ export default function OrdersPage() {
                                         setOrderToCancel(selectedOrder)
                                     }}
                                 >
-                                    <Trash2 size={18} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+                                    <Trash2 size={16} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
                                     CANCELAR PEDIDO
                                 </button>
                             </div>
