@@ -3,7 +3,7 @@ import {
     Clock, CheckCircle2, Truck, AlertCircle,
     MoreHorizontal, Phone, MapPin, DollarSign,
     User, ChevronRight, X, Utensils, Timer,
-    Store, Bike, Play, Check, Calendar, Search, Bell, Printer, RefreshCw, Receipt
+    Store, Bike, Play, Check, Calendar, Search, Bell, Printer, RefreshCw, Receipt, Trash2
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { formatCurrency, filterPersonalizacao, getSmartItemName } from '../../lib/utils'
@@ -87,6 +87,7 @@ export default function OrdersPage() {
     const selectedOrderRef = useRef(null)
     const inFlightRef = useRef(new Set()) // Guards concurrent updates
     const [comandaToFinalize, setComandaToFinalize] = useState(null)
+    const [orderToCancel, setOrderToCancel] = useState(null)
     const ordersRef = useRef(orders) // Always-fresh orders reference
     const lastFetchTimeRef = useRef(0) // Cooldown: prevents rapid-fire fetches
     const pendingFetchTimerRef = useRef(null) // Debounce: coalesces multiple realtime events
@@ -485,6 +486,25 @@ export default function OrdersPage() {
         }
     }
 
+    const handleCancelOrder = async (orderId) => {
+        const previousOrders = [...ordersRef.current]
+        setOrders(prev => prev.filter(o => o.id !== orderId))
+        if (selectedOrder?.id === orderId) setSelectedOrder(null)
+
+        try {
+            const { error } = await supabase
+                .from('pedidos')
+                .delete()
+                .eq('id', orderId)
+
+            if (error) throw error
+        } catch (error) {
+            console.error('Erro ao cancelar pedido:', error)
+            setOrders(previousOrders)
+            alert('Erro ao cancelar pedido. Tente novamente.')
+        }
+    }
+
     const handlePrint = () => {
         window.print();
     }
@@ -852,6 +872,16 @@ export default function OrdersPage() {
                                                     <span>{getMinutesAgo(order.criado_em)}m</span>
                                                 </div>
                                                 <span className="price">{formatCurrency(order.valor_total)}</span>
+                                                <button
+                                                    className="btn-cancel-card"
+                                                    title="Cancelar pedido"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation()
+                                                        setOrderToCancel(order)
+                                                    }}
+                                                >
+                                                    <Trash2 size={14} />
+                                                </button>
                                             </div>
 
                                             {stage.next && (
@@ -1007,6 +1037,16 @@ export default function OrdersPage() {
                                         FINALIZAR PEDIDO
                                     </button>
                                 )}
+
+                                <button
+                                    className="v4-btn-cancel"
+                                    onClick={() => {
+                                        setOrderToCancel(selectedOrder)
+                                    }}
+                                >
+                                    <Trash2 size={18} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+                                    CANCELAR PEDIDO
+                                </button>
                             </div>
 
                             {selectedOrder.comanda_id && (
@@ -1181,6 +1221,19 @@ export default function OrdersPage() {
                 }}
                 title="Confirmar Pagamento?"
                 message="Deseja confirmar o pagamento total desta comanda? Todos os pedidos vinculados serão marcados como pagos e concluídos."
+            />
+
+            {/* Cancel Order Dialog */}
+            <Dialog
+                isOpen={!!orderToCancel}
+                onClose={() => setOrderToCancel(null)}
+                onConfirm={() => {
+                    const id = orderToCancel.id
+                    setOrderToCancel(null)
+                    handleCancelOrder(id)
+                }}
+                title="Cancelar Pedido?"
+                message={`Tem certeza que deseja cancelar o pedido #PED-${orderToCancel?.numero_pedido}? Esta ação não pode ser desfeita e o pedido será excluído permanentemente.`}
             />
         </div >
     )

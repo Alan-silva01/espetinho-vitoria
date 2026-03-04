@@ -928,6 +928,50 @@
     box-shadow: 0 4px 6px -1px rgba(255, 106, 0, 0.4);
 }
 
+/* Cancel button on kanban card */
+.btn-cancel-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    border: none;
+    background: #FEE2E2;
+    color: #DC2626;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.btn-cancel-card:hover {
+    background: #DC2626;
+    color: white;
+}
+
+/* Cancel button in modal */
+.v4-btn-cancel {
+    grid-column: 1 / -1;
+    background: white;
+    color: #DC2626;
+    border: 2px solid #FCA5A5;
+    height: 52px;
+    border-radius: 16px;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.v4-btn-cancel:hover {
+    background: #DC2626;
+    color: white;
+    border-color: #DC2626;
+}
+
 @media print {
     @page {
         margin: 0;
