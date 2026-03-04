@@ -868,7 +868,11 @@ export default function OrdersPage() {
                                                                 handleStatusChange(order.id, nextStatus);
                                                             }}
                                                         >
-                                                            {order.tipo_pedido === 'mesa' && stage.id === 'preparando' ? 'Servir' : (stage.id === 'preparando' ? 'Detalhes' : 'Iniciar')}
+                                                            {
+                                                                stage.id === 'confirmado' ? 'Iniciar' :
+                                                                    stage.id === 'preparando' ? (order.tipo_pedido === 'mesa' ? 'Servir' : 'Enviar') :
+                                                                        stage.id === 'saiu_entrega' ? 'Concluir' : 'Iniciar'
+                                                            }
                                                         </button>
                                                     )}
                                                 </div>
@@ -944,7 +948,7 @@ export default function OrdersPage() {
                                                     setSelectedOrder(null);
                                                 }}>
                                                     <Bike size={18} />
-                                                    {selectedOrder.tipo_pedido === 'mesa' ? 'Servir Pedido' : 'Saiu Entrega'}
+                                                    {selectedOrder.tipo_pedido === 'mesa' ? 'Servir Pedido' : 'Enviar'}
                                                 </button>
                                             )}
                                         </div>

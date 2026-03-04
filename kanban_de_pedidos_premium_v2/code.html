@@ -1,14 +1,21 @@
 <!DOCTYPE html>
 
-<html lang="pt-BR"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Gerenciamento de Pedidos - Premium Restrô</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Gerenciamento de Pedidos - Premium Restrô</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
             theme: {
@@ -21,230 +28,276 @@
                     fontFamily: {
                         "display": ["Inter"]
                     },
-                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
                 },
             },
         }
     </script>
-<style>
-        body { font-family: 'Inter', sans-serif; }
-        .kanban-column { min-width: 320px; width: 320px; }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .kanban-column {
+            min-width: 320px;
+            width: 320px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #e2e8f0;
+            border-radius: 10px;
+        }
     </style>
 </head>
+
 <body class="bg-background-light text-slate-900 font-display">
-<div class="flex h-screen overflow-hidden">
-<!-- Sidebar -->
-<aside class="w-64 bg-white border-r border-slate-200 flex flex-col">
-<div class="p-6 flex items-center gap-3">
-<div class="size-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-<span class="material-symbols-outlined">restaurant</span>
-</div>
-<div>
-<h1 class="text-sm font-bold text-slate-900 leading-tight">Gerenciamento</h1>
-<p class="text-xs text-slate-500">Premium Restrô</p>
-</div>
-</div>
-<nav class="flex-1 px-4 space-y-1">
-<a class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors" href="#">
-<span class="material-symbols-outlined text-[20px]">dashboard</span>
-<span class="text-sm font-medium">Dashboard</span>
-</a>
-<a class="flex items-center gap-3 px-3 py-2 bg-primary/10 text-primary rounded-lg" href="#">
-<span class="material-symbols-outlined text-[20px] fill-[1]">shopping_bag</span>
-<span class="text-sm font-medium">Pedidos</span>
-</a>
-<a class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors" href="#">
-<span class="material-symbols-outlined text-[20px]">restaurant_menu</span>
-<span class="text-sm font-medium">Menu</span>
-</a>
-<a class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors" href="#">
-<span class="material-symbols-outlined text-[20px]">bar_chart</span>
-<span class="text-sm font-medium">Analytics</span>
-</a>
-<a class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors" href="#">
-<span class="material-symbols-outlined text-[20px]">group</span>
-<span class="text-sm font-medium">Clientes</span>
-</a>
-</nav>
-<div class="p-4 border-t border-slate-100">
-<a class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors" href="#">
-<span class="material-symbols-outlined text-[20px]">settings</span>
-<span class="text-sm font-medium">Configurações</span>
-</a>
-</div>
-</aside>
-<!-- Main Content -->
-<main class="flex-1 flex flex-col overflow-hidden">
-<!-- Header -->
-<header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 shrink-0">
-<div class="flex items-center gap-6 flex-1">
-<h2 class="text-lg font-bold text-slate-900">Gerenciamento de Pedidos</h2>
-<div class="relative w-full max-w-md">
-<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">search</span>
-<input class="w-full pl-10 pr-4 py-2 bg-slate-100 border-none rounded-lg text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-slate-400" placeholder="Buscar pedido ou cliente..." type="text"/>
-</div>
-</div>
-<div class="flex items-center gap-3">
-<div class="flex items-center gap-2 bg-slate-100 px-3 py-2 rounded-lg text-slate-600">
-<span class="material-symbols-outlined text-[18px]">calendar_today</span>
-<span class="text-xs font-semibold uppercase tracking-wider">Hoje, 24 Out</span>
-</div>
-<button class="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg text-sm font-semibold transition-all">
-<span class="material-symbols-outlined text-[18px]">volume_up</span>
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-white border-r border-slate-200 flex flex-col">
+            <div class="p-6 flex items-center gap-3">
+                <div class="size-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                    <span class="material-symbols-outlined">restaurant</span>
+                </div>
+                <div>
+                    <h1 class="text-sm font-bold text-slate-900 leading-tight">Gerenciamento</h1>
+                    <p class="text-xs text-slate-500">Premium Restrô</p>
+                </div>
+            </div>
+            <nav class="flex-1 px-4 space-y-1">
+                <a class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors"
+                    href="#">
+                    <span class="material-symbols-outlined text-[20px]">dashboard</span>
+                    <span class="text-sm font-medium">Dashboard</span>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-2 bg-primary/10 text-primary rounded-lg" href="#">
+                    <span class="material-symbols-outlined text-[20px] fill-[1]">shopping_bag</span>
+                    <span class="text-sm font-medium">Pedidos</span>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors"
+                    href="#">
+                    <span class="material-symbols-outlined text-[20px]">restaurant_menu</span>
+                    <span class="text-sm font-medium">Menu</span>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors"
+                    href="#">
+                    <span class="material-symbols-outlined text-[20px]">bar_chart</span>
+                    <span class="text-sm font-medium">Analytics</span>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors"
+                    href="#">
+                    <span class="material-symbols-outlined text-[20px]">group</span>
+                    <span class="text-sm font-medium">Clientes</span>
+                </a>
+            </nav>
+            <div class="p-4 border-t border-slate-100">
+                <a class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors"
+                    href="#">
+                    <span class="material-symbols-outlined text-[20px]">settings</span>
+                    <span class="text-sm font-medium">Configurações</span>
+                </a>
+            </div>
+        </aside>
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col overflow-hidden">
+            <!-- Header -->
+            <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 shrink-0">
+                <div class="flex items-center gap-6 flex-1">
+                    <h2 class="text-lg font-bold text-slate-900">Gerenciamento de Pedidos</h2>
+                    <div class="relative w-full max-w-md">
+                        <span
+                            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">search</span>
+                        <input
+                            class="w-full pl-10 pr-4 py-2 bg-slate-100 border-none rounded-lg text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-slate-400"
+                            placeholder="Buscar pedido ou cliente..." type="text" />
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-2 bg-slate-100 px-3 py-2 rounded-lg text-slate-600">
+                        <span class="material-symbols-outlined text-[18px]">calendar_today</span>
+                        <span class="text-xs font-semibold uppercase tracking-wider">Hoje, 24 Out</span>
+                    </div>
+                    <button
+                        class="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg text-sm font-semibold transition-all">
+                        <span class="material-symbols-outlined text-[18px]">volume_up</span>
                         Ativar Som
                     </button>
-<button class="flex items-center gap-2 px-4 py-2 bg-primary text-white hover:bg-primary/90 rounded-lg text-sm font-semibold shadow-sm transition-all">
-<span class="material-symbols-outlined text-[18px]">print</span>
+                    <button
+                        class="flex items-center gap-2 px-4 py-2 bg-primary text-white hover:bg-primary/90 rounded-lg text-sm font-semibold shadow-sm transition-all">
+                        <span class="material-symbols-outlined text-[18px]">print</span>
                         Impressão Automática
                     </button>
-<button class="size-10 flex items-center justify-center bg-slate-100 rounded-lg text-slate-600">
-<span class="material-symbols-outlined">notifications</span>
-</button>
-</div>
-</header>
-<!-- Kanban Board -->
-<div class="flex-1 overflow-x-auto p-8 custom-scrollbar">
-<div class="flex gap-6 h-full min-w-max">
-<!-- Column: Recebidos -->
-<div class="kanban-column flex flex-col gap-4">
-<div class="flex items-center justify-between px-1">
-<div class="flex items-center gap-2">
-<h3 class="font-bold text-slate-700">Recebidos</h3>
-<span class="bg-slate-200 text-slate-600 text-[10px] font-bold px-2 py-0.5 rounded-full">3</span>
-</div>
-<span class="material-symbols-outlined text-slate-400 cursor-pointer">more_horiz</span>
-</div>
-<div class="flex flex-col gap-4 overflow-y-auto custom-scrollbar pr-1">
-<!-- Card 1 -->
-<div class="bg-white rounded-xl p-4 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 flex flex-col gap-3">
-<div class="flex justify-between items-start">
-<span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded bg-blue-50 text-blue-600">Entrega</span>
-<span class="text-xs text-slate-400">12 min atrás</span>
-</div>
-<div>
-<h4 class="text-lg font-bold text-slate-900">PED-223</h4>
-<p class="text-sm font-medium text-slate-600">João Silva</p>
-</div>
-<div class="text-xs text-slate-500 leading-relaxed italic">
+                    <button class="size-10 flex items-center justify-center bg-slate-100 rounded-lg text-slate-600">
+                        <span class="material-symbols-outlined">notifications</span>
+                    </button>
+                </div>
+            </header>
+            <!-- Kanban Board -->
+            <div class="flex-1 overflow-x-auto p-8 custom-scrollbar">
+                <div class="flex gap-6 h-full min-w-max">
+                    <!-- Column: Recebidos -->
+                    <div class="kanban-column flex flex-col gap-4">
+                        <div class="flex items-center justify-between px-1">
+                            <div class="flex items-center gap-2">
+                                <h3 class="font-bold text-slate-700">Recebidos</h3>
+                                <span
+                                    class="bg-slate-200 text-slate-600 text-[10px] font-bold px-2 py-0.5 rounded-full">3</span>
+                            </div>
+                            <span class="material-symbols-outlined text-slate-400 cursor-pointer">more_horiz</span>
+                        </div>
+                        <div class="flex flex-col gap-4 overflow-y-auto custom-scrollbar pr-1">
+                            <!-- Card 1 -->
+                            <div
+                                class="bg-white rounded-xl p-4 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 flex flex-col gap-3">
+                                <div class="flex justify-between items-start">
+                                    <span
+                                        class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded bg-blue-50 text-blue-600">Entrega</span>
+                                    <span class="text-xs text-slate-400">12 min atrás</span>
+                                </div>
+                                <div>
+                                    <h4 class="text-lg font-bold text-slate-900">PED-223</h4>
+                                    <p class="text-sm font-medium text-slate-600">João Silva</p>
+                                </div>
+                                <div class="text-xs text-slate-500 leading-relaxed italic">
                                     1x Burger Gourmet, 1x Batata Frita, 1x Coca-Cola
                                 </div>
-<div class="flex items-center justify-between mt-2 pt-3 border-t border-slate-50">
-<span class="text-sm font-bold text-slate-900">R$ 84,90</span>
-<button class="px-4 py-1.5 bg-primary text-white text-xs font-bold rounded-lg hover:bg-primary/90 transition-colors">Iniciar</button>
-</div>
-</div>
-<!-- Card 2 -->
-<div class="bg-white rounded-xl p-4 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 flex flex-col gap-3">
-<div class="flex justify-between items-start">
-<span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded bg-orange-50 text-orange-600">Retirada</span>
-<span class="text-xs text-slate-400">5 min atrás</span>
-</div>
-<div>
-<h4 class="text-lg font-bold text-slate-900">PED-224</h4>
-<p class="text-sm font-medium text-slate-600">Maria Oliveira</p>
-</div>
-<div class="text-xs text-slate-500 leading-relaxed italic">
+                                <div class="flex items-center justify-between mt-2 pt-3 border-t border-slate-50">
+                                    <span class="text-sm font-bold text-slate-900">R$ 84,90</span>
+                                    <button
+                                        class="px-4 py-1.5 bg-primary text-white text-xs font-bold rounded-lg hover:bg-primary/90 transition-colors">Iniciar</button>
+                                </div>
+                            </div>
+                            <!-- Card 2 -->
+                            <div
+                                class="bg-white rounded-xl p-4 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 flex flex-col gap-3">
+                                <div class="flex justify-between items-start">
+                                    <span
+                                        class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded bg-orange-50 text-orange-600">Retirada</span>
+                                    <span class="text-xs text-slate-400">5 min atrás</span>
+                                </div>
+                                <div>
+                                    <h4 class="text-lg font-bold text-slate-900">PED-224</h4>
+                                    <p class="text-sm font-medium text-slate-600">Maria Oliveira</p>
+                                </div>
+                                <div class="text-xs text-slate-500 leading-relaxed italic">
                                     2x Taco de Pollo, 1x Suco de Laranja
                                 </div>
-<div class="flex items-center justify-between mt-2 pt-3 border-t border-slate-50">
-<span class="text-sm font-bold text-slate-900">R$ 45,00</span>
-<button class="px-4 py-1.5 bg-slate-100 text-slate-700 text-xs font-bold rounded-lg hover:bg-slate-200 transition-colors">Detalhes</button>
-</div>
-</div>
-</div>
-</div>
-<!-- Column: Preparando -->
-<div class="kanban-column flex flex-col gap-4">
-<div class="flex items-center justify-between px-1">
-<div class="flex items-center gap-2">
-<h3 class="font-bold text-slate-700">Preparando</h3>
-<span class="bg-primary/10 text-primary text-[10px] font-bold px-2 py-0.5 rounded-full">2</span>
-</div>
-<span class="material-symbols-outlined text-slate-400 cursor-pointer">more_horiz</span>
-</div>
-<div class="flex flex-col gap-4 overflow-y-auto custom-scrollbar pr-1">
-<div class="bg-white rounded-xl p-4 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 flex flex-col gap-3">
-<div class="flex justify-between items-start">
-<span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded bg-blue-50 text-blue-600">Entrega</span>
-<span class="text-xs text-slate-400">22 min atrás</span>
-</div>
-<div>
-<h4 class="text-lg font-bold text-slate-900">PED-221</h4>
-<p class="text-sm font-medium text-slate-600">Carlos Mendes</p>
-</div>
-<div class="text-xs text-slate-500 leading-relaxed italic">
+                                <div class="flex items-center justify-between mt-2 pt-3 border-t border-slate-50">
+                                    <span class="text-sm font-bold text-slate-900">R$ 45,00</span>
+                                    <button
+                                        class="px-4 py-1.5 bg-slate-100 text-slate-700 text-xs font-bold rounded-lg hover:bg-slate-200 transition-colors">Detalhes</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Column: Preparando -->
+                    <div class="kanban-column flex flex-col gap-4">
+                        <div class="flex items-center justify-between px-1">
+                            <div class="flex items-center gap-2">
+                                <h3 class="font-bold text-slate-700">Preparando</h3>
+                                <span
+                                    class="bg-primary/10 text-primary text-[10px] font-bold px-2 py-0.5 rounded-full">2</span>
+                            </div>
+                            <span class="material-symbols-outlined text-slate-400 cursor-pointer">more_horiz</span>
+                        </div>
+                        <div class="flex flex-col gap-4 overflow-y-auto custom-scrollbar pr-1">
+                            <div
+                                class="bg-white rounded-xl p-4 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 flex flex-col gap-3">
+                                <div class="flex justify-between items-start">
+                                    <span
+                                        class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded bg-blue-50 text-blue-600">Entrega</span>
+                                    <span class="text-xs text-slate-400">22 min atrás</span>
+                                </div>
+                                <div>
+                                    <h4 class="text-lg font-bold text-slate-900">PED-221</h4>
+                                    <p class="text-sm font-medium text-slate-600">Carlos Mendes</p>
+                                </div>
+                                <div class="text-xs text-slate-500 leading-relaxed italic">
                                     3x Pizza Margherita, 1x Vinho Tinto
                                 </div>
-<div class="flex items-center justify-between mt-2 pt-3 border-t border-slate-50">
-<span class="text-sm font-bold text-slate-900">R$ 156,00</span>
-<button class="px-4 py-1.5 bg-slate-100 text-slate-700 text-xs font-bold rounded-lg hover:bg-slate-200 transition-colors">Detalhes</button>
-</div>
-</div>
-</div>
-</div>
-<!-- Column: Saiu para Entrega -->
-<div class="kanban-column flex flex-col gap-4">
-<div class="flex items-center justify-between px-1">
-<div class="flex items-center gap-2">
-<h3 class="font-bold text-slate-700">Saiu para Entrega</h3>
-<span class="bg-slate-200 text-slate-600 text-[10px] font-bold px-2 py-0.5 rounded-full">1</span>
-</div>
-<span class="material-symbols-outlined text-slate-400 cursor-pointer">more_horiz</span>
-</div>
-<div class="flex flex-col gap-4 overflow-y-auto custom-scrollbar pr-1">
-<div class="bg-white rounded-xl p-4 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 flex flex-col gap-3 opacity-80">
-<div class="flex justify-between items-start">
-<span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded bg-blue-50 text-blue-600">Entrega</span>
-<span class="text-xs text-slate-400">45 min atrás</span>
-</div>
-<div>
-<h4 class="text-lg font-bold text-slate-900">PED-218</h4>
-<p class="text-sm font-medium text-slate-600">Ana Souza</p>
-</div>
-<div class="text-xs text-slate-500 leading-relaxed italic">
+                                <div class="flex items-center justify-between mt-2 pt-3 border-t border-slate-50">
+                                    <span class="text-sm font-bold text-slate-900">R$ 156,00</span>
+                                    <button
+                                        class="px-4 py-1.5 bg-red-600 text-white text-xs font-bold rounded-lg hover:bg-red-700 transition-colors">Enviar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Column: Saiu para Entrega -->
+                    <div class="kanban-column flex flex-col gap-4">
+                        <div class="flex items-center justify-between px-1">
+                            <div class="flex items-center gap-2">
+                                <h3 class="font-bold text-slate-700">Saiu para Entrega</h3>
+                                <span
+                                    class="bg-slate-200 text-slate-600 text-[10px] font-bold px-2 py-0.5 rounded-full">1</span>
+                            </div>
+                            <span class="material-symbols-outlined text-slate-400 cursor-pointer">more_horiz</span>
+                        </div>
+                        <div class="flex flex-col gap-4 overflow-y-auto custom-scrollbar pr-1">
+                            <div
+                                class="bg-white rounded-xl p-4 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 flex flex-col gap-3 opacity-80">
+                                <div class="flex justify-between items-start">
+                                    <span
+                                        class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded bg-blue-50 text-blue-600">Entrega</span>
+                                    <span class="text-xs text-slate-400">45 min atrás</span>
+                                </div>
+                                <div>
+                                    <h4 class="text-lg font-bold text-slate-900">PED-218</h4>
+                                    <p class="text-sm font-medium text-slate-600">Ana Souza</p>
+                                </div>
+                                <div class="text-xs text-slate-500 leading-relaxed italic">
                                     1x Poke de Atum, 1x Água de Coco
                                 </div>
-<div class="flex items-center justify-between mt-2 pt-3 border-t border-slate-50">
-<span class="text-sm font-bold text-slate-900">R$ 62,00</span>
-<div class="flex items-center gap-1 text-primary">
-<span class="material-symbols-outlined text-[18px]">moped</span>
-<span class="text-[10px] font-bold uppercase">Em trânsito</span>
-</div>
-</div>
-</div>
-</div>
-</div>
-<!-- Column: Concluídos -->
-<div class="kanban-column flex flex-col gap-4">
-<div class="flex items-center justify-between px-1">
-<div class="flex items-center gap-2">
-<h3 class="font-bold text-slate-700">Concluídos</h3>
-<span class="bg-emerald-100 text-emerald-600 text-[10px] font-bold px-2 py-0.5 rounded-full">12</span>
-</div>
-<span class="material-symbols-outlined text-slate-400 cursor-pointer">history</span>
-</div>
-<div class="flex flex-col gap-4 overflow-y-auto custom-scrollbar pr-1">
-<div class="bg-white rounded-xl p-4 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 flex flex-col gap-3 opacity-60">
-<div class="flex justify-between items-start">
-<span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded bg-slate-50 text-slate-500">Retirada</span>
-<span class="text-xs text-slate-400">1h atrás</span>
-</div>
-<div>
-<h4 class="text-lg font-bold text-slate-900">PED-215</h4>
-<p class="text-sm font-medium text-slate-600">Ricardo Lima</p>
-</div>
-<div class="flex items-center justify-between mt-2 pt-3 border-t border-slate-50">
-<span class="text-sm font-bold text-slate-900">R$ 38,50</span>
-<span class="material-symbols-outlined text-emerald-500">check_circle</span>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-</main>
-</div>
-</body></html>
+                                <div class="flex items-center justify-between mt-2 pt-3 border-t border-slate-50">
+                                    <span class="text-sm font-bold text-slate-900">R$ 62,00</span>
+                                    <div class="flex items-center gap-1 text-primary">
+                                        <span class="material-symbols-outlined text-[18px]">moped</span>
+                                        <span class="text-[10px] font-bold uppercase">Em trânsito</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Column: Concluídos -->
+                    <div class="kanban-column flex flex-col gap-4">
+                        <div class="flex items-center justify-between px-1">
+                            <div class="flex items-center gap-2">
+                                <h3 class="font-bold text-slate-700">Concluídos</h3>
+                                <span
+                                    class="bg-emerald-100 text-emerald-600 text-[10px] font-bold px-2 py-0.5 rounded-full">12</span>
+                            </div>
+                            <span class="material-symbols-outlined text-slate-400 cursor-pointer">history</span>
+                        </div>
+                        <div class="flex flex-col gap-4 overflow-y-auto custom-scrollbar pr-1">
+                            <div
+                                class="bg-white rounded-xl p-4 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 flex flex-col gap-3 opacity-60">
+                                <div class="flex justify-between items-start">
+                                    <span
+                                        class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded bg-slate-50 text-slate-500">Retirada</span>
+                                    <span class="text-xs text-slate-400">1h atrás</span>
+                                </div>
+                                <div>
+                                    <h4 class="text-lg font-bold text-slate-900">PED-215</h4>
+                                    <p class="text-sm font-medium text-slate-600">Ricardo Lima</p>
+                                </div>
+                                <div class="flex items-center justify-between mt-2 pt-3 border-t border-slate-50">
+                                    <span class="text-sm font-bold text-slate-900">R$ 38,50</span>
+                                    <span class="material-symbols-outlined text-emerald-500">check_circle</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+
+</html>

@@ -497,12 +497,12 @@
 }
 
 .quick-action.stage-saiu_entrega {
-    background: #f1f5f9;
-    color: #334155;
+    background: var(--cor-primaria, #C41E2E);
+    color: white;
 }
 
 .quick-action.stage-saiu_entrega:hover {
-    background: #e2e8f0;
+    opacity: 0.9;
 }
 
 .quick-action.stage-entregue {
