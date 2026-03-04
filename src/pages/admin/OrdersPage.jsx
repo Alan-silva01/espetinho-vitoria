@@ -834,11 +834,11 @@ export default function OrdersPage() {
                                                 <h4 className="customer-name-v2">Cliente: {order.nome_cliente || 'Sem nome'}</h4>
                                             </div>
 
-                                            <div className="items-preview">
+                                            <div className="items-preview" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                                                 {order.itens?.map((item, idx) => (
-                                                    <div key={idx} style={{ display: 'inline' }}>
-                                                        <span style={{ fontWeight: 'bold', color: '#334155' }}>{item.quantidade}x </span>
-                                                        <span style={{ fontWeight: 'bold', color: '#0f172a' }}>{getItemDisplayName(item)}{idx < order.itens.length - 1 ? ', ' : ''}</span>
+                                                    <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '4px' }}>
+                                                        <span style={{ fontWeight: 'bold', color: '#334155', whiteSpace: 'nowrap' }}>{item.quantidade}x </span>
+                                                        <span style={{ fontWeight: 'bold', color: '#0f172a' }}>{getItemDisplayName(item)}</span>
                                                     </div>
                                                 ))}
                                             </div>
