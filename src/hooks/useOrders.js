@@ -159,44 +159,7 @@ export function useOrders() {
 
             if (itensErr) throw itensErr
 
-            /* 4. Update stock levels (Automatic Reduction) */
-            for (const item of orderData.itens) {
-                // Fetch current stock and control flag
-                const { data: prod } = await supabase
-                    .from('produtos')
-                    .select('quantidade_disponivel, controlar_estoque')
-                    .eq('id', item.produto_id)
-                    .single()
-
-                if (prod && prod.controlar_estoque) {
-                    const newQty = Math.max(0, prod.quantidade_disponivel - item.quantidade)
-                    const updateFields = { quantidade_disponivel: newQty }
-                    // Marcar como indisponível automaticamente quando estoque zerar
-                    if (newQty === 0) {
-                        updateFields.disponivel = false
-                    }
-                    await supabase
-                        .from('produtos')
-                        .update(updateFields)
-                        .eq('id', item.produto_id)
-
-                    // Also update daily stock if exists
-                    const today = new Date().toISOString().split('T')[0]
-                    const { data: stockToday } = await supabase
-                        .from('estoque_diario')
-                        .select('id, quantidade_atual')
-                        .eq('produto_id', item.produto_id)
-                        .eq('data', today)
-                        .single()
-
-                    if (stockToday) {
-                        await supabase
-                            .from('estoque_diario')
-                            .update({ quantidade_atual: Math.max(0, stockToday.quantidade_atual - item.quantidade) })
-                            .eq('id', stockToday.id)
-                    }
-                }
-            }
+            /* 4. Stock is handled automatically by DB trigger fn_trg_baixa_estoque_pedido */
 
             return pedido
         } catch (err) {
