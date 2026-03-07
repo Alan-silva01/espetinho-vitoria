@@ -197,6 +197,12 @@ export default function CheckoutPage() {
                 return name
             }).join(', ')
             const pedido = await createOrder(orderData)
+
+            // Sync comanda_id from the server (may have been adopted from an existing table order)
+            if (pedido.comanda_id) {
+                localStorage.setItem('espetinho_comanda_id', pedido.comanda_id)
+            }
+
             const targetClientId = pedido.cliente_id || customer?.id
 
             if (tipoPedido !== 'mesa' && targetClientId) {

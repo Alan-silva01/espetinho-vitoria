@@ -51,20 +51,42 @@ export function useOrders() {
                 }
             }
 
-            /* 2. Check for existing active comanda order */
+            /* 2. Check for existing active order on this table (by mesa_id first, then comanda_id) */
             let pedido = null
             let isExistingComanda = false
 
-            if (orderData.comanda_id) {
-                const { data: existingPedido } = await supabase
+            // For mesa orders: look up by mesa_id so ALL devices at the same table share one order
+            if (orderData.mesa_id) {
+                const { data: existingByMesa } = await supabase
+                    .from('pedidos')
+                    .select('*')
+                    .eq('mesa_id', orderData.mesa_id)
+                    .eq('pago', false)
+                    .order('criado_em', { ascending: false })
+                    .limit(1)
+                    .maybeSingle()
+
+                if (existingByMesa) {
+                    pedido = existingByMesa
+                    isExistingComanda = true
+                    // Adopt the existing comanda_id so this device syncs
+                    orderData.comanda_id = existingByMesa.comanda_id
+                }
+            }
+
+            // Fallback: if not found by mesa_id, try by comanda_id (e.g. same device adding more items)
+            if (!pedido && orderData.comanda_id) {
+                const { data: existingByComanda } = await supabase
                     .from('pedidos')
                     .select('*')
                     .eq('comanda_id', orderData.comanda_id)
                     .eq('pago', false)
+                    .order('criado_em', { ascending: false })
+                    .limit(1)
                     .maybeSingle()
 
-                if (existingPedido) {
-                    pedido = existingPedido
+                if (existingByComanda) {
+                    pedido = existingByComanda
                     isExistingComanda = true
                 }
             }
@@ -229,6 +251,7 @@ export function useOrders() {
 export async function getActiveComanda(mesaId) {
     if (!mesaId) return null
     try {
+        // First try to find an order with a comanda_id
         const { data, error } = await supabase
             .from('pedidos')
             .select('comanda_id')
@@ -237,10 +260,14 @@ export async function getActiveComanda(mesaId) {
             .not('comanda_id', 'is', null)
             .order('criado_em', { ascending: false })
             .limit(1)
-            .maybeSingle()
 
         if (error) throw error
-        return data?.comanda_id || null
+
+        // Return the first comanda_id found (safe even with multiple rows)
+        if (data && data.length > 0) {
+            return data[0].comanda_id
+        }
+        return null
     } catch (err) {
         console.error('Erro ao buscar comanda ativa:', err)
         return null
