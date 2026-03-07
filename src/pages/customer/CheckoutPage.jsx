@@ -469,12 +469,6 @@ export default function CheckoutPage() {
                             })}
                         </div>
 
-                        {/* Observations */}
-                        <div className="checkout-field" style={{ marginTop: 16 }}>
-                            <label>Observações do pedido</label>
-                            <textarea placeholder="Observações" rows={2} value={observacoes} onChange={e => setObservacoes(e.target.value)} />
-                        </div>
-
                         <div className="checkout-totals">
                             <div className="checkout-totals__row">
                                 <span>Subtotal</span>
