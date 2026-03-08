@@ -242,7 +242,7 @@ export default function InventoryPage() {
         if (!product || !product.opcoes_personalizacao) return
 
         const isAcaiAddon = product.categorias?.nome === 'Açaí' && (groupName === 'Adicionais (Pagos)' || groupName === 'Escolha 2 Frutas (Inclusos)')
-        const isEspetoAddon = product.categorias?.nome === 'Espetinhos' && (groupName === 'Tipo de Arroz' || groupName === 'Ponto da Carne')
+        const isEspetoAddon = product.categorias?.nome === 'Espetinhos' && (groupName === 'Tipo de Arroz' || groupName === 'Ponto da Carne' || groupName === 'Acompanha')
 
         const affectedProducts = (isAcaiAddon || isEspetoAddon)
             ? inventory.filter(p => p.categorias?.nome === product.categorias?.nome)
@@ -513,7 +513,7 @@ export default function InventoryPage() {
                                                             </div>
                                                             <div className="addon-groups-list">
                                                                 {(() => {
-                                                                    const espetoGroups = ['Tipo de Arroz', 'Ponto da Carne']
+                                                                    const espetoGroups = ['Tipo de Arroz', 'Ponto da Carne', 'Acompanha']
                                                                     return espetoGroups.map(gName => {
                                                                         const masterProduct = items.find(i => i.opcoes_personalizacao.some(g => g.grupo === gName))
                                                                         if (!masterProduct) return null
@@ -560,6 +560,7 @@ export default function InventoryPage() {
                                                             g.grupo !== 'Adicionais (Pagos)' &&
                                                             g.grupo !== 'Tipo de Arroz' &&
                                                             g.grupo !== 'Ponto da Carne' &&
+                                                            g.grupo !== 'Acompanha' &&
                                                             (item.categorias?.nome !== 'Açaí' || g.grupo !== 'Escolha 2 Frutas (Inclusos)')
                                                         )
                                                         if (inclusionGroups.length === 0) return null
