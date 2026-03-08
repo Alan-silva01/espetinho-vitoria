@@ -1206,11 +1206,14 @@
     }
 
     #thermal-receipt,
-    #thermal-receipt * {
+    #thermal-receipt *,
+    #thermal-receipt-print,
+    #thermal-receipt-print * {
         visibility: visible;
     }
 
-    #thermal-receipt {
+    #thermal-receipt,
+    #thermal-receipt-print {
         display: block !important;
         position: absolute;
         left: 0;
