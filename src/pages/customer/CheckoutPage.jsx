@@ -153,7 +153,7 @@ export default function CheckoutPage() {
 
         try {
             const nomeCliente = tipoPedido === 'mesa'
-                ? `Mesa ${mesaNumero}`
+                ? (nomeRetirada || `Mesa ${mesaNumero}`)
                 : tipoPedido === 'retirada'
                     ? nomeRetirada
                     : (addressData.nome_recebedor || '')
@@ -314,17 +314,17 @@ export default function CheckoutPage() {
                     </div>
                 )}
 
-                {/* Pickup Name */}
-                {tipoPedido === 'retirada' && (
+                {/* Pickup / Mesa Name */}
+                {(tipoPedido === 'retirada' || tipoPedido === 'mesa') && (
                     <section className="checkout-section">
                         <h2 className="checkout-section__title">
-                            <User size={20} color="var(--cor-primaria)" /> Quem vai retirar?
+                            <User size={20} color="var(--cor-primaria)" /> {tipoPedido === 'mesa' ? 'Qual é o seu nome?' : 'Quem vai retirar?'}
                         </h2>
                         <div className="checkout-card">
                             <div className="checkout-field">
                                 <input
                                     type="text"
-                                    placeholder="Nome de quem vai buscar"
+                                    placeholder="Digite seu nome (opcional)"
                                     value={nomeRetirada}
                                     onChange={e => setNomeRetirada(e.target.value)}
                                     className="checkout-input"
