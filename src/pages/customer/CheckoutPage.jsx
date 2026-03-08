@@ -324,7 +324,7 @@ export default function CheckoutPage() {
                             <div className="checkout-field">
                                 <input
                                     type="text"
-                                    placeholder="Digite seu nome (opcional)"
+                                    placeholder={tipoPedido === 'mesa' ? "Digite seu nome (obrigatório)" : "Nome de quem vai buscar"}
                                     value={nomeRetirada}
                                     onChange={e => setNomeRetirada(e.target.value)}
                                     className="checkout-input"
@@ -493,7 +493,7 @@ export default function CheckoutPage() {
                 <button
                     className="checkout-footer__btn"
                     onClick={handleConfirm}
-                    disabled={loading || isSubmitting || (tipoPedido === 'entrega' && !hasAddress) || (tipoPedido === 'retirada' && !nomeRetirada.trim()) || (tipoPedido === 'mesa' && !mesaId)}
+                    disabled={loading || isSubmitting || (tipoPedido === 'entrega' && !hasAddress) || (tipoPedido === 'retirada' && !nomeRetirada.trim()) || (tipoPedido === 'mesa' && !mesaId) || (tipoPedido === 'mesa' && !nomeRetirada.trim())}
                 >
                     {loading || isSubmitting ? (
                         <span className="btn-spinner" />
