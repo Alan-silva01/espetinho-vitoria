@@ -10,7 +10,7 @@ export function useOrders() {
         try {
             let clienteId = orderData.cliente_id
 
-            // 1. If we have a customer code (from URL), prioritize lookup by code
+            // 1. If we don't have an ID but have a code, look up by code
             if (!clienteId && orderData.codigo_cliente) {
                 const { data: existingByCode } = await supabase
                     .from('clientes')
@@ -23,7 +23,7 @@ export function useOrders() {
                 }
             }
 
-            // 2. Fallback: If no ID yet, try to find an existing client by phone number
+            // 2. Fallback: If no ID AND no code yet, try to find an existing client by phone number
             if (!clienteId && orderData.telefone_cliente) {
                 const { data: existingByPhone } = await supabase
                     .from('clientes')
@@ -33,20 +33,23 @@ export function useOrders() {
 
                 if (existingByPhone) {
                     clienteId = existingByPhone.id
-                } else {
-                    // 3. Create new client! If a code was provided (from URL), attach it!
-                    const { data: newClient, error: clientErr } = await supabase
-                        .from('clientes')
-                        .insert({
-                            nome: orderData.nome_cliente,
-                            telefone: orderData.telefone_cliente,
-                            codigo: orderData.codigo_cliente || null
-                        })
-                        .select()
-                        .single()
-                    if (clientErr) throw clientErr
-                    clienteId = newClient.id
                 }
+            }
+
+            // 3. Create new client! If we STILL don't have an ID after all lookups
+            if (!clienteId) {
+                // 3. Create new client! If a code was provided (from URL), attach it!
+                const { data: newClient, error: clientErr } = await supabase
+                    .from('clientes')
+                    .insert({
+                        nome: orderData.nome_cliente,
+                        telefone: orderData.telefone_cliente,
+                        codigo: orderData.codigo_cliente || null
+                    })
+                    .select()
+                    .single()
+                if (clientErr) throw clientErr
+                clienteId = newClient.id
             }
 
             /* 2. Check for existing active order on this table (by mesa_id first, then comanda_id) */
