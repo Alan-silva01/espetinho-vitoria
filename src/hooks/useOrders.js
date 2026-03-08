@@ -33,16 +33,14 @@ export function useOrders() {
 
                 if (existingByPhone) {
                     clienteId = existingByPhone.id
-                } else if (!orderData.codigo_cliente) {
-                    // 3. Create new client ONLY if not found by phone AND no code was provided
-                    // If a code was provided but not found, we should probably still create one or error,
-                    // but usually the code should exist. For safety, if code provided but not found, 
-                    // we create a new one as well but without a preset code.
+                } else {
+                    // 3. Create new client! If a code was provided (from URL), attach it!
                     const { data: newClient, error: clientErr } = await supabase
                         .from('clientes')
                         .insert({
                             nome: orderData.nome_cliente,
                             telefone: orderData.telefone_cliente,
+                            codigo: orderData.codigo_cliente || null
                         })
                         .select()
                         .single()

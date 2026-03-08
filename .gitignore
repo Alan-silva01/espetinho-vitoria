@@ -31,3 +31,5 @@ app_mobile/
 node_modules/
 dist/
 dist-ssr/
+.vercel
+.env*.local

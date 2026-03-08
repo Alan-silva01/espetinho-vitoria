@@ -218,8 +218,7 @@ export default function CheckoutPage() {
             try {
                 const webhookBody = {
                     ...orderData,
-                    pedido_id: pedido.id,
-                    numero_pedido: pedido.numero_pedido,
+                    ...pedido, // Overwrites initial nulls with actual DB values (like cliente_id, comanda_id)
                     cliente_original: customer
                 }
 
