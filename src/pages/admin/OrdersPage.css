@@ -1200,6 +1200,15 @@
         overflow: visible !important;
     }
 
+    html,
+    body,
+    #root {
+        height: 0 !important;
+        overflow: hidden !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
     .no-print {
         display: none !important;
     }
