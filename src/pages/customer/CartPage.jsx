@@ -19,6 +19,7 @@ export default function CartPage() {
     const { customer, updateCustomerData } = useCustomer()
     const [isGeolocating, setIsGeolocating] = useState(false)
     const [isValidationModalOpen, setIsValidationModalOpen] = useState(false)
+    const [showLocationPrompt, setShowLocationPrompt] = useState(false)
     const [stockWarning, setStockWarning] = useState({ open: false, product: '', qty: 0 })
 
     useEffect(() => {
@@ -166,7 +167,7 @@ export default function CartPage() {
         localStorage.setItem('espetinho_tipo_pedido', tipo)
     }
 
-    const handleGetCurrentLocation = () => {
+    const handleGetCurrentLocation = (autoSave = false) => {
         if (!navigator.geolocation) {
             alert('Geolocalização não é suportada pelo seu navegador.')
             return
@@ -176,11 +177,16 @@ export default function CartPage() {
         navigator.geolocation.getCurrentPosition(
             (position) => {
                 const { latitude, longitude } = position.coords
+                const link = `https://www.google.com/maps?q=${latitude},${longitude}`
                 setTempData(prev => ({
                     ...prev,
-                    google_maps_link: `https://www.google.com/maps?q=${latitude},${longitude}`
+                    google_maps_link: link
                 }))
                 setIsGeolocating(false)
+
+                if (autoSave) {
+                    executeSaveAddress({ ...tempData, google_maps_link: link })
+                }
             },
             (error) => {
                 console.error('Erro de geolocalização:', error)
@@ -196,35 +202,45 @@ export default function CartPage() {
         setIsAddressModalOpen(true)
     }
 
-    const handleSaveAddress = async () => {
-        if (!tempData.rua || !tempData.nome_recebedor || !tempData.telefone_recebedor) {
-            alert('Por favor, preencha os campos obrigatórios.')
-            return
-        }
-
-        setAddressData(tempData)
-        localStorage.setItem('espetinho_delivery_data', JSON.stringify(tempData))
+    const executeSaveAddress = async (dataToSave) => {
+        setAddressData(dataToSave)
+        localStorage.setItem('espetinho_delivery_data', JSON.stringify(dataToSave))
         localStorage.setItem('espetinho_manual_address', 'true')
 
-        const fullAddress = `${tempData.rua}, ${tempData.numero} - ${tempData.bairro}`
+        const fullAddress = `${dataToSave.rua}, ${dataToSave.numero} - ${dataToSave.bairro}`
         localStorage.setItem('espetinho_delivery_address', fullAddress)
 
         // Persist to database if customer is logged in
         if (customer) {
             await updateCustomerData({
-                nome_recebedor: tempData.nome_recebedor,
-                telefone_recebedor: tempData.telefone_recebedor,
+                nome_recebedor: dataToSave.nome_recebedor,
+                telefone_recebedor: dataToSave.telefone_recebedor,
                 endereco: {
-                    rua: tempData.rua,
-                    numero: tempData.numero,
-                    bairro: tempData.bairro,
-                    referencia: tempData.referencia,
-                    google_maps_link: tempData.google_maps_link
+                    rua: dataToSave.rua,
+                    numero: dataToSave.numero,
+                    bairro: dataToSave.bairro,
+                    referencia: dataToSave.referencia,
+                    google_maps_link: dataToSave.google_maps_link
                 }
             })
         }
 
         setIsAddressModalOpen(false)
+        setShowLocationPrompt(false)
+    }
+
+    const handleSaveAddress = async (forceWithoutLocation = false) => {
+        if (!tempData.rua || !tempData.nome_recebedor || !tempData.telefone_recebedor) {
+            alert('Por favor, preencha os campos obrigatórios.')
+            return
+        }
+
+        if (!tempData.google_maps_link && !forceWithoutLocation) {
+            setShowLocationPrompt(true)
+            return
+        }
+
+        await executeSaveAddress(tempData)
     }
 
     const handleFinalize = () => {
@@ -551,7 +567,7 @@ export default function CartPage() {
                         <div className="bottom-sheet__content">
                             <button
                                 className={`btn-locate ${isGeolocating ? 'is-loading' : ''} ${tempData.google_maps_link ? 'is-success' : ''}`}
-                                onClick={handleGetCurrentLocation}
+                                onClick={() => handleGetCurrentLocation(false)}
                                 disabled={isGeolocating}
                             >
                                 <Navigation size={18} className={isGeolocating ? 'animate-spin' : ''} />
@@ -636,7 +652,7 @@ export default function CartPage() {
                                     />
                                 </div>
 
-                                <button className="btn-save-address btn btn-primary full" onClick={handleSaveAddress}>
+                                <button className="btn-save-address btn btn-primary full" onClick={() => handleSaveAddress(false)}>
                                     Salvar Endereço
                                 </button>
                             </div>
@@ -670,6 +686,43 @@ export default function CartPage() {
                                 style={{ marginTop: 8 }}
                             >
                                 Voltar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {/* LOCATION PROMPT MODAL */}
+            {showLocationPrompt && (
+                <div className="modal-backdrop" onClick={() => !isGeolocating && setShowLocationPrompt(false)} style={{ zIndex: 9999 }}>
+                    <div className="bottom-sheet validation-modal" onClick={e => e.stopPropagation()}>
+                        <div className="bottom-sheet__handle" />
+                        <div className="validation-content">
+                            <div className="validation-icon" style={{ background: '#e8f0fe', color: '#1a73e8' }}>
+                                <Navigation size={48} />
+                            </div>
+                            <h3>Usar sua localização?</h3>
+                            <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '20px' }}>
+                                O entregador encontra seu endereço muito mais rápido se você enviar a localização do GPS. Deseja usar sua localização atual?
+                            </p>
+
+                            <button
+                                className={`btn btn-primary btn-md btn-full ${isGeolocating ? 'is-loading' : ''}`}
+                                onClick={() => handleGetCurrentLocation(true)}
+                                disabled={isGeolocating}
+                            >
+                                {isGeolocating ? (
+                                    <span className="btn-spinner" />
+                                ) : (
+                                    <>Sim, usar localização 📍</>
+                                )}
+                            </button>
+                            <button
+                                className="btn btn-ghost full"
+                                onClick={() => handleSaveAddress(true)}
+                                disabled={isGeolocating}
+                                style={{ marginTop: 8 }}
+                            >
+                                Não, salvar sem localização
                             </button>
                         </div>
                     </div>
