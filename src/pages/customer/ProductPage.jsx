@@ -450,7 +450,13 @@ export default function ProductPage() {
                         </div>
                     )}
 
-                    <p className="product-info__desc">{product.descricao}</p>
+                    <p className="product-info__desc">
+                        {product.nome?.toLowerCase().includes('açaí tradicional') ? (
+                            selectedVariation?.nome === '180ml'
+                                ? 'Açaí Tradicional com Leite em pó e Tapioca.'
+                                : 'Açaí Tradicional com Leite em pó, Leite condensado, Amendoim e Tapioca.'
+                        ) : product.descricao}
+                    </p>
 
                     <div className="product-info__price-container">
                         <div className="product-info__price">{formatCurrency(unitPrice)}</div>
