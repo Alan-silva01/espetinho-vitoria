@@ -312,14 +312,21 @@ export default function DriverDashboard() {
         }
     }
 
-    if (initializing || authLoading || initialLoading) return (
+    if (initializing || authLoading) return (
         <div className="driver-loading">
             <Bike size={40} className="animate-bounce" />
-            <p>{initializing ? 'Iniciando sistema...' : 'Carregando pedidos...'}</p>
+            <p>Iniciando sistema...</p>
         </div>
     )
 
-    if (!driver && !initializing) return <Navigate to="/entregador/login" replace />
+    if (!driver) return <Navigate to="/entregador/login" replace />
+
+    if (initialLoading) return (
+        <div className="driver-loading">
+            <Bike size={40} className="animate-bounce" />
+            <p>Carregando pedidos...</p>
+        </div>
+    )
 
     if (driver && driver.ativo === false) {
         return (
