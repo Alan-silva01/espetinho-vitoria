@@ -18,7 +18,11 @@ export function useDriverAuth() {
             try {
                 const { data } = await supabase.auth.getSession()
                 if (!cancelled && data?.session?.user) {
-                    await fetchDriverProfile(data.session.user.id)
+                    const profile = await fetchDriverProfile(data.session.user.id)
+                    if (!profile) {
+                        // User is logged in but not a driver
+                        setDriver(null)
+                    }
                 }
             } catch (err) {
                 console.error('[useDriverAuth] Erro ao buscar sessão:', err)

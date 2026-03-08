@@ -105,7 +105,10 @@ export default function DriverDashboard() {
 
 
     const fetchDriverOrders = useCallback(async () => {
-        if (!driver?.id) return
+        if (!driver?.id) {
+            setInitialLoading(false)
+            return
+        }
 
         try {
             const now = new Date()
