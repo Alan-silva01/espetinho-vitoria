@@ -351,14 +351,28 @@
     background: var(--cor-primaria);
     color: white;
     font-weight: 700;
-    font-size: 16px;
-    padding: 16px 24px;
+    font-size: 15px;
+    padding: 14px 20px;
     border-radius: 12px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     box-shadow: 0 4px 16px rgba(196, 30, 46, 0.3);
     transition: all 0.2s;
+    min-width: 0;
+    gap: 10px;
+}
+
+.checkout-footer__btn span:first-child {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.checkout-footer__btn span:last-child {
+    flex-shrink: 0;
 }
 
 .checkout-footer__btn:hover {
