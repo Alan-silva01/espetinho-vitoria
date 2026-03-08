@@ -136,19 +136,11 @@ function getSelectedInclusionItems(personalizacao) {
 
 /**
  * Monta um nome limpo para o item do pedido.
- * - Limpa o parêntese da variação
- * - Se a variação é "Completo" mas o cliente desmarcou algum acompanhamento,
- *   remove "Completo" do nome (só mostra "Completo" quando TUDO está selecionado)
- *
- * @param {string} productName - Nome do produto, ex: "Espetinho de Carne"
- * @param {string|null} variationName - Nome da variação, ex: "Completo (Arroz, Farofa, Macarrão, Vinagrete)"
- * @param {Object|null} personalizacao - Dados de personalização do item
- * @returns {string} Nome limpo
+ * Ex: Limpa listas como "Completo Arroz, Farofa..." deixando só "Completo"
  */
 export function getSmartItemName(productName, variationName, personalizacao) {
     let baseName = productName || 'Item'
 
-    // Strip existing variation suffix and parentheticals from base name
     baseName = baseName
         .replace(/\s*[-–]\s*(Completo|Com .+|Só .+)$/i, '')
         .replace(/\s*\(.*?\)\s*/g, ' ')
@@ -156,20 +148,13 @@ export function getSmartItemName(productName, variationName, personalizacao) {
 
     if (!variationName) return baseName
 
-    // Parse defaults from variation parenthetical before stripping
-    const defaults = parseVariationDefaults(variationName)
+    let cleanVariation = variationName.replace(/\s*\(.*?\)\s*$/, '').trim()
 
-    // Strip parenthetical from variation name for clean display
-    const cleanVariation = variationName.replace(/\s*\(.*?\)\s*$/, '').trim()
-
-    // If variation is "Completo" and has defaults, check if customer removed any item
-    const isCompleto = cleanVariation.toLowerCase().includes('completo')
-    if (isCompleto && defaults.length > 0 && personalizacao) {
-        const selected = getSelectedInclusionItems(personalizacao)
-        if (selected !== null && selected.length < defaults.length) {
-            // Customer removed something → NOT completo, show just the base name
-            return baseName
-        }
+    const lowerVar = cleanVariation.toLowerCase();
+    const completoIdx = lowerVar.indexOf('completo');
+    if (completoIdx !== -1) {
+        cleanVariation = cleanVariation.substring(0, completoIdx + 'completo'.length).trim();
+        if (cleanVariation.toLowerCase() === 'completo') cleanVariation = 'Completo';
     }
 
     return `${baseName} - ${cleanVariation}`
@@ -180,44 +165,7 @@ export function filterPersonalizacao(personalizacao, itemName) {
 
     const result = []
 
-    // Attempt to extract variation if it exists in itemName
-    // e.g., "Espetinho de Carne - Completo (Arroz, Farofa, Macarrão, Vinagrete)"
-    const matchVariation = itemName ? itemName.split('-').pop().trim() : ''
-    const isCompleto = matchVariation.toLowerCase().includes('completo')
-
-    let defaults = []
-    let selectedInclusions = []
-
-    if (isCompleto) {
-        defaults = parseVariationDefaults(matchVariation)
-        selectedInclusions = getSelectedInclusionItems(personalizacao) || []
-
-        // Find which items were removed from the defaults
-        const removedItems = defaults.filter(def =>
-            !selectedInclusions.some(sel => sel.includes(def) || def.includes(sel))
-        )
-
-        if (removedItems.length > 0) {
-            result.push({
-                key: 'Modificações',
-                value: `Sem ${removedItems.join(', Sem ')}`
-            })
-        }
-    }
-
-    const inclusionKeywords = ['acompanha', 'incluso', 'acompanhamento', 'complemento', 'complementos']
-
     for (const [key, val] of Object.entries(personalizacao)) {
-        const keyLower = key.toLowerCase()
-        const isInclusionGroup = inclusionKeywords.some(kw => keyLower.includes(kw))
-
-        // If it's a "Completo" item and this is the inclusion group, hide it because 
-        // the word "Completo" already implies all items are included, except the removed ones
-        // which we've already accounted for above.
-        if (isCompleto && isInclusionGroup) {
-            continue
-        }
-
         const displayVal = Array.isArray(val) ? val.join(', ') : val
         if (!displayVal) continue
         result.push({ key, value: String(displayVal) })

@@ -37,14 +37,14 @@ export function useOrders() {
             }
 
             // 3. Create new client! If we STILL don't have an ID after all lookups
-            if (!clienteId) {
-                // 3. Create new client! If a code was provided (from URL), attach it!
+            if (!clienteId && orderData.tipo_pedido !== 'mesa') {
+                const generatedCode = orderData.codigo_cliente || Math.random().toString(36).substring(2, 8).toUpperCase()
                 const { data: newClient, error: clientErr } = await supabase
                     .from('clientes')
                     .insert({
-                        nome: orderData.nome_cliente,
-                        telefone: orderData.telefone_cliente,
-                        codigo: orderData.codigo_cliente || null
+                        nome: orderData.nome_cliente || 'Cliente Sem Nome',
+                        telefone: orderData.telefone_cliente || '',
+                        codigo: generatedCode
                     })
                     .select()
                     .single()
