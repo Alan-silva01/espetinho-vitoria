@@ -355,28 +355,23 @@
     padding: 14px 20px;
     border-radius: 12px;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     box-shadow: 0 4px 16px rgba(196, 30, 46, 0.3);
     transition: all 0.2s;
     min-width: 0;
-    gap: 10px;
-}
-
-.checkout-footer__btn span:first-child {
-    display: flex;
-    align-items: center;
+    gap: 8px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-.checkout-footer__btn span:last-child {
-    flex-shrink: 0;
-}
-
 .checkout-footer__btn:hover {
     background: #a31825;
+}
+
+.checkout-footer__btn:active {
+    transform: scale(0.98);
 }
 
 .checkout-footer__btn:active {

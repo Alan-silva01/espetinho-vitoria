@@ -405,22 +405,22 @@
     background: var(--cor-primaria);
     color: white;
     font-weight: 700;
-    padding: 14px 20px;
+    padding: 16px 20px;
     border-radius: var(--raio-full);
     box-shadow: 0 4px 12px rgba(196, 30, 46, 0.3);
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     transition: all 0.2s;
     min-width: 0;
-    gap: 10px;
+    gap: 8px;
 }
 
-.product-footer__add span:first-child {
+.product-footer__add span {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-size: 15px;
+    font-size: 16px;
 }
 
 .product-footer__add:hover {
@@ -436,22 +436,6 @@
     background: #059669 !important;
     box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3) !important;
     transform: none !important;
-}
-
-.product-footer__add-total {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    flex-shrink: 0;
-    font-size: 14px;
-}
-
-.product-footer__add-label {
-    opacity: 0.9;
-    font-weight: 400;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
 }
 
 /* Customization List Layout */

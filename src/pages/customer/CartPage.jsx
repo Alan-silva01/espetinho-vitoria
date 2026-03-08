@@ -532,8 +532,7 @@ export default function CartPage() {
                     className="cart-footer__btn"
                     onClick={handleFinalize}
                 >
-                    <span>Finalizar Pedido</span>
-                    <span className="cart-footer__btn-price">{formatCurrency(total)}</span>
+                    Finalizar Pedido {formatCurrency(total)}
                 </button>
             </div>
 

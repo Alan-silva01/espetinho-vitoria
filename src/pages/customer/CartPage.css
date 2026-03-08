@@ -469,26 +469,19 @@
     background: linear-gradient(135deg, #D90429, #8D0801);
     color: white;
     font-weight: 700;
-    font-size: 16px;
+    font-size: 15px;
     padding: 16px 20px;
     border-radius: 14px;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     box-shadow: 0 4px 16px rgba(196, 30, 46, 0.3);
     transition: all 0.2s;
     min-width: 0;
-    gap: 12px;
-}
-
-.cart-footer__btn span:first-child {
+    gap: 8px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-}
-
-.cart-footer__btn-price {
-    flex-shrink: 0;
 }
 
 .cart-footer__btn:active {

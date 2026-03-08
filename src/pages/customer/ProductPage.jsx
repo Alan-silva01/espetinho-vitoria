@@ -637,13 +637,10 @@ export default function ProductPage() {
                     disabled={!product.disponivel || (product.controlar_estoque && product.quantidade_disponivel <= 0) || !isSelectionValid}
                     style={(!product.disponivel || (product.controlar_estoque && product.quantidade_disponivel <= 0) || !isSelectionValid) ? { background: '#9CA3AF', cursor: 'not-allowed' } : {}}
                 >
-                    <span>{getValidationMessage()}</span>
-                    {product.disponivel && (!product.controlar_estoque || product.quantidade_disponivel > 0) && isSelectionValid && (
-                        <div className="product-footer__add-total">
-                            <span className="product-footer__add-label">Total</span>
-                            <span>{formatCurrency(totalPrice)}</span>
-                        </div>
-                    )}
+                    <span>
+                        {getValidationMessage()}
+                        {isSelectionValid && ` ${formatCurrency(totalPrice)}`}
+                    </span>
                 </button>
             </div>
 

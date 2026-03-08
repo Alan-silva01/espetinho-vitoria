@@ -499,8 +499,8 @@ export default function CheckoutPage() {
                         <span className="btn-spinner" />
                     ) : (
                         <>
-                            <span><CheckCircle size={18} style={{ marginRight: 8 }} />Confirmar Pedido</span>
-                            <span>{formatCurrency(total)}</span>
+                            <CheckCircle size={18} style={{ marginRight: 8 }} />
+                            Confirmar Pedido {formatCurrency(total)}
                         </>
                     )}
                 </button>
