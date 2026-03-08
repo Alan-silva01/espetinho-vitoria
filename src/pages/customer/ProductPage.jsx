@@ -142,7 +142,7 @@ export default function ProductPage() {
                 }).map(opt => optName(opt))
 
                 setSelectedOptions(prev => {
-                    // If the group has a standard `padrao` array, filter it to only available options too
+                    // Only apply defaults to groups that aren't Radio-type choices for Rice
                     let defaultsToUse = []
                     if (accompGroup.padrao && Array.isArray(accompGroup.padrao)) {
                         defaultsToUse = accompGroup.padrao.filter(p => availableOptions.includes(p))
@@ -155,6 +155,13 @@ export default function ProductPage() {
                         [accompGroup.grupo]: defaultsToUse
                     }
                 })
+            }
+            if (arrozGroup) {
+                // Force Arroz selection to be blank initially so the user has to click
+                setSelectedOptions(prev => ({
+                    ...prev,
+                    [arrozGroup.grupo]: arrozGroup.tipo === 'radio' ? '' : []
+                }))
             }
         } else {
             // Non-Completo → disable and clear accomp + arroz groups
