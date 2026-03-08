@@ -71,7 +71,7 @@ export default function HomePage() {
     }, [])
 
     const categoryIcons = {
-        'Espetos': Flame,
+        'Espetinhos': Flame,
         'Açaí': IceCream,
         'Bebidas': GlassWater,
         'Caldos': Soup,
@@ -100,7 +100,7 @@ export default function HomePage() {
                 product.variacoes_produto[0]
         }
 
-        if (product.categoria?.nome === 'Espetos' ||
+        if (product.categoria?.nome === 'Espetinhos' ||
             product.nome?.toLowerCase().includes('espetinho') ||
             product.nome?.toLowerCase().includes('medalhão') ||
             product.nome?.toLowerCase().includes('carne')) {

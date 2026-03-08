@@ -67,7 +67,7 @@ export default function ProductPage() {
                 const v500 = product.variacoes_produto.find(v => v.nome === '500ml')
                 if (v500) setSelectedVariation(v500)
                 else if (v300) setSelectedVariation(v300)
-            } else if (product.categoria?.nome === 'Espetos' || product.nome?.toLowerCase().includes('espetinho') || product.nome?.toLowerCase().includes('medalhão') || product.nome?.toLowerCase().includes('carne')) {
+            } else if (product.categoria?.nome === 'Espetinhos' || product.nome?.toLowerCase().includes('espetinho') || product.nome?.toLowerCase().includes('medalhão') || product.nome?.toLowerCase().includes('carne')) {
                 // Skewers: find "Completo" variation
                 const vCompleto = product.variacoes_produto.find(v => v.nome.toLowerCase().includes('completo'))
                 if (vCompleto) setSelectedVariation(vCompleto)
@@ -433,7 +433,7 @@ export default function ProductPage() {
                     </h1>
 
                     {/* Tags conditionally rendered to avoid "too many highlights" */}
-                    {(product.categoria?.nome === 'Espetos' || product.categoria?.nome === 'Açaí' || product.categoria?.nome === 'Caldos') && (
+                    {(product.categoria?.nome === 'Espetinhos' || product.categoria?.nome === 'Açaí' || product.categoria?.nome === 'Caldos') && (
                         <div className="product-info__tags">
                             {/* Deterministic "Best Seller" for specific popular items */}
                             {(product.nome?.toLowerCase().includes('carne') || product.nome?.toLowerCase().includes('tradicional')) && (

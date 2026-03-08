@@ -242,7 +242,7 @@ export default function InventoryPage() {
         if (!product || !product.opcoes_personalizacao) return
 
         const isAcaiAddon = product.categorias?.nome === 'Açaí' && (groupName === 'Adicionais (Pagos)' || groupName === 'Escolha 2 Frutas (Inclusos)')
-        const isEspetoAddon = product.categorias?.nome === 'Espetos' && (groupName === 'Tipo de Arroz' || groupName === 'Ponto da Carne')
+        const isEspetoAddon = product.categorias?.nome === 'Espetinhos' && (groupName === 'Tipo de Arroz' || groupName === 'Ponto da Carne')
 
         const affectedProducts = (isAcaiAddon || isEspetoAddon)
             ? inventory.filter(p => p.categorias?.nome === product.categorias?.nome)
@@ -502,7 +502,7 @@ export default function InventoryPage() {
                                                     )}
 
                                                     {/* Centralized card for Espetos (Arroz e Ponto) */}
-                                                    {catName === 'Espetos' && items.length > 0 && (
+                                                    {catName === 'Espetinhos' && items.length > 0 && (
                                                         <div className="addon-management-card global-addons espeto-addons">
                                                             <div className="addon-card-header">
                                                                 <img src={items[0]?.imagem_url || 'https://via.placeholder.com/150'} alt="" />
