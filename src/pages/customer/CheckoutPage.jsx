@@ -148,6 +148,13 @@ export default function CheckoutPage() {
             return
         }
 
+        if (tipoPedido === 'mesa' && !nomeRetirada.trim()) {
+            alert('Por favor, informe seu nome para confirmar o pedido na mesa.')
+            // Scroll to the top where the input is usually located
+            window.scrollTo({ top: 0, behavior: 'smooth' })
+            return
+        }
+
         if (isSubmitting) return
         setIsSubmitting(true)
 
@@ -493,7 +500,7 @@ export default function CheckoutPage() {
                 <button
                     className="checkout-footer__btn"
                     onClick={handleConfirm}
-                    disabled={loading || isSubmitting || (tipoPedido === 'entrega' && !hasAddress) || (tipoPedido === 'retirada' && !nomeRetirada.trim()) || (tipoPedido === 'mesa' && !mesaId) || (tipoPedido === 'mesa' && !nomeRetirada.trim())}
+                    disabled={loading || isSubmitting || (tipoPedido === 'entrega' && !hasAddress) || (tipoPedido === 'retirada' && !nomeRetirada.trim()) || (tipoPedido === 'mesa' && !mesaId)}
                 >
                     {loading || isSubmitting ? (
                         <span className="btn-spinner" />
