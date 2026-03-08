@@ -135,11 +135,26 @@ export default function ProductPage() {
             // Completo → enable all groups, select all accompaniments
             setDisabledGroups(new Set())
             if (accompGroup) {
-                const allOptions = accompGroup.opcoes.map(opt => optName(opt))
-                setSelectedOptions(prev => ({
-                    ...prev,
-                    [accompGroup.grupo]: accompGroup.padrao ? [...accompGroup.padrao] : [...allOptions]
-                }))
+                // Determine which options are actually available
+                const availableOptions = accompGroup.opcoes.filter(opt => {
+                    if (typeof opt === 'string') return true
+                    return opt.disponivel !== false && (!opt.controlar_estoque || opt.quantidade_disponivel > 0)
+                }).map(opt => optName(opt))
+
+                setSelectedOptions(prev => {
+                    // If the group has a standard `padrao` array, filter it to only available options too
+                    let defaultsToUse = []
+                    if (accompGroup.padrao && Array.isArray(accompGroup.padrao)) {
+                        defaultsToUse = accompGroup.padrao.filter(p => availableOptions.includes(p))
+                    } else {
+                        defaultsToUse = [...availableOptions]
+                    }
+
+                    return {
+                        ...prev,
+                        [accompGroup.grupo]: defaultsToUse
+                    }
+                })
             }
         } else {
             // Non-Completo → disable and clear accomp + arroz groups
