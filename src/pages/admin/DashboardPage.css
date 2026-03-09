@@ -533,6 +533,65 @@
     color: #9CA3AF;
 }
 
+/* Volumetric Row Styles */
+.volumetric-row {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    margin-bottom: 24px;
+}
+
+.metric-card.minimal {
+    padding: 16px 20px;
+    background: white;
+    border: 1px solid #F3F4F6;
+}
+
+.dark .metric-card.minimal {
+    background: #1F2937;
+    border-color: #374151;
+}
+
+.metric-card.minimal .card-value {
+    font-size: 22px;
+    margin-bottom: 4px;
+}
+
+.metric-card.minimal .card-label {
+    font-size: 12px;
+    margin-bottom: 8px;
+}
+
+.metric-card.minimal.red {
+    border-left: 4px solid #EF4444;
+}
+
+.metric-card.minimal.purple {
+    border-left: 4px solid #8B5CF6;
+}
+
+.metric-card.minimal.purple-light {
+    border-left: 4px solid #C084FC;
+}
+
+.metric-card.minimal.blue {
+    border-left: 4px solid #3B82F6;
+}
+
+.metric-card.minimal .value-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.metric-card.minimal .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.metric-card.minimal .dot.purple {
+    background: #8B5CF6;
+}
+
 /* RESPONSIVE OVERRIDES */
 @media (max-width: 1024px) {
     .dashboard-wrapper {
@@ -565,6 +624,10 @@
         gap: 16px;
     }
 
+    .volumetric-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
     .dashboard-content-grid {
         grid-template-columns: 1fr;
         gap: 20px;
@@ -572,7 +635,9 @@
 }
 
 @media (max-width: 640px) {
-    .metrics-grid {
+
+    .metrics-grid,
+    .volumetric-row {
         grid-template-columns: 1fr;
     }
 

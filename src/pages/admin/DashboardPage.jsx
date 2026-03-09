@@ -24,7 +24,13 @@ export default function DashboardPage() {
         orders: 0,
         newOrdersLastHour: 0,
         ticket: 0,
-        upsell: 0
+        upsell: 0,
+        itemCount: {
+            espetos: 0,
+            acaiTradicional: 0,
+            acaiEspecial: 0,
+            refrigerantes: 0
+        }
     })
     const [timeframe, setTimeframe] = useState('7') // '7' ou '30' dias
     const [topProducts, setTopProducts] = useState([])
@@ -136,6 +142,32 @@ export default function DashboardPage() {
                 }
             })
 
+            // 2. Volumetric Counts for TODAY (to match top cards)
+            const todayCounts = {
+                espetos: 0,
+                acaiTradicional: 0,
+                acaiEspecial: 0,
+                refrigerantes: 0
+            }
+
+            todayOrders?.forEach(order => {
+                order.itens?.forEach(item => {
+                    const prodName = item.produtos?.nome || ''
+                    const catName = item.produtos?.categorias?.nome || ''
+                    const qty = item.quantidade || 0
+
+                    if (catName === 'Espetinhos') {
+                        todayCounts.espetos += qty
+                    } else if (prodName === 'Açaí Tradicional') {
+                        todayCounts.acaiTradicional += qty
+                    } else if (prodName === 'Açaí Especial') {
+                        todayCounts.acaiEspecial += qty
+                    } else if (prodName.toLowerCase().startsWith('refrigerante')) {
+                        todayCounts.refrigerantes += qty
+                    }
+                })
+            })
+
             // Set stats
             setStats({
                 revenue: totalRevenue,
@@ -143,7 +175,8 @@ export default function DashboardPage() {
                 orders: totalOrdersCount,
                 newOrdersLastHour: newOrdersLastHour,
                 ticket: avgTicket,
-                upsell: realUpsellRate.toFixed(1)
+                upsell: realUpsellRate.toFixed(1),
+                itemCount: todayCounts
             })
 
             setRecentOrders(orders.slice(0, 4))
@@ -326,6 +359,50 @@ export default function DashboardPage() {
                                 <h3 className="card-value">{stats.upsell}%</h3>
                                 <span className="sub-value">conversão</span>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Period Volumetric Highlights (Requested) */}
+                <div className="metrics-grid volumetric-row">
+                    <div className="metric-card minimal red">
+                        <div className="card-content">
+                            <p className="card-label">Espetinhos</p>
+                            <div className="value-row">
+                                <h3 className="card-value">{stats.itemCount.espetos}</h3>
+                                <Flame size={16} className="text-red-500" />
+                            </div>
+                            <span className="trend-text">hoje</span>
+                        </div>
+                    </div>
+                    <div className="metric-card minimal purple">
+                        <div className="card-content">
+                            <p className="card-label">Açaí Tradicional</p>
+                            <div className="value-row">
+                                <h3 className="card-value">{stats.itemCount.acaiTradicional}</h3>
+                                <div className="dot purple" />
+                            </div>
+                            <span className="trend-text">hoje</span>
+                        </div>
+                    </div>
+                    <div className="metric-card minimal purple-light">
+                        <div className="card-content">
+                            <p className="card-label">Açaí Especial</p>
+                            <div className="value-row">
+                                <h3 className="card-value">{stats.itemCount.acaiEspecial}</h3>
+                                <Stars size={16} className="text-purple-400" />
+                            </div>
+                            <span className="trend-text">hoje</span>
+                        </div>
+                    </div>
+                    <div className="metric-card minimal blue">
+                        <div className="card-content">
+                            <p className="card-label">Refrigerantes</p>
+                            <div className="value-row">
+                                <h3 className="card-value">{stats.itemCount.refrigerantes}</h3>
+                                <ShoppingBag size={16} className="text-blue-500" />
+                            </div>
+                            <span className="trend-text">hoje</span>
                         </div>
                     </div>
                 </div>

@@ -20,7 +20,13 @@ export default function ReportsPage() {
         revenue: 0,
         orders: 0,
         ticket: 0,
-        upsell: 0
+        upsell: 0,
+        itemCount: {
+            espetos: 0,
+            acaiTradicional: 0,
+            acaiEspecial: 0,
+            refrigerantes: 0
+        }
     })
     const [chartData, setChartData] = useState([])
     const [paymentData, setPaymentData] = useState([])
@@ -48,28 +54,30 @@ export default function ReportsPage() {
     async function fetchReportsData(isSilent = false) {
         if (!isSilent) setLoading(true)
         try {
-            let startDate = new Date()
-            let endDate = new Date()
+            // Use São Paulo timezone for all date boundaries
+            const spNow = new Date()
+            const spDateStr = spNow.toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' }) // 'YYYY-MM-DD'
+            const today = new Date(spDateStr + 'T00:00:00-03:00') // Midnight in SP (UTC-3)
+
+            let startDate = new Date(today)
+            let endDate = new Date(spDateStr + 'T23:59:59-03:00')
 
             if (filterMode === 'quick') {
                 if (period === 'Hoje') {
-                    startDate.setHours(0, 0, 0, 0)
+                    // Already set to today 00h - 23h59
                 } else if (period === 'Ontem') {
                     startDate.setDate(startDate.getDate() - 1)
-                    startDate.setHours(0, 0, 0, 0)
-                    endDate.setDate(endDate.getDate() - 1)
+                    endDate = new Date(startDate)
                     endDate.setHours(23, 59, 59, 999)
                 } else if (period === 'Últimos 7 dias') {
                     startDate.setDate(startDate.getDate() - 7)
-                    startDate.setHours(0, 0, 0, 0)
                 } else { // Este Mês
                     startDate.setDate(1)
-                    startDate.setHours(0, 0, 0, 0)
                 }
             } else {
                 if (advancedType === 'day') {
-                    startDate = new Date(selectedDate + 'T00:00:00')
-                    endDate = new Date(selectedDate + 'T23:59:59')
+                    startDate = new Date(selectedDate + 'T00:00:00-03:00')
+                    endDate = new Date(selectedDate + 'T23:59:59-03:00')
                 } else if (advancedType === 'month') {
                     startDate = new Date(selectedYear, selectedMonth, 1, 0, 0, 0)
                     endDate = new Date(selectedYear, selectedMonth + 1, 0, 23, 59, 59)
@@ -83,7 +91,10 @@ export default function ReportsPage() {
                 .from('pedidos')
                 .select(`
                     id, valor_total, forma_pagamento, criado_em,
-                    itens:itens_pedido(quantidade, produtos(categorias(nome)))
+                    itens:itens_pedido(
+                        quantidade, 
+                        produtos(nome, categorias(nome))
+                    )
                 `)
                 .gte('criado_em', startDate.toISOString())
                 .lte('criado_em', endDate.toISOString())
@@ -92,11 +103,38 @@ export default function ReportsPage() {
                 const revenue = orders.reduce((sum, o) => sum + Number(o.valor_total), 0)
                 const ticket = orders.length > 0 ? revenue / orders.length : 0
 
+                // Volumetric Counts for the selected period
+                const periodCounts = {
+                    espetos: 0,
+                    acaiTradicional: 0,
+                    acaiEspecial: 0,
+                    refrigerantes: 0
+                }
+
+                orders.forEach(order => {
+                    order.itens?.forEach(item => {
+                        const prodName = item.produtos?.nome || ''
+                        const catName = item.produtos?.categorias?.nome || ''
+                        const qty = item.quantidade || 0
+
+                        if (catName === 'Espetinhos') {
+                            periodCounts.espetos += qty
+                        } else if (prodName === 'Açaí Tradicional') {
+                            periodCounts.acaiTradicional += qty
+                        } else if (prodName === 'Açaí Especial') {
+                            periodCounts.acaiEspecial += qty
+                        } else if (prodName.toLowerCase().startsWith('refrigerante')) {
+                            periodCounts.refrigerantes += qty
+                        }
+                    })
+                })
+
                 setStats({
                     revenue,
                     orders: orders.length,
                     ticket,
-                    upsell: 12
+                    upsell: 12,
+                    itemCount: periodCounts
                 })
 
                 // Payment distribution
@@ -292,6 +330,35 @@ export default function ReportsPage() {
                             <span>Taxa de Conversão</span>
                             <h3>{stats.upsell}%</h3>
                         </div>
+                    </div>
+                </div>
+
+                {/* Sub-header for volumetric items */}
+                <div className="section-divider">
+                    <h3>Volume de Vendas (Quantidade)</h3>
+                    <div className="line" />
+                </div>
+
+                <div className="reports-stats-row volumetric">
+                    <div className="stat-item-card mini red">
+                        <div className="item-label">Espetinhos</div>
+                        <div className="item-value">{stats.itemCount.espetos}</div>
+                        <div className="item-unit">unidades</div>
+                    </div>
+                    <div className="stat-item-card mini purple">
+                        <div className="item-label">Açaí Tradicional</div>
+                        <div className="item-value">{stats.itemCount.acaiTradicional}</div>
+                        <div className="item-unit">unidades</div>
+                    </div>
+                    <div className="stat-item-card mini purple-light">
+                        <div className="item-label">Açaí Especial</div>
+                        <div className="item-value">{stats.itemCount.acaiEspecial}</div>
+                        <div className="item-unit">unidades</div>
+                    </div>
+                    <div className="stat-item-card mini blue">
+                        <div className="item-label">Refrigerantes</div>
+                        <div className="item-value">{stats.itemCount.refrigerantes}</div>
+                        <div className="item-unit">unidades</div>
                     </div>
                 </div>
 

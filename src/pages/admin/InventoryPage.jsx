@@ -242,7 +242,7 @@ export default function InventoryPage() {
         if (!product || !product.opcoes_personalizacao) return
 
         const isAcaiAddon = product.categorias?.nome === 'Açaí' && (groupName === 'Adicionais (Pagos)' || groupName === 'Escolha 2 Frutas (Inclusos)')
-        const isEspetoAddon = product.categorias?.nome === 'Espetinhos' && (groupName === 'Tipo de Arroz' || groupName === 'Ponto da Carne' || groupName === 'Acompanha')
+        const isEspetoAddon = product.categorias?.nome === 'Espetinhos' && (groupName === 'Tipo de Arroz' || groupName === 'Ponto da Carne' || groupName === 'Acompanha' || groupName === 'Adicionais')
 
         const affectedProducts = (isAcaiAddon || isEspetoAddon)
             ? inventory.filter(p => p.categorias?.nome === product.categorias?.nome)
@@ -513,7 +513,7 @@ export default function InventoryPage() {
                                                             </div>
                                                             <div className="addon-groups-list">
                                                                 {(() => {
-                                                                    const espetoGroups = ['Tipo de Arroz', 'Ponto da Carne', 'Acompanha']
+                                                                    const espetoGroups = ['Tipo de Arroz', 'Ponto da Carne', 'Acompanha', 'Adicionais']
                                                                     return espetoGroups.map(gName => {
                                                                         const masterProduct = items.find(i => i.opcoes_personalizacao.some(g => g.grupo === gName))
                                                                         if (!masterProduct) return null
@@ -612,6 +612,7 @@ export default function InventoryPage() {
                                                     {productsWithAddons.map(item => {
                                                         const inclusionGroups = item.opcoes_personalizacao.filter(g =>
                                                             g.grupo !== 'Adicionais (Pagos)' &&
+                                                            g.grupo !== 'Adicionais' &&
                                                             g.grupo !== 'Tipo de Arroz' &&
                                                             g.grupo !== 'Ponto da Carne' &&
                                                             g.grupo !== 'Acompanha' &&
