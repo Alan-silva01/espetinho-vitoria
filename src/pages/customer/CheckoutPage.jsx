@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, MapPin, CreditCard, Receipt, Edit3, CheckCircle, User } from 'lucide-react'
 import { useCart } from '../../hooks/useCart'
@@ -15,6 +15,7 @@ export default function CheckoutPage() {
     const { createOrder, loading } = useOrders()
     const { customer, updateLastOrder } = useCustomer()
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const submitLockRef = useRef(false)
 
     useEffect(() => {
         window.scrollTo(0, 0)
@@ -95,6 +96,7 @@ export default function CheckoutPage() {
     const [trocoPara, setTrocoPara] = useState('')
     const [observacoes, setObservacoes] = useState('')
     const [nomeRetirada, setNomeRetirada] = useState(customer?.nome || '')
+    const [telefoneMesa, setTelefoneMesa] = useState('')
 
     // Sync data when customer loads
     useEffect(() => {
@@ -155,7 +157,23 @@ export default function CheckoutPage() {
             return
         }
 
-        if (isSubmitting) return
+        // Phone validation for mesa orders
+        if (tipoPedido === 'mesa' && !telefoneMesa.replace(/\D/g, '').match(/^\d{10,11}$/)) {
+            alert('Por favor, informe um telefone válido para o pedido na mesa.')
+            window.scrollTo({ top: 0, behavior: 'smooth' })
+            return
+        }
+
+        // Name validation: must contain at least one letter (blocks purely emoji names)
+        const nomeValidar = tipoPedido === 'entrega' ? addressData?.nome_recebedor : nomeRetirada
+        if (nomeValidar && !/[a-zA-Z]/.test(nomeValidar)) {
+            alert('Por favor, insira um nome válido (apenas emojis não são permitidos).')
+            window.scrollTo({ top: 0, behavior: 'smooth' })
+            return
+        }
+
+        if (isSubmitting || submitLockRef.current) return
+        submitLockRef.current = true
         setIsSubmitting(true)
 
         try {
@@ -173,7 +191,7 @@ export default function CheckoutPage() {
 
             const orderData = {
                 nome_cliente: nomeCliente,
-                telefone_cliente: tipoPedido === 'mesa' ? '' : (addressData.telefone_recebedor || ''),
+                telefone_cliente: tipoPedido === 'mesa' ? telefoneMesa.replace(/\D/g, '') : (addressData.telefone_recebedor || ''),
                 tipo_pedido: tipoPedido,
                 subtotal,
                 taxa_entrega: taxaEntrega,
@@ -221,7 +239,7 @@ export default function CheckoutPage() {
                 )
             }
 
-            // Webhook notification (espetinho domain)
+            // Webhook notification (espetinho domain) - Using timeout to prevent infinite loop on Android
             try {
                 const webhookBody = {
                     ...orderData,
@@ -232,8 +250,9 @@ export default function CheckoutPage() {
                 await fetch('https://espetinho-n8n-webhook.e2u8y7.easypanel.host/webhook/pedido_feito', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(webhookBody)
-                })
+                    body: JSON.stringify(webhookBody),
+                    signal: AbortSignal.timeout(5000)
+                }).catch(err => console.warn('N8N webhook taking too long or failed, skipping...', err))
 
                 // If it's delivery, notify all drivers via OneSignal
                 if (tipoPedido === 'entrega') {
@@ -257,11 +276,13 @@ export default function CheckoutPage() {
             }
 
             clearCart()
+            submitLockRef.current = false
             localStorage.setItem('espetinho_ultimo_pedido_id', pedido.id)
             navigate(customerCode ? `/${customerCode}/pedido/${pedido.id}` : `/pedido/${pedido.id}`)
         } catch (err) {
             alert('Erro ao confirmar pedido: ' + err.message)
             setIsSubmitting(false)
+            submitLockRef.current = false
         }
     }
 
@@ -337,6 +358,24 @@ export default function CheckoutPage() {
                                     className="checkout-input"
                                 />
                             </div>
+                            {tipoPedido === 'mesa' && (
+                                <div className="checkout-field" style={{ marginTop: '12px' }}>
+                                    <input
+                                        type="tel"
+                                        placeholder="Telefone / WhatsApp (obrigatório)"
+                                        value={telefoneMesa}
+                                        onChange={e => {
+                                            let v = e.target.value.replace(/\D/g, '')
+                                            if (v.length > 11) v = v.slice(0, 11)
+                                            if (v.length > 6) v = `(${v.slice(0, 2)}) ${v.slice(2, 7)}-${v.slice(7)}`
+                                            else if (v.length > 2) v = `(${v.slice(0, 2)}) ${v.slice(2)}`
+                                            setTelefoneMesa(v)
+                                        }}
+                                        className="checkout-input"
+                                        inputMode="tel"
+                                    />
+                                </div>
+                            )}
                         </div>
                     </section>
                 )}
@@ -500,10 +539,22 @@ export default function CheckoutPage() {
                 <button
                     className="checkout-footer__btn"
                     onClick={handleConfirm}
-                    disabled={loading || isSubmitting || (tipoPedido === 'entrega' && !hasAddress) || (tipoPedido === 'retirada' && !nomeRetirada.trim()) || (tipoPedido === 'mesa' && !mesaId)}
+                    disabled={
+                        loading ||
+                        isSubmitting ||
+                        (tipoPedido === 'entrega' && !hasAddress) ||
+                        (tipoPedido === 'entrega' && taxaEntrega <= 0) ||
+                        (tipoPedido === 'retirada' && !nomeRetirada.trim()) ||
+                        (tipoPedido === 'mesa' && !mesaId)
+                    }
                 >
                     {loading || isSubmitting ? (
                         <span className="btn-spinner" />
+                    ) : (tipoPedido === 'entrega' && taxaEntrega <= 0) ? (
+                        <>
+                            <CheckCircle size={18} style={{ marginRight: 8 }} />
+                            Frete indisponível (Confirme o Endereço)
+                        </>
                     ) : (
                         <>
                             <CheckCircle size={18} style={{ marginRight: 8 }} />

@@ -486,6 +486,23 @@ export default function OrdersPage() {
                     console.error('Erro ao enviar webhook saiu_entrega:', webhookErr)
                 }
             }
+
+            // AUTO-PAY: When mesa orders are completed (entregue), automatically mark as paid
+            if (newStatus === 'entregue' && freshOrder?.tipo_pedido === 'mesa') {
+                try {
+                    await supabase
+                        .from('pedidos')
+                        .update({ pago: true, comanda_status: 'fechada' })
+                        .eq('id', orderId)
+                    // Update local state too
+                    setOrders(prev => prev.map(o =>
+                        o.id === orderId ? { ...o, pago: true, comanda_status: 'fechada' } : o
+                    ))
+                    console.log('[Auto-Pay] Mesa order', orderId, 'automatically marked as paid')
+                } catch (payErr) {
+                    console.error('[Auto-Pay] Error marking mesa as paid:', payErr)
+                }
+            }
         } catch (error) {
             console.error('Erro ao atualizar status:', error)
             setOrders(previousOrders)
@@ -1084,8 +1101,14 @@ export default function OrdersPage() {
                                 </div>
 
                                 <div className="receipt-header-info">
+                                    <h2 style={{ fontSize: '22px', fontWeight: '900', textAlign: 'center', margin: '8px 0', textTransform: 'uppercase', borderBottom: '2px dashed #000', paddingBottom: '8px' }}>
+                                        {selectedOrder.tipo_pedido === 'entrega'
+                                            ? '🚀 ENTREGA'
+                                            : selectedOrder.tipo_pedido === 'mesa'
+                                                ? (selectedOrder.nome_cliente?.toUpperCase().includes('MESA') ? selectedOrder.nome_cliente?.toUpperCase() : `🍽️ MESA - ${selectedOrder.nome_cliente?.toUpperCase()}`)
+                                                : '🛍️ RETIRADA'}
+                                    </h2>
                                     <div className="receipt-order-num">PEDIDO #{selectedOrder.numero_pedido}</div>
-                                    <div className="receipt-type">{selectedOrder.tipo_pedido === 'entrega' ? 'ENTREGA PARCEIRA' : selectedOrder.tipo_pedido === 'mesa' ? selectedOrder.nome_cliente?.toUpperCase() : 'RETIRADA NA LOJA'}</div>
                                     <div className="receipt-date">
                                         {new Date(selectedOrder.criado_em).toLocaleDateString('pt-BR')} - {new Date(selectedOrder.criado_em).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                                     </div>

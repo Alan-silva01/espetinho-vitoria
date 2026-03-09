@@ -3,7 +3,7 @@ import {
     Users, Search, Filter, Mail,
     Phone, ShoppingBag, Calendar,
     MoreHorizontal, ChevronLeft, ChevronRight,
-    UserPlus, ExternalLink, Trash2, Edit2
+    UserPlus, ExternalLink, Trash2, Edit2, Shield, Smartphone
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { formatCurrency } from '../../lib/utils'
@@ -162,6 +162,40 @@ export default function CustomersPage() {
         c.email?.toLowerCase().includes(searchTerm.toLowerCase())
     )
 
+    async function toggleAutorizado(id, newVal) {
+        setCustomers(prev => prev.map(c => c.id === id ? { ...c, autorizado: newVal } : c))
+        try {
+            const { error } = await supabase.from('clientes').update({ autorizado: newVal }).eq('id', id)
+            if (error) throw error
+        } catch (err) {
+            alert('Erro ao atualizar autorização: ' + err.message)
+            setCustomers(prev => prev.map(c => c.id === id ? { ...c, autorizado: !newVal } : c))
+        }
+    }
+
+    async function enviarLinkApp(customer) {
+        const phoneRaw = customer.displayPhone.replace(/\D/g, '')
+        if (!phoneRaw) {
+            alert('Cliente não possui telefone cadastrado.')
+            return
+        }
+        try {
+            await fetch('https://espetinho-n8n-webhook.e2u8y7.easypanel.host/webhook/enviar_link', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    telefone: phoneRaw,
+                    codigo: customer.codigo
+                })
+            })
+            alert(`✅ Link do App enviado com sucesso para ${customer.nome} no WhatsApp!`)
+        } catch (err) {
+            console.error('Erro ao enviar link:', err)
+            // Silently complete or alert minimally since n8n handles the heavy lifting
+            alert('Aviso: O gatilho de envio disparou, mas pode ter ocorrido uma falha de conexão local.')
+        }
+    }
+
     if (loading) return <div className="admin-loading">Carregando clientes...</div>
 
     return (
@@ -228,6 +262,7 @@ export default function CustomersPage() {
                                 <th>WhatsApp / Contato</th>
                                 <th>Qtd. Pedidos</th>
                                 <th>Última Compra</th>
+                                <th>Autorizado</th>
                                 <th>Ações</th>
                             </tr>
                         </thead>
@@ -257,7 +292,32 @@ export default function CustomersPage() {
                                     </td>
                                     <td>{customer.lastOrder}</td>
                                     <td>
+                                        <div className="toggle-switch-wrapper" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                            <label className="switch" style={{ position: 'relative', display: 'inline-block', width: '36px', height: '20px' }}>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={!!customer.autorizado}
+                                                    onChange={(e) => toggleAutorizado(customer.id, e.target.checked)}
+                                                    style={{ opacity: 0, width: 0, height: 0 }}
+                                                />
+                                                <span className="slider round" style={{
+                                                    position: 'absolute', cursor: 'pointer', top: 0, left: 0, right: 0, bottom: 0,
+                                                    backgroundColor: customer.autorizado ? 'var(--cor-sucesso, #10b981)' : '#ccc',
+                                                    transition: '.4s', borderRadius: '34px'
+                                                }}>
+                                                    <span style={{
+                                                        position: 'absolute', content: '""', height: '14px', width: '14px',
+                                                        left: customer.autorizado ? '19px' : '3px', bottom: '3px',
+                                                        backgroundColor: 'white', transition: '.4s', borderRadius: '50%'
+                                                    }} />
+                                                </span>
+                                            </label>
+                                            {customer.autorizado && <Shield size={14} color="var(--cor-sucesso, #10b981)" />}
+                                        </div>
+                                    </td>
+                                    <td>
                                         <div className="actions-cell">
+                                            <button title="Enviar Link do App" onClick={() => enviarLinkApp(customer)} style={{ color: '#10b981' }}><Smartphone size={16} /></button>
                                             <button title="Ver Detalhes" onClick={() => window.open(`https://wa.me/${customer.displayPhone.replace(/\D/g, '')}`, '_blank')}><ExternalLink size={16} /></button>
                                             <button title="Editar" onClick={() => openEditModal(customer)}><Edit2 size={16} /></button>
                                             <button className="danger" title="Excluir" onClick={() => handleDeleteClick(customer)}><Trash2 size={16} /></button>

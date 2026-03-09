@@ -55,15 +55,16 @@ export default function DashboardPage() {
         const timeoutId = setTimeout(() => controller.abort(), 10000)
 
         try {
-            const now = new Date()
-            const today = new Date()
-            today.setHours(0, 0, 0, 0)
+            // Use São Paulo timezone for all date boundaries
+            const spNow = new Date()
+            const spDateStr = spNow.toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' }) // 'YYYY-MM-DD'
+            const today = new Date(spDateStr + 'T00:00:00-03:00') // Midnight in SP
 
             const yesterday = new Date(today)
             yesterday.setDate(yesterday.getDate() - 1)
 
             const daysToFetch = parseInt(timeframe)
-            const startDate = new Date()
+            const startDate = new Date(today)
             startDate.setDate(startDate.getDate() - daysToFetch)
 
             // For revenue comparison, we need at least since yesterday
@@ -93,7 +94,7 @@ export default function DashboardPage() {
             const avgTicket = totalOrdersCount > 0 ? totalRevenue / totalOrdersCount : 0
 
             // New orders last hour
-            const oneHourAgo = new Date(now.getTime() - (60 * 60 * 1000))
+            const oneHourAgo = new Date(spNow.getTime() - (60 * 60 * 1000))
             const newOrdersLastHour = todayOrders.filter(o => new Date(o.criado_em) >= oneHourAgo).length
 
             // Revenue Comparison (vs Ontem)
@@ -114,21 +115,21 @@ export default function DashboardPage() {
             const ordersWithUpsell = orders?.filter(o => o.itens?.some(i => i.eh_upsell)).length || 0
             const realUpsellRate = orders?.length > 0 ? (ordersWithUpsell / orders.length) * 100 : 0
 
-            // 2. Chart Data
+            // 2. Chart Data (timezone-aware)
             const chartNodes = Array.from({ length: daysToFetch }, (_, i) => {
-                const date = new Date()
+                const date = new Date(today)
                 date.setDate(date.getDate() - (daysToFetch - 1 - i))
                 return {
                     name: daysToFetch > 7
-                        ? date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
-                        : date.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', ''),
-                    fullDate: date.toISOString().split('T')[0],
+                        ? date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', timeZone: 'America/Sao_Paulo' })
+                        : date.toLocaleDateString('pt-BR', { weekday: 'short', timeZone: 'America/Sao_Paulo' }).replace('.', ''),
+                    fullDate: date.toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' }),
                     valor: 0
                 }
             })
 
             orders.forEach(order => {
-                const orderDate = new Date(order.criado_em).toISOString().split('T')[0]
+                const orderDate = new Date(order.criado_em).toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' })
                 const day = chartNodes.find(d => d.fullDate === orderDate)
                 if (day) {
                     day.valor += Number(order.valor_total)

@@ -52,6 +52,11 @@ export function useOrders() {
                 clienteId = newClient.id
             }
 
+            // SAFETY CHECK: Prevent Delivery without a fee
+            if (orderData.tipo_pedido === 'entrega' && (!orderData.taxa_entrega || orderData.taxa_entrega <= 0)) {
+                throw new Error('Taxa de entrega inválida ou zerada. Por favor, verifique o endereço.')
+            }
+
             /* 2. Check for existing active order on this table (by mesa_id first, then comanda_id) */
             let pedido = null
             let isExistingComanda = false
@@ -161,6 +166,60 @@ export function useOrders() {
             if (itensErr) throw itensErr
 
             /* 4. Stock is handled automatically by DB trigger fn_trg_baixa_estoque_pedido */
+
+            /* 5. Rice stock auto-decrement (opcoes_personalizacao JSONB) */
+            try {
+                // Collect all rice choices from ordered items
+                const riceChoices = {}
+                for (const item of orderData.itens) {
+                    const arroz = item.personalizacao?.['Tipo de Arroz']
+                    if (arroz && typeof arroz === 'string') {
+                        riceChoices[arroz] = (riceChoices[arroz] || 0) + (item.quantidade || 1)
+                    }
+                }
+
+                if (Object.keys(riceChoices).length > 0) {
+                    // Fetch all espetinho products that have rice options
+                    const { data: espetoProducts } = await supabase
+                        .from('produtos')
+                        .select('id, opcoes_personalizacao, categoria_id, categorias(nome)')
+                        .not('opcoes_personalizacao', 'is', null)
+
+                    const espetinhos = (espetoProducts || []).filter(p =>
+                        p.categorias?.nome === 'Espetinhos' &&
+                        p.opcoes_personalizacao?.some(g => g.grupo === 'Tipo de Arroz')
+                    )
+
+                    for (const product of espetinhos) {
+                        const updated = JSON.parse(JSON.stringify(product.opcoes_personalizacao))
+                        const riceGroup = updated.find(g => g.grupo === 'Tipo de Arroz')
+                        if (!riceGroup) continue
+
+                        let changed = false
+                        for (const [riceName, qty] of Object.entries(riceChoices)) {
+                            const opt = riceGroup.opcoes.find(o =>
+                                (typeof o === 'string' ? o : o.nome) === riceName
+                            )
+                            if (opt && typeof opt === 'object' && opt.quantidade != null && opt.quantidade > 0) {
+                                opt.quantidade = Math.max(0, opt.quantidade - qty)
+                                if (opt.quantidade === 0) opt.disponivel = false
+                                changed = true
+                            }
+                        }
+
+                        if (changed) {
+                            await supabase
+                                .from('produtos')
+                                .update({ opcoes_personalizacao: updated })
+                                .eq('id', product.id)
+                        }
+                    }
+                    console.log('[Rice Stock] Decremented:', riceChoices)
+                }
+            } catch (riceErr) {
+                // Non-blocking: log but don't fail the order
+                console.error('[Rice Stock] Error decrementing:', riceErr)
+            }
 
             return pedido
         } catch (err) {

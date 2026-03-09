@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, X, Minus, Plus, MapPin, Truck, Store, Navigation, MapPinOff } from 'lucide-react'
 import { useCart } from '../../hooks/useCart'
 import { useProducts } from '../../hooks/useProducts'
+import { useOrders, useComanda } from '../../hooks/useOrders'
 import { useCustomer } from '../../context/CustomerContext'
 import { formatCurrency, getImageUrl, filterPersonalizacao } from '../../lib/utils'
 import { supabase } from '../../lib/supabase'
@@ -34,6 +35,11 @@ export default function CartPage() {
     const [tipoPedido, setTipoPedido] = useState(() => {
         return localStorage.getItem('espetinho_tipo_pedido') || 'entrega'
     })
+
+    const comandaId = tipoPedido === 'mesa' ? localStorage.getItem('espetinho_comanda_id') : null
+    const { orders: tableOrders, loading: loadingTableOrders } = useComanda(comandaId)
+    const tableItems = tableOrders.flatMap(o => o.itens_pedido || [])
+    const tableTotal = tableOrders.reduce((acc, order) => acc + (order.pago ? 0 : order.valor_total), 0)
 
     // Address State
     const [isAddressModalOpen, setIsAddressModalOpen] = useState(false)
@@ -304,7 +310,7 @@ export default function CartPage() {
         }
     }, [isPaused, upsellProducts?.length])
 
-    if (items.length === 0) {
+    if (items.length === 0 && tableItems.length === 0) {
         return (
             <div className="cart-empty animate-fade-in">
                 <span className="cart-empty__icon">🛒</span>
@@ -316,6 +322,9 @@ export default function CartPage() {
             </div>
         )
     }
+
+    // Protect finalize from attempting to create an empty local order
+    const canFinalize = items.length > 0
 
     return (
         <div className="cart-page animate-fade-in">
@@ -335,8 +344,76 @@ export default function CartPage() {
             </header>
 
             <div className={`cart-scroll hide-scrollbar ${isAddressModalOpen ? 'blur-bg' : ''}`}>
-                {/* Cart Items */}
+                {/* Table Items (Already ordered) */}
+                {tableItems.length > 0 && (
+                    <div className="cart-table-items" style={{ padding: '16px', background: '#f8f9fa', borderBottom: '1px solid #e9ecef' }}>
+                        <h3 style={{ fontSize: '15px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span>🍽️</span> Já pedidos nesta mesa
+                        </h3>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            {tableItems.map((item, idx) => (
+                                <div key={item.id || idx} style={{ display: 'flex', gap: '12px', opacity: 0.8 }}>
+                                    <div style={{ width: '48px', height: '48px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0, border: '1px solid #eee' }}>
+                                        <OptimizedImage
+                                            src={getImageUrl(item.produtos?.imagem_url) || 'https://via.placeholder.com/48?text=🍖'}
+                                            alt={item.produtos?.nome || 'Item'}
+                                            width={48}
+                                            height={48}
+                                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                        />
+                                    </div>
+                                    <div style={{ flex: 1 }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                            <h4 style={{ fontSize: '14px', margin: 0, fontWeight: '500' }}>
+                                                {item.quantidade}x {item.produtos?.nome}
+                                            </h4>
+                                            <span style={{ fontSize: '14px', fontWeight: '600' }}>
+                                                {formatCurrency(item.preco_unitario * item.quantidade)}
+                                            </span>
+                                        </div>
+                                        {item.variacoes_produto && (
+                                            <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '2px 0 0 0' }}>
+                                                Variação: {item.variacoes_produto.nome}
+                                            </p>
+                                        )}
+                                        {item.personalizacao && typeof item.personalizacao === 'object' && (() => {
+                                            const filtered = filterPersonalizacao(item.personalizacao, item.produtos?.nome)
+                                            return filtered.length > 0 && (
+                                                <div style={{ marginTop: '4px' }}>
+                                                    {filtered.map(({ key, value }, i) => (
+                                                        <p key={i} style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>
+                                                            <strong>{key}:</strong> {value}
+                                                        </p>
+                                                    ))}
+                                                </div>
+                                            )
+                                        })()}
+                                        {item.observacoes && (
+                                            <p style={{ fontSize: '12px', color: 'var(--cor-destaque)', fontWeight: '500', margin: '4px 0 0 0' }}>
+                                                OBS: {item.observacoes}
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                        <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px dashed #ccc', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontSize: '14px', fontWeight: '500', color: 'var(--text-secondary)' }}>Total já consumido</span>
+                            <span style={{ fontSize: '15px', fontWeight: '700', color: 'var(--text-primary)' }}>{formatCurrency(tableTotal)}</span>
+                        </div>
+                    </div>
+                )}
+
+                {/* Local Cart Items */}
                 <div className="cart-items">
+                    {items.length === 0 && tableItems.length > 0 && (
+                        <div style={{ padding: '24px 16px', textAlign: 'center' }}>
+                            <p style={{ color: 'var(--text-secondary)', fontSize: '14px', margin: 0 }}>Você não tem novos itens na sua sacola.</p>
+                            <Button onClick={() => navigate(customerCode ? `/${customerCode}` : '/')} style={{ marginTop: '16px' }}>
+                                Adicionar mais itens
+                            </Button>
+                        </div>
+                    )}
                     {items.map(item => {
                         const key = `${item.produto_id}-${item.variacao_id || 'default'}`
                         return (
@@ -523,32 +600,41 @@ export default function CartPage() {
                 )}
 
                 {/* Cart Summary */}
-                <div className="cart-summary">
-                    <div className="cart-summary__row">
-                        <span>Subtotal</span>
-                        <span>{formatCurrency(subtotal)}</span>
-                    </div>
-                    {tipoPedido === 'entrega' && (
+                {items.length > 0 && (
+                    <div className="cart-summary">
                         <div className="cart-summary__row">
-                            <span>Taxa de entrega</span>
-                            <span>{formatCurrency(taxaEntrega)}</span>
+                            <span>Subtotal (Novos)</span>
+                            <span>{formatCurrency(subtotal)}</span>
                         </div>
-                    )}
-                    <div className="cart-summary__divider" />
-                    <div className="cart-summary__total">
-                        <span>Total</span>
-                        <span className="cart-summary__total-value">{formatCurrency(total)}</span>
+                        {tipoPedido === 'entrega' && (
+                            <div className="cart-summary__row">
+                                <span>Taxa de entrega</span>
+                                <span>{formatCurrency(taxaEntrega)}</span>
+                            </div>
+                        )}
+                        <div className="cart-summary__divider" />
+                        <div className="cart-summary__total">
+                            <span>Total deste Pedido</span>
+                            <span className="cart-summary__total-value">{formatCurrency(total)}</span>
+                        </div>
+                        {tableItems.length > 0 && (
+                            <div className="cart-summary__row" style={{ marginTop: '8px', paddingTop: '8px', borderTop: '1px solid #eee' }}>
+                                <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Total Final da Mesa</span>
+                                <span style={{ fontSize: '13px', fontWeight: '600' }}>{formatCurrency(total + tableTotal)}</span>
+                            </div>
+                        )}
                     </div>
-                </div>
+                )}
             </div>
 
             {/* CTA Footer */}
             <div className="cart-footer">
                 <button
-                    className="cart-footer__btn"
-                    onClick={handleFinalize}
+                    className={`cart-footer__btn ${!canFinalize ? 'cart-footer__btn--disabled' : ''}`}
+                    onClick={() => canFinalize && handleFinalize()}
+                    style={{ opacity: canFinalize ? 1 : 0.5, cursor: canFinalize ? 'pointer' : 'not-allowed' }}
                 >
-                    Finalizar Pedido {formatCurrency(total)}
+                    {canFinalize ? `Finalizar Novos Itens ${formatCurrency(total)}` : 'Adicione itens para pedir'}
                 </button>
             </div>
 

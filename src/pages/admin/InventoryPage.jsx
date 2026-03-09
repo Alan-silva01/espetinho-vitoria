@@ -518,30 +518,84 @@ export default function InventoryPage() {
                                                                         const masterProduct = items.find(i => i.opcoes_personalizacao.some(g => g.grupo === gName))
                                                                         if (!masterProduct) return null
                                                                         const group = masterProduct.opcoes_personalizacao.find(g => g.grupo === gName)
+                                                                        const isRiceGroup = gName === 'Tipo de Arroz'
 
                                                                         return (
                                                                             <div key={gName} className="addon-group-item">
-                                                                                <h5>{group.grupo}</h5>
+                                                                                <h5>{group.grupo} {isRiceGroup && <span style={{ fontSize: '10px', color: '#9CA3AF', fontWeight: 400 }}>— Qtd. disponível</span>}</h5>
                                                                                 <div className="addon-options-grid">
                                                                                     {group.opcoes.map((opt, oIdx) => {
                                                                                         const name = typeof opt === 'string' ? opt : opt.nome
                                                                                         const isAvailable = typeof opt === 'string' ? true : (opt.disponivel !== false)
                                                                                         const isSaving = savingItem === `addon-${masterProduct.id}-${group.grupo}-${name}`
+                                                                                        const quantidade = typeof opt === 'object' ? (opt.quantidade ?? '') : ''
 
                                                                                         return (
                                                                                             <div key={oIdx} className={`addon-toggle-row ${!isAvailable ? 'off' : ''}`}>
                                                                                                 <span>{name}</span>
-                                                                                                <button
-                                                                                                    className={`addon-toggle-btn ${isAvailable ? 'on' : 'off'}`}
-                                                                                                    onClick={() => toggleAddonAvailability(masterProduct.id, group.grupo, name)}
-                                                                                                    disabled={isSaving}
-                                                                                                >
-                                                                                                    {isSaving ? (
-                                                                                                        <RefreshCw size={12} className="animate-spin" />
-                                                                                                    ) : (
-                                                                                                        <div className="toggle-knob" />
+                                                                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                                                                    {isRiceGroup && (
+                                                                                                        <input
+                                                                                                            type="number"
+                                                                                                            min="0"
+                                                                                                            placeholder="Qtd"
+                                                                                                            value={quantidade}
+                                                                                                            onChange={async (e) => {
+                                                                                                                const val = e.target.value === '' ? null : Math.max(0, parseInt(e.target.value) || 0)
+                                                                                                                setSavingItem(`addon-${masterProduct.id}-${group.grupo}-${name}`)
+                                                                                                                try {
+                                                                                                                    const affectedProducts = inventory.filter(p => p.categorias?.nome === 'Espetinhos')
+                                                                                                                    const updates = affectedProducts.map(async (p) => {
+                                                                                                                        const updatedPersonalization = JSON.parse(JSON.stringify(p.opcoes_personalizacao))
+                                                                                                                        const g = updatedPersonalization.find(gr => gr.grupo === gName)
+                                                                                                                        if (!g) return null
+                                                                                                                        const oi = g.opcoes.findIndex(o => (typeof o === 'string' ? o : o.nome) === name)
+                                                                                                                        if (oi === -1) return null
+                                                                                                                        const option = g.opcoes[oi]
+                                                                                                                        g.opcoes[oi] = typeof option === 'string'
+                                                                                                                            ? { nome: option, preco: 0, disponivel: val === null || val > 0, quantidade: val }
+                                                                                                                            : { ...option, disponivel: val === null || val > 0, quantidade: val }
+                                                                                                                        const { error } = await supabase
+                                                                                                                            .from('produtos')
+                                                                                                                            .update({ opcoes_personalizacao: updatedPersonalization })
+                                                                                                                            .eq('id', p.id)
+                                                                                                                        if (error) throw error
+                                                                                                                        return { id: p.id, updatedPersonalization }
+                                                                                                                    })
+                                                                                                                    const results = await Promise.all(updates)
+                                                                                                                    setInventory(prev => prev.map(p => {
+                                                                                                                        const res = results.find(r => r?.id === p.id)
+                                                                                                                        return res ? { ...p, opcoes_personalizacao: res.updatedPersonalization } : p
+                                                                                                                    }))
+                                                                                                                } catch (err) {
+                                                                                                                    console.error('Erro ao atualizar quantidade do arroz:', err)
+                                                                                                                } finally {
+                                                                                                                    setSavingItem(null)
+                                                                                                                }
+                                                                                                            }}
+                                                                                                            style={{
+                                                                                                                width: '60px',
+                                                                                                                padding: '4px 6px',
+                                                                                                                borderRadius: '6px',
+                                                                                                                border: '1px solid #D1D5DB',
+                                                                                                                fontSize: '13px',
+                                                                                                                textAlign: 'center',
+                                                                                                                background: isAvailable ? '#fff' : '#FEE2E2'
+                                                                                                            }}
+                                                                                                        />
                                                                                                     )}
-                                                                                                </button>
+                                                                                                    <button
+                                                                                                        className={`addon-toggle-btn ${isAvailable ? 'on' : 'off'}`}
+                                                                                                        onClick={() => toggleAddonAvailability(masterProduct.id, group.grupo, name)}
+                                                                                                        disabled={isSaving}
+                                                                                                    >
+                                                                                                        {isSaving ? (
+                                                                                                            <RefreshCw size={12} className="animate-spin" />
+                                                                                                        ) : (
+                                                                                                            <div className="toggle-knob" />
+                                                                                                        )}
+                                                                                                    </button>
+                                                                                                </div>
                                                                                             </div>
                                                                                         )
                                                                                     })}
