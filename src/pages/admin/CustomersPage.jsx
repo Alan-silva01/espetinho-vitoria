@@ -157,10 +157,21 @@ export default function CustomersPage() {
         }
     }
 
-    const filteredCustomers = customers.filter(c =>
-        c.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        c.email?.toLowerCase().includes(searchTerm.toLowerCase())
-    )
+    const filteredCustomers = customers.filter(c => {
+        const searchLow = searchTerm.toLowerCase()
+        const searchDigits = searchTerm.replace(/\D/g, '')
+
+        // Match by Name or Email
+        const matchesText = c.nome.toLowerCase().includes(searchLow) ||
+            c.email?.toLowerCase().includes(searchLow)
+
+        // Match by Phone (raw digits or formatted)
+        const phoneDigits = c.displayPhone?.replace(/\D/g, '') || ''
+        const matchesPhone = (searchDigits && phoneDigits.includes(searchDigits)) ||
+            c.displayPhone?.toLowerCase().includes(searchLow)
+
+        return matchesText || matchesPhone
+    })
 
     async function toggleAutorizado(id, newVal) {
         setCustomers(prev => prev.map(c => c.id === id ? { ...c, autorizado: newVal } : c))
@@ -243,7 +254,7 @@ export default function CustomersPage() {
                         <Search size={18} />
                         <input
                             type="text"
-                            placeholder="Buscar por nome ou email..."
+                            placeholder="Buscar por nome, WhatsApp ou e-mail..."
                             value={searchTerm}
                             onChange={e => setSearchTerm(e.target.value)}
                         />
