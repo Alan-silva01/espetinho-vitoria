@@ -22,6 +22,7 @@ export default function CartPage() {
     const [isValidationModalOpen, setIsValidationModalOpen] = useState(false)
     const [showLocationPrompt, setShowLocationPrompt] = useState(false)
     const [stockWarning, setStockWarning] = useState({ open: false, product: '', qty: 0 })
+    const [addressError, setAddressError] = useState({ open: false, message: '' })
 
     useEffect(() => {
         window.scrollTo(0, 0)
@@ -236,8 +237,23 @@ export default function CartPage() {
     }
 
     const handleSaveAddress = async (forceWithoutLocation = false) => {
-        if (!tempData.rua || !tempData.nome_recebedor || !tempData.telefone_recebedor) {
-            alert('Por favor, preencha os campos obrigatórios.')
+        // Validation: No pure emoji names
+        const hasText = /[a-zA-ZÀ-ÿ0-9]/.test(tempData.nome_recebedor)
+
+        if (!tempData.rua || !tempData.numero) {
+            setAddressError({ open: true, message: 'Por favor, informe a rua e o número da sua residência.' })
+            return
+        }
+        if (!tempData.bairro) {
+            setAddressError({ open: true, message: 'Você precisa selecionar seu bairro para calcularmos a entrega.' })
+            return
+        }
+        if (!tempData.nome_recebedor || !hasText) {
+            setAddressError({ open: true, message: 'Por favor, insira um nome válido (nomes apenas com emojis não são permitidos).' })
+            return
+        }
+        if (!tempData.telefone_recebedor || tempData.telefone_recebedor.length < 14) {
+            setAddressError({ open: true, message: 'Por favor, informe um WhatsApp válido para contato.' })
             return
         }
 
@@ -809,6 +825,30 @@ export default function CartPage() {
                                 style={{ marginTop: 8 }}
                             >
                                 Não, salvar sem localização
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {/* ADDRESS ERROR MODAL */}
+            {addressError.open && (
+                <div className="modal-backdrop" onClick={() => setAddressError({ open: false, message: '' })} style={{ zIndex: 10000 }}>
+                    <div className="bottom-sheet validation-modal" onClick={e => e.stopPropagation()}>
+                        <div className="bottom-sheet__handle" />
+                        <div className="validation-content">
+                            <div className="validation-icon" style={{ background: '#fef2f2', color: '#ef4444' }}>
+                                <X size={48} />
+                            </div>
+                            <h3>Dados Incompletos</h3>
+                            <p style={{ fontSize: '15px', color: 'var(--text-secondary)', marginBottom: '24px', lineHeight: '1.5' }}>
+                                {addressError.message}
+                            </p>
+
+                            <button
+                                className="btn btn-primary btn-md btn-full"
+                                onClick={() => setAddressError({ open: false, message: '' })}
+                            >
+                                Entendi, vou preencher
                             </button>
                         </div>
                     </div>
