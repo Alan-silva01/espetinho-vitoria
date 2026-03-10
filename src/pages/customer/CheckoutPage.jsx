@@ -97,6 +97,36 @@ export default function CheckoutPage() {
     const [observacoes, setObservacoes] = useState('')
     const [nomeRetirada, setNomeRetirada] = useState(customer?.nome || '')
     const [telefoneMesa, setTelefoneMesa] = useState('')
+    const [comandaDataLoaded, setComandaDataLoaded] = useState(false)
+
+    // Auto-fill name/phone from existing comanda ("Pedir Mais" flow)
+    useEffect(() => {
+        async function loadComandaData() {
+            const comandaId = localStorage.getItem('espetinho_comanda_id')
+            if (tipoPedido !== 'mesa' || !comandaId) return
+
+            const { data } = await supabase
+                .from('pedidos')
+                .select('nome_cliente, telefone_cliente')
+                .eq('comanda_id', comandaId)
+                .eq('pago', false)
+                .order('criado_em', { ascending: true })
+                .limit(1)
+
+            if (data && data.length > 0) {
+                const first = data[0]
+                if (first.nome_cliente) setNomeRetirada(first.nome_cliente)
+                if (first.telefone_cliente) {
+                    let v = first.telefone_cliente.replace(/\D/g, '')
+                    if (v.length > 6) v = `(${v.slice(0, 2)}) ${v.slice(2, 7)}-${v.slice(7)}`
+                    else if (v.length > 2) v = `(${v.slice(0, 2)}) ${v.slice(2)}`
+                    setTelefoneMesa(v)
+                }
+                setComandaDataLoaded(true)
+            }
+        }
+        loadComandaData()
+    }, [tipoPedido])
 
     // Sync data when customer loads
     useEffect(() => {
@@ -342,8 +372,8 @@ export default function CheckoutPage() {
                     </div>
                 )}
 
-                {/* Pickup / Mesa Name */}
-                {(tipoPedido === 'retirada' || tipoPedido === 'mesa') && (
+                {/* Pickup / Mesa Name — hide if comanda already has data */}
+                {(tipoPedido === 'retirada' || (tipoPedido === 'mesa' && !comandaDataLoaded)) && (
                     <section className="checkout-section">
                         <h2 className="checkout-section__title">
                             <User size={20} color="var(--cor-primaria)" /> {tipoPedido === 'mesa' ? 'Qual é o seu nome?' : 'Quem vai retirar?'}
