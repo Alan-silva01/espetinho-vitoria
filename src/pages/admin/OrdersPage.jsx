@@ -361,7 +361,8 @@ export default function OrdersPage() {
                         produtos(nome),
                         variacoes_produto(nome)
                     ),
-                    clientes(telefone, nome)
+                    clientes(telefone, nome),
+                    mesas(numero)
                 `)
                 .gte('criado_em', midnightISO)
                 .lt('criado_em', endISO)
@@ -908,7 +909,7 @@ export default function OrdersPage() {
                                                 <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
                                                     <span className={`type-tag ${order.tipo_pedido}`}>
                                                         {order.tipo_pedido === 'entrega' ? <Bike size={12} /> : order.tipo_pedido === 'mesa' ? <Utensils size={12} /> : <Store size={12} />}
-                                                        {order.tipo_pedido === 'mesa' ? order.nome_cliente : order.tipo_pedido}
+                                                        {order.tipo_pedido === 'mesa' ? (order.mesas ? `Mesa ${order.mesas.numero}` : 'Mesa') : order.tipo_pedido}
                                                     </span>
                                                     {order.status === 'cancelado' && (
                                                         <span style={{ background: '#DC2626', color: 'white', fontSize: '10px', fontWeight: '800', padding: '2px 8px', borderRadius: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>CANCELADO</span>
@@ -1027,7 +1028,7 @@ export default function OrdersPage() {
                                                 </div>
                                             </div>
                                             <p className="summary-meta">
-                                                {new Date(selectedOrder.criado_em).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })} • {new Date(selectedOrder.criado_em).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} • Cliente: {selectedOrder.nome_cliente} • {selectedOrder.tipo_pedido?.toUpperCase()}
+                                                {new Date(selectedOrder.criado_em).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })} • {new Date(selectedOrder.criado_em).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} • Cliente: {selectedOrder.nome_cliente} • {selectedOrder.tipo_pedido === 'mesa' && selectedOrder.mesas ? `MESA ${selectedOrder.mesas.numero}` : selectedOrder.tipo_pedido?.toUpperCase()}
                                             </p>
                                         </div>
 
