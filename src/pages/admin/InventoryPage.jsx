@@ -24,7 +24,7 @@ export default function InventoryPage() {
     const [activities, setActivities] = useState([])
     const [saving, setSaving] = useState(false)
     const [savingItem, setSavingItem] = useState(null)
-    const [isAddonsMode, setIsAddonsMode] = useState(false)
+    const [activeTab, setActiveTab] = useState('todos')
     const [error, setError] = useState(null)
 
     // Helper to normalize text (remove accents)
@@ -296,6 +296,22 @@ export default function InventoryPage() {
         }
     }
 
+    const matchesTab = (item) => {
+        if (activeTab === 'todos') return true
+        const cat = item.categorias?.nome || ''
+        const nome = (item.nome || '').toLowerCase()
+
+        if (activeTab === 'acais') return cat === 'Açaí'
+        if (activeTab === 'espetinhos') return cat === 'Espetinhos'
+        if (activeTab === 'caldos') return cat === 'Caldos'
+        if (activeTab === 'arroz') return cat === 'Porções' || nome.includes('arroz')
+        if (activeTab === 'refrigerantes') return cat === 'Bebidas' && (nome.includes('refrigerante') || nome.includes('coca') || nome.includes('guaraná') || nome.includes('sprite') || nome.includes('fanta') || nome.includes('pepsi') || nome.includes('kuat') || nome.includes('bare') || nome.includes('tuchaua') || nome.includes('lata') || nome.includes('litro'))
+        if (activeTab === 'jarras_sucos') return cat === 'Bebidas' && (nome.includes('jarra') || nome.includes('litro') && nome.includes('suco'))
+        if (activeTab === 'sucos_naturais') return cat === 'Bebidas' && (nome.includes('suco') || nome.includes('polpa')) && !nome.includes('jarra')
+
+        return true
+    }
+
     const groupedInventory = inventory.reduce((acc, item) => {
         const catName = item.categorias?.nome || 'Sem Categoria'
         if (!acc[catName]) acc[catName] = []
@@ -332,12 +348,6 @@ export default function InventoryPage() {
                         <span>Última sincronização: Agora</span>
                     </div>
                     <button
-                        className={`btn-toggle-addons ${isAddonsMode ? 'active' : ''}`}
-                        onClick={() => setIsAddonsMode(!isAddonsMode)}
-                    >
-                        {isAddonsMode ? 'Ajuste Rápido' : 'Ajustar Acompanhamentos'}
-                    </button>
-                    <button
                         className={`btn-save ${inventory.some(i => i.is_dirty) ? 'active' : ''}`}
                         onClick={saveChanges}
                         disabled={saving || !inventory.some(i => i.is_dirty)}
@@ -350,7 +360,7 @@ export default function InventoryPage() {
             <div className="inventory-layout-grid">
                 <div className="inventory-main-content">
                     {/* Search and Quick Filters */}
-                    <div className="inventory-toolbar">
+                    <div className="inventory-toolbar" style={{ marginBottom: '16px' }}>
                         <div className="search-bar-v2">
                             <Search size={18} />
                             <input
@@ -360,7 +370,20 @@ export default function InventoryPage() {
                                 onChange={e => setSearchTerm(e.target.value)}
                             />
                         </div>
-                        <button className="btn-filter"><Filter size={18} /> Filtros</button>
+                    </div>
+
+                    {/* Tabs / Botões Rápidos */}
+                    <div className="inventory-tabs hide-scrollbar">
+                        <button className={`inv-tab ${activeTab === 'todos' ? 'active' : ''}`} onClick={() => setActiveTab('todos')}>Todos</button>
+                        <button className={`inv-tab ${activeTab === 'acais' ? 'active' : ''}`} onClick={() => setActiveTab('acais')}>Açaís</button>
+                        <button className={`inv-tab ${activeTab === 'espetinhos' ? 'active' : ''}`} onClick={() => setActiveTab('espetinhos')}>Espetinhos</button>
+                        <button className={`inv-tab ${activeTab === 'caldos' ? 'active' : ''}`} onClick={() => setActiveTab('caldos')}>Caldos</button>
+                        <button className={`inv-tab ${activeTab === 'refrigerantes' ? 'active' : ''}`} onClick={() => setActiveTab('refrigerantes')}>Refrigerantes</button>
+                        <button className={`inv-tab ${activeTab === 'jarras_sucos' ? 'active' : ''}`} onClick={() => setActiveTab('jarras_sucos')}>Jarras de Suco</button>
+                        <button className={`inv-tab ${activeTab === 'sucos_naturais' ? 'active' : ''}`} onClick={() => setActiveTab('sucos_naturais')}>Sucos Naturais</button>
+                        <hr className="inv-tab-divider" />
+                        <button className={`inv-tab addon-tab ${activeTab === 'acomp_acai' ? 'active' : ''}`} onClick={() => setActiveTab('acomp_acai')}>Acomp. Açaí</button>
+                        <button className={`inv-tab addon-tab ${activeTab === 'acomp_espeto' ? 'active' : ''}`} onClick={() => setActiveTab('acomp_espeto')}>Acomp. Espetos</button>
                     </div>
 
                     {/* Quick Stats Grid */}
@@ -388,260 +411,214 @@ export default function InventoryPage() {
                         </div>
                     </div>
 
-                    {/* Fast Entry View or Addons View */}
-                    {!isAddonsMode ? (
-                        <div className="fast-entry-container animate-fade-in">
-                            <table className="fast-entry-table">
-                                <thead>
-                                    <tr>
-                                        <th>Produto</th>
-                                        <th>Categoria</th>
-                                        <th style={{ width: '120px' }}>Estoque Atual</th>
-                                        <th style={{ width: '100px' }}>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {inventory
-                                        .filter(matchesSearch)
-                                        .map(item => (
-                                            <tr key={item.id} className={item.is_dirty ? 'dirty' : ''}>
-                                                <td>
-                                                    <div className="fast-prod-info">
-                                                        <img src={item.imagem_url || 'https://via.placeholder.com/50'} alt="" />
-                                                        <strong>{item.nome}</strong>
-                                                    </div>
-                                                </td>
-                                                <td><span className="cat-pill">{item.categorias?.nome}</span></td>
-                                                <td>
-                                                    <input
-                                                        type="number"
-                                                        className="fast-input"
-                                                        value={item.atual}
-                                                        onChange={e => updateStock(item.id, 'atual', e.target.value)}
-                                                        min="0"
-                                                    />
-                                                </td>
-                                                <td>
-                                                    <span className={`status-text ${item.atual === 0 ? 'red' : item.percentage < 20 ? 'orange' : 'green'}`}>
-                                                        {item.atual === 0 ? 'Esgotado' : item.percentage < 20 ? 'Baixo' : 'OK'}
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                </tbody>
-                            </table>
+                    {/* Fast Entry View */}
+                    {activeTab !== 'acomp_acai' && activeTab !== 'acomp_espeto' && (
+                        <div className="fast-entry-container animate-fade-in" style={{ marginBottom: '24px' }}>
+                            {inventory.filter(matchesSearch).filter(matchesTab).length === 0 ? (
+                                <div style={{ padding: '60px 20px', textAlign: 'center', color: '#9CA3AF' }}>Nenhum produto encontrado nesta categoria.</div>
+                            ) : (
+                                <table className="fast-entry-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Produto</th>
+                                            <th>Categoria</th>
+                                            <th style={{ width: '120px' }}>Estoque Atual</th>
+                                            <th style={{ width: '100px' }}>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {inventory
+                                            .filter(matchesSearch)
+                                            .filter(matchesTab)
+                                            .map(item => (
+                                                <tr key={item.id} className={item.is_dirty ? 'dirty' : ''}>
+                                                    <td>
+                                                        <div className="fast-prod-info">
+                                                            <img src={item.imagem_url || 'https://via.placeholder.com/50'} alt="" />
+                                                            <strong>{item.nome}</strong>
+                                                        </div>
+                                                    </td>
+                                                    <td><span className="cat-pill">{item.categorias?.nome}</span></td>
+                                                    <td>
+                                                        <input
+                                                            type="number"
+                                                            className="fast-input"
+                                                            value={item.atual}
+                                                            onChange={e => updateStock(item.id, 'atual', e.target.value)}
+                                                            min="0"
+                                                        />
+                                                    </td>
+                                                    <td>
+                                                        <span className={`status-text ${item.atual === 0 ? 'red' : item.percentage < 20 ? 'orange' : 'green'}`}>
+                                                            {item.atual === 0 ? 'Esgotado' : item.percentage < 20 ? 'Baixo' : 'OK'}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                    </tbody>
+                                </table>
+                            )}
                         </div>
-                    ) : (
-                        <div className="inventory-sections">
-                            {Object.entries(groupedInventory).map(([catName, items]) => {
-                                const productsWithAddons = items.filter(i => i.opcoes_personalizacao?.length > 0 && matchesSearch(i))
-                                if (isAddonsMode && productsWithAddons.length === 0) return null
+                    )}
 
-                                return (
+                    {/* Addons & Flavors View */}
+                    <div className="inventory-sections animate-fade-in">
+                        {Object.entries(groupedInventory).map(([catName, items]) => {
+                            const productsWithAddons = items.filter(i => i.opcoes_personalizacao?.length > 0 && matchesSearch(i) && matchesTab(i))
+                            
+                            const isShowingAcaiAddon = activeTab === 'acomp_acai' && catName === 'Açaí'
+                            const isShowingEspetoAddon = activeTab === 'acomp_espeto' && catName === 'Espetinhos'
+
+                            if (productsWithAddons.length === 0 && !isShowingAcaiAddon && !isShowingEspetoAddon) return null
+
+                            // If specific accompaniment tab is active, hide everything else
+                            if (activeTab === 'acomp_acai' && !isShowingAcaiAddon) return null;
+                            if (activeTab === 'acomp_espeto' && !isShowingEspetoAddon) return null;
+
+                            return (
                                     <section key={catName} className="inventory-group">
-                                        <div className="group-header">
-                                            <h3>{catName}</h3>
-                                            <button className="view-all">Ver todos <ChevronRight size={14} /></button>
-                                        </div>
                                         <div className="inventory-grid-v2">
-                                            {isAddonsMode ? (
-                                                <>
-                                                    {/* Centralized card for Açaí additives (Inclusos e Pagos) */}
-                                                    {catName === 'Açaí' && items.length > 0 && (
-                                                        <div className="addon-management-card global-addons">
-                                                            <div className="addon-card-header">
-                                                                <img src={items[0]?.imagem_url || 'https://via.placeholder.com/150'} alt="" />
-                                                                <div>
-                                                                    <h4>Opções de Açaí (Global)</h4>
-                                                                    <p style={{ fontSize: '11px', color: '#6B7280' }}>Alteração aqui afeta todos os açaís</p>
-                                                                </div>
-                                                            </div>
-                                                            <div className="addon-groups-list">
-                                                                {(() => {
-                                                                    // Get unique group names for Açaí category
-                                                                    const groupNames = ['Escolha 2 Frutas (Inclusos)', 'Adicionais (Pagos)']
-
-                                                                    return groupNames.map(gName => {
-                                                                        const masterProduct = items.find(i => i.opcoes_personalizacao.some(g => g.grupo === gName))
-                                                                        if (!masterProduct) return null
-                                                                        const group = masterProduct.opcoes_personalizacao.find(g => g.grupo === gName)
-
-                                                                        return (
-                                                                            <div key={gName} className="addon-group-item">
-                                                                                <h5>{group.grupo}</h5>
-                                                                                <div className="addon-options-grid">
-                                                                                    {group.opcoes.map((opt, oIdx) => {
-                                                                                        const name = typeof opt === 'string' ? opt : opt.nome
-                                                                                        const isAvailable = typeof opt === 'string' ? true : (opt.disponivel !== false)
-                                                                                        const isSaving = savingItem === `addon-${masterProduct.id}-${group.grupo}-${name}`
-
-                                                                                        return (
-                                                                                            <div key={oIdx} className={`addon-toggle-row ${!isAvailable ? 'off' : ''}`}>
-                                                                                                <span>{name}</span>
-                                                                                                <button
-                                                                                                    className={`addon-toggle-btn ${isAvailable ? 'on' : 'off'}`}
-                                                                                                    onClick={() => toggleAddonAvailability(masterProduct.id, group.grupo, name)}
-                                                                                                    disabled={isSaving}
-                                                                                                >
-                                                                                                    {isSaving ? (
-                                                                                                        <RefreshCw size={12} className="animate-spin" />
-                                                                                                    ) : (
-                                                                                                        <div className="toggle-knob" />
-                                                                                                    )}
-                                                                                                </button>
-                                                                                            </div>
-                                                                                        )
-                                                                                    })}
-                                                                                </div>
-                                                                            </div>
-                                                                        )
-                                                                    })
-                                                                })()}
-                                                            </div>
+                                            {/* Centralized card for Açaí additives (Inclusos e Pagos) */}
+                                            {isShowingAcaiAddon && items.length > 0 && (
+                                                <div className="addon-management-card global-addons">
+                                                    <div className="addon-card-header">
+                                                        <img src={items[0]?.imagem_url || 'https://via.placeholder.com/150'} alt="" />
+                                                        <div>
+                                                            <h4>Opções de Açaí (Global)</h4>
+                                                            <p style={{ fontSize: '11px', color: '#6B7280' }}>Alteração aqui afeta todos os açaís</p>
                                                         </div>
-                                                    )}
+                                                    </div>
+                                                    <div className="addon-groups-list">
+                                                        {(() => {
+                                                            // Get unique group names for Açaí category
+                                                            const groupNames = ['Escolha 2 Frutas (Inclusos)', 'Adicionais (Pagos)']
 
-                                                    {/* Centralized card for Espetos (Arroz e Ponto) */}
-                                                    {catName === 'Espetinhos' && items.length > 0 && (
-                                                        <div className="addon-management-card global-addons espeto-addons">
-                                                            <div className="addon-card-header">
-                                                                <img src={items[0]?.imagem_url || 'https://via.placeholder.com/150'} alt="" />
-                                                                <div>
-                                                                    <h4>Opções de Espeto (Global)</h4>
-                                                                    <p style={{ fontSize: '11px', color: '#6B7280' }}>Alteração aqui afeta todos os espetinhos</p>
-                                                                </div>
-                                                            </div>
-                                                            <div className="addon-groups-list">
-                                                                {(() => {
-                                                                    const espetoGroups = ['Tipo de Arroz', 'Ponto da Carne', 'Acompanha', 'Adicionais']
-                                                                    return espetoGroups.map(gName => {
-                                                                        const masterProduct = items.find(i => i.opcoes_personalizacao.some(g => g.grupo === gName))
-                                                                        if (!masterProduct) return null
-                                                                        const group = masterProduct.opcoes_personalizacao.find(g => g.grupo === gName)
-                                                                        const isRiceGroup = gName === 'Tipo de Arroz'
+                                                            return groupNames.map(gName => {
+                                                                const masterProduct = items.find(i => i.opcoes_personalizacao.some(g => g.grupo === gName))
+                                                                if (!masterProduct) return null
+                                                                const group = masterProduct.opcoes_personalizacao.find(g => g.grupo === gName)
 
-                                                                        return (
-                                                                            <div key={gName} className="addon-group-item">
-                                                                                <h5>{group.grupo} {isRiceGroup && <span style={{ fontSize: '10px', color: '#9CA3AF', fontWeight: 400 }}>— Qtd. disponível</span>}</h5>
-                                                                                <div className="addon-options-grid">
-                                                                                    {group.opcoes.map((opt, oIdx) => {
-                                                                                        const name = typeof opt === 'string' ? opt : opt.nome
-                                                                                        const isAvailable = typeof opt === 'string' ? true : (opt.disponivel !== false)
-                                                                                        const isSaving = savingItem === `addon-${masterProduct.id}-${group.grupo}-${name}`
-                                                                                        const quantidade = typeof opt === 'object' ? (opt.quantidade ?? '') : ''
+                                                                return (
+                                                                    <div key={gName} className="addon-group-item">
+                                                                        <h5>{group.grupo}</h5>
+                                                                        <div className="addon-options-grid">
+                                                                            {group.opcoes.map((opt, oIdx) => {
+                                                                                const name = typeof opt === 'string' ? opt : opt.nome
+                                                                                const isAvailable = typeof opt === 'string' ? true : (opt.disponivel !== false)
+                                                                                const isSaving = savingItem === `addon-${masterProduct.id}-${group.grupo}-${name}`
 
-                                                                                        return (
-                                                                                            <div key={oIdx} className={`addon-toggle-row ${!isAvailable ? 'off' : ''}`}>
-                                                                                                <span>{name}</span>
-                                                                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                                                                    {isRiceGroup && (
-                                                                                                        <input
-                                                                                                            type="number"
-                                                                                                            min="0"
-                                                                                                            placeholder="Qtd"
-                                                                                                            value={quantidade}
-                                                                                                            onChange={async (e) => {
-                                                                                                                const val = e.target.value === '' ? null : Math.max(0, parseInt(e.target.value) || 0)
-                                                                                                                setSavingItem(`addon-${masterProduct.id}-${group.grupo}-${name}`)
-                                                                                                                try {
-                                                                                                                    const affectedProducts = inventory.filter(p => p.categorias?.nome === 'Espetinhos')
-                                                                                                                    const updates = affectedProducts.map(async (p) => {
-                                                                                                                        const updatedPersonalization = JSON.parse(JSON.stringify(p.opcoes_personalizacao))
-                                                                                                                        const g = updatedPersonalization.find(gr => gr.grupo === gName)
-                                                                                                                        if (!g) return null
-                                                                                                                        const oi = g.opcoes.findIndex(o => (typeof o === 'string' ? o : o.nome) === name)
-                                                                                                                        if (oi === -1) return null
-                                                                                                                        const option = g.opcoes[oi]
-                                                                                                                        g.opcoes[oi] = typeof option === 'string'
-                                                                                                                            ? { nome: option, preco: 0, disponivel: val === null || val > 0, quantidade: val }
-                                                                                                                            : { ...option, disponivel: val === null || val > 0, quantidade: val }
-                                                                                                                        const { error } = await supabase
-                                                                                                                            .from('produtos')
-                                                                                                                            .update({ opcoes_personalizacao: updatedPersonalization })
-                                                                                                                            .eq('id', p.id)
-                                                                                                                        if (error) throw error
-                                                                                                                        return { id: p.id, updatedPersonalization }
-                                                                                                                    })
-                                                                                                                    const results = await Promise.all(updates)
-                                                                                                                    setInventory(prev => prev.map(p => {
-                                                                                                                        const res = results.find(r => r?.id === p.id)
-                                                                                                                        return res ? { ...p, opcoes_personalizacao: res.updatedPersonalization } : p
-                                                                                                                    }))
-                                                                                                                } catch (err) {
-                                                                                                                    console.error('Erro ao atualizar quantidade do arroz:', err)
-                                                                                                                } finally {
-                                                                                                                    setSavingItem(null)
-                                                                                                                }
-                                                                                                            }}
-                                                                                                            style={{
-                                                                                                                width: '60px',
-                                                                                                                padding: '4px 6px',
-                                                                                                                borderRadius: '6px',
-                                                                                                                border: '1px solid #D1D5DB',
-                                                                                                                fontSize: '13px',
-                                                                                                                textAlign: 'center',
-                                                                                                                background: isAvailable ? '#fff' : '#FEE2E2'
-                                                                                                            }}
-                                                                                                        />
-                                                                                                    )}
-                                                                                                    <button
-                                                                                                        className={`addon-toggle-btn ${isAvailable ? 'on' : 'off'}`}
-                                                                                                        onClick={() => toggleAddonAvailability(masterProduct.id, group.grupo, name)}
-                                                                                                        disabled={isSaving}
-                                                                                                    >
-                                                                                                        {isSaving ? (
-                                                                                                            <RefreshCw size={12} className="animate-spin" />
-                                                                                                        ) : (
-                                                                                                            <div className="toggle-knob" />
-                                                                                                        )}
-                                                                                                    </button>
-                                                                                                </div>
-                                                                                            </div>
-                                                                                        )
-                                                                                    })}
-                                                                                </div>
-                                                                            </div>
-                                                                        )
-                                                                    })
-                                                                })()}
-                                                            </div>
+                                                                                return (
+                                                                                    <div key={oIdx} className={`addon-toggle-row ${!isAvailable ? 'off' : ''}`}>
+                                                                                        <span>{name}</span>
+                                                                                        <button
+                                                                                            className={`addon-toggle-btn ${isAvailable ? 'on' : 'off'}`}
+                                                                                            onClick={() => toggleAddonAvailability(masterProduct.id, group.grupo, name)}
+                                                                                            disabled={isSaving}
+                                                                                        >
+                                                                                            {isSaving ? (
+                                                                                                <RefreshCw size={12} className="animate-spin" />
+                                                                                            ) : (
+                                                                                                <div className="toggle-knob" />
+                                                                                            )}
+                                                                                        </button>
+                                                                                    </div>
+                                                                                )
+                                                                            })}
+                                                                        </div>
+                                                                    </div>
+                                                                )
+                                                            })
+                                                        })()}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Centralized card for Espetos (Arroz e Ponto) */}
+                                            {isShowingEspetoAddon && items.length > 0 && (
+                                                <div className="addon-management-card global-addons espeto-addons">
+                                                    <div className="addon-card-header">
+                                                        <img src={items[0]?.imagem_url || 'https://via.placeholder.com/150'} alt="" />
+                                                        <div>
+                                                            <h4>Opções de Espeto (Global)</h4>
+                                                            <p style={{ fontSize: '11px', color: '#6B7280' }}>Alteração aqui afeta todos os espetinhos</p>
                                                         </div>
-                                                    )}
+                                                    </div>
+                                                    <div className="addon-groups-list">
+                                                        {(() => {
+                                                            const espetoGroups = ['Tipo de Arroz', 'Ponto da Carne', 'Acompanha', 'Adicionais']
+                                                            return espetoGroups.map(gName => {
+                                                                const masterProduct = items.find(i => i.opcoes_personalizacao.some(g => g.grupo === gName))
+                                                                if (!masterProduct) return null
+                                                                const group = masterProduct.opcoes_personalizacao.find(g => g.grupo === gName)
+                                                                const isRiceGroup = gName === 'Tipo de Arroz'
 
-                                                    {/* Individual product inclusion cards */}
-                                                    {productsWithAddons.map(item => {
-                                                        const inclusionGroups = item.opcoes_personalizacao.filter(g =>
-                                                            g.grupo !== 'Adicionais (Pagos)' &&
-                                                            g.grupo !== 'Adicionais' &&
-                                                            g.grupo !== 'Tipo de Arroz' &&
-                                                            g.grupo !== 'Ponto da Carne' &&
-                                                            g.grupo !== 'Acompanha' &&
-                                                            (item.categorias?.nome !== 'Açaí' || g.grupo !== 'Escolha 2 Frutas (Inclusos)')
-                                                        )
-                                                        if (inclusionGroups.length === 0) return null
+                                                                return (
+                                                                    <div key={gName} className="addon-group-item">
+                                                                        <h5>{group.grupo} {isRiceGroup && <span style={{ fontSize: '10px', color: '#9CA3AF', fontWeight: 400 }}>— Qtd. disponível</span>}</h5>
+                                                                        <div className="addon-options-grid">
+                                                                            {group.opcoes.map((opt, oIdx) => {
+                                                                                const name = typeof opt === 'string' ? opt : opt.nome
+                                                                                const isAvailable = typeof opt === 'string' ? true : (opt.disponivel !== false)
+                                                                                const isSaving = savingItem === `addon-${masterProduct.id}-${group.grupo}-${name}`
+                                                                                const quantidade = typeof opt === 'object' ? (opt.quantidade ?? '') : ''
 
-                                                        return (
-                                                            <div key={item.id} className="addon-management-card">
-                                                                <div className="addon-card-header">
-                                                                    <img src={item.imagem_url || 'https://via.placeholder.com/150'} alt="" />
-                                                                    <h4>{item.nome}</h4>
-                                                                </div>
-                                                                <div className="addon-groups-list">
-                                                                    {inclusionGroups.map((group, gIdx) => (
-                                                                        <div key={gIdx} className="addon-group-item">
-                                                                            <h5>{group.grupo}</h5>
-                                                                            <div className="addon-options-grid">
-                                                                                {group.opcoes.map((opt, oIdx) => {
-                                                                                    const name = typeof opt === 'string' ? opt : opt.nome
-                                                                                    const isAvailable = typeof opt === 'string' ? true : (opt.disponivel !== false)
-                                                                                    const isSaving = savingItem === `addon-${item.id}-${group.grupo}-${name}`
-
-                                                                                    return (
-                                                                                        <div key={oIdx} className={`addon-toggle-row ${!isAvailable ? 'off' : ''}`}>
-                                                                                            <span>{name}</span>
+                                                                                return (
+                                                                                    <div key={oIdx} className={`addon-toggle-row ${!isAvailable ? 'off' : ''}`}>
+                                                                                        <span>{name}</span>
+                                                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                                                            {isRiceGroup && (
+                                                                                                <input
+                                                                                                    type="number"
+                                                                                                    min="0"
+                                                                                                    placeholder="Qtd"
+                                                                                                    value={quantidade}
+                                                                                                    onChange={async (e) => {
+                                                                                                        const val = e.target.value === '' ? null : Math.max(0, parseInt(e.target.value) || 0)
+                                                                                                        setSavingItem(`addon-${masterProduct.id}-${group.grupo}-${name}`)
+                                                                                                        try {
+                                                                                                            const affectedProducts = inventory.filter(p => p.categorias?.nome === 'Espetinhos')
+                                                                                                            const updates = affectedProducts.map(async (p) => {
+                                                                                                                const updatedPersonalization = JSON.parse(JSON.stringify(p.opcoes_personalizacao))
+                                                                                                                const g = updatedPersonalization.find(gr => gr.grupo === gName)
+                                                                                                                if (!g) return null
+                                                                                                                const oi = g.opcoes.findIndex(o => (typeof o === 'string' ? o : o.nome) === name)
+                                                                                                                if (oi === -1) return null
+                                                                                                                const option = g.opcoes[oi]
+                                                                                                                g.opcoes[oi] = typeof option === 'string'
+                                                                                                                    ? { nome: option, preco: 0, disponivel: val === null || val > 0, quantidade: val }
+                                                                                                                    : { ...option, disponivel: val === null || val > 0, quantidade: val }
+                                                                                                                const { error } = await supabase
+                                                                                                                    .from('produtos')
+                                                                                                                    .update({ opcoes_personalizacao: updatedPersonalization })
+                                                                                                                    .eq('id', p.id)
+                                                                                                                if (error) throw error
+                                                                                                                return { id: p.id, updatedPersonalization }
+                                                                                                            })
+                                                                                                            const results = await Promise.all(updates)
+                                                                                                            setInventory(prev => prev.map(p => {
+                                                                                                                const res = results.find(r => r?.id === p.id)
+                                                                                                                return res ? { ...p, opcoes_personalizacao: res.updatedPersonalization } : p
+                                                                                                            }))
+                                                                                                        } catch (err) {
+                                                                                                            console.error('Erro ao atualizar quantidade do arroz:', err)
+                                                                                                        } finally {
+                                                                                                            setSavingItem(null)
+                                                                                                        }
+                                                                                                    }}
+                                                                                                    style={{
+                                                                                                        width: '60px',
+                                                                                                        padding: '4px 6px',
+                                                                                                        borderRadius: '6px',
+                                                                                                        border: '1px solid #D1D5DB',
+                                                                                                        fontSize: '13px',
+                                                                                                        textAlign: 'center',
+                                                                                                        background: isAvailable ? '#fff' : '#FEE2E2'
+                                                                                                    }}
+                                                                                                />
+                                                                                            )}
                                                                                             <button
                                                                                                 className={`addon-toggle-btn ${isAvailable ? 'on' : 'off'}`}
-                                                                                                onClick={() => toggleAddonAvailability(item.id, group.grupo, name)}
+                                                                                                onClick={() => toggleAddonAvailability(masterProduct.id, group.grupo, name)}
                                                                                                 disabled={isSaving}
                                                                                             >
                                                                                                 {isSaving ? (
@@ -651,101 +628,76 @@ export default function InventoryPage() {
                                                                                                 )}
                                                                                             </button>
                                                                                         </div>
-                                                                                    )
-                                                                                })}
-                                                                            </div>
+                                                                                    </div>
+                                                                                )
+                                                                            })}
                                                                         </div>
-                                                                    ))}
-                                                                </div>
-                                                            </div>
-                                                        )
-                                                    })}
-                                                </>
-                                            ) : (
-                                                items
-                                                    .filter(matchesSearch)
-                                                    .map(item => (
-                                                        <div key={item.id} className={`inv-item-card ${item.atual === 0 ? 'empty' : item.percentage < 20 ? 'low' : ''} ${!item.controlar_estoque ? 'no-control' : ''}`}>
-                                                            <div className="item-img-box">
-                                                                <img src={item.imagem_url || 'https://via.placeholder.com/150'} alt={item.nome} />
-                                                                <div className="stock-label">
-                                                                    {item.atual === 0 ? 'Esgotado' : item.percentage < 20 ? 'Baixo Estoque' : 'Em Estoque'}
-                                                                </div>
-                                                            </div>
-                                                            <div className="item-details">
-                                                                <div className="item-title">
-                                                                    <h4>{item.nome}</h4>
-                                                                    <span className="sku">#ESP-{item.id.toString().slice(0, 2)}</span>
-                                                                </div>
-
-                                                                <div className="stock-metrics">
-                                                                    <div className="metric-box">
-                                                                        <span className="label">Inicial</span>
-                                                                        <input
-                                                                            type="number"
-                                                                            value={item.inicial}
-                                                                            onChange={e => updateStock(item.id, 'inicial', e.target.value)}
-                                                                        />
                                                                     </div>
-                                                                    <div className="metric-box blue">
-                                                                        <span className="label">Vendidos</span>
-                                                                        <span className="val">{item.vendidos}</span>
-                                                                    </div>
-                                                                    <div className="metric-box green">
-                                                                        <span className="label">Atual</span>
-                                                                        <span className="val">{item.atual}</span>
-                                                                    </div>
-                                                                </div>
-
-                                                                <div className="stock-progress">
-                                                                    <div className="progress-info">
-                                                                        <span>Status</span>
-                                                                        <span>{Math.round(item.percentage)}%</span>
-                                                                    </div>
-                                                                    <div className="progress-bar">
-                                                                        <div
-                                                                            className="fill"
-                                                                            style={{
-                                                                                width: `${item.percentage}%`,
-                                                                                background: item.percentage < 20 ? '#EF4444' : item.percentage < 50 ? '#F59E0B' : '#10B981'
-                                                                            }}
-                                                                        />
-                                                                    </div>
-                                                                </div>
-
-                                                                <button
-                                                                    className={`btn-out-manual ${item.atual === 0 ? 'is-out' : ''}`}
-                                                                    onClick={() => handleImmediateOut(item)}
-                                                                    disabled={savingItem === item.id}
-                                                                >
-                                                                    {savingItem === item.id ? (
-                                                                        <>
-                                                                            <RefreshCw size={14} className="animate-spin" />
-                                                                            Salvando...
-                                                                        </>
-                                                                    ) : item.atual === 0 ? (
-                                                                        <>
-                                                                            <CheckCircle2 size={14} />
-                                                                            Produto Esgotado
-                                                                        </>
-                                                                    ) : (
-                                                                        <>
-                                                                            <XCircle size={14} />
-                                                                            Marcar Esgotado
-                                                                        </>
-                                                                    )}
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    ))
+                                                                )
+                                                            })
+                                                        })()}
+                                                    </div>
+                                                </div>
                                             )}
+
+                                            {/* Individual product inclusion cards (Sabores Sucos, Refrigerantes, etc) */}
+                                            {activeTab !== 'acomp_acai' && activeTab !== 'acomp_espeto' && productsWithAddons.map(item => {
+                                                const inclusionGroups = item.opcoes_personalizacao.filter(g =>
+                                                    g.grupo !== 'Adicionais (Pagos)' &&
+                                                    g.grupo !== 'Adicionais' &&
+                                                    g.grupo !== 'Tipo de Arroz' &&
+                                                    g.grupo !== 'Ponto da Carne' &&
+                                                    g.grupo !== 'Acompanha' &&
+                                                    (item.categorias?.nome !== 'Açaí' || g.grupo !== 'Escolha 2 Frutas (Inclusos)')
+                                                )
+                                                if (inclusionGroups.length === 0) return null
+
+                                                return (
+                                                    <div key={item.id} className="addon-management-card">
+                                                        <div className="addon-card-header">
+                                                            <img src={item.imagem_url || 'https://via.placeholder.com/150'} alt="" />
+                                                            <h4>{item.nome}</h4>
+                                                        </div>
+                                                        <div className="addon-groups-list">
+                                                            {inclusionGroups.map((group, gIdx) => (
+                                                                <div key={gIdx} className="addon-group-item">
+                                                                    <h5>{group.grupo}</h5>
+                                                                    <div className="addon-options-grid">
+                                                                        {group.opcoes.map((opt, oIdx) => {
+                                                                            const name = typeof opt === 'string' ? opt : opt.nome
+                                                                            const isAvailable = typeof opt === 'string' ? true : (opt.disponivel !== false)
+                                                                            const isSaving = savingItem === `addon-${item.id}-${group.grupo}-${name}`
+
+                                                                            return (
+                                                                                <div key={oIdx} className={`addon-toggle-row ${!isAvailable ? 'off' : ''}`}>
+                                                                                    <span>{name}</span>
+                                                                                    <button
+                                                                                        className={`addon-toggle-btn ${isAvailable ? 'on' : 'off'}`}
+                                                                                        onClick={() => toggleAddonAvailability(item.id, group.grupo, name)}
+                                                                                        disabled={isSaving}
+                                                                                    >
+                                                                                        {isSaving ? (
+                                                                                            <RefreshCw size={12} className="animate-spin" />
+                                                                                        ) : (
+                                                                                            <div className="toggle-knob" />
+                                                                                        )}
+                                                                                    </button>
+                                                                                </div>
+                                                                            )
+                                                                        })}
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                )
+                                            })}
                                         </div>
                                     </section>
                                 )
                             })}
                         </div>
-                    )}
-                </div>
+                    </div>
 
                 {/* Activity Sidebar */}
                 <aside className="inventory-sidebar">

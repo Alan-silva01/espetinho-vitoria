@@ -97,7 +97,75 @@
 .inventory-toolbar {
     display: flex;
     gap: 16px;
+}
+
+/* Tabs */
+.inventory-tabs {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 8px;
     margin-bottom: 24px;
+    align-items: center;
+}
+
+.inv-tab {
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid #E5E7EB;
+    background: white;
+    color: #4B5563;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+}
+
+.inv-tab:hover {
+    background: #F9FAFB;
+    border-color: #D1D5DB;
+}
+
+.inv-tab.active {
+    background: #111827;
+    color: white;
+    border-color: #111827;
+}
+
+.inv-tab-divider {
+    height: 24px;
+    width: 1px;
+    background: #E5E7EB;
+    border: none;
+    margin: 0 4px;
+}
+
+.inv-tab.addon-tab {
+    background: #FEF3C7;
+    border-color: #FDE68A;
+    color: #92400E;
+}
+
+.inv-tab.addon-tab:hover {
+    background: #FDE68A;
+}
+
+.inv-tab.addon-tab.active {
+    background: #D97706;
+    border-color: #D97706;
+    color: white;
+}
+
+.dark .inv-tab {
+    background: #1F2937;
+    border-color: #374151;
+    color: #E5E7EB;
+}
+
+.dark .inv-tab.active {
+    background: white;
+    color: #111827;
 }
 
 .search-bar-v2 {
@@ -885,11 +953,13 @@
 .addon-toggle-btn.on .toggle-knob {
     transform: translateX(20px);
 }
+
 /* Global Addons Card Special Styling */
 .addon-management-card.global-addons {
     border: 2px solid #BFDBFE;
     background: #F0F9FF;
-    grid-column: 1 / -1; /* Make it take full width or stand out */
+    grid-column: 1 / -1;
+    /* Make it take full width or stand out */
     margin-bottom: 20px;
 }
 
