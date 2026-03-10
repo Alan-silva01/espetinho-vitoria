@@ -302,11 +302,14 @@ export function useOrderTracking(orderId) {
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        if (!orderId) return
+        if (!orderId) {
+            setLoading(false)
+            return
+        }
 
         let isMounted = true
 
-        /* Fetch full order data */
+        /* Fetch full order data with all relations */
         async function fetchOrder() {
             const { data, error } = await supabase
                 .from('pedidos')
@@ -332,31 +335,43 @@ export function useOrderTracking(orderId) {
                     filter: `id=eq.${orderId}`,
                 },
                 (payload) => {
-                    console.log('[useOrderTracking] Pedido atualizado:', payload.new)
+                    console.log('[useOrderTracking] Pedido atualizado:', payload.new?.status)
                     if (payload.new && isMounted) {
-                        setOrder(prev => prev ? { ...prev, ...payload.new } : prev)
+                        // Safe merge: preserve relations that Realtime doesn't include
+                        setOrder(prev => {
+                            if (!prev) return prev
+                            return {
+                                ...prev,
+                                ...payload.new,
+                                itens_pedido: prev.itens_pedido,
+                                entregadores: prev.entregadores,
+                                clientes: prev.clientes
+                            }
+                        })
+
+                        // Full re-fetch to sync relations (entregador assignment, etc)
+                        fetchOrder()
                     }
                 }
             )
             .subscribe((status) => {
-                console.log(`[useOrderTracking] Status inscricao (${orderId}):`, status)
+                console.log(`[useOrderTracking] Subscription status (${orderId}):`, status)
             })
 
         /* Visibility change: re-fetch when user returns to the tab/app */
         function handleVisibilityChange() {
             if (document.visibilityState === 'visible' && isMounted) {
-                console.log('[useOrderTracking] Tab visible again, re-fetching...')
                 fetchOrder()
             }
         }
         document.addEventListener('visibilitychange', handleVisibilityChange)
 
-        /* Polling fallback: every 15s as safety net for dropped WebSocket */
+        /* Polling fallback: every 10s as safety net for dropped WebSocket */
         const pollInterval = setInterval(() => {
             if (document.visibilityState === 'visible' && isMounted) {
                 fetchOrder()
             }
-        }, 15000)
+        }, 10000)
 
         return () => {
             isMounted = false
@@ -462,21 +477,24 @@ export function useComanda(comandaId) {
                     event: '*',
                     schema: 'public',
                     table: 'pedidos',
-                    filter: `comanda_id=eq.${comandaId}`, // We filter in JS or filter precisely here
+                    filter: `comanda_id=eq.${comandaId}`,
                 },
-                (payload) => {
-                    // Refresh if the updated/inserted order is not paid
-                    if (payload.new && payload.new.pago === true) {
-                        fetchOrders() // This will clear the items because of the .eq('pago', false) filter
-                    } else {
-                        fetchOrders()
-                    }
+                () => {
+                    fetchOrders()
                 }
             )
             .subscribe()
 
+        // Polling backup: safety net every 20s in case WebSocket drops
+        const pollInterval = setInterval(() => {
+            if (document.visibilityState === 'visible') {
+                fetchOrders()
+            }
+        }, 20000)
+
         return () => {
             supabase.removeChannel(channel)
+            clearInterval(pollInterval)
         }
     }, [comandaId, fetchOrders])
 

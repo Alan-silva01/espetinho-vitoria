@@ -1,7 +1,9 @@
+import { useState, useEffect } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { Home, ShoppingCart, Heart, ClipboardList } from 'lucide-react'
 import { useCart } from '../../hooks/useCart'
-import { useOrderTracking, useComanda } from '../../hooks/useOrders'
+import { useComanda } from '../../hooks/useOrders'
+import { supabase } from '../../lib/supabase'
 import { getStatusLabel } from '../../lib/utils'
 import './BottomNav.css'
 
@@ -11,9 +13,30 @@ export default function BottomNav() {
     const { customerCode } = useParams()
     const { totalItems } = useCart()
 
-    // Order tracking for Bottom Nav
+    // Lightweight order status polling (no WebSocket to avoid duplicate subscriber)
     const lastOrderId = localStorage.getItem('espetinho_ultimo_pedido_id')
-    const { order: activeOrder } = useOrderTracking(lastOrderId)
+    const [activeOrder, setActiveOrder] = useState(null)
+
+    useEffect(() => {
+        if (!lastOrderId) return
+
+        async function fetchStatus() {
+            const { data } = await supabase
+                .from('pedidos')
+                .select('id, status, tipo_pedido')
+                .eq('id', lastOrderId)
+                .single()
+            if (data) setActiveOrder(data)
+        }
+
+        fetchStatus()
+        const interval = setInterval(() => {
+            if (document.visibilityState === 'visible') fetchStatus()
+        }, 10000)
+
+        return () => clearInterval(interval)
+    }, [lastOrderId])
+
     const hasActiveOrder = activeOrder && ['pendente', 'confirmado', 'preparando', 'pronto', 'saiu_entrega'].includes(activeOrder.status)
 
     // Comanda filter for Mesa privacy
