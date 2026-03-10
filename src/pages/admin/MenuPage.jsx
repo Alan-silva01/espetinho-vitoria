@@ -250,6 +250,49 @@ export default function MenuPage() {
             }
         }
 
+        // === SINCRONIZAÇÃO GLOBAL DE ACOMPANHAMENTOS PARA ESPETINHOS ===
+        if (!error && productId) {
+            const categoriaSalva = categories.find(c => c.id === formData.categoria_id)
+            if (categoriaSalva && categoriaSalva.nome === 'Espetinhos') {
+                const gruposParaSincronizar = ['Acompanha', 'Adicionais', 'Tipo de Arroz', 'Ponto da Carne']
+
+                // Extrai apenas os grupos alvo da edição atual
+                const opcoesSincronizadas = formData.opcoes_personalizacao.filter(g =>
+                    gruposParaSincronizar.includes(g.grupo)
+                )
+
+                if (opcoesSincronizadas.length > 0) {
+                    try {
+                        const { data: espetinhos, error: fetchErr } = await supabase
+                            .from('produtos')
+                            .select('id, opcoes_personalizacao')
+                            .eq('categoria_id', formData.categoria_id)
+                            .neq('id', productId)
+
+                        if (!fetchErr && espetinhos && espetinhos.length > 0) {
+                            for (const espeto of espetinhos) {
+                                const opcoesAtuais = Array.isArray(espeto.opcoes_personalizacao) ? espeto.opcoes_personalizacao : []
+
+                                // Mantém grupos que NÃO são parte da sincronização global
+                                const opcoesRestantes = opcoesAtuais.filter(g =>
+                                    !gruposParaSincronizar.includes(g.grupo)
+                                )
+
+                                const novasOpcoes = [...opcoesRestantes, ...opcoesSincronizadas]
+
+                                await supabase
+                                    .from('produtos')
+                                    .update({ opcoes_personalizacao: novasOpcoes })
+                                    .eq('id', espeto.id)
+                            }
+                        }
+                    } catch (syncErr) {
+                        console.error('Erro ao sincronizar opções globais de espetinhos:', syncErr)
+                    }
+                }
+            }
+        }
+
         if (!error) {
             setIsModalOpen(false)
             setEditingProduct(null)

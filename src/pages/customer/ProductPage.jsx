@@ -89,11 +89,21 @@ export default function ProductPage() {
     useEffect(() => {
         if (!product?.opcoes_personalizacao) return
         const defaults = {}
+        const isEspetinho = product.categoria?.nome === 'Espetinhos' || product.nome?.toLowerCase().includes('espetinho')
+
         product.opcoes_personalizacao.forEach(group => {
             if (group.padrao) {
                 defaults[group.grupo] = group.padrao
             } else if (group.tipo === 'checkbox') {
-                defaults[group.grupo] = []
+                if (isEspetinho) {
+                    // Pré-selecionar automaticamente os acompanhamentos gratuitos/inclusos
+                    const inclusos = group.opcoes
+                        .filter(opt => optPreco(opt) === 0)
+                        .map(opt => optName(opt))
+                    defaults[group.grupo] = inclusos
+                } else {
+                    defaults[group.grupo] = []
+                }
             } else {
                 defaults[group.grupo] = ''
             }
