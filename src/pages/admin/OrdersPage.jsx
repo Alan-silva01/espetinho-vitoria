@@ -4,7 +4,7 @@ import {
     MoreHorizontal, Phone, MapPin, DollarSign,
     User, ChevronRight, X, Utensils, Timer,
     Store, Bike, Play, Check, Calendar, Search, Bell, Printer, RefreshCw, Receipt, Trash2,
-    ReceiptText, ChefHat, GlassWater, IceCreamCone, UtensilsCrossed, XCircle, CheckCircle, ArrowRight
+    ReceiptText, ChefHat, GlassWater, IceCreamCone, UtensilsCrossed, XCircle, CheckCircle, ArrowRight, RotateCcw
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { formatCurrency, filterPersonalizacao, getSmartItemName } from '../../lib/utils'
@@ -89,6 +89,7 @@ export default function OrdersPage() {
     const inFlightRef = useRef(new Set()) // Guards concurrent updates
     const [comandaToFinalize, setComandaToFinalize] = useState(null)
     const [orderToCancel, setOrderToCancel] = useState(null)
+    const [orderToReactivate, setOrderToReactivate] = useState(null)
     const ordersRef = useRef(orders) // Always-fresh orders reference
     const lastFetchTimeRef = useRef(0) // Cooldown: prevents rapid-fire fetches
     const pendingFetchTimerRef = useRef(null) // Debounce: coalesces multiple realtime events
@@ -543,13 +544,14 @@ export default function OrdersPage() {
 
     const handleCancelOrder = async (orderId) => {
         const previousOrders = [...ordersRef.current]
-        setOrders(prev => prev.filter(o => o.id !== orderId))
+        // Soft-delete: update status to 'cancelado' instead of deleting
+        setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: 'cancelado' } : o))
         if (selectedOrder?.id === orderId) setSelectedOrder(null)
 
         try {
             const { error } = await supabase
                 .from('pedidos')
-                .delete()
+                .update({ status: 'cancelado' })
                 .eq('id', orderId)
 
             if (error) throw error
@@ -557,6 +559,24 @@ export default function OrdersPage() {
             console.error('Erro ao cancelar pedido:', error)
             setOrders(previousOrders)
             alert('Erro ao cancelar pedido. Tente novamente.')
+        }
+    }
+
+    const handleReactivateOrder = async (orderId) => {
+        const previousOrders = [...ordersRef.current]
+        setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: 'confirmado' } : o))
+
+        try {
+            const { error } = await supabase
+                .from('pedidos')
+                .update({ status: 'confirmado' })
+                .eq('id', orderId)
+
+            if (error) throw error
+        } catch (error) {
+            console.error('Erro ao reativar pedido:', error)
+            setOrders(previousOrders)
+            alert('Erro ao reativar pedido. Tente novamente.')
         }
     }
 
@@ -836,7 +856,10 @@ export default function OrdersPage() {
             <div className="kanban-scroller hide-scrollbar">
                 <div className="kanban-board">
                     {STAGES.map(stage => {
-                        const stageOrders = filteredOrders.filter(o => o.status === stage.id)
+                        // Cancelled orders go into the 'entregue' (Concluído) column
+                        const stageOrders = stage.id === 'entregue'
+                            ? filteredOrders.filter(o => o.status === stage.id || o.status === 'cancelado')
+                            : filteredOrders.filter(o => o.status === stage.id)
 
                         return (
                             <div
@@ -878,14 +901,19 @@ export default function OrdersPage() {
                                                 }
                                                 onTouchEnd(e)
                                             }}
-                                            className={`order-card-v2 ${(order.status === 'preparando' || order.status === 'pronto') ? 'border-purple' : order.status === 'saiu_entrega' ? 'border-orange' : order.status === 'entregue' ? 'border-green' : ''}`}
+                                            className={`order-card-v2 ${order.status === 'cancelado' ? 'cancelled' : (order.status === 'preparando' || order.status === 'pronto') ? 'border-purple' : order.status === 'saiu_entrega' ? 'border-orange' : order.status === 'entregue' ? 'border-green' : ''}`}
                                             onClick={() => setSelectedOrder(order)}
                                         >
                                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                                                <span className={`type-tag ${order.tipo_pedido}`}>
-                                                    {order.tipo_pedido === 'entrega' ? <Bike size={12} /> : order.tipo_pedido === 'mesa' ? <Utensils size={12} /> : <Store size={12} />}
-                                                    {order.tipo_pedido === 'mesa' ? order.nome_cliente : order.tipo_pedido}
-                                                </span>
+                                                <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
+                                                    <span className={`type-tag ${order.tipo_pedido}`}>
+                                                        {order.tipo_pedido === 'entrega' ? <Bike size={12} /> : order.tipo_pedido === 'mesa' ? <Utensils size={12} /> : <Store size={12} />}
+                                                        {order.tipo_pedido === 'mesa' ? order.nome_cliente : order.tipo_pedido}
+                                                    </span>
+                                                    {order.status === 'cancelado' && (
+                                                        <span style={{ background: '#DC2626', color: 'white', fontSize: '10px', fontWeight: '800', padding: '2px 8px', borderRadius: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>CANCELADO</span>
+                                                    )}
+                                                </div>
                                                 <div style={{ fontSize: '12px', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '4px' }}>
                                                     <Timer size={12} />
                                                     <span>{getMinutesAgo(order.criado_em)} min atrás</span>
@@ -908,21 +936,34 @@ export default function OrdersPage() {
 
                                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #f8fafc' }}>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                    <button
-                                                        className="btn-cancel-card"
-                                                        title="Cancelar pedido"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation()
-                                                            setOrderToCancel(order)
-                                                        }}
-                                                    >
-                                                        <Trash2 size={16} />
-                                                    </button>
-                                                    <span style={{ fontSize: '14px', fontWeight: 'bold', color: '#0f172a' }}>{formatCurrency(order.valor_total)}</span>
+                                                    {order.status !== 'cancelado' && (
+                                                        <button
+                                                            className="btn-cancel-card"
+                                                            title="Cancelar pedido"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation()
+                                                                setOrderToCancel(order)
+                                                            }}
+                                                        >
+                                                            <Trash2 size={16} />
+                                                        </button>
+                                                    )}
+                                                    <span style={{ fontSize: '14px', fontWeight: 'bold', color: order.status === 'cancelado' ? '#94a3b8' : '#0f172a', textDecoration: order.status === 'cancelado' ? 'line-through' : 'none' }}>{formatCurrency(order.valor_total)}</span>
                                                 </div>
 
                                                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                                                    {stage.next && (
+                                                    {order.status === 'cancelado' ? (
+                                                        <button
+                                                            className="quick-action stage-confirmado"
+                                                            style={{ background: '#10B981', borderColor: '#059669' }}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation()
+                                                                setOrderToReactivate(order)
+                                                            }}
+                                                        >
+                                                            <RotateCcw size={14} style={{ marginRight: '4px' }} /> Reativar
+                                                        </button>
+                                                    ) : stage.next && (
                                                         <button
                                                             className={`quick-action stage-${stage.next}`}
                                                             onClick={(e) => {
@@ -979,9 +1020,10 @@ export default function OrdersPage() {
                                                 <h3>Pedido {selectedOrder.numero_pedido}</h3>
                                                 <div className={`status-badge-v5 ${selectedOrder.status}`}>
                                                     <Timer size={14} />
-                                                    {selectedOrder.status === 'confirmado' ? 'Confirmado' :
-                                                        selectedOrder.status === 'preparando' ? 'Em Preparo' :
-                                                            selectedOrder.status === 'saiu_entrega' ? 'Em Entrega' : 'Entregue'}
+                                                    {selectedOrder.status === 'cancelado' ? 'Cancelado' :
+                                                        selectedOrder.status === 'confirmado' ? 'Confirmado' :
+                                                            selectedOrder.status === 'preparando' ? 'Em Preparo' :
+                                                                selectedOrder.status === 'saiu_entrega' ? 'Em Entrega' : 'Entregue'}
                                                 </div>
                                             </div>
                                             <p className="summary-meta">
@@ -1088,24 +1130,41 @@ export default function OrdersPage() {
                                     </div>
 
                                     <div className="v5-footer-actions">
-                                        <button className="btn-v5-cancel" onClick={() => setOrderToCancel(selectedOrder)}>
-                                            <XCircle size={20} />
-                                            CANCELAR PEDIDO
-                                        </button>
-
-                                        {selectedOrder.status === 'saiu_entrega' ? (
-                                            <button className="btn-v5-finish" onClick={() => {
-                                                handleStatusChange(selectedOrder.id, 'entregue');
-                                                setSelectedOrder(null);
-                                            }}>
-                                                <CheckCircle size={20} />
-                                                FINALIZAR ENTREGA
-                                            </button>
+                                        {selectedOrder.status === 'cancelado' ? (
+                                            <>
+                                                <button className="btn-v5-finish" onClick={() => setSelectedOrder(null)}>
+                                                    <ArrowRight size={20} />
+                                                    VOLTAR AO KANBAN
+                                                </button>
+                                                <button className="btn-v5-finish" style={{ background: '#10B981' }} onClick={() => {
+                                                    setOrderToReactivate(selectedOrder)
+                                                    setSelectedOrder(null)
+                                                }}>
+                                                    <RotateCcw size={20} />
+                                                    REATIVAR PEDIDO
+                                                </button>
+                                            </>
                                         ) : (
-                                            <button className="btn-v5-finish" onClick={() => setSelectedOrder(null)}>
-                                                <ArrowRight size={20} />
-                                                VOLTAR AO KANBAN
-                                            </button>
+                                            <>
+                                                <button className="btn-v5-cancel" onClick={() => setOrderToCancel(selectedOrder)}>
+                                                    <XCircle size={20} />
+                                                    CANCELAR PEDIDO
+                                                </button>
+                                                {selectedOrder.status === 'saiu_entrega' ? (
+                                                    <button className="btn-v5-finish" onClick={() => {
+                                                        handleStatusChange(selectedOrder.id, 'entregue');
+                                                        setSelectedOrder(null);
+                                                    }}>
+                                                        <CheckCircle size={20} />
+                                                        FINALIZAR ENTREGA
+                                                    </button>
+                                                ) : (
+                                                    <button className="btn-v5-finish" onClick={() => setSelectedOrder(null)}>
+                                                        <ArrowRight size={20} />
+                                                        VOLTAR AO KANBAN
+                                                    </button>
+                                                )}
+                                            </>
                                         )}
                                     </div>
 
@@ -1300,7 +1359,20 @@ export default function OrdersPage() {
                     handleCancelOrder(id)
                 }}
                 title="Cancelar Pedido?"
-                message={`Tem certeza que deseja cancelar o pedido #PED-${orderToCancel?.numero_pedido}? Esta ação não pode ser desfeita e o pedido será excluído permanentemente.`}
+                message={`Tem certeza que deseja cancelar o pedido #PED-${orderToCancel?.numero_pedido}? O pedido será marcado como cancelado e movido para a coluna Concluído. Você poderá reativá-lo depois.`}
+            />
+
+            {/* Reactivate Order Dialog */}
+            <Dialog
+                isOpen={!!orderToReactivate}
+                onClose={() => setOrderToReactivate(null)}
+                onConfirm={() => {
+                    const id = orderToReactivate.id
+                    setOrderToReactivate(null)
+                    handleReactivateOrder(id)
+                }}
+                title="Reativar Pedido?"
+                message={`Deseja reativar o pedido #PED-${orderToReactivate?.numero_pedido}? Ele voltará para a coluna Recebido e entrará no fluxo normal.`}
             />
         </div >
     )

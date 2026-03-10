@@ -90,7 +90,7 @@ export default function ReportsPage() {
             const { data: orders } = await supabase
                 .from('pedidos')
                 .select(`
-                    id, valor_total, forma_pagamento, criado_em,
+                    id, valor_total, forma_pagamento, criado_em, status,
                     itens:itens_pedido(
                         quantidade, 
                         produtos(nome, categorias(nome))
@@ -100,8 +100,10 @@ export default function ReportsPage() {
                 .lte('criado_em', endDate.toISOString())
 
             if (orders) {
-                const revenue = orders.reduce((sum, o) => sum + Number(o.valor_total), 0)
-                const ticket = orders.length > 0 ? revenue / orders.length : 0
+                // Exclude cancelled orders from all calculations
+                const validOrders = orders.filter(o => o.status !== 'cancelado')
+                const revenue = validOrders.reduce((sum, o) => sum + Number(o.valor_total), 0)
+                const ticket = validOrders.length > 0 ? revenue / validOrders.length : 0
 
                 // Volumetric Counts for the selected period
                 const periodCounts = {
@@ -111,7 +113,7 @@ export default function ReportsPage() {
                     refrigerantes: 0
                 }
 
-                orders.forEach(order => {
+                validOrders.forEach(order => {
                     order.itens?.forEach(item => {
                         const prodName = item.produtos?.nome || ''
                         const catName = item.produtos?.categorias?.nome || ''
@@ -131,28 +133,28 @@ export default function ReportsPage() {
 
                 setStats({
                     revenue,
-                    orders: orders.length,
+                    orders: validOrders.length,
                     ticket,
                     upsell: 12,
                     itemCount: periodCounts
                 })
 
                 // Payment distribution
-                const payments = orders.reduce((acc, o) => {
+                const payments = validOrders.reduce((acc, o) => {
                     const method = o.forma_pagamento?.toUpperCase() || 'OUTROS'
                     acc[method] = (acc[method] || 0) + 1
                     return acc
                 }, {})
                 setPaymentData(Object.entries(payments).map(([name, count]) => ({
                     name,
-                    value: Math.round((count / orders.length) * 100),
+                    value: Math.round((count / validOrders.length) * 100),
                     color: name === 'PIX' ? '#22C55E' : name === 'CREDITO' ? '#3B82F6' : '#9CA3AF'
                 })))
 
                 // Category performance
                 const cats = {}
                 let totalItems = 0
-                orders.forEach(o => o.itens?.forEach(i => {
+                validOrders.forEach(o => o.itens?.forEach(i => {
                     const name = i.produtos?.categorias?.nome || 'Outros'
                     cats[name] = (cats[name] || 0) + i.quantidade
                     totalItems += i.quantidade
@@ -171,7 +173,7 @@ export default function ReportsPage() {
                     const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
                     months.forEach(m => dailyData[m] = 0)
 
-                    orders.forEach(o => {
+                    validOrders.forEach(o => {
                         const mIdx = new Date(o.criado_em).getMonth()
                         dailyData[months[mIdx]] += Number(o.valor_total)
                     })
@@ -184,7 +186,7 @@ export default function ReportsPage() {
                         if (Object.keys(dailyData).length > 31) break // Security break
                     }
 
-                    orders.forEach(o => {
+                    validOrders.forEach(o => {
                         const label = new Date(o.criado_em).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }).replace('.', '')
                         if (dailyData[label] !== undefined) {
                             dailyData[label] += Number(o.valor_total)

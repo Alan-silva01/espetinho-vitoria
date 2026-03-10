@@ -93,8 +93,8 @@ export default function DashboardPage() {
 
             if (ordersErr) throw ordersErr
 
-            // Metrics for TODAY
-            const todayOrders = orders?.filter(o => new Date(o.criado_em) >= today) || []
+            // Metrics for TODAY (exclude cancelled)
+            const todayOrders = orders?.filter(o => new Date(o.criado_em) >= today && o.status !== 'cancelado') || []
             const totalRevenue = todayOrders.reduce((acc, curr) => acc + Number(curr.valor_total), 0)
             const totalOrdersCount = todayOrders.length
             const avgTicket = totalOrdersCount > 0 ? totalRevenue / totalOrdersCount : 0
@@ -106,7 +106,7 @@ export default function DashboardPage() {
             // Revenue Comparison (vs Ontem)
             const yesterdayOrders = orders?.filter(o => {
                 const d = new Date(o.criado_em)
-                return d >= yesterday && d < today
+                return d >= yesterday && d < today && o.status !== 'cancelado'
             }) || []
             const yesterdayRevenue = yesterdayOrders.reduce((acc, curr) => acc + Number(curr.valor_total), 0)
 
@@ -134,7 +134,7 @@ export default function DashboardPage() {
                 }
             })
 
-            orders.forEach(order => {
+            orders.filter(o => o.status !== 'cancelado').forEach(order => {
                 const orderDate = new Date(order.criado_em).toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' })
                 const day = chartNodes.find(d => d.fullDate === orderDate)
                 if (day) {

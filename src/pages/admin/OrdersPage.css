@@ -338,6 +338,22 @@
     border-color: #334155;
 }
 
+.order-card-v2.cancelled {
+    opacity: 0.6;
+    border: 2px dashed #DC2626;
+    background: #fef2f2;
+}
+
+.dark .order-card-v2.cancelled {
+    background: rgba(220, 38, 38, 0.1);
+    border-color: #991b1b;
+}
+
+.status-badge-v5.cancelado {
+    background: #DC2626;
+    color: white;
+}
+
 .card-top {
     display: flex;
     justify-content: space-between;
