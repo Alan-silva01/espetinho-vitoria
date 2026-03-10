@@ -17,6 +17,11 @@ export default function TableMenuPage() {
                 return
             }
 
+            // SET OTIMISTA: garante que o app não faça bounce de volta pro CLI se a internet falhar 
+            // e o usuário clicar em "Ir para o Cardápio" no block de erro abaixo.
+            localStorage.setItem('espetinho_tipo_pedido', 'mesa')
+            localStorage.setItem('espetinho_mesa_numero', String(num))
+
             const { data, error: fetchErr } = await supabase
                 .from('mesas')
                 .select('id, numero, ativa')
