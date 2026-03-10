@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, Package, CheckCircle2, Clock, ChevronRight, Star } from 'lucide-react'
 import { useCustomer } from '../../context/CustomerContext'
-import { useCustomerOrders } from '../../hooks/useOrders'
+import { useCustomerOrders, useComanda } from '../../hooks/useOrders'
 import { formatCurrency, getStatusLabel } from '../../lib/utils'
 import Loading from '../../components/ui/Loading'
 import Button from '../../components/ui/Button'
@@ -12,7 +12,6 @@ export default function OrdersListPage() {
     const navigate = useNavigate()
     const { customerCode } = useParams()
     const { customer, fetchCustomerByCode, loading: customerLoading } = useCustomer()
-    const { orders, loading: ordersLoading } = useCustomerOrders(customer?.id)
 
     // Sync customer by code if provided in URL
     useEffect(() => {
@@ -21,18 +20,19 @@ export default function OrdersListPage() {
             fetchCustomerByCode(customerCode)
         }
     }, [customerCode, customer, fetchCustomerByCode])
-
-    const isLoading = customerLoading || ordersLoading
-
     // Comanda filter for Mesa privacy
     const isMesa = localStorage.getItem('espetinho_tipo_pedido') === 'mesa'
     const comandaId = localStorage.getItem('espetinho_comanda_id')
 
-    // If mesa, only show orders from current session that aren't paid
-    // (matches the filter in useComanda)
-    const effectiveOrders = isMesa
-        ? orders.filter(o => o.comanda_id === comandaId && !o.pago)
-        : orders
+    // Fetch either by customer ID (delivery/pickup) or Comanda ID (mesa)
+    const { orders: customerOrders, loading: customerLoadingOrders } = useCustomerOrders(!isMesa ? customer?.id : null)
+    const { orders: comandaOrders, loading: comandaLoadingOrders } = useComanda(isMesa ? comandaId : null)
+
+    const ordersLoading = isMesa ? comandaLoadingOrders : customerLoadingOrders
+    const isLoading = customerLoading || ordersLoading
+
+    // If mesa, show all orders from the active comanda
+    const effectiveOrders = isMesa ? comandaOrders : customerOrders
 
     if (isLoading) return <Loading fullScreen />
 
