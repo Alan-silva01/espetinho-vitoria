@@ -911,6 +911,12 @@ export default function OrdersPage() {
                                                         {order.tipo_pedido === 'entrega' ? <Bike size={12} /> : order.tipo_pedido === 'mesa' ? <Utensils size={12} /> : <Store size={12} />}
                                                         {order.tipo_pedido === 'mesa' ? (order.mesas ? `Mesa ${order.mesas.numero}` : 'Mesa') : order.tipo_pedido}
                                                     </span>
+                                                    {order.comanda_status === 'fechamento_solicitado' && order.status !== 'cancelado' && (
+                                                        <span className="pulse-alert" style={{ background: '#f59e0b', color: 'white', fontSize: '10px', fontWeight: '800', padding: '2px 8px', borderRadius: '6px', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                            <Receipt size={12} />
+                                                            FECHAR CONTA
+                                                        </span>
+                                                    )}
                                                     {order.status === 'cancelado' && (
                                                         <span style={{ background: '#DC2626', color: 'white', fontSize: '10px', fontWeight: '800', padding: '2px 8px', borderRadius: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>CANCELADO</span>
                                                     )}
@@ -1019,12 +1025,20 @@ export default function OrdersPage() {
                                         <div className="summary-id-group">
                                             <div className="summary-id-row">
                                                 <h3>Pedido {selectedOrder.numero_pedido}</h3>
-                                                <div className={`status-badge-v5 ${selectedOrder.status}`}>
-                                                    <Timer size={14} />
-                                                    {selectedOrder.status === 'cancelado' ? 'Cancelado' :
-                                                        selectedOrder.status === 'confirmado' ? 'Confirmado' :
-                                                            selectedOrder.status === 'preparando' ? 'Em Preparo' :
-                                                                selectedOrder.status === 'saiu_entrega' ? 'Em Entrega' : 'Entregue'}
+                                                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                                                    <div className={`status-badge-v5 ${selectedOrder.status}`}>
+                                                        <Timer size={14} />
+                                                        {selectedOrder.status === 'cancelado' ? 'Cancelado' :
+                                                            selectedOrder.status === 'confirmado' ? 'Confirmado' :
+                                                                selectedOrder.status === 'preparando' ? 'Em Preparo' :
+                                                                    selectedOrder.status === 'saiu_entrega' ? 'Em Entrega' : 'Entregue'}
+                                                    </div>
+                                                    {selectedOrder.comanda_status === 'fechamento_solicitado' && selectedOrder.status !== 'cancelado' && (
+                                                        <span className="pulse-alert" style={{ background: '#f59e0b', color: 'white', fontSize: '12px', fontWeight: '700', padding: '4px 12px', borderRadius: '8px', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                            <Receipt size={14} />
+                                                            Solicitou Fechamento
+                                                        </span>
+                                                    )}
                                                 </div>
                                             </div>
                                             <p className="summary-meta">

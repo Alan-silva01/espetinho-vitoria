@@ -512,6 +512,32 @@
     opacity: 0.9;
 }
 
+.quick-action.btn-confirm-delete {
+    background: var(--cor-primaria) !important;
+    color: white !important;
+}
+
+@keyframes pulse-alert {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7);
+    }
+
+    70% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 6px rgba(245, 158, 11, 0);
+    }
+
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(245, 158, 11, 0);
+    }
+}
+
+.pulse-alert {
+    animation: pulse-alert 2s infinite;
+}
+
 .quick-action.stage-saiu_entrega {
     background: var(--cor-primaria, #C41E2E);
     color: white;
