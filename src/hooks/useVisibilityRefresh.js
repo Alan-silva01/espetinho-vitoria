@@ -12,7 +12,7 @@ import { useEffect, useRef } from 'react'
  * @param {Object} options
  * @param {number} options.sleepThresholdMs - minimum hidden time to consider a "sleep" (default 30s)
  */
-export function useVisibilityRefresh(onWake, { sleepThresholdMs = 30_000 } = {}) {
+export function useVisibilityRefresh(onWake, { sleepThresholdMs = 5_000 } = {}) {
     const hiddenAtRef = useRef(null)
     const callbackRef = useRef(onWake)
 

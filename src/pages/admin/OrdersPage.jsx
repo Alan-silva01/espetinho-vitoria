@@ -92,6 +92,8 @@ export default function OrdersPage() {
     const ordersRef = useRef(orders) // Always-fresh orders reference
     const lastFetchTimeRef = useRef(0) // Cooldown: prevents rapid-fire fetches
     const pendingFetchTimerRef = useRef(null) // Debounce: coalesces multiple realtime events
+    const selectedDateRef = useRef(selectedDate) // Stable ref for realtime callback
+    const audioUnlockedRef = useRef(false) // Tracks if browser audio policy has been unlocked
     const [autoPrint, setAutoPrint] = useState(() => {
         return localStorage.getItem('espetinho_auto_print') === 'true'
     })
@@ -104,6 +106,10 @@ export default function OrdersPage() {
     useEffect(() => {
         selectedOrderRef.current = selectedOrder
     }, [selectedOrder])
+
+    useEffect(() => {
+        selectedDateRef.current = selectedDate
+    }, [selectedDate])
 
     useEffect(() => {
         autoPrintRef.current = autoPrint
@@ -170,21 +176,30 @@ export default function OrdersPage() {
     }
 
 
-    const playNotificationSound = () => {
+    const playNotificationSound = useCallback(() => {
         const audio = audioRef.current
         audio.currentTime = 0
-        audio.play().catch(e => {
-            console.error('Erro ao tocar áudio:', e)
-            alert('Atenção: O som de notificação foi bloqueado pelo navegador. Por favor, clique em qualquer lugar da página para ativar os alertas sonoros.')
+        audio.play().catch(() => {
+            // Browser blocked autoplay — register a one-time click listener to unlock
+            if (!audioUnlockedRef.current) {
+                const unlock = () => {
+                    audioRef.current.play().catch(() => { })
+                    audioUnlockedRef.current = true
+                    document.removeEventListener('click', unlock)
+                    document.removeEventListener('touchstart', unlock)
+                }
+                document.addEventListener('click', unlock, { once: true })
+                document.addEventListener('touchstart', unlock, { once: true })
+            }
         })
-    }
+    }, [])
 
     // Debounced fetch: coalesces multiple realtime events into one fetch
-    // Prevents the 1-second infinite loop caused by rapid-fire realtime events
-    const scheduleFetch = useCallback((delayMs = 1500) => {
-        // If a fetch was done very recently, extend the delay to prevent cascading
+    // Uses a ref so the realtime subscription never needs to re-subscribe
+    const scheduleFetchRef = useRef(null)
+    scheduleFetchRef.current = (delayMs = 800) => {
         const elapsed = Date.now() - lastFetchTimeRef.current
-        const cooldown = 3000 // Minimum 3s between fetches
+        const cooldown = 1000 // Minimum 1s between fetches (reduced from 3s)
         const actualDelay = elapsed < cooldown ? Math.max(delayMs, cooldown - elapsed) : delayMs
 
         if (pendingFetchTimerRef.current) {
@@ -194,12 +209,16 @@ export default function OrdersPage() {
             pendingFetchTimerRef.current = null
             fetchOrders(true)
         }, actualDelay)
-    }, [selectedDate])
+    }
 
+    // Initial fetch on date change
     useEffect(() => {
         fetchOrders()
         fetchAllDrivers()
+    }, [selectedDate])
 
+    // Realtime subscription — created ONCE, never re-subscribes
+    useEffect(() => {
         const channel = supabase
             .channel('orders_admin_realtime')
             .on('postgres_changes', { event: '*', schema: 'public', table: 'pedidos' }, (payload) => {
@@ -208,7 +227,7 @@ export default function OrdersPage() {
                 if (payload.eventType === 'INSERT') {
                     console.log('[Realtime] New order detected, playing sound and scheduling fetch...')
                     playNotificationSound()
-                    scheduleFetch(1500)
+                    scheduleFetchRef.current?.(800)
 
                     // Auto-print if enabled (skip table orders)
                     if (autoPrintRef.current && payload.new?.id && payload.new?.tipo_pedido !== 'mesa') {
@@ -235,13 +254,13 @@ export default function OrdersPage() {
                         playNotificationSound()
                     }
 
-                    // Merged orders for comanda: if status moves back to 'confirmado' OR total changes, 
+                    // Merged orders for comanda: if status moves back to 'confirmado' OR total changes,
                     // we likely have new items that payload.new doesn't include.
                     const needsFullFetch = payload.new.status === 'confirmado' || isNewItemAdded || isClosingRequested
 
                     if (needsFullFetch) {
                         console.log('[Realtime] Order updated, scheduling debounced fetch...')
-                        scheduleFetch(1500)
+                        scheduleFetchRef.current?.(800)
                         return
                     }
 
@@ -268,11 +287,20 @@ export default function OrdersPage() {
                 console.log('[Realtime] Subscription status:', status)
             })
 
+        // Polling backup: safety net every 30s in case WebSocket dies silently
+        const pollingInterval = setInterval(() => {
+            if (document.visibilityState === 'visible') {
+                console.log('[Polling] Heartbeat fetch...')
+                fetchOrders(true)
+            }
+        }, 30000)
+
         return () => {
             if (pendingFetchTimerRef.current) clearTimeout(pendingFetchTimerRef.current)
+            clearInterval(pollingInterval)
             supabase.removeChannel(channel)
         }
-    }, [selectedDate, scheduleFetch])
+    }, []) // Empty deps — channel created ONCE, uses refs for fresh data
 
     // Wake-from-sleep recovery: reset stuck guards + re-fetch data
     useVisibilityRefresh(useCallback(() => {
@@ -294,9 +322,9 @@ export default function OrdersPage() {
             return
         }
 
-        // Cooldown guard: prevent rapid-fire fetches (the core loop-breaker)
+        // Cooldown guard: prevent rapid-fire fetches
         const now = Date.now()
-        if (isSilent && (now - lastFetchTimeRef.current) < 2000) {
+        if (isSilent && (now - lastFetchTimeRef.current) < 1000) {
             console.log('[Orders] Cooldown active, skipping silent fetch')
             return
         }
