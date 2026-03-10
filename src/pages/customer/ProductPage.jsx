@@ -152,13 +152,16 @@ export default function ProductPage() {
                 }).map(opt => optName(opt))
 
                 setSelectedOptions(prev => {
-                    // Only apply defaults to groups that aren't Radio-type choices for Rice
-                    let defaultsToUse = []
-                    if (accompGroup.padrao && Array.isArray(accompGroup.padrao)) {
-                        defaultsToUse = accompGroup.padrao.filter(p => availableOptions.includes(p))
-                    } else {
-                        defaultsToUse = [...availableOptions]
-                    }
+                    // Selecionar TODOS os acompanhamentos gratuitos e disponíveis (não apenas o padrao)
+                    const freeAvailable = accompGroup.opcoes
+                        .filter(opt => {
+                            const isAvail = typeof opt === 'string' ? true : (opt.disponivel !== false && (!opt.controlar_estoque || opt.quantidade_disponivel > 0))
+                            const isFree = optPreco(opt) === 0
+                            return isAvail && isFree
+                        })
+                        .map(opt => optName(opt))
+
+                    let defaultsToUse = freeAvailable.length > 0 ? freeAvailable : [...availableOptions]
 
                     return {
                         ...prev,
