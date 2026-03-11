@@ -530,3 +530,92 @@
     color: var(--cor-primaria);
     font-weight: 500;
 }
+
+/* ===== Validation Modal ===== */
+.checkout-page .modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 50;
+    backdrop-filter: blur(4px);
+    animation: checkout-fadeIn 0.3s forwards;
+}
+
+.checkout-page .bottom-sheet {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    z-index: 60;
+    border-radius: 24px 24px 0 0;
+    padding: 16px 24px 40px;
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.2);
+    animation: checkout-slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.checkout-page .bottom-sheet__handle {
+    width: 48px;
+    height: 5px;
+    background: #E5E7EB;
+    border-radius: 10px;
+    margin: 0 auto 24px;
+}
+
+.checkout-page .validation-content {
+    padding: 24px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.checkout-page .validation-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+}
+
+.checkout-page .validation-content h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--texto-principal);
+    margin: 0;
+}
+
+.checkout-page .validation-content p {
+    font-size: 1rem;
+    color: var(--texto-secundario);
+    line-height: 1.5;
+    margin: 0 0 8px 0;
+}
+
+.checkout-page .validation-content .btn-primary {
+    background: var(--cor-primaria) !important;
+    color: white !important;
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    font-weight: 700;
+    border: none;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+@keyframes checkout-slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}
+
+@keyframes checkout-fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}

@@ -237,8 +237,9 @@ export default function CartPage() {
     }
 
     const handleSaveAddress = async (forceWithoutLocation = false) => {
-        // Validation: No pure emoji names
-        const hasText = /[a-zA-ZÀ-ÿ0-9]/.test(tempData.nome_recebedor)
+        // Validation: require at least 2 letters (blocks dots, emojis, single chars)
+        const letrasNoNome = (tempData.nome_recebedor || '').match(/[a-zA-ZÀ-ÿ]/g)
+        const hasText = letrasNoNome && letrasNoNome.length >= 2
 
         if (!tempData.rua || !tempData.numero) {
             setAddressError({ open: true, message: 'Por favor, informe a rua e o número da sua residência.' })
@@ -249,7 +250,7 @@ export default function CartPage() {
             return
         }
         if (!tempData.nome_recebedor || !hasText) {
-            setAddressError({ open: true, message: 'Por favor, insira um nome válido (nomes apenas com emojis não são permitidos).' })
+            setAddressError({ open: true, message: 'Por favor, insira um nome válido com pelo menos 2 letras.' })
             return
         }
         if (!tempData.telefone_recebedor || tempData.telefone_recebedor.length < 14) {

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, MapPin, CreditCard, Receipt, Edit3, CheckCircle, User } from 'lucide-react'
+import { ArrowLeft, MapPin, CreditCard, Receipt, Edit3, CheckCircle, User, X, AlertTriangle } from 'lucide-react'
 import { useCart } from '../../hooks/useCart'
 import { useOrders } from '../../hooks/useOrders'
 import { useCustomer } from '../../context/CustomerContext'
@@ -16,6 +16,7 @@ export default function CheckoutPage() {
     const { customer, updateLastOrder } = useCustomer()
     const [isSubmitting, setIsSubmitting] = useState(false)
     const submitLockRef = useRef(false)
+    const [validationError, setValidationError] = useState({ open: false, message: '' })
 
     useEffect(() => {
         window.scrollTo(0, 0)
@@ -170,34 +171,33 @@ export default function CheckoutPage() {
 
     async function handleConfirm() {
         if (tipoPedido === 'entrega' && !hasAddress) {
-            alert('Volte ao carrinho e preencha o endereço de entrega.')
-            navigate(customerCode ? `/${customerCode}/carrinho` : '/carrinho')
+            setValidationError({ open: true, message: 'Volte ao carrinho e preencha o endereço de entrega.' })
             return
         }
 
         if (tipoPedido === 'mesa' && !mesaId) {
-            alert('Erro: mesa não identificada. Escaneie o QR code novamente.')
+            setValidationError({ open: true, message: 'Mesa não identificada. Escaneie o QR code novamente.' })
             return
         }
 
-        if (tipoPedido === 'mesa' && !nomeRetirada.trim()) {
-            alert('Por favor, informe seu nome para confirmar o pedido na mesa.')
-            // Scroll to the top where the input is usually located
+        if (tipoPedido === 'mesa' && nomeRetirada.trim().length < 2) {
+            setValidationError({ open: true, message: 'Por favor, informe seu nome (mínimo 2 letras) para confirmar o pedido na mesa.' })
             window.scrollTo({ top: 0, behavior: 'smooth' })
             return
         }
 
         // Phone validation for mesa orders
         if (tipoPedido === 'mesa' && !telefoneMesa.replace(/\D/g, '').match(/^\d{10,11}$/)) {
-            alert('Por favor, informe um telefone válido para o pedido na mesa.')
+            setValidationError({ open: true, message: 'Por favor, informe um telefone válido para o pedido na mesa.' })
             window.scrollTo({ top: 0, behavior: 'smooth' })
             return
         }
 
-        // Name validation: must contain at least one letter (blocks purely emoji names)
+        // Name validation: must contain at least 2 letters (blocks emojis, dots, single chars)
         const nomeValidar = tipoPedido === 'entrega' ? addressData?.nome_recebedor : nomeRetirada
-        if (nomeValidar && !/[a-zA-Z]/.test(nomeValidar)) {
-            alert('Por favor, insira um nome válido (apenas emojis não são permitidos).')
+        const letrasNoNome = (nomeValidar || '').match(/[a-zA-ZÀ-ÿ]/g)
+        if (!letrasNoNome || letrasNoNome.length < 2) {
+            setValidationError({ open: true, message: 'Por favor, insira um nome válido com pelo menos 2 letras.' })
             window.scrollTo({ top: 0, behavior: 'smooth' })
             return
         }
@@ -593,6 +593,30 @@ export default function CheckoutPage() {
                     )}
                 </button>
             </div>
+
+            {/* VALIDATION ERROR MODAL */}
+            {validationError.open && (
+                <div className="modal-backdrop" onClick={() => setValidationError({ open: false, message: '' })} style={{ zIndex: 10000 }}>
+                    <div className="bottom-sheet validation-modal" onClick={e => e.stopPropagation()}>
+                        <div className="bottom-sheet__handle" />
+                        <div className="validation-content">
+                            <div className="validation-icon" style={{ background: '#fef2f2', color: '#ef4444' }}>
+                                <AlertTriangle size={48} />
+                            </div>
+                            <h3>Atenção</h3>
+                            <p style={{ fontSize: '15px', color: 'var(--text-secondary)', marginBottom: '24px', lineHeight: '1.5' }}>
+                                {validationError.message}
+                            </p>
+                            <button
+                                className="btn btn-primary btn-md btn-full"
+                                onClick={() => setValidationError({ open: false, message: '' })}
+                            >
+                                Entendi
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

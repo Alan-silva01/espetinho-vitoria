@@ -157,6 +157,18 @@ export function CustomerProvider({ children }) {
         const targetId = explicitId || customer?.id
         if (!targetId) return
 
+        // Atualizar coluna principal 'nome' se veio nome novo
+        if (extraInfo.nome) {
+            try {
+                await supabase
+                    .from('clientes')
+                    .update({ nome: extraInfo.nome })
+                    .eq('id', targetId)
+            } catch (err) {
+                console.error('[updateLastOrder] Erro ao atualizar nome do cliente:', err)
+            }
+        }
+
         const updateObj = {
             ultimos_pedidos: orderSummary,
             ...extraInfo
