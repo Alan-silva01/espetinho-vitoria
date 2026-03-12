@@ -10,6 +10,7 @@ import { supabase } from '../../lib/supabase'
 import { formatCurrency, filterPersonalizacao, getSmartItemName } from '../../lib/utils'
 import { useOrders, useComanda } from '../../hooks/useOrders'
 import { useVisibilityRefresh } from '../../hooks/useVisibilityRefresh'
+import { useNotificationSoundContext } from '../../context/NotificationSoundContext'
 
 import Dialog from '../../components/ui/Dialog'
 import './OrdersPage.css'
@@ -70,6 +71,7 @@ const getItemDisplayName = (item) => {
 }
 
 export default function OrdersPage() {
+    const { playNotificationSound } = useNotificationSoundContext()
     const { finalizeComanda } = useOrders()
     const [orders, setOrders] = useState([])
     const [loading, setLoading] = useState(true)
@@ -84,7 +86,6 @@ export default function OrdersPage() {
         return now.toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' })
     })
     const dateInputRef = useRef(null)
-    const audioRef = useRef(new Audio('/notificacao.mp3'))
     const selectedOrderRef = useRef(null)
     const inFlightRef = useRef(new Set()) // Guards concurrent updates
     const [comandaToFinalize, setComandaToFinalize] = useState(null)
@@ -94,7 +95,6 @@ export default function OrdersPage() {
     const lastFetchTimeRef = useRef(0) // Cooldown: prevents rapid-fire fetches
     const pendingFetchTimerRef = useRef(null) // Debounce: coalesces multiple realtime events
     const selectedDateRef = useRef(selectedDate) // Stable ref for realtime callback
-    const audioUnlockedRef = useRef(false) // Tracks if browser audio policy has been unlocked
     const [autoPrint, setAutoPrint] = useState(() => {
         return localStorage.getItem('espetinho_auto_print') === 'true'
     })
@@ -176,25 +176,6 @@ export default function OrdersPage() {
         }
     }
 
-
-    const playNotificationSound = useCallback(() => {
-        const audio = audioRef.current
-        audio.currentTime = 0
-        audio.play().catch(() => {
-            // Browser blocked autoplay — register a one-time click listener to unlock
-            if (!audioUnlockedRef.current) {
-                const unlock = () => {
-                    audioRef.current.play().catch(() => { })
-                    audioUnlockedRef.current = true
-                    document.removeEventListener('click', unlock)
-                    document.removeEventListener('touchstart', unlock)
-                }
-                document.addEventListener('click', unlock, { once: true })
-                document.addEventListener('touchstart', unlock, { once: true })
-            }
-        })
-    }, [])
-
     // Debounced fetch: coalesces multiple realtime events into one fetch
     // Uses a ref so the realtime subscription never needs to re-subscribe
     const scheduleFetchRef = useRef(null)
@@ -226,8 +207,7 @@ export default function OrdersPage() {
                 console.log('[Realtime] Order event:', payload.eventType, payload.new?.id || payload.old?.id)
 
                 if (payload.eventType === 'INSERT') {
-                    console.log('[Realtime] New order detected, playing sound and scheduling fetch...')
-                    playNotificationSound()
+                    console.log('[Realtime] New order detected, scheduling fetch (sound handled globally)...')
                     scheduleFetchRef.current?.(800)
 
                     // Auto-print if enabled (skip table orders)
@@ -251,8 +231,7 @@ export default function OrdersPage() {
                     const isClosingRequested = payload.new.comanda_status === 'fechamento_solicitado' && oldOrder?.comanda_status !== 'fechamento_solicitado'
 
                     if (isNewItemAdded || isClosingRequested) {
-                        console.log('[Realtime] Comanda event detected, playing sound...')
-                        playNotificationSound()
+                        console.log('[Realtime] Comanda event detected (sound handled globally)...')
                     }
 
                     // Merged orders for comanda: if status moves back to 'confirmado' OR total changes,

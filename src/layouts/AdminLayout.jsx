@@ -3,6 +3,8 @@ import { Outlet, Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import AdminSidebar from '../components/admin/AdminSidebar'
 import Loading from '../components/ui/Loading'
+import { useOrderNotificationSound } from '../hooks/useOrderNotificationSound'
+import { NotificationSoundContext } from '../context/NotificationSoundContext'
 import './AdminLayout.css'
 
 export default function AdminLayout() {
@@ -12,6 +14,9 @@ export default function AdminLayout() {
         return localStorage.getItem('admin_sidebar_collapsed') === 'true'
     })
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+
+    // Ativa o som global de notificação para o Admin
+    const { playNotificationSound } = useOrderNotificationSound(isAuthenticated)
 
     const toggleSidebar = () => {
         setIsCollapsed(prev => {
@@ -70,7 +75,9 @@ export default function AdminLayout() {
                 onCloseMobile={() => setIsMobileMenuOpen(false)}
             />
             <main className="admin-main">
-                <Outlet />
+                <NotificationSoundContext.Provider value={{ playNotificationSound }}>
+                    <Outlet />
+                </NotificationSoundContext.Provider>
             </main>
         </div>
     )
