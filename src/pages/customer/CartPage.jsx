@@ -155,9 +155,12 @@ export default function CartPage() {
     const [tempData, setTempData] = useState(addressData)
 
     // Update tempData when addressData changes (e.g. after sync)
+    // BUT: never overwrite if the user is actively editing (modal open)
     useEffect(() => {
-        setTempData(addressData)
-    }, [addressData])
+        if (!isAddressModalOpen) {
+            setTempData(addressData)
+        }
+    }, [addressData, isAddressModalOpen])
 
     const hasAddress = addressData.rua && addressData.nome_recebedor
 

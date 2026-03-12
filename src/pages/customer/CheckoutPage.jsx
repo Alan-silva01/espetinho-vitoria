@@ -163,7 +163,7 @@ export default function CheckoutPage() {
                 }
             }
         }
-    }, [customer, addressData])
+    }, [customer]) // Only sync when customer loads, not on every addressData change
 
 
 
