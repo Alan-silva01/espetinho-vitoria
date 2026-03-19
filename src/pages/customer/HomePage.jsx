@@ -22,7 +22,7 @@ export default function HomePage() {
     const { customerCode } = useParams()
 
     // Detection is now globally handled in CustomerLayout.jsx!
-    const { addItem } = useCart()
+    const { addItem, items: cartItems } = useCart()
     const { isOpen, config } = useStore()
     const { liked, toggleLike, animatingHearts } = useFavorites()
     const [activeCategory, setActiveCategoryState] = useState(() => sessionStorage.getItem('espetinho_home_category') || null)
@@ -274,11 +274,10 @@ export default function HomePage() {
                                                 return
                                             }
 
-                                            const { items: cartItems } = useCart()
                                             const inCart = cartItems.find(i => i.produto_id === product.id && !i.variacao_id)
                                             const currentQty = inCart ? inCart.quantidade : 0
 
-                                            if (product.controlar_estoque && (currentQty + qty) > product.quantidade_disponivel) {
+                                            if (product.controlar_estoque && (currentQty + 1) > product.quantidade_disponivel) {
                                                 setStockWarning({
                                                     open: true,
                                                     product: product.nome,

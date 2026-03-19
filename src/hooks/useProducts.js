@@ -80,7 +80,7 @@ export function useProducts() {
                     })
                 } else if (payload.eventType === 'DELETE') {
                     setProducts(current => {
-                        const next = current.filter(p => p.id === payload.old.id)
+                        const next = current.filter(p => p.id !== payload.old.id)
                         globalProductsCache = next
                         delete globalProductDetailsCache[payload.old.id]
                         return next
@@ -104,7 +104,7 @@ export function useProducts() {
                     })
                 } else if (payload.eventType === 'DELETE') {
                     setCategories(current => {
-                        const next = current.filter(c => c.id === payload.old.id)
+                        const next = current.filter(c => c.id !== payload.old.id)
                         globalCategoriesCache = next
                         return next
                     })
@@ -122,7 +122,7 @@ export function useProducts() {
                         } else if (payload.eventType === 'UPDATE') {
                             newVariations = newVariations.map(v => v.id === payload.new.id ? payload.new : v)
                         } else if (payload.eventType === 'DELETE') {
-                            newVariations = newVariations.filter(v => v.id === payload.old.id)
+                            newVariations = newVariations.filter(v => v.id !== payload.old.id)
                         }
                         return { ...p, variacoes_produto: newVariations }
                     }
