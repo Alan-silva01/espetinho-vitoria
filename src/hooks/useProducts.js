@@ -59,8 +59,9 @@ export function useProducts() {
 
     // Realtime subscription for menu data (Products, Categories, Variations)
     useEffect(() => {
+        const channelName = 'menu-updates-' + Date.now() + '-' + Math.random().toString(36).substring(2, 9)
         const channel = supabase
-            .channel('menu-updates')
+            .channel(channelName)
             // Products
             .on('postgres_changes', { event: '*', schema: 'public', table: 'produtos' }, (payload) => {
                 console.log('[useProducts] Mudança em produtos:', payload)
@@ -193,8 +194,9 @@ export function useProduct(id) {
         fetch()
 
         // Realtime subscription for this specific product
+        const channelName = `product-${id}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
         const channel = supabase
-            .channel(`product:${id}`)
+            .channel(channelName)
             .on('postgres_changes',
                 {
                     event: 'UPDATE',
