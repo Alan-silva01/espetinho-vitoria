@@ -60,10 +60,11 @@ export default function ProductPage() {
 
         if (!isAvailable) return false;
 
-        const name = typeof opt === 'string' ? opt : (opt.nome || opt.name);
-        if (products?.length > 0 && name) {
-            // Find an exact match in the catalog
-            const matchingProduct = products.find(p => p.nome.toLowerCase() === name.toLowerCase() && p.id !== product?.id);
+        const rawName = typeof opt === 'string' ? opt : (opt.nome || opt.name);
+        if (products?.length > 0 && rawName) {
+            const nameStr = String(rawName).toLowerCase();
+            // Find an exact match in the catalog safely
+            const matchingProduct = products.find(p => p?.nome && String(p.nome).toLowerCase() === nameStr && p.id !== product?.id);
             if (matchingProduct) {
                 const globalAvailable = matchingProduct.disponivel !== false && (!matchingProduct.controlar_estoque || matchingProduct.quantidade_disponivel > 0);
                 if (!globalAvailable) return false;
