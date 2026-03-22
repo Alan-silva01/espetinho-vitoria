@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { ArrowLeft, Heart, Minus, Plus, Check, ShoppingCart } from 'lucide-react'
-import { useProduct } from '../../hooks/useProducts'
+import { useProducts, useProduct } from '../../hooks/useProducts'
 import { useCart } from '../../hooks/useCart'
 import { useFavorites } from '../../hooks/useFavorites'
 import { formatCurrency, getImageUrl, getSmartItemName } from '../../lib/utils'
@@ -47,10 +47,30 @@ export default function ProductPage() {
     const [searchParams] = useSearchParams()
     const navigate = useNavigate()
     const { product, loading } = useProduct(id)
+    const { products } = useProducts()
     const isUpsell = searchParams.get('upsell') === 'true'
     const { addItem, items: cartItems } = useCart()
     const cartCount = cartItems.reduce((sum, i) => sum + i.quantidade, 0)
     const { liked, toggleLike, animatingHearts } = useFavorites()
+
+    const checkOptionAvailable = useCallback((opt) => {
+        let isAvailable = typeof opt === 'string'
+            ? true
+            : (opt.disponivel !== false && (!opt.controlar_estoque || opt.quantidade_disponivel > 0))
+
+        if (!isAvailable) return false;
+
+        const name = typeof opt === 'string' ? opt : (opt.nome || opt.name);
+        if (products?.length > 0 && name) {
+            // Find an exact match in the catalog
+            const matchingProduct = products.find(p => p.nome.toLowerCase() === name.toLowerCase() && p.id !== product?.id);
+            if (matchingProduct) {
+                const globalAvailable = matchingProduct.disponivel !== false && (!matchingProduct.controlar_estoque || matchingProduct.quantidade_disponivel > 0);
+                if (!globalAvailable) return false;
+            }
+        }
+        return true;
+    }, [products, product?.id]);
 
     const [qty, setQty] = useState(1)
     const [notes, setNotes] = useState('')
@@ -98,7 +118,7 @@ export default function ProductPage() {
                 if (isEspetinho) {
                     // Pré-selecionar automaticamente os acompanhamentos gratuitos/inclusos
                     const inclusos = group.opcoes
-                        .filter(opt => optPreco(opt) === 0)
+                        .filter(opt => optPreco(opt) === 0 && checkOptionAvailable(opt))
                         .map(opt => optName(opt))
                     defaults[group.grupo] = inclusos
                 } else {
@@ -109,7 +129,7 @@ export default function ProductPage() {
             }
         })
         setSelectedOptions(defaults)
-    }, [product])
+    }, [product, checkOptionAvailable])
 
     // Sync accompaniment/arroz groups when variation changes
     useEffect(() => {
@@ -146,16 +166,13 @@ export default function ProductPage() {
             setDisabledGroups(new Set())
             if (accompGroup) {
                 // Determine which options are actually available
-                const availableOptions = accompGroup.opcoes.filter(opt => {
-                    if (typeof opt === 'string') return true
-                    return opt.disponivel !== false && (!opt.controlar_estoque || opt.quantidade_disponivel > 0)
-                }).map(opt => optName(opt))
+                const availableOptions = accompGroup.opcoes.filter(opt => checkOptionAvailable(opt)).map(opt => optName(opt))
 
                 setSelectedOptions(prev => {
                     // Selecionar TODOS os acompanhamentos gratuitos e disponíveis (não apenas o padrao)
                     const freeAvailable = accompGroup.opcoes
                         .filter(opt => {
-                            const isAvail = typeof opt === 'string' ? true : (opt.disponivel !== false && (!opt.controlar_estoque || opt.quantidade_disponivel > 0))
+                            const isAvail = checkOptionAvailable(opt)
                             const isFree = optPreco(opt) === 0
                             return isAvail && isFree
                         })
@@ -534,12 +551,7 @@ export default function ProductPage() {
                 {/* Customization Options */}
                 {customizations.map((group, gIdx) => {
                     // Check if group has any available options
-                    const availableOptions = group.opcoes.filter(opt => {
-                        const isAvailable = typeof opt === 'string'
-                            ? true
-                            : (opt.disponivel !== false && (!opt.controlar_estoque || opt.quantidade_disponivel > 0))
-                        return isAvailable
-                    })
+                    const availableOptions = group.opcoes.filter(opt => checkOptionAvailable(opt))
 
                     // Hide group if NO options are available
                     if (availableOptions.length === 0) return null
@@ -566,10 +578,8 @@ export default function ProductPage() {
                                     const name = optName(opt)
                                     const price = optPreco(opt)
                                     const img = optImg(opt)
-                                    // Check availability (redundant but safe)
-                                    const isAvailable = typeof opt === 'string'
-                                        ? true
-                                        : (opt.disponivel !== false && (!opt.controlar_estoque || opt.quantidade_disponivel > 0))
+                                    // Check availability
+                                    const isAvailable = checkOptionAvailable(opt)
 
                                     if (!isAvailable) return null
 
