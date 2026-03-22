@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { ArrowLeft, Heart, Minus, Plus, Check, ShoppingCart } from 'lucide-react'
 import { useProducts, useProduct } from '../../hooks/useProducts'
@@ -107,8 +107,15 @@ export default function ProductPage() {
     }, [id])
 
     // Initialize defaults from product customization data
+    const hasInitializedDefaults = useRef(false)
+    const lastProductId = useRef(null)
     useEffect(() => {
         if (!product?.opcoes_personalizacao) return
+        // Only initialize defaults once per product
+        if (lastProductId.current === product.id && hasInitializedDefaults.current) return
+        lastProductId.current = product.id
+        hasInitializedDefaults.current = true
+
         const defaults = {}
         const isEspetinho = product.categoria?.nome === 'Espetinhos' || product.nome?.toLowerCase().includes('espetinho')
 
@@ -130,7 +137,8 @@ export default function ProductPage() {
             }
         })
         setSelectedOptions(defaults)
-    }, [product, checkOptionAvailable])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [product])
 
     // Sync accompaniment/arroz groups when variation changes
     useEffect(() => {
@@ -211,7 +219,8 @@ export default function ProductPage() {
             setDisabledGroups(groupsToDisable)
             setSelectedOptions(prev => ({ ...prev, ...optionUpdates }))
         }
-    }, [selectedVariation, product])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedVariation, product?.id])
 
     // Calculate extras cost from selected add-on options
     const extrasTotal = useMemo(() => {
