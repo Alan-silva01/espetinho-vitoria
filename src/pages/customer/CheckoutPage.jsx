@@ -6,17 +6,20 @@ import { useOrders } from '../../hooks/useOrders'
 import { useCustomer } from '../../context/CustomerContext'
 import { formatCurrency, getImageUrl, filterPersonalizacao } from '../../lib/utils'
 import { supabase } from '../../lib/supabase'
+import OutOfStockModal from '../../components/customer/OutOfStockModal'
 import './CheckoutPage.css'
 
 export default function CheckoutPage() {
     const navigate = useNavigate()
     const { customerCode } = useParams()
-    const { items, subtotal, clearCart } = useCart()
+    const { items, subtotal, clearCart, removeItem } = useCart()
     const { createOrder, loading } = useOrders()
     const { customer, updateLastOrder } = useCustomer()
     const [isSubmitting, setIsSubmitting] = useState(false)
     const submitLockRef = useRef(false)
     const [validationError, setValidationError] = useState({ open: false, message: '' })
+    const [outOfStockItems, setOutOfStockItems] = useState([])
+    const [showOutOfStockModal, setShowOutOfStockModal] = useState(false)
 
     useEffect(() => {
         window.scrollTo(0, 0)
@@ -205,6 +208,42 @@ export default function CheckoutPage() {
         if (isSubmitting || submitLockRef.current) return
         submitLockRef.current = true
         setIsSubmitting(true)
+
+        // Stock validation: check if all cart items are still available
+        try {
+            const productIds = [...new Set(items.map(i => i.produto_id))]
+            const { data: freshProducts } = await supabase
+                .from('produtos')
+                .select('id, nome, disponivel, controlar_estoque, quantidade_disponivel')
+                .in('id', productIds)
+
+            if (freshProducts) {
+                const unavailable = freshProducts.filter(p =>
+                    !p.disponivel || (p.controlar_estoque && p.quantidade_disponivel <= 0)
+                )
+
+                if (unavailable.length > 0) {
+                    const unavailableNames = unavailable.map(p => p.nome)
+                    const unavailableIds = new Set(unavailable.map(p => p.id))
+
+                    // Remove out-of-stock items from cart
+                    items.forEach(item => {
+                        if (unavailableIds.has(item.produto_id)) {
+                            removeItem(item.produto_id, item.variacao_id, item.observacoes)
+                        }
+                    })
+
+                    setOutOfStockItems(unavailableNames)
+                    setShowOutOfStockModal(true)
+                    setIsSubmitting(false)
+                    submitLockRef.current = false
+                    return
+                }
+            }
+        } catch (stockErr) {
+            // Non-blocking: if stock check fails, proceed with order anyway
+            console.warn('[Stock Check] Erro ao verificar estoque, continuando...', stockErr)
+        }
 
         try {
             const nomeCliente = tipoPedido === 'mesa'
@@ -617,6 +656,13 @@ export default function CheckoutPage() {
                     </div>
                 </div>
             )}
+
+            {/* OUT OF STOCK MODAL */}
+            <OutOfStockModal
+                isOpen={showOutOfStockModal}
+                onClose={() => setShowOutOfStockModal(false)}
+                items={outOfStockItems}
+            />
         </div>
     )
 }
