@@ -83,7 +83,7 @@ export default function InventoryPage() {
             // 1. Fetch products
             const { data: products, error: prodErr } = await supabase
                 .from('produtos')
-                .select('id, nome, imagem_url, quantidade_disponivel, controlar_estoque, categorias(nome), opcoes_personalizacao')
+                .select('id, nome, imagem_url, quantidade_disponivel, controlar_estoque, categorias(nome), opcoes_personalizacao, variacoes_produto(id, nome, disponivel, controlar_estoque, quantidade_disponivel)')
                 .order('nome')
                 .abortSignal(controller.signal)
 
@@ -262,16 +262,24 @@ export default function InventoryPage() {
         try {
             const updates = affectedProducts.map(async (p) => {
                 const updatedPersonalization = JSON.parse(JSON.stringify(p.opcoes_personalizacao))
-                const g = updatedPersonalization.find(g => g.grupo === groupName)
-                if (!g) return null
+                let hasChanges = false;
 
-                const oIdx = g.opcoes.findIndex(o => (typeof o === 'string' ? o : o.nome) === optionName)
-                if (oIdx === -1) return null
+                updatedPersonalization.forEach(g => {
+                    const shouldUpdate = (isAcaiAddon || isEspetoAddon) ? true : g.grupo === groupName;
+                    
+                    if (shouldUpdate) {
+                        const oIdx = g.opcoes.findIndex(o => (typeof o === 'string' ? o : o.nome) === optionName)
+                        if (oIdx !== -1) {
+                            const option = g.opcoes[oIdx]
+                            g.opcoes[oIdx] = typeof option === 'string'
+                                ? { nome: option, preco: 0, disponivel: nextAvailable }
+                                : { ...option, disponivel: nextAvailable }
+                            hasChanges = true;
+                        }
+                    }
+                })
 
-                const option = g.opcoes[oIdx]
-                g.opcoes[oIdx] = typeof option === 'string'
-                    ? { nome: option, preco: 0, disponivel: nextAvailable }
-                    : { ...option, disponivel: nextAvailable }
+                if (!hasChanges) return null
 
                 const { error } = await supabase
                     .from('produtos')
@@ -296,6 +304,47 @@ export default function InventoryPage() {
         }
     }
 
+    const toggleVariationAvailability = async (categoryName, variationName) => {
+        const affectedProducts = inventory.filter(p => p.categorias?.nome === categoryName && p.variacoes_produto?.some(v => v.nome === variationName))
+        if (affectedProducts.length === 0) return
+
+        const firstVar = affectedProducts[0].variacoes_produto.find(v => v.nome === variationName)
+        const nextAvailable = !(firstVar.disponivel !== false) // default true if undefined
+
+        setSavingItem(`var-${categoryName}-${variationName}`)
+
+        try {
+            const variationIdsToUpdate = []
+            affectedProducts.forEach(p => {
+                const targetVars = p.variacoes_produto.filter(v => v.nome === variationName)
+                targetVars.forEach(v => variationIdsToUpdate.push(v.id))
+            })
+
+            const { error } = await supabase
+                .from('variacoes_produto')
+                .update({ disponivel: nextAvailable })
+                .in('id', variationIdsToUpdate)
+
+            if (error) throw error
+
+            setInventory(prev => prev.map(p => {
+                if (p.categorias?.nome === categoryName) {
+                    if (p.variacoes_produto?.some(v => v.nome === variationName)) {
+                        const newVars = p.variacoes_produto.map(v => 
+                            v.nome === variationName ? { ...v, disponivel: nextAvailable } : v
+                        )
+                        return { ...p, variacoes_produto: newVars }
+                    }
+                }
+                return p
+            }))
+        } catch (error) {
+            console.error('Erro ao atualizar variação:', error)
+        } finally {
+            setSavingItem(null)
+        }
+    }
+
     const matchesTab = (item) => {
         if (activeTab === 'todos') return true
         const cat = item.categorias?.nome || ''
@@ -309,6 +358,7 @@ export default function InventoryPage() {
         if (activeTab === 'jarras_sucos') return cat === 'Bebidas' && (nome.includes('jarra') || nome.includes('litro') && nome.includes('suco'))
         if (activeTab === 'sucos_naturais') return cat === 'Bebidas' && (nome.includes('suco') || nome.includes('polpa')) && !nome.includes('jarra')
 
+        if (activeTab === 'tamanhos_ml') return cat === 'Açaí' || cat === 'Caldos'
         return true
     }
 
@@ -380,6 +430,7 @@ export default function InventoryPage() {
 
                         <button className={`inv-tab addon-tab ${activeTab === 'acomp_acai' ? 'active' : ''}`} onClick={() => setActiveTab('acomp_acai')}>Acomp. Açaí</button>
                         <button className={`inv-tab addon-tab ${activeTab === 'acomp_espeto' ? 'active' : ''}`} onClick={() => setActiveTab('acomp_espeto')}>Acomp. Espetos</button>
+                        <button className={`inv-tab addon-tab ${activeTab === 'tamanhos_ml' ? 'active' : ''}`} onClick={() => setActiveTab('tamanhos_ml')}>Tamanhos ML</button>
 
                         <hr className="inv-tab-divider" />
 
@@ -417,7 +468,7 @@ export default function InventoryPage() {
                     </div>
 
                     {/* Fast Entry View */}
-                    {activeTab !== 'acomp_acai' && activeTab !== 'acomp_espeto' && (
+                    {activeTab !== 'acomp_acai' && activeTab !== 'acomp_espeto' && activeTab !== 'tamanhos_ml' && (
                         <div className="fast-entry-container animate-fade-in" style={{ marginBottom: '24px' }}>
                             {inventory.filter(matchesSearch).filter(matchesTab).length === 0 ? (
                                 <div style={{ padding: '60px 20px', textAlign: 'center', color: '#9CA3AF' }}>Nenhum produto encontrado nesta categoria.</div>
@@ -473,12 +524,14 @@ export default function InventoryPage() {
 
                             const isShowingAcaiAddon = activeTab === 'acomp_acai' && catName === 'Açaí'
                             const isShowingEspetoAddon = activeTab === 'acomp_espeto' && catName === 'Espetinhos'
+                            const isShowingSizes = activeTab === 'tamanhos_ml' && (catName === 'Açaí' || catName === 'Caldos')
 
-                            if (productsWithAddons.length === 0 && !isShowingAcaiAddon && !isShowingEspetoAddon) return null
+                            if (productsWithAddons.length === 0 && !isShowingAcaiAddon && !isShowingEspetoAddon && !isShowingSizes) return null
 
                             // If specific accompaniment tab is active, hide everything else
                             if (activeTab === 'acomp_acai' && !isShowingAcaiAddon) return null;
                             if (activeTab === 'acomp_espeto' && !isShowingEspetoAddon) return null;
+                            if (activeTab === 'tamanhos_ml' && !isShowingSizes) return null;
 
                             return (
                                 <section key={catName} className="inventory-group">
@@ -645,8 +698,68 @@ export default function InventoryPage() {
                                             </div>
                                         )}
 
+                                        {/* Centralized card for Tamanhos (Sizes) */}
+                                        {isShowingSizes && items.length > 0 && (
+                                            <div className="addon-management-card global-addons">
+                                                <div className="addon-card-header">
+                                                    <img src={items[0]?.imagem_url || 'https://via.placeholder.com/150'} alt="" />
+                                                    <div>
+                                                        <h4>Tamanhos de {catName} (Global)</h4>
+                                                        <p style={{ fontSize: '11px', color: '#6B7280' }}>Alteração aqui afeta os tamanhos de todos os {catName.toLowerCase()}</p>
+                                                    </div>
+                                                </div>
+                                                <div className="addon-groups-list">
+                                                    {(() => {
+                                                        // Get unique variation names for this category
+                                                        const uniqueSizesMap = new Map()
+                                                        items.forEach(p => {
+                                                            if (p.variacoes_produto) {
+                                                                p.variacoes_produto.forEach(v => {
+                                                                    if (!uniqueSizesMap.has(v.nome)) {
+                                                                        uniqueSizesMap.set(v.nome, v)
+                                                                    }
+                                                                })
+                                                            }
+                                                        })
+                                                        
+                                                        const uniqueSizes = Array.from(uniqueSizesMap.values()).sort((a,b) => (a.ordem || 0) - (b.ordem || 0))
+                                                        if (uniqueSizes.length === 0) return <div style={{padding: '12px', fontSize: '13px', color: '#6b7280'}}>Nenhum tamanho cadastrado.</div>
+
+                                                        return (
+                                                            <div className="addon-group-item">
+                                                                <h5>Tamanhos (ML / Variações)</h5>
+                                                                <div className="addon-options-grid">
+                                                                    {uniqueSizes.map((size, oIdx) => {
+                                                                        const isAvailable = size.disponivel !== false
+                                                                        const isSaving = savingItem === `var-${catName}-${size.nome}`
+
+                                                                        return (
+                                                                            <div key={oIdx} className={`addon-toggle-row ${!isAvailable ? 'off' : ''}`}>
+                                                                                <span>{size.nome}</span>
+                                                                                <button
+                                                                                    className={`addon-toggle-btn ${isAvailable ? 'on' : 'off'}`}
+                                                                                    onClick={() => toggleVariationAvailability(catName, size.nome)}
+                                                                                    disabled={isSaving}
+                                                                                >
+                                                                                    {isSaving ? (
+                                                                                        <RefreshCw size={12} className="animate-spin" />
+                                                                                    ) : (
+                                                                                        <div className="toggle-knob" />
+                                                                                    )}
+                                                                                </button>
+                                                                            </div>
+                                                                        )
+                                                                    })}
+                                                                </div>
+                                                            </div>
+                                                        )
+                                                    })()}
+                                                </div>
+                                            </div>
+                                        )}
+
                                         {/* Individual product inclusion cards (Sabores Sucos, Refrigerantes, etc) */}
-                                        {activeTab !== 'acomp_acai' && activeTab !== 'acomp_espeto' && productsWithAddons.map(item => {
+                                        {activeTab !== 'acomp_acai' && activeTab !== 'acomp_espeto' && activeTab !== 'tamanhos_ml' && productsWithAddons.map(item => {
                                             const inclusionGroups = item.opcoes_personalizacao.filter(g =>
                                                 g.grupo !== 'Adicionais (Pagos)' &&
                                                 g.grupo !== 'Adicionais' &&

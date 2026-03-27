@@ -61,8 +61,32 @@ export default function ProductPage() {
         if (!isAvailable) return false;
 
         const rawName = typeof opt === 'string' ? opt : (opt.nome || opt.name);
-        if (products?.length > 0 && rawName) {
-            const nameStr = String(rawName).toLowerCase();
+        if (!rawName) return true;
+        const nameStr = String(rawName).toLowerCase();
+
+        // New global check for Açaí products
+        // If the current product is Açaí, verify if this option is disabled in ANY açaí product's groups
+        const catName = product?.categoria?.nome || product?.categorias?.nome;
+        if (catName === 'Açaí' && products?.length > 0) {
+            for (const p of products) {
+                const pCat = p.categoria?.nome || p.categorias?.nome;
+                if (pCat === 'Açaí' && p.opcoes_personalizacao) {
+                    for (const g of p.opcoes_personalizacao) {
+                        if (['Escolha 2 Frutas (Inclusos)', 'Adicionais (Pagos)', 'Acompanha'].includes(g.grupo)) {
+                            const match = g.opcoes.find(o => {
+                                const pName = typeof o === 'string' ? o : (o.nome || o.name);
+                                return String(pName).toLowerCase() === nameStr;
+                            });
+                            if (match && typeof match !== 'string' && match.disponivel === false) {
+                                return false; // Found explicitly disabled globally
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (products?.length > 0) {
             // Find an exact match in the catalog safely
             const matchingProduct = products.find(p => p?.nome && String(p.nome).toLowerCase() === nameStr && p.id !== product?.id);
             if (matchingProduct) {

@@ -11,11 +11,27 @@
     justify-content: space-around;
     padding: 0 16px;
     padding-bottom: env(safe-area-inset-bottom, 0px);
-    z-index: 100;
+    z-index: 9999;
     box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
     border-radius: 24px 24px 0 0;
     max-width: 430px;
     margin: 0 auto;
+    /* Evitar que os botões soltem ou fiquem tremendo no scroll do iOS/Android (Hardware Acceleration) */
+    transform: translateZ(0);
+    will-change: transform;
+    -webkit-transform: translateZ(0);
+}
+
+/* Preencher a área vazia se o usuário puxar a tela muito para cima (overscroll bounce) */
+.bottom-nav::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    height: 50vh;
+    background: var(--fundo-cards);
+    z-index: -1;
 }
 
 .bottom-nav__item {
