@@ -34,22 +34,23 @@ export default function ReportsPage() {
     const [period, setPeriod] = useState('Este Mês')
     const [loading, setLoading] = useState(true)
 
-    // Advanced Filters State
     const [filterMode, setFilterMode] = useState('quick') // 'quick' or 'advanced'
-    const [advancedType, setAdvancedType] = useState('month') // 'day', 'month', 'year'
+    const [advancedType, setAdvancedType] = useState('month') // 'day', 'month', 'year', 'period'
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0])
+    const [selectedStartDate, setSelectedStartDate] = useState(new Date().toISOString().split('T')[0])
+    const [selectedEndDate, setSelectedEndDate] = useState(new Date().toISOString().split('T')[0])
     const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth())
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
 
     useEffect(() => {
         fetchReportsData()
-    }, [period, filterMode, advancedType, selectedDate, selectedMonth, selectedYear])
+    }, [period, filterMode, advancedType, selectedDate, selectedMonth, selectedYear, selectedStartDate, selectedEndDate])
 
     // Wake-from-sleep: re-fetch reports data silently
     useVisibilityRefresh(useCallback(() => {
         console.log('[ReportsPage] Woke from sleep — refreshing silently')
         fetchReportsData(true)
-    }, [period, filterMode, advancedType, selectedDate, selectedMonth, selectedYear]))
+    }, [period, filterMode, advancedType, selectedDate, selectedMonth, selectedYear, selectedStartDate, selectedEndDate]))
 
     async function fetchReportsData(isSilent = false) {
         if (!isSilent) setLoading(true)
@@ -71,8 +72,10 @@ export default function ReportsPage() {
                     endDate.setHours(23, 59, 59, 999)
                 } else if (period === 'Últimos 7 dias') {
                     startDate.setDate(startDate.getDate() - 7)
-                } else { // Este Mês
+                } else if (period === 'Este Mês') {
                     startDate.setDate(1)
+                } else if (period === 'Todo o Período') {
+                    startDate = new Date('2023-01-01T00:00:00-03:00') // Assume epoch for current business
                 }
             } else {
                 if (advancedType === 'day') {
@@ -81,9 +84,12 @@ export default function ReportsPage() {
                 } else if (advancedType === 'month') {
                     startDate = new Date(selectedYear, selectedMonth, 1, 0, 0, 0)
                     endDate = new Date(selectedYear, selectedMonth + 1, 0, 23, 59, 59)
-                } else { // Year
+                } else if (advancedType === 'year') {
                     startDate = new Date(selectedYear, 0, 1, 0, 0, 0)
                     endDate = new Date(selectedYear, 11, 31, 23, 59, 59)
+                } else if (advancedType === 'period') {
+                    startDate = new Date(selectedStartDate + 'T00:00:00-03:00')
+                    endDate = new Date(selectedEndDate + 'T23:59:59-03:00')
                 }
             }
 
@@ -92,7 +98,8 @@ export default function ReportsPage() {
                 .select(`
                     id, valor_total, forma_pagamento, criado_em, status,
                     itens:itens_pedido(
-                        quantidade, 
+                        quantidade,
+                        eh_upsell, 
                         produtos(nome, categorias(nome))
                     )
                 `)
@@ -131,11 +138,14 @@ export default function ReportsPage() {
                     })
                 })
 
+                const ordersWithUpsell = validOrders.filter(o => o.itens?.some(i => i.eh_upsell)).length
+                const upsellRate = validOrders.length > 0 ? (ordersWithUpsell / validOrders.length) * 100 : 0
+
                 setStats({
                     revenue,
                     orders: validOrders.length,
                     ticket,
-                    upsell: 12,
+                    upsell: Number(upsellRate.toFixed(1)),
                     itemCount: periodCounts
                 })
 
@@ -167,18 +177,42 @@ export default function ReportsPage() {
 
                 // Chart data - GROUP BY DAY or MONTH
                 const dailyData = {}
-                const isYearView = filterMode === 'advanced' && advancedType === 'year'
+                
+                let chartStartDate = startDate;
+                if (period === 'Todo o Período' && validOrders.length > 0) {
+                    chartStartDate = new Date(Math.min(...validOrders.map(o => new Date(o.criado_em).getTime())));
+                }
 
-                if (isYearView) {
+                const diffTime = Math.abs(endDate - chartStartDate);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                const isMonthView = diffDays > 31;
+
+                if (isMonthView) {
                     const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
-                    months.forEach(m => dailyData[m] = 0)
+                    const tempDate = new Date(chartStartDate.getFullYear(), chartStartDate.getMonth(), 1);
+                    while (tempDate <= endDate) {
+                        const mIdx = tempDate.getMonth();
+                        const y = tempDate.getFullYear().toString().slice(-2);
+                        const label = `${months[mIdx]}/${y}`;
+                        
+                        if (dailyData[label] === undefined) {
+                            dailyData[label] = 0;
+                        }
+                        tempDate.setMonth(tempDate.getMonth() + 1);
+                        if (Object.keys(dailyData).length > 60) break; // limit to 5 years
+                    }
 
                     validOrders.forEach(o => {
-                        const mIdx = new Date(o.criado_em).getMonth()
-                        dailyData[months[mIdx]] += Number(o.valor_total)
+                        const d = new Date(o.criado_em);
+                        const mIdx = d.getMonth();
+                        const y = d.getFullYear().toString().slice(-2);
+                        const label = `${months[mIdx]}/${y}`;
+                        if (dailyData[label] !== undefined) {
+                            dailyData[label] += Number(o.valor_total)
+                        }
                     })
                 } else {
-                    const tempDate = new Date(startDate)
+                    const tempDate = new Date(chartStartDate)
                     while (tempDate <= endDate) {
                         const label = tempDate.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }).replace('.', '')
                         dailyData[label] = 0
@@ -238,6 +272,7 @@ export default function ReportsPage() {
                                 <option>Ontem</option>
                                 <option>Últimos 7 dias</option>
                                 <option>Este Mês</option>
+                                <option>Todo o Período</option>
                             </select>
                             <ChevronDown size={16} />
                         </div>
@@ -247,6 +282,7 @@ export default function ReportsPage() {
                                 <option value="day">Dia</option>
                                 <option value="month">Mês</option>
                                 <option value="year">Ano</option>
+                                <option value="period">Período (De/Até)</option>
                             </select>
 
                             {advancedType === 'day' && (
@@ -274,6 +310,24 @@ export default function ReportsPage() {
                                 <select value={selectedYear} onChange={e => setSelectedYear(Number(e.target.value))}>
                                     {[2024, 2025, 2026].map(y => <option key={y} value={y}>{y}</option>)}
                                 </select>
+                            )}
+
+                            {advancedType === 'period' && (
+                                <div className="date-range-inputs">
+                                    <input
+                                        type="date"
+                                        value={selectedStartDate}
+                                        onChange={e => setSelectedStartDate(e.target.value)}
+                                        title="Data Inicial"
+                                    />
+                                    <span>até</span>
+                                    <input
+                                        type="date"
+                                        value={selectedEndDate}
+                                        onChange={e => setSelectedEndDate(e.target.value)}
+                                        title="Data Final"
+                                    />
+                                </div>
                             )}
                         </div>
                     )}
@@ -329,7 +383,7 @@ export default function ReportsPage() {
                             </div>
                         </div>
                         <div className="card-body">
-                            <span>Taxa de Conversão</span>
+                            <span>Taxa de Upsell</span>
                             <h3>{stats.upsell}%</h3>
                         </div>
                     </div>
