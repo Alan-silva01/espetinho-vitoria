@@ -191,7 +191,7 @@ export default function CustomersPage() {
             return
         }
         try {
-            await fetch('https://espetinho-n8n-webhook.e2u8y7.easypanel.host/webhook/enviar_link', {
+            await fetch('https://rapidus-n8n-webhook.b7bsm5.easypanel.host/webhook/enviar_link', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

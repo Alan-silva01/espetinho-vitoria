@@ -316,7 +316,7 @@ export default function CheckoutPage() {
                     cliente_original: customer
                 }
 
-                await fetch('https://espetinho-n8n-webhook.e2u8y7.easypanel.host/webhook/pedido_feito', {
+                await fetch('https://rapidus-n8n-webhook.b7bsm5.easypanel.host/webhook/pedido_feito', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(webhookBody),

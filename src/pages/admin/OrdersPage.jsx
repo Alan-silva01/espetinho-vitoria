@@ -466,7 +466,7 @@ export default function OrdersPage() {
 
                 // Existing webhook
                 try {
-                    await fetch('https://espetinho-n8n-webhook.e2u8y7.easypanel.host/webhook/saiu_entrega', {
+                    await fetch('https://rapidus-n8n-webhook.b7bsm5.easypanel.host/webhook/saiu_entrega', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({

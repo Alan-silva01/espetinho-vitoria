@@ -34,11 +34,19 @@ export default function ReportsPage() {
     const [period, setPeriod] = useState('Este Mês')
     const [loading, setLoading] = useState(true)
 
+    const getTodaySP = () => {
+        try {
+            return new Date().toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' })
+        } catch {
+            return new Date().toISOString().split('T')[0]
+        }
+    }
+
     const [filterMode, setFilterMode] = useState('quick') // 'quick' or 'advanced'
     const [advancedType, setAdvancedType] = useState('month') // 'day', 'month', 'year', 'period'
-    const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0])
-    const [selectedStartDate, setSelectedStartDate] = useState(new Date().toISOString().split('T')[0])
-    const [selectedEndDate, setSelectedEndDate] = useState(new Date().toISOString().split('T')[0])
+    const [selectedDate, setSelectedDate] = useState(getTodaySP)
+    const [selectedStartDate, setSelectedStartDate] = useState(getTodaySP)
+    const [selectedEndDate, setSelectedEndDate] = useState(getTodaySP)
     const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth())
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
 
@@ -88,8 +96,15 @@ export default function ReportsPage() {
                     startDate = new Date(selectedYear, 0, 1, 0, 0, 0)
                     endDate = new Date(selectedYear, 11, 31, 23, 59, 59)
                 } else if (advancedType === 'period') {
-                    startDate = new Date(selectedStartDate + 'T00:00:00-03:00')
-                    endDate = new Date(selectedEndDate + 'T23:59:59-03:00')
+                    const s = selectedStartDate || getTodaySP()
+                    const e = selectedEndDate || getTodaySP()
+                    startDate = new Date(s + 'T00:00:00-03:00')
+                    endDate = new Date(e + 'T23:59:59-03:00')
+                    
+                    if (startDate > endDate) {
+                        startDate = new Date(e + 'T00:00:00-03:00')
+                        endDate = new Date(s + 'T23:59:59-03:00')
+                    }
                 }
             }
 
