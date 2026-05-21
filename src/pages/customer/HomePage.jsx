@@ -243,7 +243,24 @@ export default function HomePage() {
                                         {(() => {
                                             const defaultVar = getDefaultVariation(product)
                                             const isAcai = product.categoria?.nome === 'Açaí' || product.nome?.toLowerCase().includes('açaí')
-                                            const displayPrice = defaultVar ? defaultVar.preco : product.preco
+                                            let displayPrice = defaultVar ? defaultVar.preco : product.preco
+
+                                            // If base price is 0 and no variations, check customization options for the first priced flavor
+                                            if (displayPrice === 0 && !defaultVar && product.opcoes_personalizacao?.length > 0) {
+                                                for (const group of product.opcoes_personalizacao) {
+                                                    if (group.tipo === 'radio') {
+                                                        const firstPricedOpt = group.opcoes.find(opt => {
+                                                            const p = typeof opt === 'string' ? 0 : (Number(opt.preco) || 0)
+                                                            const available = typeof opt === 'string' ? true : (opt.disponivel !== false)
+                                                            return p > 0 && available
+                                                        })
+                                                        if (firstPricedOpt) {
+                                                            displayPrice = Number(firstPricedOpt.preco) || 0
+                                                            break
+                                                        }
+                                                    }
+                                                }
+                                            }
 
                                             return (
                                                 <>

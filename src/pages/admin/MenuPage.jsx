@@ -184,7 +184,7 @@ export default function MenuPage() {
         const payload = {
             nome: formData.nome,
             descricao: formData.descricao,
-            preco: parseFloat(formData.preco),
+            preco: parseFloat(formData.preco) || 0,
             categoria_id: formData.categoria_id,
             imagem_url: formData.imagem_url,
             disponivel: formData.disponivel,
@@ -660,17 +660,38 @@ export default function MenuPage() {
                                                 ))}
                                             </select>
                                         </div>
-                                        <div className="input-group-premium">
-                                            <label>Preço (R$)</label>
-                                            <input
-                                                type="number"
-                                                step="0.01"
-                                                required
-                                                value={formData.preco}
-                                                onChange={e => setFormData(prev => ({ ...prev, preco: e.target.value }))}
-                                                placeholder="0,00"
-                                            />
-                                        </div>
+                                        {(() => {
+                                            // Check if product has customization options with individual prices (like juice flavors)
+                                            const hasPricedCustomizations = formData.opcoes_personalizacao?.some(g =>
+                                                g.tipo === 'radio' && g.opcoes?.some(opt =>
+                                                    typeof opt !== 'string' && Number(opt.preco) > 0
+                                                )
+                                            )
+                                            // Also check if it has variations (which have their own prices)
+                                            const hasVariations = variations.length > 0
+
+                                            if (hasPricedCustomizations && !hasVariations) {
+                                                // Auto-set base price to 0 when hidden
+                                                if (formData.preco !== 0 && formData.preco !== '0' && formData.preco !== '') {
+                                                    // Will be handled on save
+                                                }
+                                                return null
+                                            }
+
+                                            return (
+                                                <div className="input-group-premium">
+                                                    <label>Preço (R$)</label>
+                                                    <input
+                                                        type="number"
+                                                        step="0.01"
+                                                        required
+                                                        value={formData.preco}
+                                                        onChange={e => setFormData(prev => ({ ...prev, preco: e.target.value }))}
+                                                        placeholder="0,00"
+                                                    />
+                                                </div>
+                                            )
+                                        })()}
                                     </div>
 
                                     <div className="input-group-premium">
