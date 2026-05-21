@@ -553,7 +553,20 @@ export default function MenuPage() {
                             <div className="card-bottom">
                                 <div className="price-tag">
                                     <span className="label">Preço</span>
-                                    <span className="value">{formatCurrency(p.preco)}</span>
+                                    <span className="value">{(() => {
+                                        let price = p.preco
+                                        if (price === 0 && (!p.variacoes_produto || p.variacoes_produto.length === 0) && p.opcoes_personalizacao?.length > 0) {
+                                            for (const group of p.opcoes_personalizacao) {
+                                                if (group.tipo === 'radio') {
+                                                    const firstPriced = group.opcoes.find(opt =>
+                                                        typeof opt !== 'string' && Number(opt.preco) > 0 && opt.disponivel !== false
+                                                    )
+                                                    if (firstPriced) { price = Number(firstPriced.preco); break }
+                                                }
+                                            }
+                                        }
+                                        return formatCurrency(price)
+                                    })()}</span>
                                 </div>
                                 <span className="cat-label">{p.categorias?.nome}</span>
                             </div>
