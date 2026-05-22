@@ -179,9 +179,9 @@ export default function OrdersPage() {
     // Debounced fetch: coalesces multiple realtime events into one fetch
     // Uses a ref so the realtime subscription never needs to re-subscribe
     const scheduleFetchRef = useRef(null)
-    scheduleFetchRef.current = (delayMs = 800) => {
+    scheduleFetchRef.current = (delayMs = 1500) => {
         const elapsed = Date.now() - lastFetchTimeRef.current
-        const cooldown = 1000 // Minimum 1s between fetches (reduced from 3s)
+        const cooldown = 3000 // Minimum 3s between fetches (performance optimization)
         const actualDelay = elapsed < cooldown ? Math.max(delayMs, cooldown - elapsed) : delayMs
 
         if (pendingFetchTimerRef.current) {
@@ -236,11 +236,46 @@ export default function OrdersPage() {
 
                     // Merged orders for comanda: if status moves back to 'confirmado' OR total changes,
                     // we likely have new items that payload.new doesn't include.
-                    const needsFullFetch = payload.new.status === 'confirmado' || isNewItemAdded || isClosingRequested
+                    const needsDetailedData = payload.new.status === 'confirmado' || isNewItemAdded || isClosingRequested
 
-                    if (needsFullFetch) {
-                        console.log('[Realtime] Order updated, scheduling debounced fetch...')
-                        scheduleFetchRef.current?.(800)
+                    if (needsDetailedData) {
+                        // Smart merge: fetch ONLY this order instead of ALL orders
+                        console.log('[Realtime] Order updated, fetching single order...')
+                        ;(async () => {
+                            try {
+                                const { data: updatedOrder, error: fetchErr } = await supabase
+                                    .from('pedidos')
+                                    .select(`
+                                        *,
+                                        itens:itens_pedido(
+                                            *,
+                                            produtos(nome),
+                                            variacoes_produto(nome)
+                                        ),
+                                        clientes(telefone, nome),
+                                        mesas(numero)
+                                    `)
+                                    .eq('id', payload.new.id)
+                                    .single()
+
+                                if (!fetchErr && updatedOrder) {
+                                    setOrders(prev => {
+                                        const exists = prev.some(o => o.id === updatedOrder.id)
+                                        if (exists) {
+                                            return prev.map(o => o.id === updatedOrder.id ? updatedOrder : o)
+                                        }
+                                        return prev // Not in current date view, ignore
+                                    })
+                                    // Sync selected order modal if open
+                                    if (selectedOrderRef.current?.id === updatedOrder.id) {
+                                        setSelectedOrder(updatedOrder)
+                                    }
+                                }
+                            } catch (err) {
+                                console.error('[Realtime] Smart merge failed, falling back to full fetch:', err)
+                                scheduleFetchRef.current?.(1500)
+                            }
+                        })()
                         return
                     }
 
@@ -267,13 +302,13 @@ export default function OrdersPage() {
                 console.log('[Realtime] Subscription status:', status)
             })
 
-        // Polling backup: safety net every 30s in case WebSocket dies silently
+        // Polling backup: safety net every 60s in case WebSocket dies silently
         const pollingInterval = setInterval(() => {
             if (document.visibilityState === 'visible') {
                 console.log('[Polling] Heartbeat fetch...')
                 fetchOrders(true)
             }
-        }, 30000)
+        }, 60000)
 
         return () => {
             if (pendingFetchTimerRef.current) clearTimeout(pendingFetchTimerRef.current)
