@@ -9,7 +9,7 @@ let globalHorariosCache = null
 export function StoreProvider({ children }) {
     const [config, setConfig] = useState(globalConfigCache)
     const [horarios, setHorarios] = useState(globalHorariosCache || [])
-    const [loading, setLoading] = useState(!globalConfigCache)
+    const [loading, setLoading] = useState(true)
 
     const fetchStoreStatus = useCallback(async () => {
         try {
