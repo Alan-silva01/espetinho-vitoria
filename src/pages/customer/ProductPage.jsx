@@ -246,12 +246,29 @@ export default function ProductPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedVariation, product?.id])
 
+    // Detect if a radio group acts as a price-replacement (not an additive extra).
+    // This is the case when the product has radio groups with prices > 0 and NO variations,
+    // meaning the admin intended the radio option price to BE the item price.
+    const hasPriceReplacementRadio = useMemo(() => {
+        if (!product?.opcoes_personalizacao) return false
+        const hasVariations = product.variacoes_produto?.length > 0
+        if (hasVariations) return false
+        return product.opcoes_personalizacao.some(g =>
+            g.tipo === 'radio' && g.opcoes?.some(opt => optPreco(opt) > 0)
+        )
+    }, [product])
+
     // Calculate extras cost from selected add-on options
     const extrasTotal = useMemo(() => {
         if (!product?.opcoes_personalizacao) return 0
         let total = 0
         product.opcoes_personalizacao.forEach(group => {
             const selected = selectedOptions[group.grupo]
+            // Skip radio groups that act as price-replacement (their price replaces the base, not adds)
+            if (group.tipo === 'radio' && hasPriceReplacementRadio) {
+                const hasGroupPrices = group.opcoes?.some(opt => optPreco(opt) > 0)
+                if (hasGroupPrices) return // Skip this group entirely
+            }
             group.opcoes.forEach(opt => {
                 const name = optName(opt)
                 const price = optPreco(opt)
@@ -264,21 +281,42 @@ export default function ProductPage() {
             })
         })
         return total
-    }, [product, selectedOptions])
+    }, [product, selectedOptions, hasPriceReplacementRadio])
+
+    // Get the effective base price from a price-replacement radio group selection
+    const radioBasePrice = useMemo(() => {
+        if (!hasPriceReplacementRadio || !product?.opcoes_personalizacao) return null
+        for (const group of product.opcoes_personalizacao) {
+            if (group.tipo !== 'radio') continue
+            const hasGroupPrices = group.opcoes?.some(opt => optPreco(opt) > 0)
+            if (!hasGroupPrices) continue
+            const selected = selectedOptions[group.grupo]
+            if (!selected) continue
+            const selectedOpt = group.opcoes.find(opt => optName(opt) === selected)
+            if (selectedOpt) return optPreco(selectedOpt)
+        }
+        return null
+    }, [hasPriceReplacementRadio, product, selectedOptions])
 
     const totalPrice = useMemo(() => {
-        const basePrice = selectedVariation?.preco || product?.preco || 0
+        const basePrice = selectedVariation?.preco
+            || (radioBasePrice !== null ? radioBasePrice : null)
+            || product?.preco
+            || 0
         return (basePrice + extrasTotal) * qty
-    }, [product, selectedVariation, qty, extrasTotal])
+    }, [product, selectedVariation, qty, extrasTotal, radioBasePrice])
 
     const customizations = product?.opcoes_personalizacao || []
 
 
     // Calculate the unit price (base + extras) for the header display
     const unitPrice = useMemo(() => {
-        const basePrice = selectedVariation?.preco || product?.preco || 0
+        const basePrice = selectedVariation?.preco
+            || (radioBasePrice !== null ? radioBasePrice : null)
+            || product?.preco
+            || 0
         return basePrice + extrasTotal
-    }, [product, selectedVariation, extrasTotal])
+    }, [product, selectedVariation, extrasTotal, radioBasePrice])
 
     // Validation: check if all "Escolha X" groups have exactly X items
     // + when Completo is selected, arroz group is required
@@ -420,7 +458,7 @@ export default function ProductPage() {
             produto_id: product.id,
             variacao_id: selectedVariation?.id,
             nome: getSmartItemName(product.nome, selectedVariation?.nome, selectedOptions),
-            preco: (selectedVariation?.preco || product.preco) + extrasTotal,
+            preco: (selectedVariation?.preco || (radioBasePrice !== null ? radioBasePrice : product.preco)) + extrasTotal,
             imagem_url: product.imagem_url,
             quantidade: qty,
             observacoes: notes,
@@ -646,9 +684,13 @@ export default function ProductPage() {
                                                         if (group.tipo === 'radio') {
                                                             const showTotal = price > 0 || customizations.length === 1 || group.grupo === 'Tamanho'
                                                             if (showTotal) {
+                                                                // If this radio group acts as a price-replacement, show just the option price
+                                                                // Otherwise, show product base price + option price as additional
+                                                                const isReplacementGroup = hasPriceReplacementRadio && group.opcoes?.some(o => optPreco(o) > 0)
+                                                                const displayPrice = isReplacementGroup ? price : (product.preco || 0) + price
                                                                 return (
                                                                     <span className="product-addon-item__price">
-                                                                        {formatCurrency((product.preco || 0) + price)}
+                                                                        {formatCurrency(displayPrice)}
                                                                     </span>
                                                                 )
                                                             }
