@@ -157,7 +157,13 @@ export default function ProductPage() {
                     defaults[group.grupo] = []
                 }
             } else {
-                defaults[group.grupo] = ''
+                // Radio option: if there's only 1 available option, pre-select it automatically
+                const availableOpts = group.opcoes.filter(opt => checkOptionAvailable(opt))
+                if (availableOpts.length === 1) {
+                    defaults[group.grupo] = optName(availableOpts[0])
+                } else {
+                    defaults[group.grupo] = ''
+                }
             }
         })
         setSelectedOptions(defaults)
