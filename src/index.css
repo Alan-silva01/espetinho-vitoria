@@ -452,3 +452,49 @@ textarea {
     transform: translate(-100%, -60%) scale(0.3);
   }
 }
+
+/* ---------- Admin Panel Overrides ---------- */
+.admin-container {
+  /* Cores Primárias (Azul Premium) */
+  --cor-primaria: #2563eb;
+  --cor-primaria-hover: #1d4ed8;
+  --cor-primaria-light: #60a5fa;
+  --gradiente-primario: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  --cor-secundaria: #3b82f6;
+  --cor-acento: #2563eb;
+  --cor-acento-hover: #1d4ed8;
+  --cor-acento-light: #60a5fa;
+
+  /* Fundos */
+  --fundo-principal: #FCFCFC;
+  --fundo-cards: #FFFFFF;
+  --fundo-secao: #FCFCFC;
+  --admin-fundo: #FCFCFC;
+  --admin-card: #FFFFFF;
+
+  /* Texto */
+  --texto-principal: #171717;
+  --texto-secundario: #525252;
+  --texto-terciario: #737373;
+  --texto-preco: #2563eb;
+
+  /* Tipografia */
+  --fonte-destaque: 'Inter', -apple-system, sans-serif;
+  --fonte-corpo: 'Inter', -apple-system, sans-serif;
+
+  /* Espaçamento sutil */
+  --gap-grid: 16px;
+  --padding-card: 16px;
+
+  /* Bordas minimalistas */
+  --raio-sm: 6px;
+  --raio-md: 10px;
+  --raio-lg: 12px;
+  --raio-xl: 16px;
+
+  /* Sombras ultra limpas (quase sem sombra) */
+  --sombra-sm: none;
+  --sombra-md: none;
+  --sombra-lg: 0 4px 12px rgba(0, 0, 0, 0.03);
+  --sombra-card: none;
+}
