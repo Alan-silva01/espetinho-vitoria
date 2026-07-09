@@ -256,8 +256,17 @@
     .admin-sidebar.collapsed:not(.hovered) .brand-text,
     .admin-sidebar.collapsed:not(.hovered) .nav-label,
     .admin-sidebar.collapsed:not(.hovered) .nav-badge,
-    .admin-sidebar.collapsed:not(.hovered) .profile-info {
+    .admin-sidebar.collapsed:not(.hovered) .profile-info,
+    .admin-sidebar.collapsed:not(.hovered) .admin-profile-card img {
         display: none;
+    }
+
+    .admin-sidebar.collapsed:not(.hovered) .admin-profile-card {
+        background: transparent;
+        border: none;
+        padding: 0;
+        justify-content: center;
+        width: 100%;
     }
 }
 
