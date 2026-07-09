@@ -38,15 +38,10 @@
     justify-content: center;
 }
 
-.brand-icon {
+.brand-logo {
     width: 32px;
     height: 32px;
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
+    object-fit: contain;
     flex-shrink: 0;
 }
 
@@ -68,7 +63,7 @@
 
 .brand-text span {
     font-size: 10px;
-    color: #2563eb;
+    color: #C41E2E;
     text-transform: uppercase;
     letter-spacing: 0.1em;
     font-weight: 700;
@@ -173,13 +168,13 @@
 }
 
 .nav-item.active {
-    background: #EFF6FF;
-    color: #2563eb;
+    background: #FEE2E2;
+    color: #C41E2E;
     font-weight: 600;
 }
 
 .nav-item.active svg {
-    color: #2563eb;
+    color: #C41E2E;
 }
 
 .nav-item.active::before {
@@ -191,7 +186,7 @@
     height: 16px;
     width: 3px;
     border-radius: 0 4px 4px 0;
-    background-color: #2563eb;
+    background-color: #C41E2E;
 }
 
 .sidebar-footer {

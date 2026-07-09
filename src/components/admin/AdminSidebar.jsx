@@ -53,9 +53,7 @@ export default function AdminSidebar({ adminInfo, currentPath, onLogout, isColla
             onMouseLeave={() => setIsHovered(false)}
         >
             <div className="sidebar-brand">
-                <div className="brand-icon">
-                    <UtensilsCrossed size={20} />
-                </div>
+                <img src={logoImg} alt="Logo" className="brand-logo" />
                 <div className="brand-text animate-fade-in">
                     <h1>Espetinho</h1>
                     <span>Vitória</span>

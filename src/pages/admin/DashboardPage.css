@@ -95,12 +95,11 @@
     padding-bottom: 40px;
 }
 
-/* Metrics Grid */
 .metrics-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 24px;
-    margin-bottom: 32px;
+    gap: 12px;
+    margin-bottom: 24px;
 }
 
 .metric-card {
@@ -112,10 +111,10 @@
 }
 
 .metric-card.primary {
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    background: linear-gradient(135deg, #C41E2E 0%, #8B1A2B 100%);
     color: white;
     box-shadow: none;
-    border: 1px solid #2563eb;
+    border: 1px solid #C41E2E;
 }
 
 .metric-card.standard {
@@ -148,44 +147,26 @@
 }
 
 .icon-wrapper {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
+    background: #F3F4F6 !important;
+    color: #525252 !important;
+}
+
+.icon-wrapper svg {
+    width: 18px !important;
+    height: 18px !important;
+    stroke-width: 1.5 !important;
 }
 
 .metric-card.primary .icon-wrapper {
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.15) !important;
+    color: white !important;
     backdrop-filter: blur(4px);
-}
-
-.icon-wrapper.blue {
-    background: #EFF6FF;
-    color: #2563eb;
-}
-
-.icon-wrapper.orange {
-    background: #FFF7ED;
-    color: #F59E0B;
-}
-
-.icon-wrapper.purple {
-    background: #FAF5FF;
-    color: #8B5CF6;
-}
-
-.dark .icon-wrapper.blue {
-    background: rgba(59, 130, 246, 0.1);
-}
-
-.dark .icon-wrapper.orange {
-    background: rgba(245, 158, 11, 0.1);
-}
-
-.dark .icon-wrapper.purple {
-    background: rgba(139, 92, 246, 0.1);
 }
 
 .card-label {

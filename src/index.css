@@ -455,15 +455,15 @@ textarea {
 
 /* ---------- Admin Panel Overrides ---------- */
 .admin-container {
-  /* Cores Primárias (Azul Premium) */
-  --cor-primaria: #2563eb;
-  --cor-primaria-hover: #1d4ed8;
-  --cor-primaria-light: #60a5fa;
-  --gradiente-primario: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-  --cor-secundaria: #3b82f6;
-  --cor-acento: #2563eb;
-  --cor-acento-hover: #1d4ed8;
-  --cor-acento-light: #60a5fa;
+  /* Cores Primárias (Vermelho Vitória) */
+  --cor-primaria: #C41E2E;
+  --cor-primaria-hover: #A31825;
+  --cor-primaria-light: #E8353F;
+  --gradiente-primario: linear-gradient(180deg, #E8353F 0%, #8B1A2B 100%);
+  --cor-secundaria: #7B2D6E;
+  --cor-acento: #C41E2E;
+  --cor-acento-hover: #A31825;
+  --cor-acento-light: #E8353F;
 
   /* Fundos */
   --fundo-principal: #FCFCFC;
@@ -476,21 +476,21 @@ textarea {
   --texto-principal: #171717;
   --texto-secundario: #525252;
   --texto-terciario: #737373;
-  --texto-preco: #2563eb;
+  --texto-preco: #C41E2E;
 
   /* Tipografia */
   --fonte-destaque: 'Inter', -apple-system, sans-serif;
   --fonte-corpo: 'Inter', -apple-system, sans-serif;
 
   /* Espaçamento sutil */
-  --gap-grid: 16px;
-  --padding-card: 16px;
+  --gap-grid: 12px;
+  --padding-card: 12px;
 
   /* Bordas minimalistas */
-  --raio-sm: 6px;
-  --raio-md: 10px;
-  --raio-lg: 12px;
-  --raio-xl: 16px;
+  --raio-sm: 4px;
+  --raio-md: 8px;
+  --raio-lg: 10px;
+  --raio-xl: 12px;
 
   /* Sombras ultra limpas (quase sem sombra) */
   --sombra-sm: none;

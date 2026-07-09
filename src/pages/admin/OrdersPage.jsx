@@ -960,8 +960,10 @@ export default function OrdersPage() {
                                                 ))}
                                             </div>
 
-                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #f8fafc' }}>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #f1f5f9' }}>
+                                                <span style={{ fontSize: '14px', fontWeight: 'bold', color: order.status === 'cancelado' ? '#94a3b8' : '#0f172a', textDecoration: order.status === 'cancelado' ? 'line-through' : 'none' }}>{formatCurrency(order.valor_total)}</span>
+
+                                                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                                                     {order.status !== 'cancelado' && (
                                                         <button
                                                             className="btn-cancel-card"
@@ -974,10 +976,6 @@ export default function OrdersPage() {
                                                             <Trash2 size={16} />
                                                         </button>
                                                     )}
-                                                    <span style={{ fontSize: '14px', fontWeight: 'bold', color: order.status === 'cancelado' ? '#94a3b8' : '#0f172a', textDecoration: order.status === 'cancelado' ? 'line-through' : 'none' }}>{formatCurrency(order.valor_total)}</span>
-                                                </div>
-
-                                                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                                                     {order.status === 'cancelado' ? (
                                                         <button
                                                             className="quick-action stage-confirmado"
