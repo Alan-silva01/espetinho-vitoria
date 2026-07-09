@@ -280,18 +280,23 @@ export default function OrdersPage() {
                     }
 
                     // Merge the update from another client or from server confirmation
-                    setOrders(prev => prev.map(order =>
-                        order.id === orderId ? { ...order, ...payload.new } : order
-                    ))
+                    setOrders(prev => {
+                        const updatedOrders = prev.map(order =>
+                            order.id === orderId ? { ...order, ...payload.new } : order
+                        )
 
-                    // Sync selected order modal if open
-                    if (selectedOrderRef.current && orderId === selectedOrderRef.current.id) {
-                        setOrders(currentOrders => {
-                            const updated = currentOrders.find(o => o.id === orderId)
-                            if (updated) setSelectedOrder(updated)
-                            return currentOrders
-                        })
-                    }
+                        // Sync selected order modal if open (safely, after the render phase)
+                        if (selectedOrderRef.current && orderId === selectedOrderRef.current.id) {
+                            const updated = updatedOrders.find(o => o.id === orderId)
+                            if (updated) {
+                                setTimeout(() => {
+                                    setSelectedOrder(updated)
+                                }, 0)
+                            }
+                        }
+
+                        return updatedOrders
+                    })
                 }
 
                 if (payload.eventType === 'DELETE') {
