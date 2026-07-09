@@ -761,6 +761,10 @@ export default function InventoryPage() {
                                         {/* Individual product inclusion cards (Sabores Sucos, Refrigerantes, etc) */}
                                         {activeTab !== 'acomp_acai' && activeTab !== 'acomp_espeto' && activeTab !== 'tamanhos_ml' && productsWithAddons.map(item => {
                                             const inclusionGroups = item.opcoes_personalizacao.filter(g =>
+                                                g.grupo &&
+                                                g.grupo.trim() !== '' &&
+                                                g.opcoes &&
+                                                g.opcoes.length > 0 &&
                                                 g.grupo !== 'Adicionais (Pagos)' &&
                                                 g.grupo !== 'Adicionais' &&
                                                 g.grupo !== 'Tipo de Arroz' &&
