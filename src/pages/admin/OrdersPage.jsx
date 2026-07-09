@@ -1289,11 +1289,16 @@ export default function OrdersPage() {
                                                     <td>{item.quantidade}</td>
                                                     <td>
                                                         <div>{getItemDisplayName(item)?.toUpperCase()}</div>
-                                                        {item.personalizacao && typeof item.personalizacao === 'object' && filterPersonalizacao(item.personalizacao, getItemDisplayName(item)).filter(p => p.key === 'Adicionais Pagos').map((p, pIdx) => (
-                                                            <div key={pIdx} className="receipt-item-details">
-                                                                + {p.value}
-                                                            </div>
-                                                        ))}
+                                                        {item.personalizacao && typeof item.personalizacao === 'object' && (() => {
+                                                            const isAcai = getItemDisplayName(item)?.toLowerCase().includes('açaí') || getItemDisplayName(item)?.toLowerCase().includes('acai')
+                                                            const all = filterPersonalizacao(item.personalizacao, getItemDisplayName(item))
+                                                            const filtered = isAcai ? all.filter(p => p.key === 'Adicionais Pagos') : all
+                                                            return filtered.map((p, pIdx) => (
+                                                                <div key={pIdx} className="receipt-item-details">
+                                                                    + {p.key === 'Adicionais Pagos' ? p.value : `${p.key}: ${p.value}`}
+                                                                </div>
+                                                            ))
+                                                        })()}
                                                         {item.observacoes && (
                                                             <div className="receipt-item-details" style={{ fontWeight: 'bold' }}>
                                                                 * OBS: {item.observacoes.toUpperCase()}
