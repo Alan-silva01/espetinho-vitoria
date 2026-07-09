@@ -842,7 +842,7 @@ export default function InventoryPage() {
                     <div className="report-box">
                         <h4>Relatório do Dia</h4>
                         <p>Exportar o controle de estoque de hoje em PDF.</p>
-                        <button className="btn-download">
+                        <button className="btn-download" onClick={() => window.print()}>
                             <Download size={16} /> Baixar PDF
                         </button>
                     </div>

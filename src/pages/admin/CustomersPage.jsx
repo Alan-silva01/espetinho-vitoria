@@ -207,6 +207,35 @@ export default function CustomersPage() {
         }
     }
 
+    const handleExportCSV = () => {
+        if (!filteredCustomers || filteredCustomers.length === 0) {
+            alert('Nenhum cliente para exportar.')
+            return
+        }
+
+        const headers = ['Nome', 'Telefone', 'Email', 'Qtd Pedidos', 'Total Gasto', 'Ultima Compra']
+        const rows = filteredCustomers.map(c => [
+            c.nome,
+            c.telefone || c.displayPhone || '',
+            c.email || '',
+            c.total_pedidos || 0,
+            c.total_gasto ? `R$ ${c.total_gasto.toFixed(2)}` : 'R$ 0,00',
+            c.ultima_compra || 'Nenhuma'
+        ])
+
+        // Add BOM \uFEFF to support Excel formatting with special characters in Portuguese
+        const csvContent = "data:text/csv;charset=utf-8,\uFEFF"
+            + [headers.join(','), ...rows.map(e => e.map(val => `"${String(val).replace(/"/g, '""')}"`).join(','))].join('\n')
+
+        const encodedUri = encodeURI(csvContent)
+        const link = document.createElement("a")
+        link.setAttribute("href", encodedUri)
+        link.setAttribute("download", `clientes_espetinho_vitoria_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.csv`)
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+    }
+
     if (loading) return <div className="admin-loading">Carregando clientes...</div>
 
     return (
@@ -261,7 +290,7 @@ export default function CustomersPage() {
                     </div>
                     <div className="toolbar-actions">
                         <button className="btn-outline"><Filter size={18} /> Filtros</button>
-                        <button className="btn-outline">Exportar</button>
+                        <button className="btn-outline" onClick={handleExportCSV}>Exportar</button>
                     </div>
                 </div>
 

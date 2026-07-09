@@ -972,3 +972,33 @@
 .global-addons h4 {
     color: #171717;
 }
+
+@media print {
+    .admin-sidebar,
+    .inventory-sidebar,
+    .inventory-toolbar,
+    .addon-management-section,
+    .btn-save,
+    .sync-info,
+    button,
+    svg {
+        display: none !important;
+    }
+    .admin-main {
+        margin-left: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+    }
+    .inventory-wrapper {
+        padding: 0 !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+    .inventory-layout-grid {
+        grid-template-columns: 1fr !important;
+    }
+    .inventory-table-container {
+        border: none !important;
+    }
+}

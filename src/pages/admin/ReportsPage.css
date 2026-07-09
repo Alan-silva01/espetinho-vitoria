@@ -487,3 +487,29 @@
         grid-template-columns: 1fr;
     }
 }
+
+@media print {
+    .admin-sidebar,
+    .filter-mode-tabs,
+    .advanced-filter-controls,
+    .btn-export,
+    .period-selector,
+    button,
+    svg {
+        display: none !important;
+    }
+    .admin-main {
+        margin-left: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+    }
+    .reports-page-wrapper {
+        padding: 0 !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+    .reports-main-layout {
+        grid-template-columns: 1fr !important;
+    }
+}

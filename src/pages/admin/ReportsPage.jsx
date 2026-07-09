@@ -347,7 +347,7 @@ export default function ReportsPage() {
                         </div>
                     )}
 
-                    <button className="btn-export">
+                    <button className="btn-export" onClick={() => window.print()}>
                         <Download size={18} />
                         <span>PDF</span>
                     </button>
