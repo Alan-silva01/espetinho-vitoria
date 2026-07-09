@@ -894,7 +894,6 @@ export default function OrdersPage() {
                                         <h3>{stage.id === 'entregue' && selectedOrder?.tipo_pedido === 'mesa' ? 'Servido' : stage.label}</h3>
                                         <span className="order-count">{stageOrders.length}</span>
                                     </div>
-                                    <MoreHorizontal size={20} color="#94A3B8" style={{ cursor: 'pointer' }} />
                                 </div>
 
                                 <div className="cards-stack">

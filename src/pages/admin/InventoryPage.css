@@ -31,21 +31,21 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 10px 24px;
+    padding: 8px 20px;
     background: #E5E7EB;
     color: #9CA3AF;
     border: none;
-    border-radius: 12px;
-    font-weight: 700;
+    border-radius: 8px;
+    font-weight: 600;
     cursor: default;
     transition: all 0.3s;
 }
 
 .btn-save.active {
-    background: #B91C1C;
+    background: #C41E2E;
     color: white;
     cursor: pointer;
-    box-shadow: 0 10px 20px -5px rgba(185, 28, 28, 0.4);
+    box-shadow: none;
 }
 
 .btn-save.active:hover {
@@ -62,21 +62,21 @@
 }
 
 .btn-toggle-fast {
-    padding: 8px 16px;
+    padding: 6px 14px;
     border: 1px solid #E5E7EB;
     background: white;
-    border-radius: 12px;
-    font-size: 13px;
-    font-weight: 700;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
     color: #4B5563;
     cursor: pointer;
     transition: all 0.2s;
 }
 
 .btn-toggle-fast.active {
-    background: #EFF6FF;
-    border-color: #3B82F6;
-    color: #2563EB;
+    background: #FEE2E2;
+    border-color: #C41E2E;
+    color: #C41E2E;
 }
 
 .inventory-main-content {
@@ -110,12 +110,12 @@
 }
 
 .inv-tab {
-    padding: 8px 16px;
-    border-radius: 20px;
+    padding: 6px 14px;
+    border-radius: 8px;
     border: 1px solid #E5E7EB;
     background: white;
     color: #4B5563;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
     cursor: pointer;
     white-space: nowrap;
@@ -128,9 +128,9 @@
 }
 
 .inv-tab.active {
-    background: #111827;
+    background: #C41E2E;
     color: white;
-    border-color: #111827;
+    border-color: #C41E2E;
 }
 
 .inv-tab-divider {
@@ -142,18 +142,18 @@
 }
 
 .inv-tab.addon-tab {
-    background: #FEF3C7;
-    border-color: #FDE68A;
-    color: #92400E;
+    background: #FEE2E2;
+    border-color: #FECACA;
+    color: #C41E2E;
 }
 
 .inv-tab.addon-tab:hover {
-    background: #FDE68A;
+    background: #FECACA;
 }
 
 .inv-tab.addon-tab.active {
-    background: #D97706;
-    border-color: #D97706;
+    background: #C41E2E;
+    border-color: #C41E2E;
     color: white;
 }
 
@@ -215,12 +215,12 @@
 
 .inv-stat-card {
     background: white;
-    padding: 24px;
-    border-radius: 20px;
+    padding: 16px 20px;
+    border-radius: 8px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border: 1px solid #F3F4F6;
+    border: 1px solid #DFDFDF;
 }
 
 .dark .inv-stat-card {
@@ -247,27 +247,29 @@
 }
 
 .stat-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
+    background: #F3F4F6 !important;
+    color: #525252 !important;
 }
 
 .inv-stat-card.gray .stat-icon {
     background: #F3F4F6;
-    color: #4B5563;
+    color: #525252;
 }
 
 .inv-stat-card.green .stat-icon {
-    background: #D1FAE5;
-    color: #059669;
+    background: #F3F4F6;
+    color: #525252;
 }
 
 .inv-stat-card.red .stat-icon {
-    background: #FEE2E2;
-    color: #B91C1C;
+    background: #F3F4F6;
+    color: #525252;
 }
 
 /* Grouped Inventory */
@@ -310,8 +312,8 @@
 
 .inv-item-card {
     background: white;
-    border-radius: 20px;
-    border: 1px solid #F3F4F6;
+    border-radius: 8px;
+    border: 1px solid #DFDFDF;
     overflow: hidden;
     transition: all 0.2s;
 }
@@ -424,13 +426,13 @@
 }
 
 .metric-box.blue {
-    border: 1px solid #DBEAFE;
-    color: #2563EB;
+    border: 1px solid #DFDFDF;
+    color: #525252;
 }
 
 .metric-box.green {
-    border: 1px solid #D1FAE5;
-    color: #059669;
+    border: 1px solid #DFDFDF;
+    color: #525252;
 }
 
 .stock-progress {
@@ -517,9 +519,9 @@
 /* Sidebar Progress */
 .inventory-sidebar {
     background: white;
-    border-radius: 24px;
-    padding: 24px;
-    border: 1px solid #F3F4F6;
+    border-radius: 10px;
+    padding: 20px;
+    border: 1px solid #DFDFDF;
     display: flex;
     flex-direction: column;
 }
@@ -566,15 +568,15 @@
 }
 
 .activity-item.green .marker {
-    border-color: #10B981;
+    border-color: #C41E2E;
 }
 
 .activity-item.blue .marker {
-    border-color: #3B82F6;
+    border-color: #C41E2E;
 }
 
 .activity-item.red .marker {
-    border-color: #EF4444;
+    border-color: #C41E2E;
 }
 
 .act-content p {
@@ -641,8 +643,8 @@
 /* Fast Entry Mode */
 .fast-entry-container {
     background: white;
-    border-radius: 20px;
-    border: 1px solid #F3F4F6;
+    border-radius: 8px;
+    border: 1px solid #DFDFDF;
     overflow: hidden;
     margin-bottom: 24px;
 }
@@ -764,18 +766,17 @@
     color: #9CA3AF;
 }
 
-/* Botões de Alternância de Visão */
 .btn-toggle-fast,
 .btn-toggle-addons {
-    padding: 10px 20px;
-    border-radius: 99px;
-    font-size: 14px;
-    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.2s;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
 }
 
 .btn-toggle-fast {
@@ -785,34 +786,33 @@
 }
 
 .btn-toggle-fast.active {
-    background: #111827;
-    color: white;
-    border-color: #111827;
+    background: #FEE2E2;
+    color: #C41E2E;
+    border-color: #C41E2E;
 }
 
 .btn-toggle-addons {
-    background: #EFF6FF;
-    color: #2563EB;
-    border: 1px solid #BFDBFE;
+    background: #FEE2E2;
+    color: #C41E2E;
+    border: 1px solid #FECACA;
 }
 
 .btn-toggle-addons.active {
-    background: #2563EB;
+    background: #C41E2E;
     color: white;
-    border-color: #2563EB;
+    border-color: #C41E2E;
 }
 
 /* Addon Management Card */
 .addon-management-card {
     background: white;
-    border-radius: 20px;
-    border: 1px solid #F3F4F6;
+    border-radius: 8px;
+    border: 1px solid #DFDFDF;
     overflow: hidden;
     height: 100%;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
 }
 
 .dark .addon-management-card {
@@ -917,20 +917,20 @@
 
 /* Toggle Switch Styling */
 .addon-toggle-btn {
-    width: 42px;
-    height: 22px;
+    width: 34px;
+    height: 18px;
     border-radius: 20px;
-    padding: 3px;
+    padding: 2px;
     cursor: pointer;
     border: none;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     display: flex;
     align-items: center;
 }
 
 .addon-toggle-btn.on {
-    background-color: #10B981;
+    background-color: #C41E2E;
 }
 
 .addon-toggle-btn.off {
@@ -942,50 +942,31 @@
 }
 
 .toggle-knob {
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
     background-color: white;
     border-radius: 50%;
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
 }
 
 .addon-toggle-btn.on .toggle-knob {
-    transform: translateX(20px);
+    transform: translateX(16px);
 }
 
 /* Global Addons Card Special Styling */
 .addon-management-card.global-addons {
-    border: 2px solid #BFDBFE;
-    background: #F0F9FF;
+    border: 1px solid #DFDFDF;
+    background: #FAFAFA;
     grid-column: 1 / -1;
-    /* Make it take full width or stand out */
     margin-bottom: 20px;
 }
 
-.dark .addon-management-card.global-addons {
-    background: #0C4A6E33;
-    border-color: #0369A1;
-}
-
 .global-addons .addon-card-header {
-    background: #DBEAFE;
-    border-bottom: 1px solid #BFDBFE;
-}
-
-.dark .global-addons .addon-card-header {
-    background: #0C4A6E;
-    border-color: #0369A1;
+    background: #F3F4F6;
+    border-bottom: 1px solid #DFDFDF;
 }
 
 .global-addons h4 {
-    color: #1E40AF;
-}
-
-.dark .global-addons h4 {
-    color: #60A5FA;
-}
-
-.global-addons .addon-options-grid {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    color: #171717;
 }

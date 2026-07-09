@@ -524,10 +524,18 @@
     margin-bottom: 24px;
 }
 
+.metric-card.primary .trend-badge {
+    color: #FFFFFF !important;
+}
+.metric-card.primary .trend-badge svg {
+    color: #FFFFFF !important;
+}
+
 .metric-card.minimal {
     padding: 16px 20px;
     background: white;
-    border: 1px solid #F3F4F6;
+    border: 1px solid #DFDFDF;
+    border-radius: 8px;
 }
 
 .dark .metric-card.minimal {
@@ -546,19 +554,27 @@
 }
 
 .metric-card.minimal.red {
-    border-left: 4px solid #EF4444;
+    border-left: 4px solid #C41E2E;
 }
 
 .metric-card.minimal.purple {
-    border-left: 4px solid #8B5CF6;
+    border-left: 4px solid #E8353F;
 }
 
 .metric-card.minimal.purple-light {
-    border-left: 4px solid #C084FC;
+    border-left: 4px solid #F87171;
 }
 
 .metric-card.minimal.blue {
-    border-left: 4px solid #3B82F6;
+    border-left: 4px solid #FCA5A5;
+}
+
+.metric-card.minimal svg {
+    color: #525252 !important;
+}
+
+.metric-card.minimal .dot {
+    background: #525252 !important;
 }
 
 .metric-card.minimal .value-row {
@@ -571,10 +587,6 @@
     width: 8px;
     height: 8px;
     border-radius: 50%;
-}
-
-.metric-card.minimal .dot.purple {
-    background: #8B5CF6;
 }
 
 /* RESPONSIVE OVERRIDES */
