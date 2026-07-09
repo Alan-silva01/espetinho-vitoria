@@ -131,22 +131,44 @@ export default function InventoryPage() {
             })
 
             // 4. Fetch real activities (Recent Sales)
-            const { data: recentItems, error: itemsErr } = await supabase
-                .from('itens_pedido')
-                .select('quantidade, produtos(nome), pedidos(id, numero_pedido, criado_em)')
-                .order('id', { ascending: false })
+            const { data: recentOrders, error: ordersErr } = await supabase
+                .from('pedidos')
+                .select('id, numero_pedido, criado_em, itens_pedido(quantidade, produtos(nome))')
+                .order('criado_em', { ascending: false })
                 .limit(5)
 
-            if (itemsErr) throw itemsErr
+            if (ordersErr) throw ordersErr
 
-            if (recentItems) {
-                const formatted = recentItems.map(item => ({
-                    id: item.pedidos?.id,
-                    title: `Pedido #${item.pedidos?.numero_pedido}`,
-                    subtitle: `${item.quantidade}x ${item.produtos?.nome}`,
-                    time: new Date(item.pedidos?.criado_em).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                    type: 'blue'
-                }))
+            if (recentOrders) {
+                const formatted = []
+                recentOrders.forEach(order => {
+                    order.itens_pedido?.forEach(item => {
+                        if (formatted.length < 5) {
+                            const date = new Date(order.criado_em)
+                            const today = new Date()
+                            const yesterday = new Date()
+                            yesterday.setDate(today.getDate() - 1)
+
+                            const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                            let displayTime = ''
+                            if (date.toDateString() === today.toDateString()) {
+                                displayTime = `Hoje, ${timeStr}`
+                            } else if (date.toDateString() === yesterday.toDateString()) {
+                                displayTime = `Ontem, ${timeStr}`
+                            } else {
+                                displayTime = `${date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}, ${timeStr}`
+                            }
+
+                            formatted.push({
+                                id: order.id,
+                                title: `Pedido #${order.numero_pedido}`,
+                                subtitle: `${item.quantidade}x ${item.produtos?.nome}`,
+                                time: displayTime,
+                                type: 'blue'
+                            })
+                        }
+                    })
+                })
                 setActivities(formatted)
             }
 
