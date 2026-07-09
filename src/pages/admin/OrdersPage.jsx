@@ -787,11 +787,11 @@ export default function OrdersPage() {
 
     return (
         <div className="orders-kanban-wrapper animate-fade-in">
-            <header className="orders-header-premium" style={{ background: 'white', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 32px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '24px', flex: 1 }}>
-                    <h2 style={{ fontSize: '18px', fontWeight: 'bold', color: '#0f172a', margin: 0 }}>Gerenciamento de Pedidos</h2>
+            <header className="orders-header-premium" style={{ background: 'white', borderBottom: '1px solid #DFDFDF', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 24px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1 }}>
+                    <h2 style={{ fontSize: '15px', fontWeight: '700', color: '#171717', margin: 0, whiteSpace: 'nowrap' }}>Gerenciamento de Pedidos</h2>
                     <div className="search-box">
-                        <Search size={20} color="#94A3B8" />
+                        <Search size={15} color="#9CA3AF" />
                         <input
                             type="text"
                             placeholder="Buscar pedido ou cliente..."
@@ -801,10 +801,10 @@ export default function OrdersPage() {
                     </div>
                 </div>
 
-                <div className="header-right" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div className="header-right" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <div
                         onClick={() => dateInputRef.current?.showPicker?.() || dateInputRef.current?.click()}
-                        style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#f1f5f9', padding: '8px 12px', borderRadius: '8px', color: '#475569', cursor: 'pointer' }}
+                        style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#F3F4F6', padding: '6px 10px', borderRadius: '8px', color: '#525252', cursor: 'pointer', fontSize: '12px', fontWeight: '600', border: '1px solid #DFDFDF' }}
                     >
                         <Calendar size={16} />
                         <span style={{ fontSize: '12px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
@@ -835,11 +835,11 @@ export default function OrdersPage() {
                         disabled={isRefreshing}
                         title="Atualizar Pedidos"
                     >
-                        <RefreshCw size={16} className={isRefreshing ? 'spin' : ''} />
+                        <RefreshCw size={14} className={isRefreshing ? 'spin' : ''} />
                     </button>
 
                     <button className="btn-sound-test" onClick={playNotificationSound}>
-                        <Play size={16} />
+                        <Play size={14} />
                         Ativar Som
                     </button>
 
@@ -848,7 +848,7 @@ export default function OrdersPage() {
                         onClick={toggleAutoPrint}
                         title={autoPrint ? 'Impressão automática ativada' : 'Impressão automática desativada'}
                     >
-                        <Printer size={18} />
+                        <Printer size={14} />
                         Impressão Auto
                     </button>
                 </div>
