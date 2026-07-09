@@ -1289,9 +1289,9 @@ export default function OrdersPage() {
                                                     <td>{item.quantidade}</td>
                                                     <td>
                                                         <div>{getItemDisplayName(item)?.toUpperCase()}</div>
-                                                        {item.personalizacao && typeof item.personalizacao === 'object' && filterPersonalizacao(item.personalizacao, getItemDisplayName(item)).map((p, pIdx) => (
+                                                        {item.personalizacao && typeof item.personalizacao === 'object' && filterPersonalizacao(item.personalizacao, getItemDisplayName(item)).filter(p => p.key === 'Adicionais Pagos').map((p, pIdx) => (
                                                             <div key={pIdx} className="receipt-item-details">
-                                                                + {p.key}: {p.value}
+                                                                + {p.value}
                                                             </div>
                                                         ))}
                                                         {item.observacoes && (
