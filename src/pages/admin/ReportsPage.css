@@ -333,7 +333,8 @@
 }
 
 .donut-container {
-    width: 100px;
+    width: 120px;
+    height: 120px;
     flex-shrink: 0;
 }
 

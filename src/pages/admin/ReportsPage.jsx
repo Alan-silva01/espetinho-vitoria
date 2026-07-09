@@ -486,24 +486,22 @@ export default function ReportsPage() {
                                 <h3>Métodos de Pagamento</h3>
                             </div>
                             <div className="donut-and-legend">
-                                <div className="donut-container">
-                                    <ResponsiveContainer width="100%" height={120}>
-                                        <PieChart>
-                                            <Pie
-                                                data={paymentData}
-                                                cx="50%"
-                                                cy="50%"
-                                                innerRadius={40}
-                                                outerRadius={55}
-                                                paddingAngle={5}
-                                                dataKey="value"
-                                            >
-                                                {paymentData.map((entry, index) => (
-                                                    <Cell key={`cell-${index}`} fill={entry.color} />
-                                                ))}
-                                            </Pie>
-                                        </PieChart>
-                                    </ResponsiveContainer>
+                                <div className="donut-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <PieChart width={120} height={120}>
+                                        <Pie
+                                            data={paymentData}
+                                            cx="50%"
+                                            cy="50%"
+                                            innerRadius={36}
+                                            outerRadius={48}
+                                            paddingAngle={4}
+                                            dataKey="value"
+                                        >
+                                            {paymentData.map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={entry.color} />
+                                            ))}
+                                        </Pie>
+                                    </PieChart>
                                 </div>
                                 <div className="legend-list">
                                     {paymentData.map(item => (
