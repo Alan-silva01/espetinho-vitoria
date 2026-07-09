@@ -135,7 +135,7 @@ export default function InventoryPage() {
                 .from('pedidos')
                 .select('id, numero_pedido, criado_em, itens_pedido(quantidade, produtos(nome))')
                 .order('criado_em', { ascending: false })
-                .limit(5)
+                .limit(25)
 
             if (ordersErr) throw ordersErr
 
@@ -143,7 +143,7 @@ export default function InventoryPage() {
                 const formatted = []
                 recentOrders.forEach(order => {
                     order.itens_pedido?.forEach(item => {
-                        if (formatted.length < 5) {
+                        if (formatted.length < 22) {
                             const date = new Date(order.criado_em)
                             const today = new Date()
                             const yesterday = new Date()
