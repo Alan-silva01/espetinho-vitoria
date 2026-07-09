@@ -1344,8 +1344,8 @@
     .receipt-table td {
         padding: 2mm 0;
         vertical-align: top;
-        font-size: 15px;
-        font-weight: 800;
+        font-size: 13px;
+        font-weight: 700;
     }
 
     .receipt-table td:nth-child(2) {
@@ -1358,8 +1358,12 @@
     }
 
     .receipt-item-details {
-        font-size: 12px;
-        padding-left: 1mm;
+        font-size: 11px;
+        font-weight: 400;
+        padding-left: 2mm;
+        margin-top: 1mm;
+        line-height: 1.4;
+        opacity: 0.85;
     }
 
     .receipt-total-section {
