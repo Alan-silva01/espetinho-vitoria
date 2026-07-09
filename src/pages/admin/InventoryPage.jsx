@@ -464,30 +464,6 @@ export default function InventoryPage() {
                         <button className={`inv-tab ${activeTab === 'sucos_naturais' ? 'active' : ''}`} onClick={() => setActiveTab('sucos_naturais')}>Sucos Naturais</button>
                     </div>
 
-                    {/* Quick Stats Grid */}
-                    <div className="inventory-stats-row">
-                        <div className="inv-stat-card gray">
-                            <div className="stat-info">
-                                <span>Total em Estoque</span>
-                                <h3>{inventory.reduce((acc, i) => acc + i.atual, 0)} <small>unid.</small></h3>
-                            </div>
-                            <div className="stat-icon"><Package /></div>
-                        </div>
-                        <div className="inv-stat-card green">
-                            <div className="stat-info">
-                                <span>Vendidos Hoje</span>
-                                <h3>{inventory.reduce((acc, i) => acc + i.vendidos, 0)} <small>unid.</small></h3>
-                            </div>
-                            <div className="stat-icon"><ShoppingCart /></div>
-                        </div>
-                        <div className="inv-stat-card red">
-                            <div className="stat-info">
-                                <span>Alertas de Baixa</span>
-                                <h3>{stats.alerts} <small>produtos</small></h3>
-                            </div>
-                            <div className="stat-icon"><AlertTriangle /></div>
-                        </div>
-                    </div>
 
                     {/* Fast Entry View */}
                     {activeTab !== 'acomp_acai' && activeTab !== 'acomp_espeto' && activeTab !== 'tamanhos_ml' && (
