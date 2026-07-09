@@ -118,7 +118,7 @@
 /* Layout */
 .hours-grid {
     display: grid;
-    grid-template-columns: 360px 1fr;
+    grid-template-columns: 380px 1fr;
     gap: 16px;
     max-width: 1200px;
 }
@@ -213,26 +213,31 @@
     font-weight: 600;
 }
 
-/* Status Card */
+/* Status Card — ALINHAMENTO HORIZONTAL CORRIGIDO */
 .status-card {
     display: flex;
-    align-items: center;
+    align-items: stretch; /* Garante altura idêntica para os dois */
+    gap: 12px;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
 }
 
 .status-indicator-big {
+    flex: 1;
     display: flex;
     align-items: center;
     gap: 12px;
-    width: 100%;
-    padding: 12px 14px;
+    padding: 12px 16px;
     border-radius: 8px;
     background: #F9FAFB;
     border: 1px solid #DFDFDF;
+    box-sizing: border-box;
 }
 
 .status-indicator-big.open {
-    border-color: #6EE7B7;
-    background: #ECFDF5;
+    border-color: #FECACA;
+    background: #FEF2F2;
 }
 
 .status-indicator-big.closed {
@@ -249,7 +254,7 @@
 }
 
 .open .pulsing-dot {
-    background: #10B981;
+    background: #C41E2E;
 }
 
 .closed .pulsing-dot {
@@ -286,20 +291,47 @@
 .status-indicator-big strong {
     font-size: 13px;
     font-weight: 700;
-}
-
-.open strong {
-    color: #065F46;
-}
-
-.closed strong {
-    color: #991B1B;
+    color: #C41E2E;
 }
 
 .status-indicator-big span {
     font-size: 11px;
     font-weight: 500;
     color: #737373;
+}
+
+/* Aviso automático no status card — ALINHAMENTO CORRIGIDO */
+.notification-status-info {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: #F9FAFB;
+    border-radius: 8px;
+    color: #737373;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid #DFDFDF;
+    box-sizing: border-box;
+    margin-top: 0 !important; /* Sem margem superior para não desalinhar */
+}
+
+.notification-status-info svg {
+    width: 14px;
+    height: 14px;
+    stroke-width: 1.5;
+    color: #737373;
+    flex-shrink: 0;
+}
+
+.notification-status-info span {
+    line-height: 1.4;
+}
+
+.notification-status-info strong {
+    color: #171717;
+    font-weight: 600;
 }
 
 /* Hours Card */
@@ -469,26 +501,6 @@
     }
 }
 
-/* Notification info */
-.notification-status-info {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 12px;
-    padding: 10px 12px;
-    background: #F3F4F6;
-    border-radius: 8px;
-    color: #737373;
-    font-size: 12px;
-    font-weight: 500;
-    border: 1px solid #DFDFDF;
-}
-
-.notification-status-info strong {
-    color: #171717;
-    font-weight: 600;
-}
-
 /* Header actions wrapper */
 .header-actions {
     display: flex;
@@ -518,6 +530,11 @@
 
     .header-titles h1 {
         font-size: 14px;
+    }
+
+    .status-card {
+        flex-direction: column;
+        align-items: stretch;
     }
 
     .day-item {
@@ -552,15 +569,5 @@
         width: auto;
         min-width: 56px;
         font-size: 12px;
-    }
-
-    .exception-body textarea {
-        min-height: 70px;
-    }
-
-    .status-indicator-big {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
     }
 }
