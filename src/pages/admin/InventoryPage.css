@@ -1,9 +1,10 @@
 .inventory-wrapper {
-    padding: 32px;
+    padding: 24px 32px;
     height: 100vh;
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    box-sizing: border-box;
 }
 
 .inventory-header-premium {
@@ -56,8 +57,9 @@
 .inventory-layout-grid {
     display: grid;
     grid-template-columns: 1fr 300px;
-    gap: 32px;
+    gap: 24px;
     flex: 1;
+    min-height: 0;
     overflow: hidden;
 }
 
@@ -519,11 +521,13 @@
 /* Sidebar Progress */
 .inventory-sidebar {
     background: white;
-    border-radius: 10px;
-    padding: 20px;
+    border-radius: 8px;
+    padding: 16px;
     border: 1px solid #DFDFDF;
     display: flex;
     flex-direction: column;
+    overflow-y: auto;
+    max-height: 100%;
 }
 
 .dark .inventory-sidebar {

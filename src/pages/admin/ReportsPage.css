@@ -249,6 +249,8 @@
     border-radius: 8px;
     padding: 20px;
     border: 1px solid #DFDFDF;
+    overflow: visible;
+    min-height: 0;
 }
 
 .section-header {

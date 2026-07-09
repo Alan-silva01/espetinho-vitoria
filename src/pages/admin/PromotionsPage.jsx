@@ -232,28 +232,31 @@ export default function PromotionsPage() {
                         className={`promo-card-premium ${promo.ativa ? 'ativo' : 'pausado'}`}
                         style={{ borderLeft: `6px solid ${promo.cor_fundo}` }}
                     >
-                        <div className="promo-badge-status">
-                            {promo.ativa ? <CheckCircle2 size={12} /> : <Power size={12} />}
-                            {promo.ativa ? 'Ativa' : 'Pausada'}
-                        </div>
-
-                        {promo.destaque && (
-                            <div className="promo-badge-destaque" style={{ background: promo.cor_fundo, color: promo.cor_texto }}>
-                                <Tag size={12} />
-                                Banner Principal
-                            </div>
-                        )}
-
                         <div className="promo-card-header">
                             <div className="discount-circle" style={{ background: promo.cor_fundo }}>
                                 {promo.imagem_url ? (
                                     <img src={promo.imagem_url} alt={promo.titulo} className="promo-card-img-circle" />
                                 ) : (
-                                    <Megaphone size={24} color={promo.cor_texto} />
+                                    <Megaphone size={20} color={promo.cor_texto} />
                                 )}
                             </div>
+
+                            <div className="ds-flex ds-flex-col ds-gap-xs" style={{ flex: 1, marginLeft: '8px', alignItems: 'flex-start' }}>
+                                <div className="promo-badge-status">
+                                    {promo.ativa ? <CheckCircle2 size={10} /> : <Power size={10} />}
+                                    {promo.ativa ? 'Ativa' : 'Pausada'}
+                                </div>
+
+                                {promo.destaque && (
+                                    <div className="promo-badge-destaque" style={{ background: promo.cor_fundo, color: promo.cor_texto, border: '1px solid rgba(0,0,0,0.1)' }}>
+                                        <Tag size={10} />
+                                        Banner Principal
+                                    </div>
+                                )}
+                            </div>
+
                             <div className="promo-actions-menu">
-                                <button onClick={() => deletePromo(promo.id)}><Trash2 size={18} /></button>
+                                <button onClick={() => deletePromo(promo.id)}><Trash2 size={14} /></button>
                             </div>
                         </div>
 

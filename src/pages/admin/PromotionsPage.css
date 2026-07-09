@@ -1,119 +1,139 @@
+/* =============================================
+   PROMOTIONS PAGE — Design System Padrão
+   border-radius: 8px, ícones cinzas, vermelho
+   ============================================= */
+
 .promotions-page-wrapper {
-    padding: 32px;
+    padding: 24px 32px;
     height: 100vh;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
 }
 
+/* Header */
 .promotions-header-premium {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 32px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #DFDFDF;
 }
 
 .promotions-header-premium h1 {
-    font-size: 24px;
-    font-weight: 800;
-    margin-bottom: 4px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #171717;
+    margin-bottom: 2px;
 }
 
 .promotions-header-premium p {
-    font-size: 14px;
-    color: #6B7280;
+    font-size: 12px;
+    color: #737373;
 }
 
 .btn-add-promo {
     display: flex;
     align-items: center;
-    gap: 8px;
-    background: #B91C1C;
+    gap: 6px;
+    background: #C41E2E;
     color: white;
-    padding: 10px 24px;
+    padding: 6px 14px;
     border: none;
-    border-radius: 12px;
-    font-weight: 700;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
     cursor: pointer;
-    box-shadow: 0 10px 20px -5px rgba(185, 28, 28, 0.4);
+    transition: opacity 0.15s;
 }
 
+.btn-add-promo:hover { opacity: 0.9; }
+.btn-add-promo svg { width: 14px; height: 14px; stroke-width: 1.5; }
+
+/* Filtros */
 .promo-filters-row {
     display: flex;
-    gap: 12px;
-    margin-bottom: 32px;
+    gap: 8px;
+    margin-bottom: 16px;
 }
 
 .filter-chip {
-    padding: 8px 16px;
-    border-radius: 10px;
-    border: 1px solid #E5E7EB;
+    padding: 5px 12px;
+    border-radius: 8px;
+    border: 1px solid #DFDFDF;
     background: white;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
-    color: #6B7280;
+    color: #737373;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.15s;
 }
 
-.dark .filter-chip {
-    background: #1F2937;
-    border-color: #374151;
-}
+.filter-chip:hover { background: #F3F4F6; }
 
 .filter-chip.active {
-    background: #111827;
+    background: #C41E2E;
     color: white;
-    border-color: #111827;
+    border-color: #C41E2E;
 }
 
-.dark .filter-chip.active {
-    background: #B91C1C;
-    border-color: #B91C1C;
-}
-
-/* Promo Grid */
+/* Grid de Cards */
 .promotions-grid-v2 {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 24px;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
 }
 
+/* Card de Promoção */
 .promo-card-premium {
     background: white;
-    border-radius: 24px;
-    padding: 24px;
-    border: 1px solid #F3F4F6;
+    border-radius: 8px;
+    padding: 0;
+    border: 1px solid #DFDFDF;
     position: relative;
     display: flex;
     flex-direction: column;
-    transition: all 0.3s;
-}
-
-.dark .promo-card-premium {
-    background: #1F2937;
-    border-color: #374151;
+    transition: border-color 0.15s;
+    overflow: hidden;
 }
 
 .promo-card-premium:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.1);
+    border-color: #C41E2E;
 }
 
-.promo-badge-status {
-    position: absolute;
-    top: 12px;
-    left: 12px;
-    font-size: 10px;
-    font-weight: 800;
-    padding: 3px 10px;
-    border-radius: 99px;
+/* Estado pausado — fundo sutil */
+.promo-card-premium.pausado {
+    opacity: 0.75;
+}
+
+/* ── HEADER DO CARD ─────────────────────────── */
+.promo-card-header {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid #F3F4F6;
+    position: relative;
+}
+
+/* Badge de status — inline no header (sem absolute) */
+.promo-badge-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
     text-transform: uppercase;
-    z-index: 10;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+}
+
+.promo-badge-status svg {
+    width: 10px;
+    height: 10px;
+    flex-shrink: 0;
 }
 
 .promo-card-premium.ativo .promo-badge-status {
@@ -122,120 +142,121 @@
 }
 
 .promo-card-premium.agendado .promo-badge-status {
-    background: #DBEAFE;
-    color: #1E40AF;
+    background: #F3F4F6;
+    color: #525252;
 }
 
 .promo-card-premium.pausado .promo-badge-status {
     background: #F3F4F6;
-    color: #4B5563;
+    color: #737373;
 }
 
+/* Badge destaque — também inline, separado */
 .promo-badge-destaque {
-    position: absolute;
-    top: 36px;
-    right: 24px;
-    font-size: 10px;
-    font-weight: 800;
-    padding: 4px 12px;
-    border-radius: 8px;
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
     text-transform: uppercase;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    z-index: 1;
+    flex-shrink: 0;
 }
 
-.promo-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    padding-bottom: 24px;
-    border-bottom: 2px dashed #F3F4F6;
-    margin-bottom: 24px;
+.promo-badge-destaque svg {
+    width: 10px;
+    height: 10px;
 }
 
-.dark .promo-card-header {
-    border-color: #374151;
-}
+/* Spacer empurra o botão de ações para a direita */
+.promo-header-spacer { flex: 1; }
 
+/* Círculo de desconto */
 .discount-circle {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     color: white;
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+    overflow: hidden;
 }
 
 .discount-circle h3 {
-    font-size: 20px;
+    font-size: 16px;
     font-weight: 900;
     line-height: 1;
 }
 
 .discount-circle span {
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 700;
     opacity: 0.9;
 }
 
+/* Menu de ações — botão compacto sem absolute */
 .promo-actions-menu {
-    position: absolute;
-    top: 24px;
-    right: 24px;
+    flex-shrink: 0;
 }
 
 .promo-actions-menu button {
-    background: #f3f4f6;
-    border: none;
-    color: #9CA3AF;
-    padding: 8px;
-    border-radius: 50%;
+    background: transparent;
+    border: 1px solid #DFDFDF;
+    color: #737373;
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.15s;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.promo-actions-menu button:hover {
-    background: #fee2e2;
-    color: #ef4444;
+.promo-actions-menu button svg {
+    width: 13px;
+    height: 13px;
+    stroke-width: 1.5;
 }
 
+.promo-actions-menu button:hover {
+    background: #FEE2E2;
+    color: #C41E2E;
+    border-color: #FECACA;
+}
+
+/* ── BODY DO CARD ───────────────────────────── */
 .promo-card-body {
     flex: 1;
+    padding: 14px 16px;
 }
 
 .promo-card-body h4 {
-    font-size: 18px;
-    font-weight: 800;
-    margin-bottom: 4px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #171717;
+    margin-bottom: 3px;
 }
 
 .promo-type {
-    font-size: 13px;
-    color: #6B7280;
-    margin-bottom: 20px;
+    font-size: 11px;
+    color: #737373;
+    margin-bottom: 12px;
 }
 
 .promo-dates {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    margin-bottom: 24px;
-    padding: 12px;
+    gap: 10px;
+    margin-bottom: 12px;
+    padding: 10px;
     background: #F9FAFB;
-    border-radius: 12px;
-}
-
-.dark .promo-dates {
-    background: #111827;
+    border-radius: 8px;
+    border: 1px solid #DFDFDF;
 }
 
 .date-item span {
@@ -244,468 +265,526 @@
     color: #9CA3AF;
     text-transform: uppercase;
     font-weight: 700;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
+    letter-spacing: 0.04em;
 }
 
 .date-item strong {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
+    color: #171717;
 }
 
 .promo-stats-mini {
     display: flex;
-    gap: 20px;
-    font-size: 12px;
-    color: #6B7280;
+    gap: 14px;
+    font-size: 11px;
+    color: #737373;
     font-weight: 600;
-    margin-bottom: 24px;
+    margin-bottom: 12px;
 }
 
 .promo-stats-mini .stat {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
+}
+
+.promo-stats-mini svg {
+    width: 12px;
+    height: 12px;
+    stroke-width: 1.5;
 }
 
 .promo-colors-preview {
     display: flex;
-    gap: 16px;
-    margin-top: 16px;
+    gap: 10px;
+    margin-top: 10px;
 }
 
 .color-item {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
 }
 
 .color-item span {
-    width: 16px;
-    height: 16px;
-    border-radius: 4px;
-    border: 1px solid #E5E7EB;
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    border: 1px solid #DFDFDF;
+    flex-shrink: 0;
 }
 
 .color-item small {
-    font-size: 11px;
-    color: #6B7280;
+    font-size: 10px;
+    color: #737373;
     font-weight: 600;
 }
 
 .promo-card-price-tag {
-    margin-top: 12px;
-    font-size: 18px;
+    margin-top: 10px;
+    font-size: 16px;
     font-weight: 800;
-    color: #b91c1c;
+    color: #C41E2E;
 }
 
 .promo-card-items-list {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 8px;
+    gap: 4px;
+    margin-top: 6px;
 }
 
 .item-tag {
     font-size: 10px;
-    font-weight: 700;
-    background: #f3f4f6;
-    color: #4b5563;
-    padding: 2px 8px;
+    font-weight: 600;
+    background: #F3F4F6;
+    color: #525252;
+    padding: 2px 6px;
     border-radius: 4px;
+    border: 1px solid #DFDFDF;
 }
 
+/* Formulário de edição inline */
 .btn-edit-inline {
-    margin-top: 16px;
+    margin-top: 12px;
     background: none;
-    border: 1px solid #E5E7EB;
-    padding: 6px 12px;
-    border-radius: 8px;
+    border: 1px solid #DFDFDF;
+    padding: 5px 10px;
+    border-radius: 6px;
     font-size: 11px;
-    font-weight: 700;
-    color: #4B5563;
+    font-weight: 600;
+    color: #525252;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
     cursor: pointer;
+    transition: all 0.15s;
 }
+
+.btn-edit-inline:hover { background: #F3F4F6; }
+.btn-edit-inline svg { width: 12px; height: 12px; stroke-width: 1.5; }
 
 .promo-edit-form {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
 }
 
 .promo-edit-form input[type="text"],
+.promo-edit-form input[type="number"],
 .promo-edit-form textarea {
     width: 100%;
-    padding: 8px 12px;
-    border: 1px solid #E5E7EB;
+    padding: 7px 10px;
+    border: 1px solid #DFDFDF;
     border-radius: 8px;
-    font-size: 13px;
+    font-size: 12px;
+    outline: none;
+    font-family: inherit;
+    background: #F9FAFB;
+    transition: border-color 0.15s;
+}
+
+.promo-edit-form input:focus,
+.promo-edit-form textarea:focus {
+    border-color: #C41E2E;
+    background: white;
+    box-shadow: 0 0 0 2px rgba(196,30,46,0.08);
 }
 
 .promo-edit-colors {
     display: flex;
-    gap: 16px;
+    gap: 12px;
 }
 
-.promo-edit-price {
-    margin-bottom: 16px;
-}
-
-.promo-edit-products-select {
-    margin-bottom: 16px;
-}
+.promo-edit-price { margin-bottom: 8px; }
+.promo-edit-products-select { margin-bottom: 8px; }
 
 .products-scroll-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 8px;
-    max-height: 150px;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 6px;
+    max-height: 130px;
     overflow-y: auto;
-    padding: 8px;
-    background: #f9fafb;
-    border-radius: 12px;
-    border: 1px solid #e5e7eb;
+    padding: 6px;
+    background: #F9FAFB;
+    border-radius: 8px;
+    border: 1px solid #DFDFDF;
 }
 
 .product-pill {
-    padding: 6px 10px;
-    font-size: 11px;
+    padding: 5px 8px;
+    font-size: 10px;
     font-weight: 600;
     background: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 99px;
+    border: 1px solid #DFDFDF;
+    border-radius: 6px;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.15s;
     text-align: center;
 }
 
+.product-pill:hover { border-color: #C41E2E; color: #C41E2E; }
+
 .product-pill.selected {
-    background: #111827;
+    background: #C41E2E;
     color: white;
-    border-color: #111827;
+    border-color: #C41E2E;
 }
 
 .promo-edit-colors label {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
+    color: #525252;
 }
 
 .promo-edit-actions {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin-top: 8px;
+    gap: 6px;
+    margin-top: 6px;
 }
 
+/* Botões do card de ação */
 .btn-save-edit {
-    background: #059669 !important;
+    background: #C41E2E !important;
     color: white !important;
+    border: none !important;
 }
 
 .btn-cancel-edit {
     background: #F3F4F6 !important;
-    color: #4B5563 !important;
+    color: #525252 !important;
+    border: 1px solid #DFDFDF !important;
 }
 
+/* ── FOOTER DO CARD ─────────────────────────── */
 .promo-card-footer {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
+    gap: 8px;
+    padding: 12px 16px;
+    border-top: 1px solid #F3F4F6;
     margin-top: auto;
 }
 
 .promo-card-footer button {
-    padding: 12px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 800;
+    padding: 7px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 700;
     cursor: pointer;
-    transition: all 0.2s;
-    height: 44px;
+    transition: all 0.15s;
+    height: 34px;
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 5px;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px;
+}
+
+.promo-card-footer button svg {
+    width: 13px;
+    height: 13px;
+    stroke-width: 1.5;
 }
 
 .btn-edit-promo {
     background: white;
-    border: 1px solid #E5E7EB;
-    color: #4B5563;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
+    border: 1px solid #DFDFDF;
+    color: #525252;
 }
 
-.dark .btn-edit-promo {
-    background: #111827;
-    border-color: #374151;
-    color: #D1D5DB;
-}
+.btn-edit-promo:hover { background: #F3F4F6; }
 
 .btn-toggle-promo {
-    background: #111827;
+    background: #C41E2E;
     border: none;
     color: white;
 }
 
-.btn-toggle-promo:hover {
-    background: #1f2937;
+.btn-toggle-promo:hover { background: #A31825; }
+
+/* Quando pausada, o toggle mostra "ativar" */
+.promo-card-premium.pausado .btn-toggle-promo {
+    background: #F3F4F6;
+    color: #525252;
+    border: 1px solid #DFDFDF;
 }
 
-.dark .btn-toggle-promo {
-    background: rgba(255, 255, 255, 0.1);
+.promo-card-premium.pausado .btn-toggle-promo:hover {
+    background: #C41E2E;
+    color: white;
+    border-color: #C41E2E;
 }
 
-/* Modal New Promo */
+/* ── MODAL ──────────────────────────────────── */
 .modal-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
     backdrop-filter: blur(4px);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 1000;
-    padding: 24px;
+    padding: 20px;
 }
 
 .modal-content {
     background: white;
     width: 100%;
-    max-width: 500px;
-    border-radius: 24px;
-    padding: 32px;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    max-width: 460px;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
 }
 
 .modal-content h2 {
-    font-size: 20px;
-    font-weight: 800;
-    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #171717;
+    margin-bottom: 2px;
+    padding: 14px 20px 0;
 }
 
-.modal-content p {
-    font-size: 14px;
-    color: #6b7280;
-    margin-bottom: 24px;
+.modal-content > p {
+    font-size: 12px;
+    color: #737373;
+    padding: 0 20px 14px;
+    border-bottom: 1px solid #DFDFDF;
 }
 
 .modal-form {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 12px;
+    padding: 14px 20px;
 }
 
 .modal-form label {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    font-size: 13px;
+    gap: 4px;
+    font-size: 11px;
     font-weight: 700;
-    color: #374151;
+    color: #525252;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
 }
 
 .modal-form input,
 .modal-form textarea {
-    padding: 12px;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    font-size: 14px;
+    padding: 8px 10px;
+    border: 1px solid #DFDFDF;
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+    background: #F9FAFB;
+    transition: border-color 0.15s;
+}
+
+.modal-form input:focus,
+.modal-form textarea:focus {
+    border-color: #C41E2E;
+    background: white;
+    box-shadow: 0 0 0 2px rgba(196,30,46,0.08);
 }
 
 .modal-actions {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-top: 24px;
+    gap: 8px;
+    padding: 12px 20px;
+    background: #F9FAFB;
+    border-top: 1px solid #DFDFDF;
 }
 
 .modal-actions button {
-    padding: 14px;
-    border-radius: 12px;
-    font-weight: 700;
+    padding: 8px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
     cursor: pointer;
+    transition: opacity 0.15s;
+    border: none;
 }
 
 .btn-confirm-create {
-    background: #b91c1c;
+    background: #C41E2E;
     color: white;
-    border: none;
 }
+
+.btn-confirm-create:hover { opacity: 0.9; }
+.btn-confirm-create:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .btn-close-modal {
-    background: #f3f4f6;
-    color: #4b5563;
-    border: none;
+    background: white;
+    color: #525252;
+    border: 1px solid #DFDFDF !important;
 }
 
+.btn-close-modal:hover { background: #F3F4F6; }
+
+/* Botão destaque toggle */
 .btn-destaque-toggle {
     background: #F3F4F6;
-    border: 1px solid #E5E7EB;
-    color: #1F2937;
+    border: 1px solid #DFDFDF;
+    color: #525252;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .btn-destaque-toggle.is-destaque {
-    background: #111827;
+    background: #C41E2E;
     color: white;
-    border-color: #111827;
+    border-color: #C41E2E;
 }
 
-.dark .btn-destaque-toggle {
-    background: #374151;
-    color: white;
-}
-
+/* Card dashed para adicionar */
 .add-promo-card-dashed {
     background: transparent;
-    border: 2px dashed #E5E7EB;
-    border-radius: 24px;
-    padding: 24px;
+    border: 2px dashed #DFDFDF;
+    border-radius: 8px;
+    padding: 32px 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     text-align: center;
     cursor: pointer;
-    transition: all 0.2s;
-}
-
-.dark .add-promo-card-dashed {
-    border-color: #374151;
+    transition: all 0.15s;
+    min-height: 180px;
 }
 
 .add-promo-card-dashed:hover {
-    border-color: #B91C1C;
-    background: rgba(185, 28, 28, 0.02);
+    border-color: #C41E2E;
+    background: rgba(196,30,46,0.02);
 }
 
 .icon-circle {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
     background: #F3F4F6;
     color: #9CA3AF;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 20px;
-    transition: all 0.2s;
+    margin-bottom: 12px;
+    transition: all 0.15s;
 }
 
-.dark .icon-circle {
-    background: #1F2937;
-}
+.icon-circle svg { width: 20px; height: 20px; stroke-width: 1.5; }
 
 .add-promo-card-dashed:hover .icon-circle {
-    background: #B91C1C;
+    background: #C41E2E;
     color: white;
 }
 
 .add-promo-card-dashed span {
-    font-size: 16px;
-    font-weight: 800;
-    color: #4B5563;
-    margin-bottom: 4px;
-}
-
-.dark .add-promo-card-dashed span {
-    color: #D1D5DB;
+    font-size: 13px;
+    font-weight: 700;
+    color: #525252;
+    margin-bottom: 2px;
 }
 
 .add-promo-card-dashed p {
-    font-size: 13px;
+    font-size: 11px;
     color: #9CA3AF;
 }
-/* Image Upload */
-.promo-image-upload {
-    margin-bottom: 20px;
-}
+
+/* Upload de imagem */
+.promo-image-upload { margin-bottom: 12px; }
 
 .promo-upload-btn {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 12px;
-    padding: 30px;
-    border: 2px dashed #E5E7EB;
-    border-radius: 16px;
+    gap: 8px;
+    padding: 20px;
+    border: 2px dashed #DFDFDF;
+    border-radius: 8px;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.15s;
     background: #F9FAFB;
 }
 
 .promo-upload-btn:hover {
-    border-color: #B91C1C;
-    background: #FFF5F5;
+    border-color: #C41E2E;
+    background: #FEF2F2;
 }
 
+.promo-upload-btn svg { width: 18px; height: 18px; color: #9CA3AF; }
+
 .promo-upload-btn span {
-    font-size: 14px;
-    font-weight: 700;
-    color: #4B5563;
+    font-size: 12px;
+    font-weight: 600;
+    color: #525252;
 }
 
 .promo-preview {
     position: relative;
     width: 100%;
-    border-radius: 16px;
+    border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 .promo-preview img {
     width: 100%;
-    height: 180px;
+    height: 140px;
     object-fit: cover;
     display: block;
 }
 
 .promo-preview button {
     position: absolute;
-    top: 10px;
-    right: 10px;
-    background: rgba(0,0,0,0.6);
+    top: 8px;
+    right: 8px;
+    background: rgba(0,0,0,0.55);
     color: white;
     border: none;
     border-radius: 50%;
-    width: 28px;
-    height: 28px;
+    width: 24px;
+    height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: background 0.15s;
 }
 
-.promo-preview button:hover {
-    background: #B91C1C;
-    transform: scale(1.1);
-}
+.promo-preview button:hover { background: #C41E2E; }
 
 .promo-upload-status {
     text-align: center;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
-    color: #B91C1C;
-    margin-top: 10px;
+    color: #C41E2E;
+    margin-top: 6px;
 }
 
 .promo-card-img-circle {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    border-radius: 50%;
+}
+
+@media (max-width: 640px) {
+    .promotions-page-wrapper { padding: 16px; }
+    .promotions-grid-v2 { grid-template-columns: 1fr; }
 }
