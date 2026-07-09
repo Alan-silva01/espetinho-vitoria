@@ -3,7 +3,7 @@
     height: 100vh;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    overflow-y: auto;
     box-sizing: border-box;
 }
 
@@ -59,8 +59,7 @@
     grid-template-columns: 1fr 300px;
     gap: 24px;
     flex: 1;
-    min-height: 0;
-    overflow: hidden;
+    overflow: visible;
 }
 
 .btn-toggle-fast {
@@ -82,7 +81,7 @@
 }
 
 .inventory-main-content {
-    overflow-y: auto;
+    overflow: visible;
     padding-right: 8px;
 }
 
@@ -526,8 +525,7 @@
     border: 1px solid #DFDFDF;
     display: flex;
     flex-direction: column;
-    overflow-y: auto;
-    max-height: 100%;
+    overflow: visible;
 }
 
 .dark .inventory-sidebar {
