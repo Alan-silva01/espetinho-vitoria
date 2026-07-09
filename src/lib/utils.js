@@ -166,9 +166,32 @@ export function filterPersonalizacao(personalizacao, itemName) {
     const result = []
 
     for (const [key, val] of Object.entries(personalizacao)) {
-        const displayVal = Array.isArray(val) ? val.join(', ') : val
+        if (!val || (Array.isArray(val) && val.length === 0)) continue
+
+        const keyLower = key.toLowerCase()
+        const isPaid = keyLower.includes('pago')
+
+        // Format value: add "1x" prefix for paid additionals
+        let displayVal
+        if (Array.isArray(val)) {
+            displayVal = isPaid
+                ? val.map(v => `1x ${v}`).join(', ')
+                : val.join(', ')
+        } else {
+            displayVal = isPaid ? `1x ${val}` : String(val)
+        }
+
         if (!displayVal) continue
-        result.push({ key, value: String(displayVal) })
+
+        // Clean group name for better readability
+        let displayKey = key
+        if (isPaid) {
+            displayKey = 'Adicionais Pagos'
+        } else if (keyLower.includes('escolha') && (keyLower.includes('fruta') || keyLower.includes('inclus'))) {
+            displayKey = 'Frutas Escolhidas (Incluso)'
+        }
+
+        result.push({ key: displayKey, value: displayVal })
     }
 
     return result

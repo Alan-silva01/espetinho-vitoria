@@ -1102,9 +1102,11 @@ export default function OrdersPage() {
                                                     </div>
                                                     <div className="v5-item-info">
                                                         <h4>{item.quantidade}x {getItemDisplayName(item)}</h4>
-                                                        <p>
-                                                            {item.personalizacao && typeof item.personalizacao === 'object' && filterPersonalizacao(item.personalizacao, getItemDisplayName(item)).map(p => `${p.key}: ${p.value}`).join(', ')}
-                                                        </p>
+                                                        {item.personalizacao && typeof item.personalizacao === 'object' && filterPersonalizacao(item.personalizacao, getItemDisplayName(item)).map((p, pIdx) => (
+                                                            <p key={pIdx} style={{ margin: '2px 0', fontSize: '12px', color: '#64748b' }}>
+                                                                <strong>{p.key}:</strong> {p.value}
+                                                            </p>
+                                                        ))}
                                                         {item.observacoes && (
                                                             <p className="v5-item-obs">Obs: {item.observacoes}</p>
                                                         )}
@@ -1285,9 +1287,9 @@ export default function OrdersPage() {
                                                     <td>{item.quantidade}</td>
                                                     <td>
                                                         <div>{getItemDisplayName(item)?.toUpperCase()}</div>
-                                                        {item.personalizacao && typeof item.personalizacao === 'object' && filterPersonalizacao(item.personalizacao, getItemDisplayName(item)).map(({ key, value }) => (
-                                                            <div key={key} className="receipt-item-details">
-                                                                {key}: {value}
+                                                        {item.personalizacao && typeof item.personalizacao === 'object' && filterPersonalizacao(item.personalizacao, getItemDisplayName(item)).map((p, pIdx) => (
+                                                            <div key={pIdx} className="receipt-item-details">
+                                                                {p.key.toUpperCase()}: {p.value.toUpperCase()}
                                                             </div>
                                                         ))}
                                                         {item.observacoes && (
