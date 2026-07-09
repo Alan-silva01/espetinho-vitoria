@@ -6,6 +6,7 @@ import Loading from '../components/ui/Loading'
 import { useOrderNotificationSound } from '../hooks/useOrderNotificationSound'
 import { NotificationSoundContext } from '../context/NotificationSoundContext'
 import './AdminLayout.css'
+import './admin.design-system.css'
 
 export default function AdminLayout() {
     const { isAuthenticated, loading, user, adminInfo, logout } = useAuth()
