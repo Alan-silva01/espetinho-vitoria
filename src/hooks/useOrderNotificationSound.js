@@ -2,7 +2,7 @@ import { useEffect, useRef, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 
 export function useOrderNotificationSound(isAuthenticated) {
-    const audioRef = useRef(new Audio('/notificacao.mp3'))
+    const audioRef = useRef(new Audio('/notification.mp3'))
     const audioUnlockedRef = useRef(false)
 
     // Helper para tocar o som lidando com o bloqueio do navegador
