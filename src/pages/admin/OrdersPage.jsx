@@ -1290,8 +1290,8 @@ export default function OrdersPage() {
                                                     <td>
                                                         <div>{getItemDisplayName(item)?.toUpperCase()}</div>
                                                         {item.personalizacao && typeof item.personalizacao === 'object' && filterPersonalizacao(item.personalizacao, getItemDisplayName(item)).map((p, pIdx) => (
-                                                            <div key={pIdx} className="receipt-item-details">
-                                                                {p.key}: {p.value}
+                                                            <div key={pIdx} className="receipt-item-details" style={{ fontWeight: 'bold' }}>
+                                                                <strong>{p.key}: {p.value}</strong>
                                                             </div>
                                                         ))}
                                                         {item.observacoes && (
