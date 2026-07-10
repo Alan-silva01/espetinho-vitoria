@@ -1291,13 +1291,39 @@ export default function OrdersPage() {
                                                         <div>{getItemDisplayName(item)?.toUpperCase()}</div>
                                                         {item.personalizacao && typeof item.personalizacao === 'object' && (() => {
                                                             const isAcai = getItemDisplayName(item)?.toLowerCase().includes('açaí') || getItemDisplayName(item)?.toLowerCase().includes('acai')
-                                                            const all = filterPersonalizacao(item.personalizacao, getItemDisplayName(item))
-                                                            const filtered = isAcai ? all.filter(p => p.key === 'Adicionais Pagos') : all
-                                                            return filtered.map((p, pIdx) => (
-                                                                <div key={pIdx} className="receipt-item-details">
-                                                                    + {p.key === 'Adicionais Pagos' ? p.value : `${p.key}: ${p.value}`}
-                                                                </div>
-                                                            ))
+                                                            const elements = []
+                                                            
+                                                            for (const [key, val] of Object.entries(item.personalizacao)) {
+                                                                if (!val || (Array.isArray(val) && val.length === 0)) continue
+                                                                
+                                                                const keyLower = key.toLowerCase()
+                                                                const isPaid = keyLower.includes('pago') || keyLower === 'adicionais'
+                                                                
+                                                                if (isPaid) {
+                                                                    elements.push(
+                                                                        <div key={`title-${key}`} className="receipt-item-details" style={{ textTransform: 'uppercase', marginTop: '1mm' }}>
+                                                                            * Adicionais pagos:
+                                                                        </div>
+                                                                    )
+                                                                    
+                                                                    const itemsArray = Array.isArray(val) ? val : [val]
+                                                                    itemsArray.forEach((v, idx) => {
+                                                                        elements.push(
+                                                                            <div key={`item-${key}-${idx}`} className="receipt-item-details" style={{ paddingLeft: '2mm' }}>
+                                                                                + 1 x {v}
+                                                                            </div>
+                                                                        )
+                                                                    })
+                                                                } else if (!isAcai) {
+                                                                    const displayVal = Array.isArray(val) ? val.join(', ') : String(val)
+                                                                    elements.push(
+                                                                        <div key={`other-${key}`} className="receipt-item-details">
+                                                                            + {key}: {displayVal}
+                                                                        </div>
+                                                                    )
+                                                                }
+                                                            }
+                                                            return elements
                                                         })()}
                                                         {item.observacoes && (
                                                             <div className="receipt-item-details" style={{ fontWeight: 'bold' }}>
