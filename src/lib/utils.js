@@ -175,10 +175,14 @@ export function filterPersonalizacao(personalizacao, itemName) {
         let displayVal
         if (Array.isArray(val)) {
             displayVal = isPaid
-                ? val.map(v => `1x ${v}`).join(', ')
+                ? val.map(v => {
+                    const cleanName = String(v).replace(/\s*\(\s*1\s*(unidade|unid|un)\s*\)/gi, '').trim()
+                    return `1x ${cleanName}`
+                }).join(', ')
                 : val.join(', ')
         } else {
-            displayVal = isPaid ? `1x ${val}` : String(val)
+            const cleanName = String(val).replace(/\s*\(\s*1\s*(unidade|unid|un)\s*\)/gi, '').trim()
+            displayVal = isPaid ? `1x ${cleanName}` : String(val)
         }
 
         if (!displayVal) continue

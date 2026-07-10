@@ -1309,9 +1309,10 @@ export default function OrdersPage() {
                                                                     
                                                                     const itemsArray = Array.isArray(val) ? val : [val]
                                                                     itemsArray.forEach((v, idx) => {
+                                                                        const cleanName = String(v).replace(/\s*\(\s*1\s*(unidade|unid|un)\s*\)/gi, '').trim()
                                                                         elements.push(
                                                                             <div key={`item-${key}-${idx}`} className="receipt-item-details" style={{ paddingLeft: '2mm' }}>
-                                                                                + 1 x {v}
+                                                                                + 1 x {cleanName}
                                                                             </div>
                                                                         )
                                                                     })
