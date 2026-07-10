@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, X, Minus, Plus, MapPin, Truck, Store, Navigation, MapPinOff } from 'lucide-react'
-import { useCart } from '../../hooks/useCart'
+import { useCart, getItemKey } from '../../hooks/useCart'
 import { useProducts } from '../../hooks/useProducts'
 import { useOrders, useComanda } from '../../hooks/useOrders'
 import { useCustomer } from '../../context/CustomerContext'
@@ -435,7 +435,7 @@ export default function CartPage() {
                         </div>
                     )}
                     {items.map(item => {
-                        const key = `${item.produto_id}-${item.variacao_id || 'default'}`
+                        const key = getItemKey(item)
                         return (
                             <div key={key} className="cart-item">
                                 <div className="cart-item__image">
@@ -451,7 +451,7 @@ export default function CartPage() {
                                         <h3 className="cart-item__name">{item.nome}</h3>
                                         <button
                                             className="cart-item__remove"
-                                            onClick={() => removeItem(item.produto_id, item.variacao_id, item.observacoes)}
+                                            onClick={() => removeItem(item)}
                                         >
                                             <X size={16} />
                                         </button>
@@ -479,7 +479,7 @@ export default function CartPage() {
                                         <div className="cart-item__qty">
                                             <button
                                                 className="cart-item__qty-btn"
-                                                onClick={() => updateQuantity(item.produto_id, item.variacao_id, item.observacoes, item.quantidade - 1)}
+                                                onClick={() => updateQuantity(item, item.quantidade - 1)}
                                             >
                                                 <Minus size={12} />
                                             </button>
@@ -496,7 +496,7 @@ export default function CartPage() {
                                                         })
                                                         return
                                                     }
-                                                    updateQuantity(item.produto_id, item.variacao_id, item.observacoes, item.quantidade + 1)
+                                                    updateQuantity(item, item.quantidade + 1)
                                                 }}
                                             >
                                                 <Plus size={12} />

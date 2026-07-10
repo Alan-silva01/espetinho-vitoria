@@ -15,21 +15,44 @@ function saveCart(items) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(items))
 }
 
+function getPersonalizacaoKey(personalizacao) {
+    if (!personalizacao || typeof personalizacao !== 'object') return ''
+    try {
+        const sortedKeys = Object.keys(personalizacao).sort()
+        const parts = sortedKeys.map(k => {
+            const val = personalizacao[k]
+            let valStr = ''
+            if (Array.isArray(val)) {
+                valStr = [...val].sort().join(',')
+            } else {
+                valStr = String(val)
+            }
+            return `${k}:${valStr}`
+        })
+        return parts.join('|')
+    } catch (e) {
+        return JSON.stringify(personalizacao)
+    }
+}
+
+export function getItemKey(item) {
+    if (!item) return ''
+    return `${item.produto_id}-${item.variacao_id || 'default'}-${getPersonalizacaoKey(item.personalizacao)}-${item.observacoes || ''}`
+}
+
 function cartReducer(state, action) {
     let newState
     switch (action.type) {
         case 'ADD_ITEM': {
-            const key = `${action.item.produto_id}-${action.item.variacao_id || 'default'}-${action.item.observacoes || ''}`
-            const existing = state.find(i =>
-                `${i.produto_id}-${i.variacao_id || 'default'}-${i.observacoes || ''}` === key
-            )
+            const key = getItemKey(action.item)
+            const existing = state.find(i => getItemKey(i) === key)
             if (existing) {
                 newState = state.map(i =>
-                    `${i.produto_id}-${i.variacao_id || 'default'}-${i.observacoes || ''}` === key
+                    getItemKey(i) === key
                         ? {
                             ...i,
                             quantidade: i.quantidade + (action.item.quantidade || 1),
-                            eh_upsell: i.eh_upsell || action.item.eh_upsell // Preserva se já era ou se o novo é upsell
+                            eh_upsell: i.eh_upsell || action.item.eh_upsell
                         }
                         : i
                 )
@@ -39,21 +62,17 @@ function cartReducer(state, action) {
             break
         }
         case 'REMOVE_ITEM': {
-            const key = `${action.produto_id}-${action.variacao_id || 'default'}-${action.observacoes || ''}`
-            newState = state.filter(i =>
-                `${i.produto_id}-${i.variacao_id || 'default'}-${i.observacoes || ''}` !== key
-            )
+            const key = getItemKey(action.item)
+            newState = state.filter(i => getItemKey(i) !== key)
             break
         }
         case 'UPDATE_QTY': {
-            const key = `${action.produto_id}-${action.variacao_id || 'default'}-${action.observacoes || ''}`
+            const key = getItemKey(action.item)
             if (action.quantidade <= 0) {
-                newState = state.filter(i =>
-                    `${i.produto_id}-${i.variacao_id || 'default'}-${i.observacoes || ''}` !== key
-                )
+                newState = state.filter(i => getItemKey(i) !== key)
             } else {
                 newState = state.map(i =>
-                    `${i.produto_id}-${i.variacao_id || 'default'}-${i.observacoes || ''}` === key
+                    getItemKey(i) === key
                         ? { ...i, quantidade: action.quantidade }
                         : i
                 )
@@ -74,9 +93,9 @@ export function CartProvider({ children }) {
     const [items, dispatch] = useReducer(cartReducer, [], loadCart)
 
     const addItem = (item) => dispatch({ type: 'ADD_ITEM', item })
-    const removeItem = (produto_id, variacao_id, observacoes) => dispatch({ type: 'REMOVE_ITEM', produto_id, variacao_id, observacoes })
-    const updateQuantity = (produto_id, variacao_id, observacoes, quantidade) =>
-        dispatch({ type: 'UPDATE_QTY', produto_id, variacao_id, observacoes, quantidade })
+    const removeItem = (item) => dispatch({ type: 'REMOVE_ITEM', item })
+    const updateQuantity = (item, quantidade) =>
+        dispatch({ type: 'UPDATE_QTY', item, quantidade })
     const clearCart = () => dispatch({ type: 'CLEAR' })
 
     const totalItems = items.reduce((sum, i) => sum + i.quantidade, 0)

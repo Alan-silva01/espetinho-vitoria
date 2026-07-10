@@ -229,7 +229,7 @@ export default function CheckoutPage() {
                     // Remove out-of-stock items from cart
                     items.forEach(item => {
                         if (unavailableIds.has(item.produto_id)) {
-                            removeItem(item.produto_id, item.variacao_id, item.observacoes)
+                            removeItem(item)
                         }
                     })
 
