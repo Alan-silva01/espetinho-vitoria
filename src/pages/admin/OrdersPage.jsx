@@ -1298,6 +1298,7 @@ export default function OrdersPage() {
                                                                 
                                                                 const keyLower = key.toLowerCase()
                                                                 const isPaid = keyLower.includes('pago') || keyLower === 'adicionais'
+                                                                const isFruitSelection = keyLower.includes('escolha') || keyLower.includes('inclus')
                                                                 
                                                                 if (isPaid) {
                                                                     elements.push(
@@ -1314,6 +1315,13 @@ export default function OrdersPage() {
                                                                             </div>
                                                                         )
                                                                     })
+                                                                } else if (isFruitSelection) {
+                                                                    const displayVal = Array.isArray(val) ? val.join(', ') : String(val)
+                                                                    elements.push(
+                                                                        <div key={`fruit-${key}`} className="receipt-item-details">
+                                                                            Frutas Escolhidas: {displayVal}
+                                                                        </div>
+                                                                    )
                                                                 } else if (!isAcai) {
                                                                     const displayVal = Array.isArray(val) ? val.join(', ') : String(val)
                                                                     elements.push(
