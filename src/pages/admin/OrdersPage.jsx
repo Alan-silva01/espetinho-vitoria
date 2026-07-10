@@ -1318,7 +1318,7 @@ export default function OrdersPage() {
                                                                     const displayVal = Array.isArray(val) ? val.join(', ') : String(val)
                                                                     elements.push(
                                                                         <div key={`other-${key}`} className="receipt-item-details">
-                                                                            + {key}: {displayVal}
+                                                                            {key}: {displayVal}
                                                                         </div>
                                                                     )
                                                                 }
