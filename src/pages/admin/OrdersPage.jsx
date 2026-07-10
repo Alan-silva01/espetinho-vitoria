@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import {
     Clock, CheckCircle2, Truck, AlertCircle,
     MoreHorizontal, Phone, MapPin, DollarSign,
@@ -100,6 +100,13 @@ export default function OrdersPage() {
     })
     const autoPrintRef = useRef(autoPrint)
 
+    // Controlled clock for "X min atrás" — updates every 30s instead of every render
+    const [clockTick, setClockTick] = useState(Date.now())
+    useEffect(() => {
+        const timer = setInterval(() => setClockTick(Date.now()), 30000)
+        return () => clearInterval(timer)
+    }, [])
+
     useEffect(() => {
         ordersRef.current = orders
     }, [orders])
@@ -179,9 +186,9 @@ export default function OrdersPage() {
     // Debounced fetch: coalesces multiple realtime events into one fetch
     // Uses a ref so the realtime subscription never needs to re-subscribe
     const scheduleFetchRef = useRef(null)
-    scheduleFetchRef.current = (delayMs = 1500) => {
+    scheduleFetchRef.current = (delayMs = 2000) => {
         const elapsed = Date.now() - lastFetchTimeRef.current
-        const cooldown = 3000 // Minimum 3s between fetches (performance optimization)
+        const cooldown = 5000 // Minimum 5s between fetches (performance optimization)
         const actualDelay = elapsed < cooldown ? Math.max(delayMs, cooldown - elapsed) : delayMs
 
         if (pendingFetchTimerRef.current) {
@@ -331,7 +338,7 @@ export default function OrdersPage() {
         // Re-fetch orders silently (won't show loading spinner)
         fetchOrders(true)
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectedDate]))
+    }, [selectedDate]), { sleepThresholdMs: 30_000 })
 
     const isFetchingRef = useRef(false)
 
@@ -754,11 +761,11 @@ export default function OrdersPage() {
         return column // Return column for the inline handler
     }
 
-    const getMinutesAgo = (date) => {
+    const getMinutesAgo = useCallback((date) => {
         if (!date) return 0
-        const diff = new Date() - new Date(date)
+        const diff = clockTick - new Date(date)
         return Math.floor(diff / 60000)
-    }
+    }, [clockTick])
 
     const filteredOrders = orders.filter(order => {
         const matchesSearch = !searchTerm ||
