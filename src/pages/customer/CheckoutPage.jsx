@@ -251,11 +251,11 @@ export default function CheckoutPage() {
         }
 
         try {
-            const nomeCliente = tipoPedido === 'mesa'
+            const nomeCliente = (tipoPedido === 'mesa'
                 ? (nomeRetirada || `Mesa ${mesaNumero}`)
                 : tipoPedido === 'retirada'
                     ? nomeRetirada
-                    : (addressData.nome_recebedor || '')
+                    : (addressData.nome_recebedor || '')).trim()
 
             let comandaId = localStorage.getItem('espetinho_comanda_id')
             if (tipoPedido === 'mesa' && !comandaId) {
