@@ -18,6 +18,7 @@ export default function CheckoutPage() {
     const [isSubmitting, setIsSubmitting] = useState(false)
     const submitLockRef = useRef(false)
     const [validationError, setValidationError] = useState({ open: false, message: '' })
+    const nomeInputRef = useRef(null)
     const [outOfStockItems, setOutOfStockItems] = useState([])
     const [showOutOfStockModal, setShowOutOfStockModal] = useState(false)
 
@@ -196,11 +197,15 @@ export default function CheckoutPage() {
             return
         }
 
-        // Name validation: must contain at least 2 letters (blocks emojis, dots, single chars)
-        const nomeValidar = tipoPedido === 'entrega' ? addressData?.nome_recebedor : nomeRetirada
-        const letrasNoNome = (nomeValidar || '').match(/[a-zA-ZÀ-ÿ]/g)
-        if (!letrasNoNome || letrasNoNome.length < 2) {
-            setValidationError({ open: true, message: 'Por favor, insira um nome válido com pelo menos 2 letras.' })
+        // Name validation: robust heuristic for real names
+        const nomeValidar = (tipoPedido === 'entrega' ? addressData?.nome_recebedor : nomeRetirada)?.trim() || ''
+        const letras = nomeValidar.match(/[a-zA-ZÀ-ÿ]/g) || []
+        const temVogal = /[aeiouáéíóúâêôãõàèìòùAEIOUÁÉÍÓÚÂÊÔÃÕÀÈÌÒÙ]/u.test(nomeValidar)
+        const temConsoante = /[^aeiouáéíóúâêôãõàèìòùAEIOUÁÉÍÓÚÂÊÔÃÕÀÈÌÒÙ\s\d\W]/u.test(nomeValidar)
+        const somenteRepetido = letras.length > 0 && new Set(letras.map(l => l.toLowerCase())).size === 1
+        const nomeInvalido = letras.length < 2 || !temVogal || !temConsoante || somenteRepetido
+        if (nomeInvalido) {
+            setValidationError({ open: true, message: 'Por favor, insira seu nome correto.' })
             window.scrollTo({ top: 0, behavior: 'smooth' })
             return
         }
@@ -420,10 +425,17 @@ export default function CheckoutPage() {
                         <div className="checkout-card">
                             <div className="checkout-field">
                                 <input
+                                    ref={nomeInputRef}
                                     type="text"
                                     placeholder={tipoPedido === 'mesa' ? "Digite seu nome (obrigatório)" : "Nome de quem vai buscar"}
                                     value={nomeRetirada}
-                                    onChange={e => setNomeRetirada(e.target.value)}
+                                    maxLength={60}
+                                    onChange={e => {
+                                        const raw = e.target.value
+                                        // Auto-capitalize: first letter of each word
+                                        const capitalized = raw.replace(/(?:^|\s)\S/g, c => c.toUpperCase())
+                                        setNomeRetirada(capitalized)
+                                    }}
                                     className="checkout-input"
                                 />
                             </div>
@@ -648,9 +660,16 @@ export default function CheckoutPage() {
                             </p>
                             <button
                                 className="btn btn-primary btn-md btn-full"
-                                onClick={() => setValidationError({ open: false, message: '' })}
+                                onClick={() => {
+                                    setValidationError({ open: false, message: '' })
+                                    // Focus name input so user knows exactly where to fix
+                                    setTimeout(() => {
+                                        nomeInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                                        nomeInputRef.current?.focus()
+                                    }, 150)
+                                }}
                             >
-                                Entendi
+                                Corrigir nome
                             </button>
                         </div>
                     </div>
