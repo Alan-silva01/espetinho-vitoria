@@ -975,9 +975,13 @@
 
 @media (max-width: 768px) {
     .inventory-wrapper {
-        padding: 16px;
-        height: auto;
-        overflow-y: visible;
+        padding: 16px !important;
+        height: auto !important;
+        overflow-y: visible !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        overflow-x: hidden !important;
+        box-sizing: border-box !important;
     }
 
     /* Hide the activity sidebar on mobile — full width for the product table */
@@ -987,45 +991,57 @@
 
     .inventory-layout-grid {
         grid-template-columns: 1fr !important;
-        gap: 0;
+        gap: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .inventory-main-content {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important; /* Crucial: allows grid content to shrink */
+        padding-right: 0 !important;
+        box-sizing: border-box !important;
     }
 
     /* Header adjustments */
     .inventory-header-premium {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 16px;
-        margin-bottom: 20px;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 16px !important;
+        margin-bottom: 20px !important;
+        width: 100% !important;
     }
 
     .header-titles h2 {
-        font-size: 24px;
-        text-align: left;
+        font-size: 24px !important;
+        text-align: left !important;
     }
 
     .header-actions {
-        width: 100%;
-        flex-direction: column;
-        align-items: stretch;
-        gap: 10px;
+        width: 100% !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px !important;
     }
 
     .btn-save {
-        width: 100%;
-        padding: 12px;
-        justify-content: center;
+        width: 100% !important;
+        padding: 12px !important;
+        justify-content: center !important;
     }
 
     .sync-info {
-        font-size: 12px;
-        justify-content: center;
+        font-size: 12px !important;
+        justify-content: center !important;
     }
 
     /* Toolbar & Tabs */
     .inventory-toolbar {
-        flex-direction: column;
-        gap: 12px;
-        width: 100%;
+        flex-direction: column !important;
+        gap: 12px !important;
+        width: 100% !important;
     }
 
     .search-bar-v2 {
@@ -1034,8 +1050,9 @@
     }
 
     .inventory-tabs {
-        margin-bottom: 16px;
-        padding-bottom: 4px;
+        margin-bottom: 16px !important;
+        padding-bottom: 4px !important;
+        width: 100% !important;
     }
 
     /* Transform Table to Grid Cards */
@@ -1044,12 +1061,16 @@
         border: none !important;
         box-shadow: none !important;
         padding: 0 !important;
-        margin-bottom: 16px;
+        margin-bottom: 16px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
     }
 
     .fast-entry-table {
         display: block !important;
         width: 100% !important;
+        box-sizing: border-box !important;
     }
 
     .fast-entry-table thead {
@@ -1059,6 +1080,7 @@
     .fast-entry-table tbody {
         display: block !important;
         width: 100% !important;
+        box-sizing: border-box !important;
     }
 
     .fast-entry-table tr {
@@ -1093,55 +1115,55 @@
     .fast-entry-table td:nth-child(1) {
         grid-column: 1 !important;
         grid-row: 1 !important;
-        display: flex;
-        align-items: center;
+        display: flex !important;
+        align-items: center !important;
     }
 
     /* Column 2: Category Pill */
     .fast-entry-table td:nth-child(2) {
         grid-column: 1 !important;
         grid-row: 2 !important;
-        display: flex;
-        align-items: center;
+        display: flex !important;
+        align-items: center !important;
     }
 
     /* Column 3: Stock Input Box */
     .fast-entry-table td:nth-child(3) {
         grid-column: 2 !important;
         grid-row: 1 !important;
-        text-align: right;
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
+        text-align: right !important;
+        display: flex !important;
+        justify-content: flex-end !important;
+        align-items: center !important;
     }
 
     /* Column 4: Status Indicator */
     .fast-entry-table td:nth-child(4) {
         grid-column: 2 !important;
         grid-row: 2 !important;
-        text-align: right;
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
+        text-align: right !important;
+        display: flex !important;
+        justify-content: flex-end !important;
+        align-items: center !important;
     }
 
     .fast-prod-info {
-        gap: 10px;
+        gap: 10px !important;
     }
 
     .fast-prod-info img {
-        width: 36px;
-        height: 36px;
-        border-radius: 8px;
+        width: 36px !important;
+        height: 36px !important;
+        border-radius: 8px !important;
     }
 
     .fast-prod-info strong {
-        font-size: 14px;
-        color: #111827;
+        font-size: 14px !important;
+        color: #111827 !important;
     }
 
     .dark .fast-prod-info strong {
-        color: #F9FAFB;
+        color: #F9FAFB !important;
     }
 
     .fast-input {
@@ -1149,6 +1171,21 @@
         padding: 6px !important;
         font-size: 14px !important;
         border-radius: 8px !important;
+    }
+
+    /* Force single-column for the addons grid on mobile */
+    .inventory-grid-v2 {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .addon-management-card {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
     }
 }
 
