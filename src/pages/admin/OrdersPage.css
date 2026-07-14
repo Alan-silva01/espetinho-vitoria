@@ -622,8 +622,16 @@
         display: flex;
     }
 
+    .kanban-scroller {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+        padding-bottom: 8px;
+    }
+
     .kanban-board {
-        width: 100%;
+        width: 100% !important;
+        min-width: 0 !important; /* Crucial: overrides the 900px min-width */
         gap: 0;
         padding: 0;
     }
@@ -631,6 +639,7 @@
     .kanban-col {
         display: none;
         width: 100% !important;
+        min-width: 0 !important;
         background: transparent;
         border: none;
         padding: 0;
@@ -652,33 +661,30 @@
         padding: 16px;
     }
 
-    /* Mobile: full-width action button, easy to tap */
+    /* Mobile: inline compact action button, easy to tap but not giant */
     .order-card-v2 .quick-action {
-        width: 100%;
-        padding: 14px 16px;
-        font-size: 15px;
-        border-radius: 12px;
-        margin-top: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        letter-spacing: 0.01em;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.10);
-    }
-
-    /* Cancel button on mobile */
-    .order-card-v2 .btn-cancel-card {
-        width: 100%;
-        padding: 10px;
-        border-radius: 10px;
-        margin-top: 8px;
-        display: flex;
+        width: auto;
+        padding: 10px 16px;
+        font-size: 13px;
+        border-radius: 8px;
+        margin-top: 0;
+        display: inline-flex;
         align-items: center;
         justify-content: center;
         gap: 6px;
-        font-size: 13px;
-        font-weight: 700;
+        letter-spacing: 0.01em;
+        box-shadow: none;
+    }
+
+    /* Cancel button on mobile: inline matching the quick action height */
+    .order-card-v2 .btn-cancel-card {
+        width: auto;
+        padding: 10px;
+        border-radius: 8px;
+        margin-top: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
     }
 }
 
