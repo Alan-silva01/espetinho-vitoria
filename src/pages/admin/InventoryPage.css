@@ -973,6 +973,37 @@
     color: #171717;
 }
 
+@media (max-width: 768px) {
+    .inventory-wrapper {
+        padding: 16px;
+    }
+
+    /* Hide the activity sidebar on mobile — full width for the product table */
+    .inventory-sidebar {
+        display: none !important;
+    }
+
+    .inventory-layout-grid {
+        grid-template-columns: 1fr !important;
+        gap: 0;
+    }
+
+    /* Header adjustments */
+    .inventory-toolbar {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .btn-save {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .sync-info {
+        font-size: 11px;
+    }
+}
+
 @media print {
     .admin-sidebar,
     .inventory-sidebar,

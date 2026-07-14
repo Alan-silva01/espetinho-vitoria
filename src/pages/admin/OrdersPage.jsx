@@ -1003,9 +1003,9 @@ export default function OrdersPage() {
                                                             }}
                                                         >
                                                             {
-                                                                stage.id === 'confirmado' ? 'Iniciar' :
-                                                                    stage.id === 'preparando' ? (order.tipo_pedido === 'mesa' ? 'Servir' : 'Enviar') :
-                                                                        stage.id === 'saiu_entrega' ? 'Concluir' : 'Iniciar'
+                                                                stage.id === 'confirmado' ? 'Preparar' :
+                                                                    stage.id === 'preparando' ? (order.tipo_pedido === 'mesa' ? 'Servir' : 'Saiu p/ Entrega') :
+                                                                        stage.id === 'saiu_entrega' ? 'Entregue' : 'Preparar'
                                                             }
                                                         </button>
                                                     )}
