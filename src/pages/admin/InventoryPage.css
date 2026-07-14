@@ -1005,20 +1005,20 @@
 
     .header-actions {
         width: 100%;
-        flex-direction: row-reverse;
-        justify-content: space-between;
-        align-items: center;
-        gap: 12px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
     }
 
     .btn-save {
-        width: auto;
-        padding: 10px 20px;
+        width: 100%;
+        padding: 12px;
         justify-content: center;
     }
 
     .sync-info {
         font-size: 12px;
+        justify-content: center;
     }
 
     /* Toolbar & Tabs */
@@ -1047,20 +1047,23 @@
         margin-bottom: 16px;
     }
 
+    .fast-entry-table {
+        display: block !important;
+        width: 100% !important;
+    }
+
     .fast-entry-table thead {
         display: none !important;
     }
 
     .fast-entry-table tbody {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        width: 100%;
+        display: block !important;
+        width: 100% !important;
     }
 
     .fast-entry-table tr {
         display: grid !important;
-        grid-template-columns: 1fr auto !important;
+        grid-template-columns: 1fr 100px !important;
         grid-template-rows: auto auto !important;
         gap: 8px 12px !important;
         padding: 14px 16px !important;
@@ -1069,7 +1072,7 @@
         border-radius: 16px !important;
         align-items: center !important;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02) !important;
-        margin: 0 !important;
+        margin-bottom: 12px !important;
         box-sizing: border-box !important;
         width: 100% !important;
     }
