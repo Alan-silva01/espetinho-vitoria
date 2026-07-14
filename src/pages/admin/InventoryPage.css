@@ -976,6 +976,8 @@
 @media (max-width: 768px) {
     .inventory-wrapper {
         padding: 16px;
+        height: auto;
+        overflow-y: visible;
     }
 
     /* Hide the activity sidebar on mobile — full width for the product table */
@@ -989,18 +991,161 @@
     }
 
     /* Header adjustments */
-    .inventory-toolbar {
-        flex-wrap: wrap;
-        gap: 8px;
+    .inventory-header-premium {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 16px;
+        margin-bottom: 20px;
+    }
+
+    .header-titles h2 {
+        font-size: 24px;
+        text-align: left;
+    }
+
+    .header-actions {
+        width: 100%;
+        flex-direction: row-reverse;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
     }
 
     .btn-save {
-        width: 100%;
+        width: auto;
+        padding: 10px 20px;
         justify-content: center;
     }
 
     .sync-info {
-        font-size: 11px;
+        font-size: 12px;
+    }
+
+    /* Toolbar & Tabs */
+    .inventory-toolbar {
+        flex-direction: column;
+        gap: 12px;
+        width: 100%;
+    }
+
+    .search-bar-v2 {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    .inventory-tabs {
+        margin-bottom: 16px;
+        padding-bottom: 4px;
+    }
+
+    /* Transform Table to Grid Cards */
+    .fast-entry-container {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin-bottom: 16px;
+    }
+
+    .fast-entry-table thead {
+        display: none !important;
+    }
+
+    .fast-entry-table tbody {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        width: 100%;
+    }
+
+    .fast-entry-table tr {
+        display: grid !important;
+        grid-template-columns: 1fr auto !important;
+        grid-template-rows: auto auto !important;
+        gap: 8px 12px !important;
+        padding: 14px 16px !important;
+        background: white !important;
+        border: 1px solid #DFDFDF !important;
+        border-radius: 16px !important;
+        align-items: center !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02) !important;
+        margin: 0 !important;
+        box-sizing: border-box !important;
+        width: 100% !important;
+    }
+
+    .dark .fast-entry-table tr {
+        background: #1F2937 !important;
+        border-color: #374151 !important;
+    }
+
+    .fast-entry-table td {
+        padding: 0 !important;
+        border: none !important;
+        width: auto !important;
+        height: auto !important;
+    }
+
+    /* Column 1: Image & Product name */
+    .fast-entry-table td:nth-child(1) {
+        grid-column: 1 !important;
+        grid-row: 1 !important;
+        display: flex;
+        align-items: center;
+    }
+
+    /* Column 2: Category Pill */
+    .fast-entry-table td:nth-child(2) {
+        grid-column: 1 !important;
+        grid-row: 2 !important;
+        display: flex;
+        align-items: center;
+    }
+
+    /* Column 3: Stock Input Box */
+    .fast-entry-table td:nth-child(3) {
+        grid-column: 2 !important;
+        grid-row: 1 !important;
+        text-align: right;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+    }
+
+    /* Column 4: Status Indicator */
+    .fast-entry-table td:nth-child(4) {
+        grid-column: 2 !important;
+        grid-row: 2 !important;
+        text-align: right;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+    }
+
+    .fast-prod-info {
+        gap: 10px;
+    }
+
+    .fast-prod-info img {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+    }
+
+    .fast-prod-info strong {
+        font-size: 14px;
+        color: #111827;
+    }
+
+    .dark .fast-prod-info strong {
+        color: #F9FAFB;
+    }
+
+    .fast-input {
+        width: 70px !important;
+        padding: 6px !important;
+        font-size: 14px !important;
+        border-radius: 8px !important;
     }
 }
 
