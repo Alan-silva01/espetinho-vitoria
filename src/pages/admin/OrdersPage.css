@@ -474,6 +474,14 @@
     margin-top: 0;
 }
 
+.mobile-btn-label {
+    display: none;
+}
+
+.desktop-btn-label {
+    display: inline;
+}
+
 /* We adapt the template's "Inciar/Detalhes" action styling based on primary color */
 .quick-action.stage-preparando {
     background: var(--cor-primaria, #C41E2E);
@@ -685,6 +693,14 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
+    }
+
+    .desktop-btn-label {
+        display: none !important;
+    }
+
+    .mobile-btn-label {
+        display: inline !important;
     }
 }
 

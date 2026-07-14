@@ -1003,9 +1003,24 @@ export default function OrdersPage() {
                                                             }}
                                                         >
                                                             {
-                                                                stage.id === 'confirmado' ? 'Preparar' :
-                                                                    stage.id === 'preparando' ? (order.tipo_pedido === 'mesa' ? 'Servir' : 'Saiu p/ Entrega') :
-                                                                        stage.id === 'saiu_entrega' ? 'Entregue' : 'Preparar'
+                                                                stage.id === 'confirmado' ? (
+                                                                    <>
+                                                                        <span className="desktop-btn-label">Iniciar</span>
+                                                                        <span className="mobile-btn-label">Preparar</span>
+                                                                    </>
+                                                                ) : stage.id === 'preparando' ? (
+                                                                    order.tipo_pedido === 'mesa' ? 'Servir' : (
+                                                                        <>
+                                                                            <span className="desktop-btn-label">Enviar</span>
+                                                                            <span className="mobile-btn-label">Saiu p/ Entrega</span>
+                                                                        </>
+                                                                    )
+                                                                ) : stage.id === 'saiu_entrega' ? (
+                                                                    <>
+                                                                        <span className="desktop-btn-label">Concluir</span>
+                                                                        <span className="mobile-btn-label">Entregue</span>
+                                                                    </>
+                                                                ) : 'Iniciar'
                                                             }
                                                         </button>
                                                     )}
