@@ -7,13 +7,23 @@ export function CustomerProvider({ children }) {
     const [customer, setCustomer] = useState(null)
     const [loading, setLoading] = useState(true)
 
-    // Load from localStorage on mount
+    // Load from URL or localStorage on mount
     useEffect(() => {
-        const savedId = localStorage.getItem('espetinho_customer_id')
-        if (savedId) {
-            fetchCustomerById(savedId)
+        // Extract customer code from URL path (/CLI-XXXXXX) or query params (?c=CLI-XXXXXX)
+        const pathMatch = window.location.pathname.match(/\/(CLI-[A-Za-z0-9-]+)/i)
+        const searchParams = new URLSearchParams(window.location.search)
+        const queryCode = searchParams.get('c') || searchParams.get('cliente')
+        const urlCode = (pathMatch?.[1] || queryCode)?.toUpperCase()
+
+        if (urlCode && urlCode.startsWith('CLI-')) {
+            fetchCustomerByCode(urlCode)
         } else {
-            setLoading(false)
+            const savedId = localStorage.getItem('espetinho_customer_id')
+            if (savedId) {
+                fetchCustomerById(savedId)
+            } else {
+                setLoading(false)
+            }
         }
     }, [])
 
