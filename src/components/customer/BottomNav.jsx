@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { Home, ShoppingCart, Heart, ClipboardList } from 'lucide-react'
+import { useCustomer } from '../../context/CustomerContext'
 import { useCart } from '../../hooks/useCart'
 import { useComanda } from '../../hooks/useOrders'
 import { supabase } from '../../lib/supabase'
@@ -12,21 +13,32 @@ export default function BottomNav() {
     const navigate = useNavigate()
     const { customerCode } = useParams()
     const { totalItems } = useCart()
+    const { customer } = useCustomer()
 
     // Lightweight order status polling (no WebSocket to avoid duplicate subscriber)
     const lastOrderId = localStorage.getItem('espetinho_ultimo_pedido_id')
     const [activeOrder, setActiveOrder] = useState(null)
 
     useEffect(() => {
-        if (!lastOrderId) return
+        if (!lastOrderId) {
+            setActiveOrder(null)
+            return
+        }
 
         async function fetchStatus() {
             const { data } = await supabase
                 .from('pedidos')
-                .select('id, status, tipo_pedido')
+                .select('id, status, tipo_pedido, cliente_id')
                 .eq('id', lastOrderId)
                 .single()
-            if (data) setActiveOrder(data)
+
+            // Only show active order if it belongs to the active customer (or if in mesa mode)
+            const isMesaMode = localStorage.getItem('espetinho_tipo_pedido') === 'mesa'
+            if (data && (isMesaMode || !customer?.id || data.cliente_id === customer.id)) {
+                setActiveOrder(data)
+            } else {
+                setActiveOrder(null)
+            }
         }
 
         fetchStatus()
@@ -35,7 +47,7 @@ export default function BottomNav() {
         }, 10000)
 
         return () => clearInterval(interval)
-    }, [lastOrderId])
+    }, [lastOrderId, customer?.id])
 
     const hasActiveOrder = activeOrder && ['pendente', 'confirmado', 'preparando', 'pronto', 'saiu_entrega'].includes(activeOrder.status)
 

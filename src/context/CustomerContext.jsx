@@ -42,9 +42,11 @@ export function CustomerProvider({ children }) {
                 .single()
 
             if (data && !error) {
-                // If it's a DIFFERENT customer than before, reset manual address preference
+                // If it's a DIFFERENT customer than before, reset manual address preference, active order and cart
                 if (currentId !== data.id) {
                     localStorage.removeItem('espetinho_manual_address')
+                    localStorage.removeItem('espetinho_ultimo_pedido_id')
+                    localStorage.removeItem('espetinho-cart')
                 }
 
                 setCustomer(data)
