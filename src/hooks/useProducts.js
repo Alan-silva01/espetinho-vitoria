@@ -13,14 +13,14 @@ export function useProducts() {
     const [error, setError] = useState(null)
 
     useEffect(() => {
-        if (!globalProductsCache) {
-            fetchAll()
-        }
+        fetchAll()
     }, [])
 
     async function fetchAll() {
         console.log('[useProducts] Iniciando busca de produtos e categorias...')
-        setLoading(true)
+        if (!globalProductsCache) {
+            setLoading(true)
+        }
         try {
             const [catRes, prodRes] = await Promise.all([
                 supabase
@@ -165,15 +165,14 @@ export function useProduct(id) {
         if (!id) return
 
         async function fetch() {
-            setLoading(true)
-            try {
-                if (globalProductDetailsCache[id]) {
-                    // Already in cache, skip fetch
-                    setProduct(globalProductDetailsCache[id])
-                    setLoading(false)
-                    return
-                }
+            if (globalProductDetailsCache[id]) {
+                setProduct(globalProductDetailsCache[id])
+                setLoading(false)
+            } else {
+                setLoading(true)
+            }
 
+            try {
                 const { data, error } = await supabase
                     .from('produtos')
                     .select('*, categorias(nome, icone), variacoes_produto(*)')
@@ -182,8 +181,10 @@ export function useProduct(id) {
                     .single()
 
                 if (error) throw error
-                globalProductDetailsCache[id] = data
-                setProduct(data)
+                if (data) {
+                    globalProductDetailsCache[id] = data
+                    setProduct(data)
+                }
             } catch (err) {
                 console.error('[useProduct] Erro ao carregar produto:', err.message)
             } finally {

@@ -214,12 +214,12 @@ export default function CheckoutPage() {
         submitLockRef.current = true
         setIsSubmitting(true)
 
-        // Stock validation: check if all cart items are still available
+        // Stock & Options validation: check if all cart items and options are still available
         try {
             const productIds = [...new Set(items.map(i => i.produto_id))]
             const { data: freshProducts } = await supabase
                 .from('produtos')
-                .select('id, nome, disponivel, controlar_estoque, quantidade_disponivel')
+                .select('id, nome, disponivel, controlar_estoque, quantidade_disponivel, opcoes_personalizacao')
                 .in('id', productIds)
 
             if (freshProducts) {
@@ -244,6 +244,61 @@ export default function CheckoutPage() {
                     submitLockRef.current = false
                     return
                 }
+
+                // Sanitizar opcoes_personalizacao de cada item do carrinho contra os produtos do banco
+                const prodMap = new Map(freshProducts.map(p => [p.id, p]))
+
+                items.forEach(item => {
+                    const freshP = prodMap.get(item.produto_id)
+                    if (!freshP || !item.personalizacao || typeof item.personalizacao !== 'object') return
+
+                    const validOpts = new Set()
+                    const defaultsByGroup = {}
+
+                    if (Array.isArray(freshP.opcoes_personalizacao)) {
+                        freshP.opcoes_personalizacao.forEach(g => {
+                            if (g.padrao) defaultsByGroup[g.grupo] = g.padrao
+                            if (Array.isArray(g.opcoes)) {
+                                g.opcoes.forEach(o => {
+                                    const oName = typeof o === 'string' ? o : (o.nome || o.name)
+                                    const isAvail = typeof o === 'string' ? true : (o.disponivel !== false)
+                                    if (oName && isAvail) {
+                                        validOpts.add(oName.trim().toLowerCase())
+                                    }
+                                })
+                            }
+                        })
+                    }
+
+                    if (validOpts.size > 0) {
+                        const newPersonalizacao = { ...item.personalizacao }
+                        let modified = false
+
+                        for (const [groupName, val] of Object.entries(newPersonalizacao)) {
+                            if (Array.isArray(val)) {
+                                const filtered = val.filter(v => typeof v === 'string' && validOpts.has(v.trim().toLowerCase()))
+                                if (filtered.length !== val.length) {
+                                    newPersonalizacao[groupName] = filtered
+                                    modified = true
+                                }
+                            } else if (typeof val === 'string') {
+                                if (!validOpts.has(val.trim().toLowerCase())) {
+                                    // Se a opção antiga não existe mais, substitui pela padrão do grupo (se houver) ou remove
+                                    if (defaultsByGroup[groupName] && validOpts.has(defaultsByGroup[groupName].trim().toLowerCase())) {
+                                        newPersonalizacao[groupName] = defaultsByGroup[groupName]
+                                    } else {
+                                        delete newPersonalizacao[groupName]
+                                    }
+                                    modified = true
+                                }
+                            }
+                        }
+
+                        if (modified) {
+                            item.personalizacao = newPersonalizacao
+                        }
+                    }
+                })
             }
         } catch (stockErr) {
             // Non-blocking: if stock check fails, proceed with order anyway
