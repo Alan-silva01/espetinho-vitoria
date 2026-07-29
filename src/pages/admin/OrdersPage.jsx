@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import {
     Clock, CheckCircle2, Truck, AlertCircle,
     MoreHorizontal, Phone, MapPin, DollarSign,
-    User, ChevronRight, X, Utensils, Timer,
+    User, ChevronRight, X, Utensils, Timer, Plus,
     Store, Bike, Play, Check, Calendar, Search, Bell, Printer, RefreshCw, Receipt, Trash2,
     ReceiptText, ChefHat, GlassWater, IceCreamCone, UtensilsCrossed, XCircle, CheckCircle, ArrowRight, RotateCcw
 } from 'lucide-react'
@@ -14,6 +14,7 @@ import { useVisibilityRefresh } from '../../hooks/useVisibilityRefresh'
 import { useNotificationSoundContext } from '../../context/NotificationSoundContext'
 
 import Dialog from '../../components/ui/Dialog'
+import CreateOrderModal from '../../components/admin/CreateOrderModal'
 import './OrdersPage.css'
 
 // Importando a logo para garantir que ela esteja disponível para o print
@@ -89,6 +90,7 @@ export default function OrdersPage() {
     const dateInputRef = useRef(null)
     const selectedOrderRef = useRef(null)
     const inFlightRef = useRef(new Set()) // Guards concurrent updates
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
     const [comandaToFinalize, setComandaToFinalize] = useState(null)
     const [orderToCancel, setOrderToCancel] = useState(null)
     const [orderToReactivate, setOrderToReactivate] = useState(null)
@@ -843,6 +845,28 @@ export default function OrdersPage() {
                     </button>
 
                     <button
+                        className="btn-new-order-kanban"
+                        onClick={() => setIsCreateModalOpen(true)}
+                        style={{
+                            background: '#FF6A00',
+                            color: '#FFFFFF',
+                            border: 'none',
+                            padding: '8px 16px',
+                            borderRadius: '10px',
+                            fontWeight: '700',
+                            fontSize: '14px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            cursor: 'pointer',
+                            boxShadow: '0 4px 12px rgba(255, 106, 0, 0.25)',
+                            transition: 'transform 0.15s, background 0.15s'
+                        }}
+                    >
+                        <Plus size={16} /> + Novo Pedido
+                    </button>
+
+                    <button
                         className={`btn-auto-print ${autoPrint ? 'active' : ''}`}
                         onClick={toggleAutoPrint}
                         title={autoPrint ? 'Impressão automática ativada' : 'Impressão automática desativada'}
@@ -1460,6 +1484,15 @@ export default function OrdersPage() {
                 }}
                 title="Reativar Pedido?"
                 message={`Deseja reativar o pedido #PED-${orderToReactivate?.numero_pedido}? Ele voltará para a coluna Recebido e entrará no fluxo normal.`}
+            />
+
+            {/* Create Order Modal */}
+            <CreateOrderModal
+                isOpen={isCreateModalOpen}
+                onClose={() => setIsCreateModalOpen(false)}
+                onOrderCreated={() => {
+                    fetchOrders(true)
+                }}
             />
         </div >
     )

@@ -84,13 +84,27 @@ export default function CustomersPage() {
     function openEditModal(customer = null) {
         if (customer) {
             setEditModal({ open: true, mode: 'edit', customer })
+            const addr = customer.dados?.endereco || customer.dados || {}
             setFormData({
                 nome: customer.nome || '',
-                whatsapp: customer.dados?.whatsapp || customer.telefone || ''
+                whatsapp: customer.dados?.whatsapp || customer.telefone || '',
+                rua: addr.rua || addr.street || '',
+                numero: addr.numero || addr.number || '',
+                bairro: addr.bairro || addr.neighborhood || '',
+                complemento: addr.complemento || '',
+                referencia: addr.referencia || addr.reference || ''
             })
         } else {
             setEditModal({ open: true, mode: 'create', customer: null })
-            setFormData({ nome: '', whatsapp: '' })
+            setFormData({
+                nome: '',
+                whatsapp: '',
+                rua: '',
+                numero: '',
+                bairro: '',
+                complemento: '',
+                referencia: ''
+            })
         }
     }
 
@@ -110,7 +124,15 @@ export default function CustomersPage() {
             const updatedDados = {
                 ...baseDados,
                 nome: formData.nome,
-                whatsapp: formData.whatsapp
+                whatsapp: formData.whatsapp,
+                endereco: {
+                    ...(baseDados.endereco || {}),
+                    rua: formData.rua || '',
+                    numero: formData.numero || '',
+                    bairro: formData.bairro || '',
+                    complemento: formData.complemento || '',
+                    referencia: formData.referencia || ''
+                }
             }
 
             const payload = {
@@ -126,9 +148,6 @@ export default function CustomersPage() {
                     .eq('id', customer.id)
                 if (error) throw error
             } else {
-                // For new customers, we also don't touch 'telefone' if possible, 
-                // but we might need it for initial identification if dados isn't enough.
-                // However, user said "nunca mexa", so we set it only in dados.
                 const { error } = await supabase
                     .from('clientes')
                     .insert([payload])
@@ -403,6 +422,62 @@ export default function CustomersPage() {
                                     placeholder="Ex: (99) 99999-9999"
                                     value={formData.whatsapp}
                                     onChange={e => setFormData({ ...formData, whatsapp: e.target.value })}
+                                />
+                            </div>
+
+                            <div className="input-group-heading" style={{ marginTop: '16px', marginBottom: '8px', fontWeight: 'bold', fontSize: '14px', color: 'var(--cor-primaria, #FF6A00)' }}>
+                                📍 Endereço de Entrega
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '12px' }}>
+                                <div className="input-group">
+                                    <label>Rua / Logradouro</label>
+                                    <input
+                                        type="text"
+                                        placeholder="Ex: Av. Principal"
+                                        value={formData.rua}
+                                        onChange={e => setFormData({ ...formData, rua: e.target.value })}
+                                    />
+                                </div>
+                                <div className="input-group">
+                                    <label>Número</label>
+                                    <input
+                                        type="text"
+                                        placeholder="Ex: 123"
+                                        value={formData.numero}
+                                        onChange={e => setFormData({ ...formData, numero: e.target.value })}
+                                    />
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                                <div className="input-group">
+                                    <label>Bairro</label>
+                                    <input
+                                        type="text"
+                                        placeholder="Ex: Centro"
+                                        value={formData.bairro}
+                                        onChange={e => setFormData({ ...formData, bairro: e.target.value })}
+                                    />
+                                </div>
+                                <div className="input-group">
+                                    <label>Complemento</label>
+                                    <input
+                                        type="text"
+                                        placeholder="Ex: Apt 102"
+                                        value={formData.complemento}
+                                        onChange={e => setFormData({ ...formData, complemento: e.target.value })}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="input-group">
+                                <label>Ponto de Referência</label>
+                                <input
+                                    type="text"
+                                    placeholder="Ex: Próximo à praça principal"
+                                    value={formData.referencia}
+                                    onChange={e => setFormData({ ...formData, referencia: e.target.value })}
                                 />
                             </div>
                         </div>
