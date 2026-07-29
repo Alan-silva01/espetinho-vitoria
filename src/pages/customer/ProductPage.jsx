@@ -453,7 +453,66 @@ export default function ProductPage() {
         return 'Adicionar'
     }
 
+    function getOptionStock(optName) {
+        if (!optName || !products?.length) return null
+        const nameLower = String(optName).trim().toLowerCase()
+        const found = products.find(p => p?.nome && String(p.nome).trim().toLowerCase() === nameLower)
+        if (found && found.controlar_estoque) {
+            return found.quantidade_disponivel || 0
+        }
+        return null
+    }
+
     function handleAdd(e) {
+        // 1. Check main product stock
+        if (product.controlar_estoque) {
+            const currentInCart = cartItems
+                .filter(i => i.produto_id === product.id)
+                .reduce((sum, i) => sum + i.quantidade, 0)
+            const totalRequested = currentInCart + qty
+            if (totalRequested > product.quantidade_disponivel) {
+                setStockWarning({
+                    open: true,
+                    productName: product.nome,
+                    availableQty: Math.max(0, product.quantidade_disponivel - currentInCart)
+                })
+                return
+            }
+        }
+
+        // 2. Check accompaniments / options stock
+        for (const [, val] of Object.entries(selectedOptions)) {
+            const selectedList = Array.isArray(val) ? val : [val]
+            for (const optName of selectedList) {
+                if (!optName || typeof optName !== 'string') continue
+                const optStock = getOptionStock(optName)
+                if (optStock !== null) {
+                    let inCartCount = 0
+                    cartItems.forEach(cartItem => {
+                        if (!cartItem.personalizacao) return
+                        Object.values(cartItem.personalizacao).forEach(pVal => {
+                            const pList = Array.isArray(pVal) ? pVal : [pVal]
+                            pList.forEach(name => {
+                                if (typeof name === 'string' && name.trim().toLowerCase() === optName.trim().toLowerCase()) {
+                                    inCartCount += (cartItem.quantidade || 1)
+                                }
+                            })
+                        })
+                    })
+
+                    const requestedCount = inCartCount + (qty * 1)
+                    if (requestedCount > optStock) {
+                        setStockWarning({
+                            open: true,
+                            productName: optName,
+                            availableQty: Math.max(0, optStock - inCartCount)
+                        })
+                        return
+                    }
+                }
+            }
+        }
+
         // Build options summary for display
         const optionsSummary = Object.entries(selectedOptions)
             .filter(([, val]) => (Array.isArray(val) ? val.length > 0 : val))

@@ -217,28 +217,56 @@ export default function CheckoutPage() {
 
         // Stock & Options validation: check if all cart items and options are still available
         try {
-            const productIds = [...new Set(items.map(i => i.produto_id))]
+            // Aggregate demand for main products AND accompaniments across all cart items
+            const mainProductDemand = {}
+            const accompanimentDemand = {}
+
+            items.forEach(item => {
+                const itemQty = Number(item.quantidade) || 1
+                mainProductDemand[item.produto_id] = (mainProductDemand[item.produto_id] || 0) + itemQty
+
+                if (item.personalizacao && typeof item.personalizacao === 'object') {
+                    Object.values(item.personalizacao).forEach(pVal => {
+                        const pList = Array.isArray(pVal) ? pVal : [pVal]
+                        pList.forEach(opt => {
+                            if (typeof opt === 'string' && opt.trim()) {
+                                const optLower = opt.trim().toLowerCase()
+                                accompanimentDemand[optLower] = (accompanimentDemand[optLower] || 0) + itemQty
+                            }
+                        })
+                    })
+                }
+            })
+
             const { data: freshProducts } = await supabase
                 .from('produtos')
                 .select('id, nome, disponivel, controlar_estoque, quantidade_disponivel, opcoes_personalizacao')
-                .in('id', productIds)
 
             if (freshProducts) {
-                const unavailable = freshProducts.filter(p =>
-                    !p.disponivel || (p.controlar_estoque && p.quantidade_disponivel <= 0)
-                )
+                const prodMapById = new Map(freshProducts.map(p => [p.id, p]))
+                const prodMapByName = new Map(freshProducts.map(p => [p.nome.trim().toLowerCase(), p]))
 
-                if (unavailable.length > 0) {
-                    const unavailableNames = unavailable.map(p => p.nome)
-                    const unavailableIds = new Set(unavailable.map(p => p.id))
+                const unavailableNames = []
 
-                    // Remove out-of-stock items from cart
-                    items.forEach(item => {
-                        if (unavailableIds.has(item.produto_id)) {
-                            removeItem(item)
+                // Check main products demand
+                for (const [prodId, demand] of Object.entries(mainProductDemand)) {
+                    const p = prodMapById.get(prodId)
+                    if (p && (!p.disponivel || (p.controlar_estoque && demand > p.quantidade_disponivel))) {
+                        unavailableNames.push(p.nome)
+                    }
+                }
+
+                // Check accompaniments demand
+                for (const [optNameLower, demand] of Object.entries(accompanimentDemand)) {
+                    const p = prodMapByName.get(optNameLower)
+                    if (p && (!p.disponivel || (p.controlar_estoque && demand > p.quantidade_disponivel))) {
+                        if (!unavailableNames.includes(p.nome)) {
+                            unavailableNames.push(p.nome)
                         }
-                    })
+                    }
+                }
 
+                if (unavailableNames.length > 0) {
                     setOutOfStockItems(unavailableNames)
                     setShowOutOfStockModal(true)
                     setIsSubmitting(false)

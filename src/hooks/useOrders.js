@@ -167,29 +167,61 @@ export function useOrders() {
 
             /* 4. Stock is handled automatically by DB trigger fn_trg_baixa_estoque_pedido */
 
-            /* 5. Rice stock auto-decrement via RPC (bypasses RLS) */
+            /* 5. Accompaniment & Rice stock auto-decrement */
             try {
-                const riceChoices = {}
+                const accompanimentChoices = {}
                 for (const item of orderData.itens) {
-                    const arroz = item.personalizacao?.['Tipo de Arroz']
-                    if (arroz && typeof arroz === 'string') {
-                        riceChoices[arroz] = (riceChoices[arroz] || 0) + (item.quantidade || 1)
+                    if (!item.personalizacao || typeof item.personalizacao !== 'object') continue
+                    const itemQty = Number(item.quantidade) || 1
+
+                    for (const [, val] of Object.entries(item.personalizacao)) {
+                        if (Array.isArray(val)) {
+                            for (const opt of val) {
+                                if (typeof opt === 'string' && opt.trim()) {
+                                    const optName = opt.trim()
+                                    accompanimentChoices[optName] = (accompanimentChoices[optName] || 0) + itemQty
+                                }
+                            }
+                        } else if (typeof val === 'string' && val.trim()) {
+                            const optName = val.trim()
+                            accompanimentChoices[optName] = (accompanimentChoices[optName] || 0) + itemQty
+                        }
                     }
                 }
 
-                if (Object.keys(riceChoices).length > 0) {
+                if (Object.keys(accompanimentChoices).length > 0) {
+                    // Try RPC first for rice choices
                     const { error: rpcError } = await supabase.rpc('decrementar_estoque_arroz', {
-                        rice_choices: riceChoices
+                        rice_choices: accompanimentChoices
                     })
                     if (rpcError) {
-                        console.error('[Rice Stock] RPC error:', rpcError)
+                        console.warn('[Accompaniment Stock] RPC note:', rpcError.message)
                     } else {
-                        console.log('[Rice Stock] Decremented via RPC:', riceChoices)
+                        console.log('[Accompaniment Stock] Decremented via RPC:', accompanimentChoices)
+                    }
+
+                    // Direct check/decrement for matching catalog products with controlar_estoque = true
+                    for (const [optName, totalQty] of Object.entries(accompanimentChoices)) {
+                        const { data: matchingProducts } = await supabase
+                            .from('produtos')
+                            .select('id, quantidade_disponivel, controlar_estoque')
+                            .ilike('nome', optName)
+                            .eq('controlar_estoque', true)
+
+                        if (matchingProducts && matchingProducts.length > 0) {
+                            for (const p of matchingProducts) {
+                                const newStock = Math.max(0, (p.quantidade_disponivel || 0) - totalQty)
+                                await supabase
+                                    .from('produtos')
+                                    .update({ quantidade_disponivel: newStock })
+                                    .eq('id', p.id)
+                            }
+                        }
                     }
                 }
-            } catch (riceErr) {
+            } catch (stockErr) {
                 // Non-blocking: log but don't fail the order
-                console.error('[Rice Stock] Error decrementing:', riceErr)
+                console.error('[Accompaniment Stock] Error decrementing:', stockErr)
             }
 
             return pedido
