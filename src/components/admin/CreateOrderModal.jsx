@@ -1,8 +1,8 @@
-import { useState, useEffect, useMemo, useRef } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import {
-    Search, User, Phone, MapPin, Plus, Minus, Trash2, X,
-    ShoppingBag, Check, ArrowRight, ArrowLeft, Bike, Store, Utensils,
-    DollarSign, CreditCard, QrCode, AlertCircle, UserPlus, CheckCircle2
+    Search, User, Phone, MapPin, Plus, Minus, X,
+    ShoppingBag, ArrowRight, ArrowLeft, Bike, Store, Utensils,
+    DollarSign, CreditCard, QrCode, AlertCircle, UserPlus
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useProducts } from '../../hooks/useProducts'
@@ -12,8 +12,12 @@ import { formatCurrency } from '../../lib/utils'
 import './CreateOrderModal.css'
 
 export default function CreateOrderModal({ isOpen, onClose, onOrderCreated }) {
-    const { products, categories, loading: loadingProducts } = useProducts()
-    const { createOrder } = useOrders()
+    const productsData = useProducts() || {}
+    const products = productsData.products || []
+    const categories = productsData.categories || []
+    const loadingProducts = productsData.loading || false
+
+    const { createOrder } = useOrders() || {}
 
     const [step, setStep] = useState(1) // 1: Cliente, 2: Itens, 3: Pagamento & Finalização
 
@@ -108,18 +112,20 @@ export default function CreateOrderModal({ isOpen, onClose, onOrderCreated }) {
             setTaxaEntrega(0)
             return
         }
-        if (address.bairro) {
-            const found = freightFees.find(f => f.local.toLowerCase() === address.bairro.toLowerCase())
+        if (address?.bairro) {
+            const bairroTarget = String(address.bairro).toLowerCase().trim()
+            const found = (freightFees || []).find(f => f?.local && String(f.local).toLowerCase().trim() === bairroTarget)
             if (found) {
                 setTaxaEntrega(Number(found.valor_frete) || 0)
             }
         }
-    }, [address.bairro, tipoPedido, freightFees])
+    }, [address?.bairro, tipoPedido, freightFees])
 
     if (!isOpen) return null
 
     // Handlers do Cliente
     function handleSelectCustomer(c) {
+        if (!c) return
         setSelectedCustomer(c)
         setIsNewCustomer(false)
         setClientName(c.nome || '')
@@ -147,18 +153,17 @@ export default function CreateOrderModal({ isOpen, onClose, onOrderCreated }) {
 
     // Adicionar produto ao carrinho
     function handleAddProduct(product) {
-        // Se tiver variações ativas, abre modal de personalização
-        if (product.variacoes_produto && product.variacoes_produto.length > 0) {
+        if (!product) return
+        if (Array.isArray(product.variacoes_produto) && product.variacoes_produto.length > 0) {
             setCustomizingProduct(product)
             setSelectedVariation(product.variacoes_produto[0])
             setItemNotes('')
             return
         }
 
-        // Sem variação: adiciona direto
         addItemToCart({
             produto_id: product.id,
-            nome: product.nome,
+            nome: product.nome || 'Produto',
             preco: Number(product.preco) || 0,
             preco_unitario: Number(product.preco) || 0,
             quantidade: 1,
@@ -178,7 +183,7 @@ export default function CreateOrderModal({ isOpen, onClose, onOrderCreated }) {
         addItemToCart({
             produto_id: customizingProduct.id,
             variacao_id: selectedVariation?.id || null,
-            nome: name,
+            nome: name || 'Produto Customizado',
             preco: price,
             preco_unitario: price,
             quantidade: 1,
@@ -211,6 +216,7 @@ export default function CreateOrderModal({ isOpen, onClose, onOrderCreated }) {
     function handleUpdateQuantity(index, delta) {
         setCartItems(prev => {
             const updated = [...prev]
+            if (!updated[index]) return prev
             const newQty = updated[index].quantidade + delta
             if (newQty <= 0) {
                 return updated.filter((_, i) => i !== index)
@@ -222,7 +228,7 @@ export default function CreateOrderModal({ isOpen, onClose, onOrderCreated }) {
 
     // Totais
     const subtotal = useMemo(() => {
-        return cartItems.reduce((acc, item) => acc + (item.preco_unitario * item.quantidade), 0)
+        return (cartItems || []).reduce((acc, item) => acc + ((item.preco_unitario || 0) * (item.quantidade || 1)), 0)
     }, [cartItems])
 
     const totalOrder = useMemo(() => {
@@ -231,9 +237,12 @@ export default function CreateOrderModal({ isOpen, onClose, onOrderCreated }) {
 
     // Produtos filtrados
     const filteredProducts = useMemo(() => {
+        if (!Array.isArray(products)) return []
+        const searchLower = (productSearch || '').toLowerCase().trim()
         return products.filter(p => {
+            if (!p || !p.nome) return false
             const matchCategory = selectedCategory === 'todos' || p.categoria_id === selectedCategory
-            const matchSearch = !productSearch || p.nome.toLowerCase().includes(productSearch.toLowerCase())
+            const matchSearch = !searchLower || p.nome.toLowerCase().includes(searchLower)
             return matchCategory && matchSearch && p.disponivel !== false
         })
     }, [products, selectedCategory, productSearch])
@@ -241,17 +250,17 @@ export default function CreateOrderModal({ isOpen, onClose, onOrderCreated }) {
     // Finalizar Pedido
     async function handleSubmitOrder() {
         setErrorMessage('')
-        if (!clientName.trim()) {
+        if (!clientName || !clientName.trim()) {
             setErrorMessage('Por favor, informe o nome do cliente.')
             setStep(1)
             return
         }
-        if (cartItems.length === 0) {
+        if (!cartItems || cartItems.length === 0) {
             setErrorMessage('Selecione ao menos 1 item para o pedido.')
             setStep(2)
             return
         }
-        if (tipoPedido === 'entrega' && !address.rua.trim()) {
+        if (tipoPedido === 'entrega' && (!address.rua || !address.rua.trim())) {
             setErrorMessage('Por favor, preencha o endereço (rua e número) para entrega.')
             setStep(1)
             return
@@ -261,7 +270,6 @@ export default function CreateOrderModal({ isOpen, onClose, onOrderCreated }) {
         try {
             let targetClientId = selectedCustomer?.id
 
-            // Salvar/Atualizar dados do cliente se solicitado
             if (targetClientId && saveAddressToProfile) {
                 const baseDados = selectedCustomer.dados || {}
                 await supabase
@@ -289,7 +297,7 @@ export default function CreateOrderModal({ isOpen, onClose, onOrderCreated }) {
 
             const orderPayload = {
                 nome_cliente: clientName,
-                telefone_cliente: clientPhone.replace(/\D/g, ''),
+                telefone_cliente: (clientPhone || '').replace(/\D/g, ''),
                 tipo_pedido: tipoPedido,
                 subtotal,
                 taxa_entrega: tipoPedido === 'entrega' ? taxaEntrega : 0,
@@ -298,27 +306,29 @@ export default function CreateOrderModal({ isOpen, onClose, onOrderCreated }) {
                 metodo_pagamento: formaPagamento,
                 troco_para: precisaTroco && trocoPara ? parseFloat(trocoPara) : null,
                 endereco: addressData,
-                observacoes: observacoes.trim() || null,
+                observacoes: observacoes ? observacoes.trim() : null,
                 itens: cartItems,
                 cliente_id: targetClientId || null,
                 codigo_cliente: selectedCustomer?.codigo || null,
                 pago: false
             }
 
-            // Criar pedido no Banco
-            const pedido = await createOrder(orderPayload)
+            let pedido = null
+            if (typeof createOrder === 'function') {
+                pedido = await createOrder(orderPayload)
+            }
 
-            // Disparar Webhook n8n
             try {
                 const webhookBody = {
                     ...orderPayload,
-                    ...pedido,
+                    ...(pedido || {}),
                     cliente_original: selectedCustomer
                 }
-                await n8nService.sendNovoPedido(webhookBody)
+                if (n8nService && typeof n8nService.sendNovoPedido === 'function') {
+                    await n8nService.sendNovoPedido(webhookBody)
+                }
 
-                // Notificar motoboys via Edge Function se entrega
-                if (tipoPedido === 'entrega') {
+                if (tipoPedido === 'entrega' && pedido) {
                     supabase.functions.invoke('notify-driver', {
                         body: {
                             numero_pedido: pedido.numero_pedido || pedido.id,
@@ -412,7 +422,7 @@ export default function CreateOrderModal({ isOpen, onClose, onOrderCreated }) {
 
                                         {searchingCustomers && <div className="searching-spinner">Buscando clientes...</div>}
 
-                                        {customerResults.length > 0 && (
+                                        {(customerResults || []).length > 0 && (
                                             <div className="customer-results-list">
                                                 {customerResults.map(c => (
                                                     <div
@@ -430,7 +440,7 @@ export default function CreateOrderModal({ isOpen, onClose, onOrderCreated }) {
                                             </div>
                                         )}
 
-                                        {searchTerm.length >= 2 && customerResults.length === 0 && !searchingCustomers && (
+                                        {searchTerm.length >= 2 && (customerResults || []).length === 0 && !searchingCustomers && (
                                             <div className="no-customer-found">
                                                 <span>Nenhum cliente encontrado com "{searchTerm}".</span>
                                                 <button className="btn-new-cust-action" onClick={handleStartNewCustomer}>
@@ -506,7 +516,7 @@ export default function CreateOrderModal({ isOpen, onClose, onOrderCreated }) {
                                             onChange={e => setAddress({ ...address, bairro: e.target.value })}
                                         >
                                             <option value="">Selecione o Bairro...</option>
-                                            {freightFees.map(f => (
+                                            {(freightFees || []).map(f => (
                                                 <option key={f.id} value={f.local}>
                                                     {f.local} ({formatCurrency(f.valor_frete)})
                                                 </option>
@@ -572,7 +582,7 @@ export default function CreateOrderModal({ isOpen, onClose, onOrderCreated }) {
                                         >
                                             Todos
                                         </button>
-                                        {categories.map(c => (
+                                        {(categories || []).map(c => (
                                             <button
                                                 key={c.id}
                                                 className={`cat-pill ${selectedCategory === c.id ? 'active' : ''}`}
@@ -588,7 +598,7 @@ export default function CreateOrderModal({ isOpen, onClose, onOrderCreated }) {
                                     {loadingProducts ? (
                                         <div className="loading-products">Carregando cardápio...</div>
                                     ) : (
-                                        filteredProducts.map(p => (
+                                        (filteredProducts || []).map(p => (
                                             <div key={p.id} className="product-quick-card" onClick={() => handleAddProduct(p)}>
                                                 {p.imagem_url && <img src={p.imagem_url} alt={p.nome} className="prod-img" />}
                                                 <div className="prod-info">
@@ -802,7 +812,7 @@ export default function CreateOrderModal({ isOpen, onClose, onOrderCreated }) {
                             <button onClick={() => setCustomizingProduct(null)}><X size={18} /></button>
                         </div>
                         <div className="custom-body">
-                            {customizingProduct.variacoes_produto?.length > 0 && (
+                            {Array.isArray(customizingProduct.variacoes_produto) && customizingProduct.variacoes_produto.length > 0 && (
                                 <div className="variations-section">
                                     <label>Escolha a Variação / Opção:</label>
                                     <div className="variations-list">
