@@ -62,9 +62,8 @@ export default function CreateOrderModal({ isOpen, onClose }) {
     // Abrir o app do cliente pelo código
     function handleOpenCustomerApp(customer) {
         if (!customer || !customer.codigo) return
-        const targetUrl = `/${customer.codigo}`
-        window.open(targetUrl, '_blank')
-        onClose()
+        sessionStorage.setItem('espetinho_opened_from_admin', 'true')
+        window.location.href = `/${customer.codigo}?admin=true`
     }
 
     // Criar novo cliente e abrir o app dele imediatamente

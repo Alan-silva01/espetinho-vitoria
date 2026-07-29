@@ -403,7 +403,14 @@ export default function CheckoutPage() {
             clearCart()
             submitLockRef.current = false
             localStorage.setItem('espetinho_ultimo_pedido_id', pedido.id)
-            navigate(customerCode ? `/${customerCode}/pedido/${pedido.id}` : `/pedido/${pedido.id}`)
+
+            const isFromAdmin = sessionStorage.getItem('espetinho_opened_from_admin') === 'true' || window.location.search.includes('admin=true')
+            if (isFromAdmin) {
+                sessionStorage.removeItem('espetinho_opened_from_admin')
+                navigate('/admin/pedidos')
+            } else {
+                navigate(customerCode ? `/${customerCode}/pedido/${pedido.id}` : `/pedido/${pedido.id}`)
+            }
         } catch (err) {
             alert('Erro ao confirmar pedido: ' + err.message)
             setIsSubmitting(false)

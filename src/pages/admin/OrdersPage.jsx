@@ -847,23 +847,8 @@ export default function OrdersPage() {
                     <button
                         className="btn-new-order-kanban"
                         onClick={() => setIsCreateModalOpen(true)}
-                        style={{
-                            background: '#FF6A00',
-                            color: '#FFFFFF',
-                            border: 'none',
-                            padding: '8px 16px',
-                            borderRadius: '10px',
-                            fontWeight: '700',
-                            fontSize: '14px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '6px',
-                            cursor: 'pointer',
-                            boxShadow: '0 4px 12px rgba(255, 106, 0, 0.25)',
-                            transition: 'transform 0.15s, background 0.15s'
-                        }}
                     >
-                        <Plus size={16} /> + Novo Pedido
+                        <Plus size={14} /> Novo Pedido
                     </button>
 
                     <button
