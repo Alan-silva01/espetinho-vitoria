@@ -6,6 +6,7 @@ import { useOrders } from '../../hooks/useOrders'
 import { useCustomer } from '../../context/CustomerContext'
 import { formatCurrency, getImageUrl, filterPersonalizacao } from '../../lib/utils'
 import { supabase } from '../../lib/supabase'
+import n8nService from '../../services/n8nService'
 import OutOfStockModal from '../../components/customer/OutOfStockModal'
 import './CheckoutPage.css'
 
@@ -376,12 +377,7 @@ export default function CheckoutPage() {
                     cliente_original: customer
                 }
 
-                await fetch('https://rapidus-n8n-webhook.b7bsm5.easypanel.host/webhook/pedido_feito', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(webhookBody),
-                    signal: AbortSignal.timeout(5000)
-                }).catch(err => console.warn('N8N webhook taking too long or failed, skipping...', err))
+                await n8nService.sendNovoPedido(webhookBody)
 
                 // If it's delivery, notify all drivers via OneSignal
                 if (tipoPedido === 'entrega') {

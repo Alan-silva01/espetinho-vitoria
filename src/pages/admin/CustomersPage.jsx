@@ -6,6 +6,7 @@ import {
     UserPlus, ExternalLink, Trash2, Edit2, Shield, Smartphone
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
+import n8nService from '../../services/n8nService'
 import { formatCurrency } from '../../lib/utils'
 import { useVisibilityRefresh } from '../../hooks/useVisibilityRefresh'
 import './CustomersPage.css'
@@ -191,13 +192,9 @@ export default function CustomersPage() {
             return
         }
         try {
-            await fetch('https://rapidus-n8n-webhook.b7bsm5.easypanel.host/webhook/enviar_link', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    telefone: phoneRaw,
-                    codigo: customer.codigo
-                })
+            await n8nService.sendLinkApp({
+                telefone: phoneRaw,
+                codigo: customer.codigo
             })
             alert(`✅ Link do App enviado com sucesso para ${customer.nome} no WhatsApp!`)
         } catch (err) {

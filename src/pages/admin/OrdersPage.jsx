@@ -7,6 +7,7 @@ import {
     ReceiptText, ChefHat, GlassWater, IceCreamCone, UtensilsCrossed, XCircle, CheckCircle, ArrowRight, RotateCcw
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
+import n8nService from '../../services/n8nService'
 import { formatCurrency, filterPersonalizacao, getSmartItemName } from '../../lib/utils'
 import { useOrders, useComanda } from '../../hooks/useOrders'
 import { useVisibilityRefresh } from '../../hooks/useVisibilityRefresh'
@@ -511,36 +512,27 @@ export default function OrdersPage() {
                     }
                 }
 
-                // Existing webhook
-                try {
-                    await fetch('https://rapidus-n8n-webhook.b7bsm5.easypanel.host/webhook/saiu_entrega', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            order_id: freshOrder.id,
-                            numero_pedido: freshOrder.numero_pedido,
-                            status: newStatus,
-                            tipo_pedido: freshOrder.tipo_pedido,
-                            telefone_contato: freshOrder.telefone_cliente || freshOrder.clientes?.telefone,
-                            cliente: {
-                                id: freshOrder.cliente_id,
-                                nome: freshOrder.clientes?.nome || freshOrder.nome_cliente,
-                                telefone_db: freshOrder.clientes?.telefone,
-                                whatsapp_contato: freshOrder.clientes?.whatsapp || freshOrder.telefone_cliente,
-                            },
-                            endereco: freshOrder.endereco,
-                            valor_total: freshOrder.valor_total,
-                            itens: freshOrder.itens?.map(item => ({
-                                quantidade: item.quantidade,
-                                nome: item.produtos?.nome,
-                                preco: item.preco_unitario,
-                                observacoes: item.observacoes
-                            }))
-                        })
-                    })
-                } catch (webhookErr) {
-                    console.error('Erro ao enviar webhook saiu_entrega:', webhookErr)
-                }
+                await n8nService.sendSaiuEntrega({
+                    order_id: freshOrder.id,
+                    numero_pedido: freshOrder.numero_pedido,
+                    status: newStatus,
+                    tipo_pedido: freshOrder.tipo_pedido,
+                    telefone_contato: freshOrder.telefone_cliente || freshOrder.clientes?.telefone,
+                    cliente: {
+                        id: freshOrder.cliente_id,
+                        nome: freshOrder.clientes?.nome || freshOrder.nome_cliente,
+                        telefone_db: freshOrder.clientes?.telefone,
+                        whatsapp_contato: freshOrder.clientes?.whatsapp || freshOrder.telefone_cliente,
+                    },
+                    endereco: freshOrder.endereco,
+                    valor_total: freshOrder.valor_total,
+                    itens: freshOrder.itens?.map(item => ({
+                        quantidade: item.quantidade,
+                        nome: item.produtos?.nome,
+                        preco: item.preco_unitario,
+                        observacoes: item.observacoes
+                    }))
+                })
             }
 
             // AUTO-PAY: When mesa orders are completed (entregue), automatically mark as paid
