@@ -209,10 +209,11 @@ export default function OrdersPage() {
         fetchAllDrivers()
     }, [selectedDate])
 
-    // Realtime subscription — created ONCE, never re-subscribes
+    // Realtime subscription — created ONCE per mount with unique channel ID to prevent leaks
     useEffect(() => {
+        const channelName = `orders_admin_realtime_${Math.random().toString(36).substring(2, 9)}`
         const channel = supabase
-            .channel('orders_admin_realtime')
+            .channel(channelName)
             .on('postgres_changes', { event: '*', schema: 'public', table: 'pedidos' }, (payload) => {
                 console.log('[Realtime] Order event:', payload.eventType, payload.new?.id || payload.old?.id)
 
@@ -761,14 +762,16 @@ export default function OrdersPage() {
         return Math.floor(diff / 60000)
     }, [clockTick])
 
-    const filteredOrders = orders.filter(order => {
-        const matchesSearch = !searchTerm ||
-            order.nome_cliente?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            order.numero_pedido?.toString().includes(searchTerm) ||
-            order.itens?.some(item => item.produtos?.nome?.toLowerCase().includes(searchTerm.toLowerCase()))
+    const filteredOrders = useMemo(() => {
+        return orders.filter(order => {
+            const matchesSearch = !searchTerm ||
+                order.nome_cliente?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                order.numero_pedido?.toString().includes(searchTerm) ||
+                order.itens?.some(item => item.produtos?.nome?.toLowerCase().includes(searchTerm.toLowerCase()))
 
-        return matchesSearch
-    })
+            return matchesSearch
+        })
+    }, [orders, searchTerm])
 
     if (loading) return <div className="admin-loading">Carregando pedidos...</div>
 

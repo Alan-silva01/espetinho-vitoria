@@ -29,7 +29,35 @@ export default function CreateOrderModal({ isOpen, onClose }) {
         }
     }, [isOpen])
 
-    // Busca de clientes com Debounce
+    function matchCustomer(c, term, digitsOnly) {
+        if (!c) return false
+        const nameLower = (c.nome || '').toLowerCase()
+        const codeLower = (c.codigo || '').toLowerCase()
+        const termLower = term.toLowerCase()
+
+        if (nameLower.includes(termLower) || codeLower.includes(termLower)) {
+            return true
+        }
+
+        if (digitsOnly.length >= 3) {
+            const phoneDigits = (c.telefone || '').replace(/\D/g, '')
+            const whatsappDigits = (c.dados?.whatsapp || '').replace(/\D/g, '')
+            const recipientDigits = (c.dados?.endereco?.telefone_recebedor || '').replace(/\D/g, '')
+
+            const allDigits = [phoneDigits, whatsappDigits, recipientDigits].filter(Boolean)
+
+            for (const pd of allDigits) {
+                if (pd.includes(digitsOnly)) return true
+                const noCountryCode = pd.startsWith('55') ? pd.substring(2) : pd
+                if (noCountryCode.includes(digitsOnly)) return true
+                if (digitsOnly.includes(noCountryCode) || digitsOnly.includes(pd)) return true
+            }
+        }
+
+        return false
+    }
+
+    // Busca de clientes com Debounce e filtro inteligente por dígitos
     useEffect(() => {
         if (!searchTerm || searchTerm.trim().length < 2) {
             setCustomerResults([])
@@ -40,19 +68,46 @@ export default function CreateOrderModal({ isOpen, onClose }) {
             setSearchingCustomers(true)
             try {
                 const term = searchTerm.trim()
-                const { data } = await supabase
-                    .from('clientes')
-                    .select('id, codigo, nome, telefone, dados')
-                    .or(`nome.ilike.%${term}%,telefone.ilike.%${term}%`)
-                    .limit(10)
+                const digitsOnly = term.replace(/\D/g, '')
 
-                setCustomerResults(data || [])
+                let rawData = []
+
+                if (digitsOnly.length >= 3) {
+                    const { data } = await supabase
+                        .from('clientes')
+                        .select('id, codigo, nome, telefone, dados')
+                        .or(`nome.ilike.%${term}%,codigo.ilike.%${term}%,telefone.ilike.%${digitsOnly}%,dados->>whatsapp.ilike.%${digitsOnly}%`)
+                        .order('criado_em', { ascending: false })
+                        .limit(50)
+                    rawData = data || []
+                } else {
+                    const { data } = await supabase
+                        .from('clientes')
+                        .select('id, codigo, nome, telefone, dados')
+                        .or(`nome.ilike.%${term}%,codigo.ilike.%${term}%`)
+                        .limit(30)
+                    rawData = data || []
+                }
+
+                // Fallback: if searching by phone digits and OR query yielded 0 results, fetch recent clients to filter in JS
+                if (rawData.length === 0 && digitsOnly.length >= 4) {
+                    const { data: fallbackData } = await supabase
+                        .from('clientes')
+                        .select('id, codigo, nome, telefone, dados')
+                        .order('criado_em', { ascending: false })
+                        .limit(200)
+
+                    rawData = fallbackData || []
+                }
+
+                const filtered = rawData.filter(c => matchCustomer(c, term, digitsOnly))
+                setCustomerResults(filtered.slice(0, 15))
             } catch (err) {
                 console.error('Erro ao buscar clientes:', err)
             } finally {
                 setSearchingCustomers(false)
             }
-        }, 300)
+        }, 250)
 
         return () => clearTimeout(timer)
     }, [searchTerm])

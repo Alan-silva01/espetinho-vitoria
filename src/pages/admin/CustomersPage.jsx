@@ -178,19 +178,34 @@ export default function CustomersPage() {
     }
 
     const filteredCustomers = customers.filter(c => {
-        const searchLow = searchTerm.toLowerCase()
-        const searchDigits = searchTerm.replace(/\D/g, '')
+        if (!searchTerm) return true
+        const termLower = searchTerm.toLowerCase().trim()
+        const digitsOnly = searchTerm.replace(/\D/g, '')
 
-        // Match by Name or Email
-        const matchesText = c.nome.toLowerCase().includes(searchLow) ||
-            c.email?.toLowerCase().includes(searchLow)
+        const nameLower = (c.nome || '').toLowerCase()
+        const codeLower = (c.codigo || '').toLowerCase()
+        const emailLower = (c.email || '').toLowerCase()
 
-        // Match by Phone (raw digits or formatted)
-        const phoneDigits = c.displayPhone?.replace(/\D/g, '') || ''
-        const matchesPhone = (searchDigits && phoneDigits.includes(searchDigits)) ||
-            c.displayPhone?.toLowerCase().includes(searchLow)
+        if (nameLower.includes(termLower) || codeLower.includes(termLower) || emailLower.includes(termLower)) {
+            return true
+        }
 
-        return matchesText || matchesPhone
+        if (digitsOnly.length >= 3) {
+            const phoneDigits = (c.telefone || '').replace(/\D/g, '')
+            const whatsappDigits = (c.dados?.whatsapp || '').replace(/\D/g, '')
+            const displayDigits = (c.displayPhone || '').replace(/\D/g, '')
+
+            const allDigits = [phoneDigits, whatsappDigits, displayDigits].filter(Boolean)
+
+            for (const pd of allDigits) {
+                if (pd.includes(digitsOnly)) return true
+                const noCountryCode = pd.startsWith('55') ? pd.substring(2) : pd
+                if (noCountryCode.includes(digitsOnly)) return true
+                if (digitsOnly.includes(noCountryCode) || digitsOnly.includes(pd)) return true
+            }
+        }
+
+        return false
     })
 
     async function toggleAutorizado(id, newVal) {

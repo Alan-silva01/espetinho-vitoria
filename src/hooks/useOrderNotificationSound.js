@@ -71,8 +71,9 @@ export function useOrderNotificationSound(isAuthenticated) {
 
         let pendingTimeout = null;
 
+        const channelName = `global_admin_notifications_${Math.random().toString(36).substring(2, 9)}`
         const channel = supabase
-            .channel('global_admin_notifications')
+            .channel(channelName)
             .on('postgres_changes', { event: '*', schema: 'public', table: 'pedidos' }, (payload) => {
                 let shouldPlaySound = false
                 const newRecord = payload.new
@@ -83,12 +84,9 @@ export function useOrderNotificationSound(isAuthenticated) {
                 const cached = orderCacheRef.current[orderId]
 
                 if (payload.eventType === 'INSERT') {
-                    // Novo pedido inserido
                     shouldPlaySound = true
                 } 
                 else if (payload.eventType === 'UPDATE') {
-                    // Se não estiver no cache (ex: pedido de outro dia ou que acabou de ser criado), 
-                    // apenas inicializa a entrada e não toca o som de cara para evitar falsos alarmes
                     if (!cached) {
                         orderCacheRef.current[orderId] = {
                             valor_total: newRecord.valor_total || 0,
@@ -105,14 +103,12 @@ export function useOrderNotificationSound(isAuthenticated) {
                     }
                 }
 
-                // Sempre atualiza o cache local após processar
                 orderCacheRef.current[orderId] = {
                     valor_total: newRecord.valor_total || 0,
                     comanda_status: newRecord.comanda_status || 'aberta'
                 }
 
                 if (shouldPlaySound) {
-                    // O debounce previne que o som toque múltiplas vezes muito rápido 
                     if (pendingTimeout) clearTimeout(pendingTimeout)
                     
                     pendingTimeout = setTimeout(() => {

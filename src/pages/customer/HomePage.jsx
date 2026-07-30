@@ -83,6 +83,12 @@ export default function HomePage() {
         const normalizedName = normalizeString(p.nome)
         const matchSearch = !search || normalizedName.includes(normalizedSearch)
         return matchCat && matchSearch
+    }).sort((a, b) => {
+        const aEsgotado = !a.disponivel || (a.controlar_estoque && a.quantidade_disponivel <= 0)
+        const bEsgotado = !b.disponivel || (b.controlar_estoque && b.quantidade_disponivel <= 0)
+        if (aEsgotado && !bEsgotado) return 1
+        if (!aEsgotado && bEsgotado) return -1
+        return 0
     })
 
     const handleLike = useCallback((e, productId) => {
