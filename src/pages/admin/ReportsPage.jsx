@@ -82,8 +82,13 @@ export default function ReportsPage() {
                     startDate.setDate(startDate.getDate() - 7)
                 } else if (period === 'Este Mês') {
                     startDate.setDate(1)
+                } else if (period === 'Mês Passado') {
+                    startDate = new Date(today.getFullYear(), today.getMonth() - 1, 1, 0, 0, 0)
+                    endDate = new Date(today.getFullYear(), today.getMonth(), 0, 23, 59, 59)
+                } else if (period === 'Este Ano') {
+                    startDate = new Date(today.getFullYear(), 0, 1, 0, 0, 0)
                 } else if (period === 'Todo o Período') {
-                    startDate = new Date('2023-01-01T00:00:00-03:00') // Assume epoch for current business
+                    startDate = new Date('2023-01-01T00:00:00-03:00')
                 }
             } else {
                 if (advancedType === 'day') {
@@ -190,7 +195,7 @@ export default function ReportsPage() {
                     color: name === 'Espetinhos' ? '#C62828' : '#3B82F6'
                 })).sort((a, b) => b.percent - a.percent))
 
-                // Chart data - GROUP BY DAY or MONTH
+                // Chart data - GROUP BY DAY or MONTH with SP Timezone
                 const dailyData = {}
                 
                 let chartStartDate = startDate;
@@ -204,41 +209,52 @@ export default function ReportsPage() {
 
                 if (isMonthView) {
                     const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
-                    const tempDate = new Date(chartStartDate.getFullYear(), chartStartDate.getMonth(), 1);
-                    while (tempDate <= endDate) {
-                        const mIdx = tempDate.getMonth();
-                        const y = tempDate.getFullYear().toString().slice(-2);
-                        const label = `${months[mIdx]}/${y}`;
-                        
-                        if (dailyData[label] === undefined) {
-                            dailyData[label] = 0;
-                        }
-                        tempDate.setMonth(tempDate.getMonth() + 1);
-                        if (Object.keys(dailyData).length > 60) break; // limit to 5 years
+                    const getMonthLabel = (dObj) => {
+                        const dateStr = dObj.toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' }) // 'YYYY-MM-DD'
+                        const [y, m] = dateStr.split('-')
+                        return `${months[parseInt(m, 10) - 1]}/${y.slice(-2)}`
+                    }
+
+                    // Always start at day 1 to prevent setMonth overflow skipping months
+                    const tempDate = new Date(chartStartDate.getFullYear(), chartStartDate.getMonth(), 1, 0, 0, 0)
+                    const endMonthDate = new Date(endDate.getFullYear(), endDate.getMonth(), 1, 0, 0, 0)
+
+                    while (tempDate <= endMonthDate) {
+                        const label = getMonthLabel(tempDate)
+                        dailyData[label] = 0
+                        tempDate.setMonth(tempDate.getMonth() + 1)
+                        if (Object.keys(dailyData).length > 60) break // limit to 5 years
                     }
 
                     validOrders.forEach(o => {
-                        const d = new Date(o.criado_em);
-                        const mIdx = d.getMonth();
-                        const y = d.getFullYear().toString().slice(-2);
-                        const label = `${months[mIdx]}/${y}`;
+                        const d = new Date(o.criado_em)
+                        const label = getMonthLabel(d)
                         if (dailyData[label] !== undefined) {
-                            dailyData[label] += Number(o.valor_total)
+                            dailyData[label] += Number(o.valor_total || 0)
+                        } else {
+                            dailyData[label] = Number(o.valor_total || 0)
                         }
                     })
                 } else {
+                    const getDayLabel = (dObj) => {
+                        return dObj.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit', month: 'short' }).replace('.', '')
+                    }
+
                     const tempDate = new Date(chartStartDate)
                     while (tempDate <= endDate) {
-                        const label = tempDate.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }).replace('.', '')
+                        const label = getDayLabel(tempDate)
                         dailyData[label] = 0
                         tempDate.setDate(tempDate.getDate() + 1)
-                        if (Object.keys(dailyData).length > 31) break // Security break
+                        if (Object.keys(dailyData).length > 60) break
                     }
 
                     validOrders.forEach(o => {
-                        const label = new Date(o.criado_em).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }).replace('.', '')
+                        const d = new Date(o.criado_em)
+                        const label = getDayLabel(d)
                         if (dailyData[label] !== undefined) {
-                            dailyData[label] += Number(o.valor_total)
+                            dailyData[label] += Number(o.valor_total || 0)
+                        } else {
+                            dailyData[label] = Number(o.valor_total || 0)
                         }
                     })
                 }
@@ -287,6 +303,8 @@ export default function ReportsPage() {
                                 <option>Ontem</option>
                                 <option>Últimos 7 dias</option>
                                 <option>Este Mês</option>
+                                <option>Mês Passado</option>
+                                <option>Este Ano</option>
                                 <option>Todo o Período</option>
                             </select>
                             <ChevronDown size={16} />
@@ -452,7 +470,20 @@ export default function ReportsPage() {
                                         </linearGradient>
                                     </defs>
                                     <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#9CA3AF' }} dy={10} />
-                                    <Tooltip />
+                                    <Tooltip
+                                        formatter={(value) => [formatCurrency(value), 'Faturamento Bruto']}
+                                        labelFormatter={(label) => `Mês/Período: ${label}`}
+                                        contentStyle={{
+                                            backgroundColor: '#1E293B',
+                                            borderColor: '#334155',
+                                            borderRadius: '12px',
+                                            color: '#FFFFFF',
+                                            boxShadow: '0 10px 25px rgba(0,0,0,0.25)',
+                                            fontSize: '13px',
+                                            fontWeight: '600'
+                                        }}
+                                        itemStyle={{ color: '#F8FAFC', fontWeight: 'bold' }}
+                                    />
                                     <Area
                                         type="monotone"
                                         dataKey="v"
