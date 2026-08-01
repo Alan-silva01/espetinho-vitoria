@@ -72,6 +72,44 @@ export default function ReportsPage() {
             let startDate = new Date(today)
             let endDate = new Date(spDateStr + 'T23:59:59-03:00')
 
+            const parseDateInput = (str) => {
+                if (!str) return spDateStr
+                let y, m, d
+                if (str.includes('-')) {
+                    const parts = str.split('-')
+                    if (parts[0].length === 4) {
+                        y = parseInt(parts[0], 10)
+                        m = parseInt(parts[1], 10)
+                        d = parseInt(parts[2], 10)
+                    } else {
+                        d = parseInt(parts[0], 10)
+                        m = parseInt(parts[1], 10)
+                        y = parseInt(parts[2], 10)
+                    }
+                } else if (str.includes('/')) {
+                    const parts = str.split('/')
+                    if (parts[2]?.length === 4) {
+                        d = parseInt(parts[0], 10)
+                        m = parseInt(parts[1], 10)
+                        y = parseInt(parts[2], 10)
+                    } else if (parts[0]?.length === 4) {
+                        y = parseInt(parts[0], 10)
+                        m = parseInt(parts[1], 10)
+                        d = parseInt(parts[2], 10)
+                    }
+                }
+
+                if (y && m && d && !isNaN(y) && !isNaN(m) && !isNaN(d)) {
+                    if (y < 2000) y = spNow.getFullYear()
+                    const yyyy = y.toString().padStart(4, '0')
+                    const mm = m.toString().padStart(2, '0')
+                    const dd = d.toString().padStart(2, '0')
+                    return `${yyyy}-${mm}-${dd}`
+                }
+
+                return spDateStr
+            }
+
             if (filterMode === 'quick') {
                 if (period === 'Hoje') {
                     // Already set to today 00h - 23h59
@@ -93,8 +131,9 @@ export default function ReportsPage() {
                 }
             } else {
                 if (advancedType === 'day') {
-                    startDate = new Date(selectedDate + 'T00:00:00-03:00')
-                    endDate = new Date(selectedDate + 'T23:59:59-03:00')
+                    const cleanDate = parseDateInput(selectedDate)
+                    startDate = new Date(cleanDate + 'T00:00:00-03:00')
+                    endDate = new Date(cleanDate + 'T23:59:59-03:00')
                 } else if (advancedType === 'month') {
                     startDate = new Date(selectedYear, selectedMonth, 1, 0, 0, 0)
                     endDate = new Date(selectedYear, selectedMonth + 1, 0, 23, 59, 59)
@@ -102,8 +141,8 @@ export default function ReportsPage() {
                     startDate = new Date(selectedYear, 0, 1, 0, 0, 0)
                     endDate = new Date(selectedYear, 11, 31, 23, 59, 59)
                 } else if (advancedType === 'period') {
-                    const s = selectedStartDate || getTodaySP()
-                    const e = selectedEndDate || getTodaySP()
+                    const s = parseDateInput(selectedStartDate)
+                    const e = parseDateInput(selectedEndDate)
                     startDate = new Date(s + 'T00:00:00-03:00')
                     endDate = new Date(e + 'T23:59:59-03:00')
                     
@@ -200,8 +239,12 @@ export default function ReportsPage() {
                 const dailyData = {}
                 
                 let chartStartDate = startDate;
-                if (period === 'Todo o Período' && validOrders.length > 0) {
-                    chartStartDate = new Date(Math.min(...validOrders.map(o => new Date(o.criado_em).getTime())));
+                if (validOrders.length > 0) {
+                    const minOrderTime = Math.min(...validOrders.map(o => new Date(o.criado_em).getTime()));
+                    const minOrderDate = new Date(minOrderTime);
+                    if (chartStartDate < minOrderDate || period === 'Todo o Período') {
+                        chartStartDate = minOrderDate;
+                    }
                 }
 
                 const diffTime = Math.abs(endDate - chartStartDate);
