@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import {
     BarChart3, TrendingUp, DollarSign,
     Receipt, Stars, ChevronDown, Download,
-    PieChart as PieIcon, ArrowUp, Zap
+    PieChart as PieIcon, ArrowUp, Zap, Filter
 } from 'lucide-react'
 import {
     AreaChart, Area, XAxis, YAxis, Tooltip,
@@ -12,8 +12,6 @@ import { supabase } from '../../lib/supabase'
 import { formatCurrency } from '../../lib/utils'
 import { useVisibilityRefresh } from '../../hooks/useVisibilityRefresh'
 import './ReportsPage.css'
-
-
 
 export default function ReportsPage() {
     const [stats, setStats] = useState({
@@ -32,7 +30,7 @@ export default function ReportsPage() {
     const [paymentData, setPaymentData] = useState([])
     const [categoryData, setCategoryData] = useState([])
     const [period, setPeriod] = useState('Este Mês')
-    const [loading, setLoading] = useState(true)
+    const [loading, setLoading] = useState(false)
 
     const getTodaySP = () => {
         try {
@@ -50,14 +48,17 @@ export default function ReportsPage() {
     const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth())
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
 
+    // Initial load & automatic fetch when quick preset changes
     useEffect(() => {
         fetchReportsData()
-    }, [period, filterMode, advancedType, selectedDate, selectedMonth, selectedYear, selectedStartDate, selectedEndDate])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [period, filterMode])
 
     // Wake-from-sleep: re-fetch reports data silently
     useVisibilityRefresh(useCallback(() => {
         console.log('[ReportsPage] Woke from sleep — refreshing silently')
         fetchReportsData(true)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [period, filterMode, advancedType, selectedDate, selectedMonth, selectedYear, selectedStartDate, selectedEndDate]))
 
     async function fetchReportsData(isSilent = false) {
@@ -271,8 +272,6 @@ export default function ReportsPage() {
         }
     }
 
-    if (loading) return <div className="admin-loading">Gerando relatórios...</div>
-
     return (
         <div className="reports-page-wrapper animate-fade-in">
             <header className="reports-header-premium">
@@ -362,6 +361,16 @@ export default function ReportsPage() {
                                     />
                                 </div>
                             )}
+
+                            <button
+                                className="btn-apply-filter"
+                                onClick={() => fetchReportsData()}
+                                disabled={loading}
+                                title="Buscar no período selecionado"
+                            >
+                                <Filter size={14} />
+                                <span>{loading ? 'Buscando...' : 'Filtrar'}</span>
+                            </button>
                         </div>
                     )}
 

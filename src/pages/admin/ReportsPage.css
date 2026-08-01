@@ -70,11 +70,38 @@
 /* Controls */
 .advanced-filter-controls {
     display: flex;
+    align-items: center;
     gap: 8px;
     background: white;
-    padding: 5px 10px;
+    padding: 4px 8px;
     border-radius: 8px;
     border: 1px solid #DFDFDF;
+}
+
+.btn-apply-filter {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    background: #C41E2E;
+    color: white;
+    padding: 5px 12px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.btn-apply-filter:hover {
+    background: #A01825;
+}
+
+.btn-apply-filter:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
 }
 
 .advanced-filter-controls select,
