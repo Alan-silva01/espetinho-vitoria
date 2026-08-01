@@ -153,18 +153,49 @@ export default function ReportsPage() {
                 }
             }
 
-            const { data: orders } = await supabase
-                .from('pedidos')
-                .select(`
-                    id, valor_total, forma_pagamento, criado_em, status,
-                    itens:itens_pedido(
-                        quantidade,
-                        eh_upsell, 
-                        produtos(nome, categorias(nome))
-                    )
-                `)
-                .gte('criado_em', startDate.toISOString())
-                .lte('criado_em', endDate.toISOString())
+            // Fetch all orders with automatic pagination to bypass Supabase 1000-row limit
+            let orders = []
+            let page = 0
+            const pageSize = 1000
+            let hasMore = true
+
+            while (hasMore) {
+                const from = page * pageSize
+                const to = from + pageSize - 1
+
+                const { data, error } = await supabase
+                    .from('pedidos')
+                    .select(`
+                        id, valor_total, forma_pagamento, criado_em, status,
+                        itens:itens_pedido(
+                            quantidade,
+                            eh_upsell, 
+                            produtos(nome, categorias(nome))
+                        )
+                    `)
+                    .gte('criado_em', startDate.toISOString())
+                    .lte('criado_em', endDate.toISOString())
+                    .order('criado_em', { ascending: true })
+                    .range(from, to)
+
+                if (error) {
+                    console.error('[fetchReportsData] Erro ao buscar pagina de pedidos:', error)
+                    break
+                }
+
+                if (data && data.length > 0) {
+                    orders = orders.concat(data)
+                    if (data.length < pageSize) {
+                        hasMore = false
+                    } else {
+                        page++
+                    }
+                } else {
+                    hasMore = false
+                }
+
+                if (page > 50) break // Safety cap (max 50,000 orders)
+            }
 
             if (orders) {
                 // Exclude cancelled orders from all calculations
