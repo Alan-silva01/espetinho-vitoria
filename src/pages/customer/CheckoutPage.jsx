@@ -389,12 +389,16 @@ export default function CheckoutPage() {
             const targetClientId = pedido.cliente_id || customer?.id
 
             if (tipoPedido !== 'mesa' && targetClientId) {
-                await updateLastOrder(
-                    `Pedido #${pedido.numero_pedido || pedido.id.slice(0, 5)}: ${summary}`,
-                    tipoPedido === 'entrega' ? addressData : null,
-                    targetClientId,
-                    { nome: orderData.nome_cliente }
-                )
+                try {
+                    await updateLastOrder(
+                        `Pedido #${pedido.numero_pedido || pedido.id.slice(0, 5)}: ${summary}`,
+                        tipoPedido === 'entrega' ? addressData : null,
+                        targetClientId,
+                        { nome: orderData.nome_cliente }
+                    )
+                } catch (updateErr) {
+                    console.warn('[Checkout] Erro ao atualizar dados recentes do cliente:', updateErr)
+                }
             }
 
             // Webhook notification (espetinho domain) - Using timeout to prevent infinite loop on Android
@@ -440,7 +444,13 @@ export default function CheckoutPage() {
                 navigate(customerCode ? `/${customerCode}/pedido/${pedido.id}` : `/pedido/${pedido.id}`)
             }
         } catch (err) {
-            alert('Erro ao confirmar pedido: ' + err.message)
+            console.error('Erro ao confirmar pedido:', err)
+            const isAbort = err?.name === 'AbortError' || err?.message?.toLowerCase().includes('aborted')
+            const message = isAbort
+                ? 'Conexão de internet instável durante o envio. Por favor, verifique sua conexão e tente novamente.'
+                : 'Erro ao confirmar pedido: ' + (err?.message || 'Erro desconhecido')
+
+            alert(message)
             setIsSubmitting(false)
             submitLockRef.current = false
         }
