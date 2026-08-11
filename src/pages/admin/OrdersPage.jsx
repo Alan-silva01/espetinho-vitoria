@@ -1324,7 +1324,7 @@ export default function OrdersPage() {
                                                                 
                                                                 const keyLower = key.toLowerCase()
                                                                 const isPaid = keyLower.includes('pago') || keyLower === 'adicionais'
-                                                                const isFruitSelection = keyLower.includes('escolha') || keyLower.includes('inclus')
+                                                                const isFruitSelection = keyLower.includes('escolha') || keyLower.includes('incl')
                                                                 
                                                                 if (isPaid) {
                                                                     elements.push(
@@ -1334,16 +1334,33 @@ export default function OrdersPage() {
                                                                     )
                                                                     
                                                                     const itemsArray = Array.isArray(val) ? val : [val]
-                                                                    itemsArray.forEach((v, idx) => {
-                                                                        const cleanName = String(v).replace(/\s*\(\s*1\s*(unidade|unid|un)\s*\)/gi, '').trim()
+                                                                    const counts = {}
+                                                                    itemsArray.forEach(v => {
+                                                                        const cleanName = String(v).replace(/\s*\(\s*1\s*(unidade|unid|un)\s*\)/gi, '').trim().toUpperCase()
+                                                                        counts[cleanName] = (counts[cleanName] || 0) + 1
+                                                                    })
+
+                                                                    Object.entries(counts).forEach(([cleanName, count], idx) => {
                                                                         elements.push(
                                                                             <div key={`item-${key}-${idx}`} className="receipt-item-details" style={{ paddingLeft: '2mm' }}>
-                                                                                + 1 x {cleanName}
+                                                                                + {count} X {cleanName}
                                                                             </div>
                                                                         )
                                                                     })
                                                                 } else if (isFruitSelection) {
-                                                                    const displayVal = Array.isArray(val) ? val.join(', ') : String(val)
+                                                                    let displayVal
+                                                                    if (Array.isArray(val)) {
+                                                                        const counts = {}
+                                                                        val.forEach(v => {
+                                                                            const cleanName = String(v).replace(/\s*\(\s*1\s*(unidade|unid|un)\s*\)/gi, '').trim()
+                                                                            counts[cleanName] = (counts[cleanName] || 0) + 1
+                                                                        })
+                                                                        displayVal = Object.entries(counts)
+                                                                            .map(([name, count]) => count > 1 ? `${count}x ${name}` : name)
+                                                                            .join(', ')
+                                                                    } else {
+                                                                        displayVal = String(val)
+                                                                    }
                                                                     elements.push(
                                                                         <div key={`fruit-${key}`} className="receipt-item-details">
                                                                             Frutas Escolhidas: {displayVal}
