@@ -281,8 +281,9 @@ export default function ProductPage() {
                 if (price <= 0) return
                 if (group.tipo === 'radio' && selected === name) {
                     total += price
-                } else if (Array.isArray(selected) && selected.includes(name)) {
-                    total += price
+                } else if (Array.isArray(selected)) {
+                    const count = selected.filter(item => item === name).length
+                    total += price * count
                 }
             })
         })
@@ -365,6 +366,49 @@ export default function ProductPage() {
 
     if (loading) return <Loading fullScreen />
     if (!product) return <div className="page-padding" style={{ paddingTop: 80 }}>Produto não encontrado</div>
+
+    function getOptionCount(groupName, optionName) {
+        const current = selectedOptions[groupName]
+        if (Array.isArray(current)) {
+            return current.filter(o => o === optionName).length
+        }
+        return current === optionName ? 1 : 0
+    }
+
+    function handleOptionIncrement(group, optionName, e) {
+        if (e) e.stopPropagation()
+        const { grupo: groupName, tipo, maximo } = group
+
+        if (tipo === 'radio') {
+            setSelectedOptions(prev => ({ ...prev, [groupName]: optionName }))
+            return
+        }
+
+        setSelectedOptions(prev => {
+            const current = Array.isArray(prev[groupName]) ? prev[groupName] : []
+            if (maximo && current.length >= maximo) return prev
+            return { ...prev, [groupName]: [...current, optionName] }
+        })
+    }
+
+    function handleOptionDecrement(group, optionName, e) {
+        if (e) e.stopPropagation()
+        const { grupo: groupName, tipo } = group
+
+        if (tipo === 'radio') {
+            setSelectedOptions(prev => ({ ...prev, [groupName]: '' }))
+            return
+        }
+
+        setSelectedOptions(prev => {
+            const current = Array.isArray(prev[groupName]) ? prev[groupName] : []
+            const index = current.lastIndexOf(optionName)
+            if (index === -1) return prev
+            const newArr = [...current]
+            newArr.splice(index, 1)
+            return { ...prev, [groupName]: newArr }
+        })
+    }
 
     function handleOptionToggle(group, optionName) {
         const { grupo: groupName, tipo, maximo } = group
@@ -720,15 +764,25 @@ export default function ProductPage() {
 
                                     if (!isAvailable) return null
 
-                                    const selected = isOptionSelected(group.grupo, name, group.tipo)
+                                    const count = getOptionCount(group.grupo, name)
+                                    const selected = count > 0
                                     const isGroupDisabled = disabledGroups.has(group.grupo)
+                                    const totalGroupItems = Array.isArray(selectedOptions[group.grupo]) ? selectedOptions[group.grupo].length : 0
+                                    const isMaxReached = group.maximo ? totalGroupItems >= group.maximo : false
+
                                     return (
-                                        <button
+                                        <div
                                             key={oIdx}
                                             className={`product-addon-item ${selected ? 'product-addon-item--selected' : ''} ${isGroupDisabled ? 'product-addon-item--disabled' : ''}`}
-                                            onClick={() => !isGroupDisabled && handleOptionToggle(group, name)}
-                                            disabled={isGroupDisabled}
-                                            style={isGroupDisabled ? { opacity: 0.4, pointerEvents: 'none' } : {}}
+                                            onClick={(e) => {
+                                                if (isGroupDisabled) return
+                                                if (group.tipo === 'radio') {
+                                                    handleOptionToggle(group, name)
+                                                } else if (count === 0) {
+                                                    handleOptionIncrement(group, name, e)
+                                                }
+                                            }}
+                                            style={isGroupDisabled ? { opacity: 0.4, pointerEvents: 'none' } : { cursor: 'pointer' }}
                                         >
                                             <div className="product-addon-item__left">
                                                 <div className={`product-addon-item__check ${selected ? 'product-addon-item__check--active' : ''}`}>
@@ -749,8 +803,6 @@ export default function ProductPage() {
                                                         if (group.tipo === 'radio') {
                                                             const showTotal = price > 0 || customizations.length === 1 || group.grupo === 'Tamanho'
                                                             if (showTotal) {
-                                                                // If this radio group acts as a price-replacement, show just the option price
-                                                                // Otherwise, show product base price + option price as additional
                                                                 const isReplacementGroup = hasPriceReplacementRadio && group.opcoes?.some(o => optPreco(o) > 0)
                                                                 const displayPrice = isReplacementGroup ? price : (product.preco || 0) + price
                                                                 return (
@@ -767,7 +819,45 @@ export default function ProductPage() {
                                                     })()}
                                                 </div>
                                             </div>
-                                        </button>
+
+                                            {/* Quantity Controls for Checkbox / Multi-select Groups */}
+                                            {group.tipo !== 'radio' && (
+                                                <div className="product-addon-item__controls" onClick={(e) => e.stopPropagation()}>
+                                                    {count > 0 ? (
+                                                        <div className="product-addon-item__qty-box">
+                                                            <button
+                                                                type="button"
+                                                                className="product-addon-item__qty-btn"
+                                                                onClick={(e) => handleOptionDecrement(group, name, e)}
+                                                                title="Diminuir"
+                                                            >
+                                                                <Minus size={13} />
+                                                            </button>
+                                                            <span className="product-addon-item__qty-count">{count}</span>
+                                                            <button
+                                                                type="button"
+                                                                className="product-addon-item__qty-btn product-addon-item__qty-btn--plus"
+                                                                onClick={(e) => handleOptionIncrement(group, name, e)}
+                                                                disabled={isMaxReached}
+                                                                title="Aumentar"
+                                                            >
+                                                                <Plus size={13} />
+                                                            </button>
+                                                        </div>
+                                                    ) : (
+                                                        <button
+                                                            type="button"
+                                                            className="product-addon-item__add-btn"
+                                                            onClick={(e) => handleOptionIncrement(group, name, e)}
+                                                            disabled={isMaxReached}
+                                                            title="Adicionar"
+                                                        >
+                                                            <Plus size={16} />
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
                                     )
                                 })}
                             </div>

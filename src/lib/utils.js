@@ -171,15 +171,23 @@ export function filterPersonalizacao(personalizacao, itemName) {
         const keyLower = key.toLowerCase()
         const isPaid = keyLower.includes('pago')
 
-        // Format value: add "1x" prefix for paid additionals
+        // Format value: add "Nx" prefix for paid additionals or items with quantity > 1
         let displayVal
         if (Array.isArray(val)) {
-            displayVal = isPaid
-                ? val.map(v => {
-                    const cleanName = String(v).replace(/\s*\(\s*1\s*(unidade|unid|un)\s*\)/gi, '').trim()
-                    return `1x ${cleanName}`
-                }).join(', ')
-                : val.join(', ')
+            const counts = {}
+            val.forEach(v => {
+                const cleanName = String(v).replace(/\s*\(\s*1\s*(unidade|unid|un)\s*\)/gi, '').trim()
+                counts[cleanName] = (counts[cleanName] || 0) + 1
+            })
+
+            displayVal = Object.entries(counts)
+                .map(([name, count]) => {
+                    if (isPaid || count > 1) {
+                        return `${count}x ${name}`
+                    }
+                    return name
+                })
+                .join(', ')
         } else {
             const cleanName = String(val).replace(/\s*\(\s*1\s*(unidade|unid|un)\s*\)/gi, '').trim()
             displayVal = isPaid ? `1x ${cleanName}` : String(val)
