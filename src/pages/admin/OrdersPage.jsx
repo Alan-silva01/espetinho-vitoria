@@ -143,7 +143,7 @@ export default function OrdersPage() {
                     *,
                     itens:itens_pedido(
                         *,
-                        produtos(nome),
+                        produtos(nome, opcoes_personalizacao),
                         variacoes_produto(nome)
                     ),
                     clientes(telefone, nome)
@@ -260,7 +260,7 @@ export default function OrdersPage() {
                                         *,
                                         itens:itens_pedido(
                                             *,
-                                            produtos(nome),
+                                            produtos(nome, opcoes_personalizacao),
                                             variacoes_produto(nome)
                                         ),
                                         clientes(telefone, nome),
@@ -388,7 +388,7 @@ export default function OrdersPage() {
                     *,
                     itens:itens_pedido(
                         *,
-                        produtos(nome),
+                        produtos(nome, opcoes_personalizacao),
                         variacoes_produto(nome)
                     ),
                     clientes(telefone, nome),
@@ -1130,9 +1130,19 @@ export default function OrdersPage() {
                                                     </div>
                                                     <div className="v5-item-info">
                                                         <h4>{item.quantidade}x {getItemDisplayName(item)}</h4>
-                                                        {item.personalizacao && typeof item.personalizacao === 'object' && filterPersonalizacao(item.personalizacao, getItemDisplayName(item)).map((p, pIdx) => (
-                                                            <p key={pIdx} style={{ margin: '2px 0', fontSize: '12px', color: '#64748b' }}>
-                                                                <strong>{p.key}:</strong> {p.value}
+                                                        {item.personalizacao && typeof item.personalizacao === 'object' && filterPersonalizacao(item.personalizacao, getItemDisplayName(item), item.produtos?.opcoes_personalizacao).map((p, pIdx) => (
+                                                            <p key={pIdx} style={{
+                                                                margin: '2px 0',
+                                                                fontSize: '12px',
+                                                                color: p.removed ? '#dc2626' : '#64748b',
+                                                                textDecoration: p.removed ? 'line-through' : 'none',
+                                                                fontWeight: p.removed ? '700' : 'normal'
+                                                            }}>
+                                                                {p.removed ? (
+                                                                    <span>❌ {p.value}</span>
+                                                                ) : (
+                                                                    <><strong>{p.key}:</strong> {p.value}</>
+                                                                )}
                                                             </p>
                                                         ))}
                                                         {item.observacoes && (
@@ -1375,6 +1385,31 @@ export default function OrdersPage() {
                                                                     )
                                                                 }
                                                             }
+
+                                                            // Display unselected / removed free accompaniments with strikethrough in thermal receipt
+                                                            if (Array.isArray(item.produtos?.opcoes_personalizacao)) {
+                                                                item.produtos.opcoes_personalizacao.forEach(group => {
+                                                                    const hasPaid = group.grupo?.toLowerCase().includes('pago') || group.opcoes?.some(o => (typeof o === 'object' && ((o.preco && o.preco > 0) || (o.price && o.price > 0))))
+                                                                    if (!hasPaid && group.tipo === 'checkbox' && group.opcoes?.length > 0) {
+                                                                        const allFreeOpts = group.opcoes.map(o => typeof o === 'string' ? o : (o.nome || o.name))
+                                                                        const selectedVal = item.personalizacao[group.grupo] || []
+                                                                        const selectedList = Array.isArray(selectedVal) ? selectedVal : (selectedVal ? [selectedVal] : [])
+                                                                        const selectedSet = new Set(selectedList.map(s => String(s).trim().toLowerCase()))
+                                                                        const removedOpts = allFreeOpts.filter(opt => !selectedSet.has(String(opt).trim().toLowerCase()))
+
+                                                                        if (removedOpts.length > 0) {
+                                                                            removedOpts.forEach((remOpt, remIdx) => {
+                                                                                elements.push(
+                                                                                    <div key={`rem-${group.grupo}-${remIdx}`} className="receipt-item-details" style={{ textDecoration: 'line-through', color: '#64748b', fontWeight: 'bold', marginTop: '1mm' }}>
+                                                                                        - SEM {remOpt.toUpperCase()}
+                                                                                    </div>
+                                                                                )
+                                                                            })
+                                                                        }
+                                                                    }
+                                                                })
+                                                            }
+
                                                             return elements
                                                         })()}
                                                         {item.observacoes && (

@@ -160,11 +160,12 @@ export function getSmartItemName(productName, variationName, personalizacao) {
     return `${baseName} - ${cleanVariation}`
 }
 
-export function filterPersonalizacao(personalizacao, itemName) {
+export function filterPersonalizacao(personalizacao, itemName, productOpcoes = null) {
     if (!personalizacao || typeof personalizacao !== 'object') return []
 
     const result = []
 
+    // 1. Process selected options in personalizacao
     for (const [key, val] of Object.entries(personalizacao)) {
         if (!val || (Array.isArray(val) && val.length === 0)) continue
 
@@ -203,7 +204,37 @@ export function filterPersonalizacao(personalizacao, itemName) {
             displayKey = 'Frutas Escolhidas (Incluso)'
         }
 
-        result.push({ key: displayKey, value: displayVal })
+        result.push({ key: displayKey, value: displayVal, isPaid })
+    }
+
+    // 2. Detect unselected/desmarcado free inclusion items if productOpcoes is available
+    if (Array.isArray(productOpcoes) && productOpcoes.length > 0) {
+        productOpcoes.forEach(group => {
+            if (!group.opcoes || group.opcoes.length === 0) return
+            const hasPaid = group.grupo?.toLowerCase().includes('pago') || group.opcoes.some(o => (typeof o === 'object' && ((o.preco && o.preco > 0) || (o.price && o.price > 0))))
+
+            // Check free inclusion groups (like Acompanhamentos, Acompanha, Inclusos, etc.)
+            if (!hasPaid && group.tipo === 'checkbox') {
+                const allFreeOpts = group.opcoes.map(o => typeof o === 'string' ? o : (o.nome || o.name))
+                const selectedVal = personalizacao[group.grupo] || []
+                const selectedList = Array.isArray(selectedVal) ? selectedVal : (selectedVal ? [selectedVal] : [])
+                const selectedSet = new Set(selectedList.map(s => String(s).trim().toLowerCase()))
+
+                const removedOpts = allFreeOpts.filter(opt => {
+                    const optLower = String(opt).trim().toLowerCase()
+                    return !selectedSet.has(optLower)
+                })
+
+                if (removedOpts.length > 0) {
+                    result.push({
+                        key: `Sem ${group.grupo}`,
+                        value: removedOpts.map(r => `SEM ${r}`).join(', '),
+                        removedItems: removedOpts,
+                        removed: true
+                    })
+                }
+            }
+        })
     }
 
     return result

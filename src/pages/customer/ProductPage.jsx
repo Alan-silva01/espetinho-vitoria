@@ -769,6 +769,8 @@ export default function ProductPage() {
                                     const isGroupDisabled = disabledGroups.has(group.grupo)
                                     const totalGroupItems = Array.isArray(selectedOptions[group.grupo]) ? selectedOptions[group.grupo].length : 0
                                     const isMaxReached = group.maximo ? totalGroupItems >= group.maximo : false
+                                    // Quantity steppers (+ and -) are ONLY enabled for paid addition groups
+                                    const isMultiQtyGroup = group.tipo !== 'radio' && hasPaid
 
                                     return (
                                         <div
@@ -776,7 +778,7 @@ export default function ProductPage() {
                                             className={`product-addon-item ${selected ? 'product-addon-item--selected' : ''} ${isGroupDisabled ? 'product-addon-item--disabled' : ''}`}
                                             onClick={(e) => {
                                                 if (isGroupDisabled) return
-                                                if (group.tipo === 'radio') {
+                                                if (!isMultiQtyGroup) {
                                                     handleOptionToggle(group, name)
                                                 } else if (count === 0) {
                                                     handleOptionIncrement(group, name, e)
@@ -820,8 +822,8 @@ export default function ProductPage() {
                                                 </div>
                                             </div>
 
-                                            {/* Quantity Controls for Checkbox / Multi-select Groups */}
-                                            {group.tipo !== 'radio' && (
+                                            {/* Quantity Controls ONLY for Paid Multi-select Groups */}
+                                            {isMultiQtyGroup && (
                                                 <div className="product-addon-item__controls" onClick={(e) => e.stopPropagation()}>
                                                     {count > 0 ? (
                                                         <div className="product-addon-item__qty-box">
