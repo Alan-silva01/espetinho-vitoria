@@ -1,8 +1,7 @@
-import { formatCurrency } from '../../lib/utils'
+import { formatCurrency, getSmartItemName } from '../../lib/utils'
 import logoImg from '../../../logo.png'
 
 const getItemDisplayName = (item) => {
-    const { getSmartItemName } = require('../../lib/utils')
     return getSmartItemName(
         item.produtos?.nome,
         item.variacoes_produto?.nome,
