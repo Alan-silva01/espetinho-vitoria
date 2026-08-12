@@ -44,7 +44,7 @@ export function StoreProvider({ children }) {
 
         const setupChannel = () => {
             const channel = supabase
-                .channel('global-store-status-' + Date.now())
+                .channel('store-config-sync')
                 .on('postgres_changes',
                     { event: '*', schema: 'public', table: 'configuracoes_loja' },
                     (payload) => {
@@ -81,14 +81,24 @@ export function StoreProvider({ children }) {
 
         // Wake-from-sleep: re-fetch and let realtime reconnect naturally
         let hiddenAt = null
+        let wakeTimer = null
         function handleVisibilityChange() {
             if (document.visibilityState === 'hidden') {
+                // Cancel any pending wake fetch if user left again
+                if (wakeTimer) { clearTimeout(wakeTimer); wakeTimer = null }
                 hiddenAt = Date.now()
             }
             if (document.visibilityState === 'visible') {
-                if (hiddenAt && (Date.now() - hiddenAt) >= 10_000) {
-                    console.log('[StoreContext] Page woke after', Math.round((Date.now() - hiddenAt) / 1000), 's — refreshing')
-                    fetchStoreStatus()
+                if (hiddenAt && (Date.now() - hiddenAt) >= 300_000) {
+                    // Staggered delay (3s) to avoid request spike with other contexts
+                    wakeTimer = setTimeout(() => {
+                        wakeTimer = null
+                        // Re-check: still visible?
+                        if (document.visibilityState === 'visible') {
+                            console.log('[StoreContext] Page woke after', Math.round((Date.now() - (hiddenAt || Date.now())) / 1000), 's — refreshing')
+                            fetchStoreStatus()
+                        }
+                    }, 3000)
                 }
                 hiddenAt = null
             }
@@ -98,6 +108,7 @@ export function StoreProvider({ children }) {
         return () => {
             console.log('[StoreContext] Cleaning up Realtime channel')
             if (retryTimeout) clearTimeout(retryTimeout)
+            if (wakeTimer) clearTimeout(wakeTimer)
             supabase.removeChannel(currentChannel)
             document.removeEventListener('visibilitychange', handleVisibilityChange)
         }

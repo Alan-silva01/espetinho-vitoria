@@ -176,17 +176,26 @@ export function AuthProvider({ children }) {
         // Wake-from-sleep: refresh Supabase session when the page becomes visible
         // This prevents stale auth tokens from breaking all API calls after OS sleep
         let hiddenAt = null
+        let wakeTimer = null
         function handleVisibilityChange() {
             if (document.visibilityState === 'hidden') {
+                // Cancel any pending wake refresh if user left again
+                if (wakeTimer) { clearTimeout(wakeTimer); wakeTimer = null }
                 hiddenAt = Date.now()
             }
             if (document.visibilityState === 'visible' && mounted.current) {
                 // Only trigger if we KNOW it was hidden and the gap exceeds threshold
                 if (hiddenAt && (Date.now() - hiddenAt) >= 30_000) {
-                    console.log('[AuthContext] Page woke after', Math.round((Date.now() - hiddenAt) / 1000), 's — refreshing session')
-                    supabase.auth.refreshSession().catch(err => {
-                        console.warn('[AuthContext] Session refresh failed:', err.message)
-                    })
+                    // Auth is priority 0 — no stagger delay needed
+                    wakeTimer = setTimeout(() => {
+                        wakeTimer = null
+                        if (document.visibilityState === 'visible' && mounted.current) {
+                            console.log('[AuthContext] Page woke after', Math.round((Date.now() - (hiddenAt || Date.now())) / 1000), 's — refreshing session')
+                            supabase.auth.refreshSession().catch(err => {
+                                console.warn('[AuthContext] Session refresh failed:', err.message)
+                            })
+                        }
+                    }, 0)
                 }
                 hiddenAt = null
             }
@@ -195,6 +204,7 @@ export function AuthProvider({ children }) {
 
         return () => {
             mounted.current = false
+            if (wakeTimer) clearTimeout(wakeTimer)
             subscription.unsubscribe()
             document.removeEventListener('visibilitychange', handleVisibilityChange)
         }

@@ -15,10 +15,10 @@ import { useNotificationSoundContext } from '../../context/NotificationSoundCont
 
 import Dialog from '../../components/ui/Dialog'
 import CreateOrderModal from '../../components/admin/CreateOrderModal'
+import KanbanOrderCard from '../../components/admin/KanbanOrderCard'
+import OrderDetailModal from '../../components/admin/OrderDetailModal'
+import ThermalReceipt from '../../components/admin/ThermalReceipt'
 import './OrdersPage.css'
-
-// Importando a logo para garantir que ela esteja disponível para o print
-import logoImg from '../../../logo.png'
 
 
 
@@ -237,66 +237,25 @@ export default function OrdersPage() {
                         return
                     }
 
-                    // Sound highlights for specific comanda events
+                    // Detect comanda events (sound is handled by useOrderNotificationSound)
                     const isNewItemAdded = payload.new.valor_total > (oldOrder?.valor_total || 0)
-                    const isClosingRequested = payload.new.comanda_status === 'fechamento_solicitado' && oldOrder?.comanda_status !== 'fechamento_solicitado'
 
-                    if (isNewItemAdded || isClosingRequested) {
-                        console.log('[Realtime] Comanda event detected (sound handled globally)...')
-                    }
-
-                    // Merged orders for comanda: if status moves back to 'confirmado' OR total changes,
-                    // we likely have new items that payload.new doesn't include.
-                    const needsDetailedData = payload.new.status === 'confirmado' || isNewItemAdded || isClosingRequested
-
-                    if (needsDetailedData) {
-                        // Smart merge: fetch ONLY this order instead of ALL orders
-                        console.log('[Realtime] Order updated, fetching single order...')
-                        ;(async () => {
-                            try {
-                                const { data: updatedOrder, error: fetchErr } = await supabase
-                                    .from('pedidos')
-                                    .select(`
-                                        *,
-                                        itens:itens_pedido(
-                                            *,
-                                            produtos(nome, opcoes_personalizacao),
-                                            variacoes_produto(nome)
-                                        ),
-                                        clientes(telefone, nome),
-                                        mesas(numero)
-                                    `)
-                                    .eq('id', payload.new.id)
-                                    .single()
-
-                                if (!fetchErr && updatedOrder) {
-                                    setOrders(prev => {
-                                        const exists = prev.some(o => o.id === updatedOrder.id)
-                                        if (exists) {
-                                            return prev.map(o => o.id === updatedOrder.id ? updatedOrder : o)
-                                        }
-                                        return prev // Not in current date view, ignore
-                                    })
-                                    // Sync selected order modal if open
-                                    if (selectedOrderRef.current?.id === updatedOrder.id) {
-                                        setSelectedOrder(updatedOrder)
-                                    }
-                                }
-                            } catch (err) {
-                                console.error('[Realtime] Smart merge failed, falling back to full fetch:', err)
-                                scheduleFetchRef.current?.(1500)
-                            }
-                        })()
+                    if (isNewItemAdded) {
+                        // New items added to comanda — need to fetch to get new itens_pedido relations
+                        console.log('[Realtime] New items detected (valor_total increased), scheduling fetch...')
+                        scheduleFetchRef.current?.(1500)
                         return
                     }
 
-                    // Merge the update from another client or from server confirmation
+                    // For ALL other updates (status change, driver assigned, comanda_status, pago, etc.)
+                    // merge payload.new directly — preserves existing relations (itens, clientes, mesas)
+                    // This eliminates unnecessary DB queries for the most common realtime events
                     setOrders(prev => {
                         const updatedOrders = prev.map(order =>
                             order.id === orderId ? { ...order, ...payload.new } : order
                         )
 
-                        // Sync selected order modal if open (safely, after the render phase)
+                        // Sync selected order modal if open
                         if (selectedOrderRef.current && orderId === selectedOrderRef.current.id) {
                             const updated = updatedOrders.find(o => o.id === orderId)
                             if (updated) {
@@ -909,129 +868,22 @@ export default function OrdersPage() {
 
                                 <div className="cards-stack">
                                     {stageOrders.map(order => (
-                                        <div
+                                        <KanbanOrderCard
                                             key={order.id}
-                                            draggable
-                                            onDragStart={(e) => onDragStart(e, order.id)}
+                                            order={order}
+                                            stage={stage}
+                                            getMinutesAgo={getMinutesAgo}
+                                            onDragStart={onDragStart}
                                             onDragEnd={onDragEnd}
-                                            onTouchStart={(e) => onTouchStart(e, order.id)}
+                                            onTouchStart={onTouchStart}
                                             onTouchMove={onTouchMove}
-                                            onTouchEnd={(e) => {
-                                                const touch = e.changedTouches[0]
-                                                const targetElement = document.elementFromPoint(touch.clientX, touch.clientY)
-                                                const column = targetElement?.closest('.kanban-col')
-                                                if (column) {
-                                                    const targetStage = column.getAttribute('data-stage')
-                                                    if (targetStage && targetStage !== order.status) {
-                                                        const allowed = VALID_TRANSITIONS[order.status] || []
-                                                        if (allowed.includes(targetStage)) {
-                                                            handleStatusChange(order.id, targetStage)
-                                                        }
-                                                    }
-                                                }
-                                                onTouchEnd(e)
-                                            }}
-                                            className={`order-card-v2 ${order.status === 'cancelado' ? 'cancelled' : (order.status === 'preparando' || order.status === 'pronto') ? 'border-purple' : order.status === 'saiu_entrega' ? 'border-orange' : order.status === 'entregue' ? 'border-green' : ''}`}
-                                            onClick={() => setSelectedOrder(order)}
-                                        >
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                                                <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
-                                                    <span className={`type-tag ${order.tipo_pedido}`}>
-                                                        {order.tipo_pedido === 'entrega' ? <Bike size={12} /> : order.tipo_pedido === 'mesa' ? <Utensils size={12} /> : <Store size={12} />}
-                                                        {order.tipo_pedido === 'mesa' ? (order.mesas ? `Mesa ${order.mesas.numero}` : 'Mesa') : order.tipo_pedido}
-                                                    </span>
-                                                    {order.comanda_status === 'fechamento_solicitado' && order.status !== 'cancelado' && (
-                                                        <span className="pulse-alert" style={{ background: '#f59e0b', color: 'white', fontSize: '10px', fontWeight: '800', padding: '2px 8px', borderRadius: '6px', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                                            <Receipt size={12} />
-                                                            FECHAR CONTA
-                                                        </span>
-                                                    )}
-                                                    {order.status === 'cancelado' && (
-                                                        <span style={{ background: '#DC2626', color: 'white', fontSize: '10px', fontWeight: '800', padding: '2px 8px', borderRadius: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>CANCELADO</span>
-                                                    )}
-                                                </div>
-                                                <div style={{ fontSize: '12px', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                                    <Timer size={12} />
-                                                    <span>{getMinutesAgo(order.criado_em)} min atrás</span>
-                                                </div>
-                                            </div>
-
-                                            <div className="card-title-group">
-                                                <span className="order-id">PEDIDO - {order.numero_pedido}</span>
-                                                <h4 className="customer-name-v2">Cliente: {order.nome_cliente || 'Sem nome'}</h4>
-                                            </div>
-
-                                            <div className="items-preview" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                                {order.itens?.map((item, idx) => (
-                                                    <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '4px' }}>
-                                                        <span style={{ fontWeight: 'bold', color: '#334155', whiteSpace: 'nowrap' }}>{item.quantidade}x </span>
-                                                        <span style={{ fontWeight: 'bold', color: '#0f172a' }}>{getItemDisplayName(item)}</span>
-                                                    </div>
-                                                ))}
-                                            </div>
-
-                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #f1f5f9' }}>
-                                                <span style={{ fontSize: '14px', fontWeight: 'bold', color: order.status === 'cancelado' ? '#94a3b8' : '#0f172a', textDecoration: order.status === 'cancelado' ? 'line-through' : 'none' }}>{formatCurrency(order.valor_total)}</span>
-
-                                                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                                                    {order.status !== 'cancelado' && (
-                                                        <button
-                                                            className="btn-cancel-card"
-                                                            title="Cancelar pedido"
-                                                            onClick={(e) => {
-                                                                e.stopPropagation()
-                                                                setOrderToCancel(order)
-                                                            }}
-                                                        >
-                                                            <Trash2 size={16} />
-                                                        </button>
-                                                    )}
-                                                    {order.status === 'cancelado' ? (
-                                                        <button
-                                                            className="quick-action stage-confirmado"
-                                                            style={{ background: '#10B981', borderColor: '#059669' }}
-                                                            onClick={(e) => {
-                                                                e.stopPropagation()
-                                                                setOrderToReactivate(order)
-                                                            }}
-                                                        >
-                                                            <RotateCcw size={14} style={{ marginRight: '4px' }} /> Reativar
-                                                        </button>
-                                                    ) : stage.next && (
-                                                        <button
-                                                            className={`quick-action stage-${stage.next}`}
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                const nextStatus = (order.tipo_pedido === 'mesa' && stage.id === 'preparando') ? 'entregue' : stage.next;
-                                                                handleStatusChange(order.id, nextStatus);
-                                                            }}
-                                                        >
-                                                            {
-                                                                stage.id === 'confirmado' ? (
-                                                                    <>
-                                                                        <span className="desktop-btn-label">Iniciar</span>
-                                                                        <span className="mobile-btn-label">Preparar</span>
-                                                                    </>
-                                                                ) : stage.id === 'preparando' ? (
-                                                                    order.tipo_pedido === 'mesa' ? 'Servir' : (
-                                                                        <>
-                                                                            <span className="desktop-btn-label">Enviar</span>
-                                                                            <span className="mobile-btn-label">Saiu p/ Entrega</span>
-                                                                        </>
-                                                                    )
-                                                                ) : stage.id === 'saiu_entrega' ? (
-                                                                    <>
-                                                                        <span className="desktop-btn-label">Concluir</span>
-                                                                        <span className="mobile-btn-label">Entregue</span>
-                                                                    </>
-                                                                ) : 'Iniciar'
-                                                            }
-                                                        </button>
-                                                    )}
-                                                </div>
-                                            </div>
-
-                                        </div>
+                                            onTouchEnd={onTouchEnd}
+                                            onSelect={setSelectedOrder}
+                                            onCancel={setOrderToCancel}
+                                            onReactivate={setOrderToReactivate}
+                                            onStatusChange={handleStatusChange}
+                                            validTransitions={VALID_TRANSITIONS}
+                                        />
                                     ))}
                                 </div>
                             </div>
@@ -1040,413 +892,21 @@ export default function OrdersPage() {
                 </div>
             </div>
 
-            {
-                selectedOrder && (
-                    <>
-                        <div className="modal-overlay-v4" onClick={() => setSelectedOrder(null)}>
-                            <div className="modal-kitchen-v4" onClick={e => e.stopPropagation()}>
-                                {/* NEW PREMIUM HEADER */}
-                                <header className="modal-v5-header">
-                                    <div className="header-title-group">
-                                        <div className="header-icon-box">
-                                            <ReceiptText size={20} />
-                                        </div>
-                                        <div className="header-text">
-                                            <h2>Detalhes do Pedido</h2>
-                                            <p>Espetinho Vitória</p>
-                                        </div>
-                                    </div>
-                                    <button className="btn-close-v5" onClick={() => setSelectedOrder(null)}>
-                                        <X size={24} />
-                                    </button>
-                                </header>
-
-                                {/* SUMMARY SECTION */}
-                                <div className="modal-v5-summary">
-                                    <div className="summary-main">
-                                        <div className="summary-id-group">
-                                            <div className="summary-id-row">
-                                                <h3>Pedido {selectedOrder.numero_pedido}</h3>
-                                                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
-                                                    <div className={`status-badge-v5 ${selectedOrder.status}`}>
-                                                        <Timer size={14} />
-                                                        {selectedOrder.status === 'cancelado' ? 'Cancelado' :
-                                                            selectedOrder.status === 'confirmado' ? 'Confirmado' :
-                                                                selectedOrder.status === 'preparando' ? 'Em Preparo' :
-                                                                    selectedOrder.status === 'saiu_entrega' ? 'Em Entrega' : 'Entregue'}
-                                                    </div>
-                                                    {selectedOrder.comanda_status === 'fechamento_solicitado' && selectedOrder.status !== 'cancelado' && (
-                                                        <span className="pulse-alert" style={{ background: '#f59e0b', color: 'white', fontSize: '12px', fontWeight: '700', padding: '4px 12px', borderRadius: '8px', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                                            <Receipt size={14} />
-                                                            Solicitou Fechamento
-                                                        </span>
-                                                    )}
-                                                </div>
-                                            </div>
-                                            <p className="summary-meta">
-                                                {new Date(selectedOrder.criado_em).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })} • {new Date(selectedOrder.criado_em).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} • Cliente: {selectedOrder.nome_cliente} • {selectedOrder.tipo_pedido === 'mesa' && selectedOrder.mesas ? `MESA ${selectedOrder.mesas.numero}` : selectedOrder.tipo_pedido?.toUpperCase()}
-                                            </p>
-                                        </div>
-
-                                        <div className="summary-actions">
-                                            <button className="btn-v5-secondary" onClick={handlePrint}>
-                                                <Printer size={18} />
-                                                Imprimir
-                                            </button>
-
-                                            {selectedOrder.status === 'confirmado' && (
-                                                <button className="btn-v5-primary" onClick={() => {
-                                                    handleStatusChange(selectedOrder.id, 'preparando');
-                                                    setSelectedOrder(null);
-                                                }}>
-                                                    <ChefHat size={18} />
-                                                    Mandar p/ Cozinha
-                                                </button>
-                                            )}
-
-                                            {selectedOrder.status === 'preparando' && (
-                                                <button className="btn-v5-primary" onClick={() => {
-                                                    handleStatusChange(selectedOrder.id, selectedOrder.tipo_pedido === 'mesa' ? 'entregue' : 'saiu_entrega');
-                                                    setSelectedOrder(null);
-                                                }}>
-                                                    <Bike size={18} />
-                                                    {selectedOrder.tipo_pedido === 'mesa' ? 'Servir Pedido' : 'Enviar'}
-                                                </button>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* BODY SECTION (ITEMS) */}
-                                <div className="modal-v5-body">
-                                    <h3 className="items-section-title">Itens do Pedido ({selectedOrder.itens?.length || 0})</h3>
-                                    <div className="v5-items-list">
-                                        {selectedOrder.itens?.map((item, idx) => (
-                                            <div key={idx} className="v5-item-row">
-                                                <div className="v5-item-main">
-                                                    <div className="v5-item-icon">
-                                                        {item.produtos?.categoria?.nome?.toLowerCase()?.includes('bebida') ? <GlassWater size={20} /> :
-                                                            item.produtos?.categoria?.nome?.toLowerCase()?.includes('açai') ? <IceCreamCone size={20} /> : <UtensilsCrossed size={20} />}
-                                                    </div>
-                                                    <div className="v5-item-info">
-                                                        <h4>{item.quantidade}x {getItemDisplayName(item)}</h4>
-                                                        {item.personalizacao && typeof item.personalizacao === 'object' && filterPersonalizacao(item.personalizacao, getItemDisplayName(item)).map((p, pIdx) => (
-                                                            <p key={pIdx} style={{ margin: '2px 0', fontSize: '12px', color: '#64748b' }}>
-                                                                <strong>{p.key}:</strong> {p.value}
-                                                            </p>
-                                                        ))}
-                                                        {item.observacoes && (
-                                                            <p className="v5-item-obs">Obs: {item.observacoes}</p>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                                <span className="v5-item-price">{formatCurrency(item.preco_unitario * item.quantidade)}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-
-                                    {selectedOrder.observacoes && (
-                                        <div style={{ marginTop: '24px', padding: '16px', background: '#fef2f2', borderRadius: '12px', border: '1px solid #fee2e2' }}>
-                                            <p style={{ margin: 0, fontSize: '13px', fontWeight: '800', color: '#991b1b', textTransform: 'uppercase' }}>Observações Gerais</p>
-                                            <p style={{ margin: '4px 0 0', fontSize: '14px', color: '#b91c1c' }}>{selectedOrder.observacoes}</p>
-                                        </div>
-                                    )}
-
-                                    {selectedOrder.tipo_pedido === 'entrega' && selectedOrder.endereco && (
-                                        <div style={{ marginTop: '24px', padding: '20px', background: '#f1f5f9', borderRadius: '14px' }}>
-                                            <p style={{ margin: 0, fontSize: '12px', fontWeight: '800', color: '#64748b', textTransform: 'uppercase' }}>Endereço de Entrega</p>
-                                            <p style={{ margin: '6px 0 0', fontSize: '13px', fontWeight: '600', color: '#475569', lineHeight: '1.4' }}>
-                                                {typeof selectedOrder.endereco === 'string'
-                                                    ? selectedOrder.endereco
-                                                    : `${selectedOrder.endereco.rua}, ${selectedOrder.endereco.numero} - ${selectedOrder.endereco.bairro}`}
-                                            </p>
-                                            {selectedOrder.endereco.referencia && (
-                                                <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#64748b', fontStyle: 'italic' }}>Ref: {selectedOrder.endereco.referencia}</p>
-                                            )}
-
-
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* FOOTER SECTION */}
-                                <div className="modal-v5-footer">
-                                    <div className="v5-totals">
-                                        <div className="v5-total-line">
-                                            <span>Subtotal</span>
-                                            <span>{formatCurrency(selectedOrder.subtotal)}</span>
-                                        </div>
-                                        {selectedOrder.taxa_entrega > 0 && (
-                                            <div className="v5-total-line">
-                                                <span>Taxa de Entrega</span>
-                                                <span>{formatCurrency(selectedOrder.taxa_entrega)}</span>
-                                            </div>
-                                        )}
-                                        <div className="v5-total-final">
-                                            <span>Total do Pedido</span>
-                                            <span className="amount">{formatCurrency(selectedOrder.valor_total)}</span>
-                                        </div>
-                                    </div>
-
-                                    <div className="v5-footer-actions">
-                                        {selectedOrder.status === 'cancelado' ? (
-                                            <>
-                                                <button className="btn-v5-finish" onClick={() => setSelectedOrder(null)}>
-                                                    <ArrowRight size={20} />
-                                                    VOLTAR AO KANBAN
-                                                </button>
-                                                <button className="btn-v5-finish" style={{ background: '#10B981' }} onClick={() => {
-                                                    setOrderToReactivate(selectedOrder)
-                                                    setSelectedOrder(null)
-                                                }}>
-                                                    <RotateCcw size={20} />
-                                                    REATIVAR PEDIDO
-                                                </button>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <button className="btn-v5-cancel" onClick={() => setOrderToCancel(selectedOrder)}>
-                                                    <XCircle size={20} />
-                                                    CANCELAR PEDIDO
-                                                </button>
-                                                {selectedOrder.status === 'saiu_entrega' ? (
-                                                    <button className="btn-v5-finish" onClick={() => {
-                                                        handleStatusChange(selectedOrder.id, 'entregue');
-                                                        setSelectedOrder(null);
-                                                    }}>
-                                                        <CheckCircle size={20} />
-                                                        FINALIZAR ENTREGA
-                                                    </button>
-                                                ) : (
-                                                    <button className="btn-v5-finish" onClick={() => setSelectedOrder(null)}>
-                                                        <ArrowRight size={20} />
-                                                        VOLTAR AO KANBAN
-                                                    </button>
-                                                )}
-                                            </>
-                                        )}
-                                    </div>
-
-                                    {selectedOrder.comanda_id && (
-                                        <div style={{ marginTop: '24px' }}>
-                                            <ComandaSummary
-                                                comandaId={selectedOrder.comanda_id}
-                                                onFinalize={(cid) => setComandaToFinalize(cid)}
-                                            />
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* THERMAL RECEIPT (PRINT ONLY) */}
-                        <div id="thermal-receipt">
-                            <div className="receipt-print-container">
-                                <div className="receipt-logo-container">
-                                    <img src={logoImg} alt="VITORIA" className="receipt-logo" />
-                                </div>
-
-                                <div className="receipt-header-info">
-                                    <h2 style={{ fontSize: '22px', fontWeight: '900', textAlign: 'center', margin: '8px 0', textTransform: 'uppercase', borderBottom: '2px dashed #000', paddingBottom: '8px' }}>
-                                        {selectedOrder.tipo_pedido === 'entrega'
-                                            ? '🚀 ENTREGA'
-                                            : selectedOrder.tipo_pedido === 'mesa'
-                                                ? (selectedOrder.nome_cliente?.toUpperCase().includes('MESA') ? selectedOrder.nome_cliente?.toUpperCase() : `🍽️ MESA - ${selectedOrder.nome_cliente?.toUpperCase()}`)
-                                                : '🛍️ RETIRADA'}
-                                    </h2>
-                                    <div className="receipt-order-num">PEDIDO #{selectedOrder.numero_pedido}</div>
-                                    <div className="receipt-date">
-                                        {new Date(selectedOrder.criado_em).toLocaleDateString('pt-BR')} - {new Date(selectedOrder.criado_em).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
-                                    </div>
-                                </div>
-
-                                <div className="receipt-divider"></div>
-
-                                <div className="receipt-section">
-                                    <div className="receipt-section-title">ESTABELECIMENTO</div>
-                                    <div style={{ textAlign: 'center' }}>ESPETINHO VITÓRIA - ESPETOS, AÇAÍ E CALDOS</div>
-                                </div>
-
-                                <div className="receipt-divider"></div>
-
-                                <div className="receipt-section">
-                                    <div className="receipt-section-title">CLIENTE</div>
-                                    <div className="receipt-data-row">
-                                        <span className="receipt-label">NOME:</span>
-                                        <span>{selectedOrder.nome_cliente?.toUpperCase() || 'N/A'}</span>
-                                    </div>
-                                    <div className="receipt-data-row">
-                                        <span className="receipt-label">TEL:</span>
-                                        <span>{selectedOrder.telefone_cliente || selectedOrder.clientes?.telefone || 'N/A'}</span>
-                                    </div>
-                                </div>
-
-                                {selectedOrder.tipo_pedido === 'entrega' && selectedOrder.endereco && (
-                                    <>
-                                        <div className="receipt-divider"></div>
-                                        <div className="receipt-section">
-                                            <div className="receipt-section-title">ENDEREÇO DE ENTREGA</div>
-                                            <div>
-                                                {typeof selectedOrder.endereco === 'string'
-                                                    ? selectedOrder.endereco.toUpperCase()
-                                                    : `${selectedOrder.endereco.rua?.toUpperCase()}, ${selectedOrder.endereco.numero}`}
-                                            </div>
-                                            <div>{selectedOrder.endereco.bairro?.toUpperCase()}</div>
-                                            {selectedOrder.endereco.referencia && <div>REF: {selectedOrder.endereco.referencia.toUpperCase()}</div>}
-                                        </div>
-                                    </>
-                                )}
-
-                                <div className="receipt-divider"></div>
-
-                                <div className="receipt-section">
-                                    <div className="receipt-section-title">ITENS DO PEDIDO</div>
-                                    <table className="receipt-table">
-                                        <thead>
-                                            <tr>
-                                                <th style={{ width: '15%' }}>QTD</th>
-                                                <th style={{ width: '53%', paddingLeft: '1mm' }}>ITENS</th>
-                                                <th style={{ width: '32%', textAlign: 'right' }}>PREÇO</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {selectedOrder.itens?.map((item, i) => (
-                                                <tr key={i}>
-                                                    <td>{item.quantidade}</td>
-                                                    <td>
-                                                        <div>{getItemDisplayName(item)?.toUpperCase()}</div>
-                                                        {item.personalizacao && typeof item.personalizacao === 'object' && (() => {
-                                                            const isAcai = getItemDisplayName(item)?.toLowerCase().includes('açaí') || getItemDisplayName(item)?.toLowerCase().includes('acai')
-                                                            const elements = []
-                                                            
-                                                            for (const [key, val] of Object.entries(item.personalizacao)) {
-                                                                if (!val || (Array.isArray(val) && val.length === 0)) continue
-                                                                
-                                                                const keyLower = key.toLowerCase()
-                                                                const isPaid = keyLower.includes('pago') || keyLower === 'adicionais'
-                                                                const isFruitSelection = keyLower.includes('escolha') || keyLower.includes('incl')
-                                                                
-                                                                if (isPaid) {
-                                                                    elements.push(
-                                                                        <div key={`title-${key}`} className="receipt-item-details" style={{ textTransform: 'uppercase', marginTop: '1mm' }}>
-                                                                            * Adicionais pagos:
-                                                                        </div>
-                                                                    )
-                                                                    
-                                                                    const itemsArray = Array.isArray(val) ? val : [val]
-                                                                    const counts = {}
-                                                                    itemsArray.forEach(v => {
-                                                                        const cleanName = String(v).replace(/\s*\(\s*1\s*(unidade|unid|un)\s*\)/gi, '').trim().toUpperCase()
-                                                                        counts[cleanName] = (counts[cleanName] || 0) + 1
-                                                                    })
-
-                                                                    Object.entries(counts).forEach(([cleanName, count], idx) => {
-                                                                        elements.push(
-                                                                            <div key={`item-${key}-${idx}`} className="receipt-item-details" style={{ paddingLeft: '2mm' }}>
-                                                                                + {count} X {cleanName}
-                                                                            </div>
-                                                                        )
-                                                                    })
-                                                                } else if (isFruitSelection) {
-                                                                    let displayVal
-                                                                    if (Array.isArray(val)) {
-                                                                        const counts = {}
-                                                                        val.forEach(v => {
-                                                                            const cleanName = String(v).replace(/\s*\(\s*1\s*(unidade|unid|un)\s*\)/gi, '').trim()
-                                                                            counts[cleanName] = (counts[cleanName] || 0) + 1
-                                                                        })
-                                                                        displayVal = Object.entries(counts)
-                                                                            .map(([name, count]) => count > 1 ? `${count}x ${name}` : name)
-                                                                            .join(', ')
-                                                                    } else {
-                                                                        displayVal = String(val)
-                                                                    }
-                                                                    elements.push(
-                                                                        <div key={`fruit-${key}`} className="receipt-item-details">
-                                                                            Frutas Escolhidas: {displayVal}
-                                                                        </div>
-                                                                    )
-                                                                } else if (!isAcai) {
-                                                                    const displayVal = Array.isArray(val) ? val.join(', ') : String(val)
-                                                                    elements.push(
-                                                                        <div key={`other-${key}`} className="receipt-item-details">
-                                                                            {key}: {displayVal}
-                                                                        </div>
-                                                                    )
-                                                                }
-                                                            }
-
-                                                            return elements
-                                                        })()}
-                                                        {item.observacoes && (
-                                                            <div className="receipt-item-details" style={{ fontWeight: 'bold' }}>
-                                                                * OBS: {item.observacoes.toUpperCase()}
-                                                            </div>
-                                                        )}
-                                                    </td>
-                                                    <td style={{ textAlign: 'right' }}>{formatCurrency(item.preco_unitario * item.quantidade)}</td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-
-                                <div className="receipt-divider"></div>
-
-                                <div className="receipt-total-section">
-                                    <div className="receipt-total-row">
-                                        <span>ITENS DO PEDIDO</span>
-                                        <span>{formatCurrency(selectedOrder.subtotal)}</span>
-                                    </div>
-                                    {selectedOrder.taxa_entrega > 0 && (
-                                        <div className="receipt-total-row">
-                                            <span>TAXA DE ENTREGA</span>
-                                            <span>{formatCurrency(selectedOrder.taxa_entrega)}</span>
-                                        </div>
-                                    )}
-                                    <div className="receipt-total-big">
-                                        <span>TOTAL</span>
-                                        <span>{formatCurrency(selectedOrder.valor_total)}</span>
-                                    </div>
-                                </div>
-
-                                <div className="receipt-divider"></div>
-
-                                <div className="receipt-section">
-                                    <div className="receipt-section-title">FORMA DE PAGAMENTO</div>
-                                    <div className="receipt-data-row">
-                                        <span>{selectedOrder.forma_pagamento?.toUpperCase()}</span>
-                                        <span>{formatCurrency(selectedOrder.valor_total)}</span>
-                                    </div>
-                                    {selectedOrder.troco_para && (
-                                        <div className="receipt-data-row" style={{ marginTop: '2mm' }}>
-                                            <span className="receipt-label">TROCO PARA:</span>
-                                            <span>{formatCurrency(selectedOrder.troco_para)}</span>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {selectedOrder.observacoes && (
-                                    <>
-                                        <div className="receipt-divider"></div>
-                                        <div className="receipt-section">
-                                            <div className="receipt-section-title">OBSERVAÇÃO GERAL</div>
-                                            <div style={{ textAlign: 'center', fontWeight: 'bold' }}>{selectedOrder.observacoes.toUpperCase()}</div>
-                                        </div>
-                                    </>
-                                )}
-
-                                <div className="receipt-footer-msg">
-                                    <div className="footer">
-                                        OBRIGADO PELA PREFERÊNCIA!<br />
-                                        ESPETINHO VITÓRIA
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </>
-                )
-            }
+            {selectedOrder && (
+                <>
+                    <OrderDetailModal
+                        order={selectedOrder}
+                        onClose={() => setSelectedOrder(null)}
+                        onStatusChange={handleStatusChange}
+                        onPrint={handlePrint}
+                        onCancel={setOrderToCancel}
+                        onReactivate={setOrderToReactivate}
+                        onFinalizeComanda={setComandaToFinalize}
+                        ComandaSummary={ComandaSummary}
+                    />
+                    <ThermalReceipt order={selectedOrder} />
+                </>
+            )}
             {/* Finalization Dialog */}
             <Dialog
                 isOpen={!!comandaToFinalize}
