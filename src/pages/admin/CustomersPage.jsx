@@ -519,13 +519,28 @@ export default function CustomersPage() {
 
             {/* Modal de Confirmação de Exclusão */}
             {deleteConfirm.open && (
-                <div className="admin-modal-overlay">
-                    <div className="modal-confirm-delete animate-scale-in">
+                <div
+                    className="admin-modal-overlay"
+                    onClick={() => setDeleteConfirm({ open: false, id: null, nome: '' })}
+                >
+                    <div
+                        className="modal-confirm-delete animate-scale-in"
+                        onClick={e => e.stopPropagation()}
+                    >
                         <div className="confirm-icon-box">
-                            <Trash2 size={32} />
+                            <Trash2 size={28} />
                         </div>
+
                         <h2>Excluir Cliente?</h2>
-                        <p>Tem certeza que deseja excluir <strong>{deleteConfirm.nome}</strong>? Esta ação removerá o histórico deste cliente permanentemente.</p>
+
+                        <p>
+                            Tem certeza que deseja excluir <strong>{deleteConfirm.nome}</strong>?
+                            Esta ação removerá o histórico deste cliente permanentemente.
+                        </p>
+
+                        <div className="confirm-warning-tag">
+                            ⚠️ Esta ação não pode ser desfeita
+                        </div>
 
                         <div className="confirm-actions">
                             <button
@@ -538,6 +553,7 @@ export default function CustomersPage() {
                                 className="btn-confirm-delete"
                                 onClick={confirmDelete}
                             >
+                                <Trash2 size={14} />
                                 Sim, Excluir
                             </button>
                         </div>
