@@ -18,6 +18,7 @@ export default function CustomersPage() {
     const [customers, setCustomers] = useState([])
     const [loading, setLoading] = useState(true)
     const [searchTerm, setSearchTerm] = useState('')
+    const [loyaltyFilter, setLoyaltyFilter] = useState('all') // 'all' | 'with_orders' | 'no_orders'
     const [deleteConfirm, setDeleteConfirm] = useState({ open: false, id: null, nome: '' })
     const [editModal, setEditModal] = useState({ open: false, mode: 'create', customer: null })
     const [formData, setFormData] = useState({ nome: '', whatsapp: '' })
@@ -179,6 +180,10 @@ export default function CustomersPage() {
     }
 
     const filteredCustomers = customers.filter(c => {
+        // Loyalty filter
+        if (loyaltyFilter === 'with_orders' && c.totalOrders === 0) return false
+        if (loyaltyFilter === 'no_orders' && c.totalOrders > 0) return false
+
         if (!searchTerm) return true
         const termLower = searchTerm.toLowerCase().trim()
         const digitsOnly = searchTerm.replace(/\D/g, '')
@@ -321,7 +326,26 @@ export default function CustomersPage() {
                         />
                     </div>
                     <div className="toolbar-actions">
-                        <button className="btn-outline"><Filter size={18} /> Filtros</button>
+                        <div className="loyalty-filter-chips">
+                            <button
+                                className={`chip ${loyaltyFilter === 'all' ? 'active' : ''}`}
+                                onClick={() => setLoyaltyFilter('all')}
+                            >
+                                Todos
+                            </button>
+                            <button
+                                className={`chip chip-orders ${loyaltyFilter === 'with_orders' ? 'active' : ''}`}
+                                onClick={() => setLoyaltyFilter('with_orders')}
+                            >
+                                <ShoppingBag size={13} /> Com pedidos
+                            </button>
+                            <button
+                                className={`chip chip-new ${loyaltyFilter === 'no_orders' ? 'active' : ''}`}
+                                onClick={() => setLoyaltyFilter('no_orders')}
+                            >
+                                Sem pedidos
+                            </button>
+                        </div>
                         <button className="btn-outline" onClick={handleExportCSV}>Exportar</button>
                     </div>
                 </div>
