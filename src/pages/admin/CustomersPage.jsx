@@ -9,6 +9,7 @@ import { supabase } from '../../lib/supabase'
 import n8nService from '../../services/n8nService'
 import { formatCurrency } from '../../lib/utils'
 import { useVisibilityRefresh } from '../../hooks/useVisibilityRefresh'
+import { ListPageSkeleton } from '../../components/ui/SkeletonLoader'
 import './CustomersPage.css'
 
 
@@ -155,7 +156,7 @@ export default function CustomersPage() {
             }
 
             setEditModal({ open: false, mode: 'create', customer: null })
-            fetchCustomers()
+            fetchCustomers(true)
         } catch (err) {
             alert('Erro ao salvar: ' + err.message)
         } finally {
@@ -267,7 +268,7 @@ export default function CustomersPage() {
         document.body.removeChild(link)
     }
 
-    if (loading) return <div className="admin-loading">Carregando clientes...</div>
+    if (loading) return <ListPageSkeleton rows={6} showStats />
 
     return (
         <div className="customers-page-wrapper animate-fade-in">

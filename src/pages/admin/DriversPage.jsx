@@ -53,8 +53,8 @@ export default function DriversPage() {
         fetchDriversData()
     }, [])
 
-    async function fetchDriversData() {
-        setLoading(true)
+    async function fetchDriversData(isSilent = false) {
+        if (!isSilent) setLoading(true)
         try {
             const today = new Date()
             today.setHours(0, 0, 0, 0)
@@ -181,7 +181,7 @@ export default function DriversPage() {
             }
 
             console.log('[DriversPage] Cadastro concluído com sucesso!')
-            await fetchDriversData()
+            await fetchDriversData(true)
             setIsAddOpen(false)
             setNewDriver({ nome: '', telefone: '', email: '', senha: '' })
             alert('Entregador cadastrado com sucesso!')

@@ -9,6 +9,7 @@ import { supabase } from '../../lib/supabase'
 import { uploadImage, isCloudinaryConfigured } from '../../lib/cloudinary'
 import { formatCurrency } from '../../lib/utils'
 import { useVisibilityRefresh } from '../../hooks/useVisibilityRefresh'
+import { ListPageSkeleton } from '../../components/ui/SkeletonLoader'
 import './MenuPage.css'
 
 
@@ -145,7 +146,7 @@ export default function MenuPage() {
             }
 
             setDeleteConfirm({ open: false, id: null, loading: false, error: null })
-            fetchData()
+            fetchData(true)
         } catch (err) {
             setDeleteConfirm(prev => ({ ...prev, loading: false, error: err.message }))
         }
@@ -314,7 +315,7 @@ export default function MenuPage() {
             setNewVarPrice('')
             setNewOptionText({})
             setNewOptionPrice({})
-            fetchData()
+            fetchData(true)
         } else {
             alert('Erro ao salvar produto: ' + error.message)
         }
@@ -446,7 +447,7 @@ export default function MenuPage() {
         return matchesSearch && matchesCategory
     })
 
-    if (loading) return <div className="admin-loading">Carregando cardápio...</div>
+    if (loading) return <ListPageSkeleton rows={8} />
 
     if (error) {
         return (

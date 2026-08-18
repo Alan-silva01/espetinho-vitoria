@@ -18,6 +18,7 @@ import CreateOrderModal from '../../components/admin/CreateOrderModal'
 import KanbanOrderCard from '../../components/admin/KanbanOrderCard'
 import OrderDetailModal from '../../components/admin/OrderDetailModal'
 import ThermalReceipt from '../../components/admin/ThermalReceipt'
+import { OrdersSkeleton } from '../../components/ui/SkeletonLoader'
 import './OrdersPage.css'
 
 
@@ -732,7 +733,7 @@ export default function OrdersPage() {
         })
     }, [orders, searchTerm])
 
-    if (loading) return <div className="admin-loading">Carregando pedidos...</div>
+    if (loading) return <OrdersSkeleton />
 
     if (error) {
         return (

@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useVisibilityRefresh } from '../../hooks/useVisibilityRefresh'
+import { InventorySkeleton } from '../../components/ui/SkeletonLoader'
 import './InventoryPage.css'
 
 
@@ -253,7 +254,7 @@ export default function InventoryPage() {
             }
         }
 
-        await fetchInventory()
+        await fetchInventory(true)
         setSaving(false)
     }
 
@@ -391,7 +392,7 @@ export default function InventoryPage() {
         return acc
     }, {})
 
-    if (loading) return <div className="admin-loading">Carregando estoque...</div>
+    if (loading) return <InventorySkeleton />
 
     if (error) {
         return (
@@ -467,7 +468,7 @@ export default function InventoryPage() {
 
                     {/* Fast Entry View */}
                     {activeTab !== 'acomp_acai' && activeTab !== 'acomp_espeto' && activeTab !== 'tamanhos_ml' && (
-                        <div className="fast-entry-container animate-fade-in" style={{ marginBottom: '24px' }}>
+                        <div className="fast-entry-container" style={{ marginBottom: '24px' }}>
                             {inventory.filter(matchesSearch).filter(matchesTab).length === 0 ? (
                                 <div style={{ padding: '60px 20px', textAlign: 'center', color: '#9CA3AF' }}>Nenhum produto encontrado nesta categoria.</div>
                             ) : (
@@ -516,7 +517,7 @@ export default function InventoryPage() {
                     )}
 
                     {/* Addons & Flavors View */}
-                    <div className="inventory-sections animate-fade-in">
+                    <div className="inventory-sections">
                         {Object.entries(groupedInventory).map(([catName, items]) => {
                             const productsWithAddons = items.filter(i => i.opcoes_personalizacao?.length > 0 && matchesSearch(i) && matchesTab(i))
 

@@ -13,6 +13,7 @@ import {
 import { supabase } from '../../lib/supabase'
 import { formatCurrency } from '../../lib/utils'
 import { useVisibilityRefresh } from '../../hooks/useVisibilityRefresh'
+import { DashboardSkeleton } from '../../components/ui/SkeletonLoader'
 import './DashboardPage.css'
 
 
@@ -250,7 +251,7 @@ export default function DashboardPage() {
     }
 
 
-    if (loading) return <div className="admin-loading">Carregando métricas...</div>
+    if (loading) return <DashboardSkeleton />
 
     if (error) {
         return (
