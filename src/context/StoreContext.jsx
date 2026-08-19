@@ -127,15 +127,19 @@ export function StoreProvider({ children }) {
             return { type: 'exceptional', message: config.motivo_fechamento_hoje }
         }
 
-        // 3. Time-based Logic (Brasília Time)
+        // 3. Time-based Logic (Brasília Time via Intl API — cross-device safe)
         const now = new Date()
-        const brTimeStr = now.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' })
-        const brTime = new Date(brTimeStr)
-
-        if (isNaN(brTime.getTime())) return null // Fallback se falhar a data
-        const currentDay = brTime.getDay()
-        const currentTime = brTime.getHours().toString().padStart(2, '0') + ':' +
-            brTime.getMinutes().toString().padStart(2, '0') + ':00'
+        const parts = new Intl.DateTimeFormat('en-US', {
+            timeZone: 'America/Sao_Paulo',
+            year: 'numeric', month: '2-digit', day: '2-digit',
+            hour: '2-digit', minute: '2-digit',
+            hour12: false
+        }).formatToParts(now)
+        const get = (type) => parts.find(p => p.type === type)?.value || '00'
+        const brDate = new Date(parseInt(get('year')), parseInt(get('month')) - 1, parseInt(get('day')))
+        if (isNaN(brDate.getTime())) return null
+        const currentDay = brDate.getDay()
+        const currentTime = get('hour').padStart(2, '0') + ':' + get('minute').padStart(2, '0') + ':00'
 
         const diasNomes = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado']
 
@@ -181,8 +185,29 @@ export function StoreProvider({ children }) {
         return { type: 'closed_indefinitely', message: 'Fechado temporariamente. Verifique nossos horários.' }
     }
 
-    const closureInfo = useMemo(() => getClosureInfo(), [config, horarios])
+    const [closureInfo, setClosureInfo] = useState(() => getClosureInfo())
     const isOpen = closureInfo === null
+
+    // Recalculate open/closed every 60s and on tab focus (fixes stale status bug)
+    useEffect(() => {
+        setClosureInfo(getClosureInfo())
+
+        const interval = setInterval(() => {
+            setClosureInfo(getClosureInfo())
+        }, 60_000)
+
+        const handleVisible = () => {
+            if (document.visibilityState === 'visible') {
+                setClosureInfo(getClosureInfo())
+            }
+        }
+        document.addEventListener('visibilitychange', handleVisible)
+
+        return () => {
+            clearInterval(interval)
+            document.removeEventListener('visibilitychange', handleVisible)
+        }
+    }, [config, horarios])
 
     const value = useMemo(() => ({
         config, horarios, loading, isOpen, closureInfo, fetchStoreStatus
