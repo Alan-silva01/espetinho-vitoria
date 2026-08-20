@@ -19,41 +19,45 @@
 O **Espetinho Vitória** é uma solução omnichannel para estabelecimentos gastronômicos e operações de delivery. O ecossistema unifica o atendimento ao cliente via **Cardápio Digital PWA**, a operação de cozinha e balcão no **Painel Admin em Tempo Real** com suporte a **Impressão Térmica de Recibos**, e o gerenciamento de entregas pelo **Módulo de Entregadores**.
 
 A arquitetura foi projetada sob três pilares estratégicos:
-1. **Atendimento Autônomo & Fluidez (Self-Service)**: Cardápio responsivo com geração de QR Code, cálculo automático de taxa de entrega por bairro/distância e geração de chave Pix dinâmica com QR Code.
+1. **Atendimento Autônomo e Fluidez (Self-Service)**: Cardápio responsivo com geração de QR Code, cálculo automático de taxa de entrega por bairro/distância e geração de chave Pix dinâmica com QR Code.
 2. **Operação de Cozinha de Alta Performance**: Kanban reativo com atualização via WebSocket (Supabase Realtime), disparo de alertas sonoros a cada novo pedido e integração com impressoras térmicas (recibos de 58mm / 80mm).
-3. **Gestão Estratégica & Fidelização**: Módulo de clientes com histórico de compras, programa de fidelidade por pontuação/pedidos, gestão de estoque de insumos e relatórios financeiros com Recharts.
+3. **Gestão Estratégica e Fidelização**: Módulo de clientes com histórico de compras, programa de fidelidade por pontuação/pedidos, gestão de estoque de insumos e relatórios financeiros com Recharts.
 
 ---
 
-## 📸 Demonstração da Interface (Screenshots)
+## Demonstração da Interface (Screenshots)
 
-### 📱 **1. Cardápio Digital & Fluxo do Cliente (Mobile PWA)**
+### 1. Cardápio Digital e Fluxo do Cliente (Mobile PWA)
 
 <div align="center">
 
-| Cardápio Principal | Detalhe do Produto | Carrinho com Upsell |
-|:---:|:---:|:---:|
-| <img src="docs/screenshots/cardapio-mobile.png" width="260" alt="Cardápio Mobile" /> | <img src="docs/screenshots/detalhe-produto-mobile.png" width="260" alt="Detalhe Produto" /> | <img src="docs/screenshots/carrinho-mobile.png" width="260" alt="Carrinho Mobile" /> |
-
-| Checkout Pix / Dinheiro | Status do Pedido em Tempo Real |
+| Tela Inicial do Cardápio | Categorias e Navegação |
 |:---:|:---:|
-| <img src="docs/screenshots/checkout-mobile.png" width="260" alt="Checkout Mobile" /> | <img src="docs/screenshots/status-pedido-mobile.png" width="260" alt="Status Pedido" /> |
+| <img src="https://res.cloudinary.com/ddhlqymvf/image/upload/v1787237439/Captura_de_Tela_2026-08-20_a%CC%80s_11.47.16_AM_qdpfix.png" width="300" alt="Cardápio Inicial" /> | <img src="https://res.cloudinary.com/ddhlqymvf/image/upload/v1787237439/Captura_de_Tela_2026-08-20_a%CC%80s_11.47.27_AM_tp0epi.png" width="300" alt="Navegação Cardápio" /> |
+
+| Detalhes do Produto (Açaí) | Seleção de Adicionais e Personalização |
+|:---:|:---:|
+| <img src="https://res.cloudinary.com/ddhlqymvf/image/upload/v1787237440/Captura_de_Tela_2026-08-20_a%CC%80s_11.47.46_AM_i1pha2.png" width="300" alt="Detalhe Produto" /> | <img src="https://res.cloudinary.com/ddhlqymvf/image/upload/v1787237440/Captura_de_Tela_2026-08-20_a%CC%80s_11.47.55_AM_yksypj.png" width="300" alt="Seleção de Adicionais" /> |
 
 </div>
 
 <br>
 
-### 🖥️ **2. Painel Administrativo & Gestão de Cozinha (Desktop)**
+### 2. Painel Administrativo e Gestão Operacional (Desktop)
 
 <div align="center">
 
-| Dashboard Geral & Métricas | Kanban de Pedidos & Cozinha (Realtime) |
+| Dashboard de Métricas Gerais | Kanban de Pedidos em Tempo Real |
 |:---:|:---:|
-| <img src="docs/screenshots/admin-dashboard.png" width="450" alt="Admin Dashboard" /> | <img src="docs/screenshots/admin-kanban.png" width="450" alt="Admin Kanban" /> |
+| <img src="https://res.cloudinary.com/ddhlqymvf/image/upload/v1787237440/Captura_de_Tela_2026-08-20_a%CC%80s_11.48.26_AM_ruwgyh.png" width="450" alt="Dashboard Admin" /> | <img src="https://res.cloudinary.com/ddhlqymvf/image/upload/v1787237440/Captura_de_Tela_2026-08-20_a%CC%80s_11.48.42_AM_ffqbfi.png" width="450" alt="Kanban Admin" /> |
 
-| Gestão de Cardápio & Insumos | Relatórios Financeiros & Analytics |
+| Gestão de Cardápio e Produtos | Controle de Estoque de Insumos |
 |:---:|:---:|
-| <img src="docs/screenshots/admin-menu.png" width="450" alt="Admin Menu" /> | <img src="docs/screenshots/admin-reports.png" width="450" alt="Admin Reports" /> |
+| <img src="https://res.cloudinary.com/ddhlqymvf/image/upload/v1787237442/Captura_de_Tela_2026-08-20_a%CC%80s_11.48.51_AM_nosehl.png" width="450" alt="Cardápio Admin" /> | <img src="https://res.cloudinary.com/ddhlqymvf/image/upload/v1787237442/Captura_de_Tela_2026-08-20_a%CC%80s_11.49.16_AM_clehrn.png" width="450" alt="Estoque Admin" /> |
+
+| Relatórios Financeiros e Analytics | Gerador de QR Code para Mesas |
+|:---:|:---:|
+| <img src="https://res.cloudinary.com/ddhlqymvf/image/upload/v1787237442/Captura_de_Tela_2026-08-20_a%CC%80s_11.49.47_AM_h8tom5.png" width="450" alt="Relatórios Admin" /> | <img src="https://res.cloudinary.com/ddhlqymvf/image/upload/v1787237442/Captura_de_Tela_2026-08-20_a%CC%80s_11.49.54_AM_smlkja.png" width="450" alt="QR Code Mesas" /> |
 
 </div>
 
@@ -103,36 +107,36 @@ graph TD
 
 ## Principais Funcionalidades
 
-### 🛒 **Módulo do Cliente (Cardápio Digital)**
+### Módulo do Cliente (Cardápio Digital)
 - **Cardápio Dinâmico**: Organização por categorias, variações de insumos e adicionais personalizáveis.
 - **Cálculo de Frete Flexível**: Taxa de entrega calculada por bairro ou raio de distância.
 - **Checkout Inteligente**: Opções de pagamento Pix (Chave / QR Code), Cartão na Entrega ou Dinheiro com cálculo automático de troco.
-- **Status do Pedido**: Acompanhamento transparente das etapas (*Pendente*, *Em Preparo*, *Saiu para Entrega*, *Concluído*).
+- **Status do Pedido**: Acompanhamento transparente das etapas (Pendente, Em Preparo, Saiu para Entrega, Concluído).
 - **Horário de Funcionamento**: Trava automática de pedidos quando o estabelecimento está fechado.
 
-### ⚙️ **Módulo Administrativo (Gestão & Operação)**
+### Módulo Administrativo (Gestão e Operação)
 - **Kanban de Cozinha com Realtime**: Drag-and-drop de pedidos entre colunas operacionais com sincronização instantânea.
 - **Impressão Térmica de Recibos**: Emissão de comprovantes para cozinha e cliente formatados para impressoras térmicas ESC/POS.
 - **Alertas Sonoros**: Notificações em áudio diferenciadas para novos pedidos.
 - **Programa de Fidelidade**: Gestão automática de pontos e bônus para clientes frequentes.
 - **Controle de Estoque**: Baixa automática de ingredientes e alertas de item esgotado.
-- **Gestão de Mesas & Comandas**: Suporte para atendimento presencial com controle de comanda por mesa.
+- **Gestão de Mesas e Comandas**: Suporte para atendimento presencial com controle de comanda por mesa e gerador de QR Code.
 - **Relatórios de Desempenho**: Gráficos analíticos de faturamento diário/mensal, ticket médio e produtos mais vendidos.
 
 ---
 
-## Tecnologias & Engenharia de Stack
+## Tecnologias e Engenharia de Stack
 
-### **Frontend**
+### Frontend
 - **React 19.2**: Utilização das APIs mais recentes do React para componentes reativos e alta fluidez de UI.
 - **JavaScript ES2024**: Código moderno, modular e otimizado.
 - **Vite 7.3**: Bundler ultrarrápido com Hot Module Replacement (HMR).
 - **Recharts 3.7**: Biblioteca para renderização de gráficos estatísticos.
 - **Lucide React**: Biblioteca de ícones vetoriais.
-- **QRCode.React**: Gerador nativo de QR Codes para pagamentos Pix.
+- **QRCode.React**: Gerador nativo de QR Codes para pagamentos Pix e mesas.
 - **Vite Plugin PWA**: Suporte completo a Progressive Web App (PWA) para instalação no celular do cliente.
 
-### **Backend & Infraestrutura**
+### Backend e Infraestrutura
 - **Supabase PostgreSQL**: Banco de dados relacional com Row Level Security (RLS).
 - **Supabase Realtime**: Transmissão WebSockets de alterações na tabela de pedidos em tempo real.
 - **Supabase Auth**: Gerenciamento de acessos do painel administrativo e entregadores.
@@ -144,13 +148,11 @@ graph TD
 
 ```text
 espetinho-vitoria/
-├── docs/
-│   └── screenshots/      # Capturas de tela organizadas (Mobile & Desktop)
 ├── src/
 │   ├── components/       # Componentes reutilizáveis (Header, Navbar, Modais, ThermalReceipt)
 │   ├── context/          # Context API global (StoreContext, AuthContext, ThemeContext)
 │   ├── pages/            # Módulos organizados por perfil de acesso
-│   │   ├── admin/        # Painel Administrativo (Orders, Menu, Customers, Inventory, Reports)
+│   │   ├── admin/        # Painel Administrativo (Orders, Menu, Customers, Inventory, Reports, Tables)
 │   │   ├── customer/     # Cardápio Digital do Cliente
 │   │   └── driver/       # Painel do Entregador
 │   ├── services/         # Clientes de API e comunicação com Supabase
@@ -165,11 +167,11 @@ espetinho-vitoria/
 
 ## Instalação e Execução Local
 
-### **Pré-requisitos**
+### Pré-requisitos
 - **Node.js**: `v18.0.0` ou superior
 - **npm**: `v9.0.0` ou superior
 
-### **Passos para Instalação**
+### Passos para Instalação
 
 1. **Clonar o Repositório:**
    ```bash
@@ -203,5 +205,5 @@ espetinho-vitoria/
 ---
 
 <div align="center">
-  <p>Desenvolvido por <strong>Alan Silva</strong> | Soluções em Automação & Software Empresarial</p>
+  <p>Desenvolvido por <strong>Alan Silva</strong> | Soluções em Automação e Software Empresarial</p>
 </div>
