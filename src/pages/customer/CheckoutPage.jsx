@@ -95,12 +95,16 @@ export default function CheckoutPage() {
         fetchFee()
     }, [tipoPedido, addressData.bairro])
 
-    const total = subtotal + taxaEntrega
-
     const [formaPagamento, setFormaPagamento] = useState('pix')
+    const [cartaoExpandido, setCartaoExpandido] = useState(false)
     const [precisaTroco, setPrecisaTroco] = useState(false)
     const [trocoPara, setTrocoPara] = useState('')
     const [observacoes, setObservacoes] = useState('')
+
+    const isCartao = formaPagamento === 'cartao_credito' || formaPagamento === 'cartao_debito'
+    const subtotalComEntrega = subtotal + taxaEntrega
+    const taxaCartao = isCartao ? Math.round(subtotalComEntrega * 0.05 * 100) / 100 : 0
+    const total = subtotalComEntrega + taxaCartao
     const [nomeRetirada, setNomeRetirada] = useState(customer?.nome || '')
     const [telefoneMesa, setTelefoneMesa] = useState('')
     const [comandaDataLoaded, setComandaDataLoaded] = useState(false)
@@ -353,6 +357,7 @@ export default function CheckoutPage() {
                 tipo_pedido: tipoPedido,
                 subtotal,
                 taxa_entrega: taxaEntrega,
+                taxa_cartao: taxaCartao,
                 valor_total: total,
                 forma_pagamento: tipoPedido === 'mesa' ? 'pagar_na_mesa' : formaPagamento,
                 metodo_pagamento: tipoPedido === 'mesa' ? 'pagar_na_mesa' : formaPagamento,
@@ -617,15 +622,34 @@ export default function CheckoutPage() {
                         <div className="checkout-card">
                             <div className="checkout-payment-options">
                                 <label className={`checkout-payment ${formaPagamento === 'pix' ? 'checkout-payment--active' : ''}`}>
-                                    <input type="radio" name="pagamento" checked={formaPagamento === 'pix'} onChange={() => setFormaPagamento('pix')} />
+                                    <input type="radio" name="pagamento" checked={formaPagamento === 'pix'} onChange={() => { setFormaPagamento('pix'); setCartaoExpandido(false) }} />
                                     <span>💠 PIX</span>
                                 </label>
-                                <label className={`checkout-payment ${formaPagamento === 'cartao_entrega' ? 'checkout-payment--active' : ''}`}>
-                                    <input type="radio" name="pagamento" checked={formaPagamento === 'cartao_entrega'} onChange={() => setFormaPagamento('cartao_entrega')} />
-                                    <span>💳 Cartão (Entrega)</span>
-                                </label>
+                                <div className={`checkout-payment-card-group ${cartaoExpandido || isCartao ? 'checkout-payment-card-group--open' : ''}`}>
+                                    <div
+                                        className={`checkout-payment checkout-payment-card-header ${isCartao ? 'checkout-payment--active' : ''}`}
+                                        onClick={() => setCartaoExpandido(!cartaoExpandido)}
+                                    >
+                                        <span>💳 Cartão</span>
+                                        <span className={`checkout-payment-card-arrow ${cartaoExpandido || isCartao ? 'checkout-payment-card-arrow--open' : ''}`}>▾</span>
+                                    </div>
+                                    {(cartaoExpandido || isCartao) && (
+                                        <div className="checkout-payment-card-suboptions">
+                                            <label className={`checkout-payment checkout-payment--sub ${formaPagamento === 'cartao_credito' ? 'checkout-payment--active' : ''}`}>
+                                                <input type="radio" name="pagamento" checked={formaPagamento === 'cartao_credito'} onChange={() => setFormaPagamento('cartao_credito')} />
+                                                <span>Crédito</span>
+                                                <span className="checkout-payment-fee-badge">+5% taxa</span>
+                                            </label>
+                                            <label className={`checkout-payment checkout-payment--sub ${formaPagamento === 'cartao_debito' ? 'checkout-payment--active' : ''}`}>
+                                                <input type="radio" name="pagamento" checked={formaPagamento === 'cartao_debito'} onChange={() => setFormaPagamento('cartao_debito')} />
+                                                <span>Débito</span>
+                                                <span className="checkout-payment-fee-badge">+5% taxa</span>
+                                            </label>
+                                        </div>
+                                    )}
+                                </div>
                                 <label className={`checkout-payment ${formaPagamento === 'dinheiro' ? 'checkout-payment--active' : ''}`}>
-                                    <input type="radio" name="pagamento" checked={formaPagamento === 'dinheiro'} onChange={() => setFormaPagamento('dinheiro')} />
+                                    <input type="radio" name="pagamento" checked={formaPagamento === 'dinheiro'} onChange={() => { setFormaPagamento('dinheiro'); setCartaoExpandido(false) }} />
                                     <span>💵 Dinheiro</span>
                                 </label>
                             </div>
@@ -700,6 +724,12 @@ export default function CheckoutPage() {
                                 <div className="checkout-totals__row">
                                     <span>Taxa de Entrega</span>
                                     <span>{formatCurrency(taxaEntrega)}</span>
+                                </div>
+                            )}
+                            {taxaCartao > 0 && (
+                                <div className="checkout-totals__row checkout-totals__row--fee">
+                                    <span>Taxa Cartão (5%)</span>
+                                    <span>{formatCurrency(taxaCartao)}</span>
                                 </div>
                             )}
                             <div className="checkout-totals__total">

@@ -128,6 +128,7 @@ export function useOrders() {
                         tipo_pedido: orderData.tipo_pedido,
                         subtotal: orderData.subtotal,
                         taxa_entrega: orderData.taxa_entrega || 0,
+                        taxa_cartao: orderData.taxa_cartao || 0,
                         valor_total: orderData.valor_total,
                         valor_upsell: orderData.valor_upsell || 0,
                         forma_pagamento: orderData.forma_pagamento,

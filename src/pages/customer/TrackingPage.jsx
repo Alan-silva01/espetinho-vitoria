@@ -207,7 +207,16 @@ export default function TrackingPage() {
                                     <strong>{formatCurrency(order.valor_total)}</strong>
                                 </div>
                                 <div className="tracking-items-list__sub-info">
-                                    <span>Pagamento: {order.forma_pagamento}</span>
+                                    <span>
+                                        Pagamento: {
+                                            order.forma_pagamento === 'cartao_credito' ? 'Cartão Crédito (+5%)' :
+                                            order.forma_pagamento === 'cartao_debito' ? 'Cartão Débito (+5%)' :
+                                            order.forma_pagamento === 'pix' ? 'PIX' :
+                                            order.forma_pagamento === 'dinheiro' ? 'Dinheiro' :
+                                            order.forma_pagamento
+                                        }
+                                    </span>
+                                    {order.taxa_cartao > 0 && <span> • Taxa cartão: {formatCurrency(order.taxa_cartao)}</span>}
                                     {order.troco_para && <span> • Troco p/ {formatCurrency(order.troco_para)}</span>}
                                 </div>
                             </div>

@@ -177,6 +177,12 @@ export default function ThermalReceipt({ order }) {
                             <span>{formatCurrency(order.taxa_entrega)}</span>
                         </div>
                     )}
+                    {order.taxa_cartao > 0 && (
+                        <div className="receipt-total-row">
+                            <span>TAXA CARTÃO (5%)</span>
+                            <span>{formatCurrency(order.taxa_cartao)}</span>
+                        </div>
+                    )}
                     <div className="receipt-total-big">
                         <span>TOTAL</span>
                         <span>{formatCurrency(order.valor_total)}</span>
@@ -188,7 +194,11 @@ export default function ThermalReceipt({ order }) {
                 <div className="receipt-section">
                     <div className="receipt-section-title">FORMA DE PAGAMENTO</div>
                     <div className="receipt-data-row">
-                        <span>{order.forma_pagamento?.toUpperCase()}</span>
+                        <span>{
+                            order.forma_pagamento === 'cartao_credito' ? 'CARTÃO CRÉDITO (+5%)' :
+                            order.forma_pagamento === 'cartao_debito' ? 'CARTÃO DÉBITO (+5%)' :
+                            order.forma_pagamento?.toUpperCase()
+                        }</span>
                         <span>{formatCurrency(order.valor_total)}</span>
                     </div>
                     {order.troco_para && (

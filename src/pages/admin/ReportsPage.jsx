@@ -242,14 +242,20 @@ export default function ReportsPage() {
 
                 // Payment distribution
                 const payments = validOrders.reduce((acc, o) => {
-                    const method = o.forma_pagamento?.toUpperCase() || 'OUTROS'
+                    let method = o.forma_pagamento?.toLowerCase() || 'outros'
+                    if (method === 'cartao_credito') method = 'CRÉDITO'
+                    else if (method === 'cartao_debito') method = 'DÉBITO'
+                    else if (method === 'cartao_entrega' || method.includes('cartao')) method = 'CARTÃO'
+                    else if (method === 'pix') method = 'PIX'
+                    else if (method === 'dinheiro') method = 'DINHEIRO'
+                    else method = method.toUpperCase()
                     acc[method] = (acc[method] || 0) + 1
                     return acc
                 }, {})
                 setPaymentData(Object.entries(payments).map(([name, count]) => ({
                     name,
                     value: Math.round((count / validOrders.length) * 100),
-                    color: name === 'PIX' ? '#22C55E' : name === 'CREDITO' ? '#3B82F6' : '#9CA3AF'
+                    color: name === 'PIX' ? '#22C55E' : name === 'CRÉDITO' ? '#3B82F6' : name === 'DÉBITO' ? '#06B6D4' : name === 'DINHEIRO' ? '#F59E0B' : '#9CA3AF'
                 })))
 
                 // Category performance

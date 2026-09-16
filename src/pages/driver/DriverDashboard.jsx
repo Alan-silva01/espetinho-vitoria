@@ -30,6 +30,8 @@ function getPaymentLabel(forma) {
     const metodo = forma || '';
     if (metodo === 'pix') return 'PIX'
     if (metodo === 'dinheiro') return 'Dinheiro'
+    if (metodo === 'cartao_credito') return 'Cartão Crédito (+5%)'
+    if (metodo === 'cartao_debito') return 'Cartão Débito (+5%)'
     if (metodo?.includes('cartao')) return 'Cartão'
     return metodo || '--'
 }

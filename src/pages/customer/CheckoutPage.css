@@ -201,6 +201,91 @@
     gap: 8px;
 }
 
+/* Card expandable group */
+.checkout-payment-card-group {
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.checkout-payment-card-group--open {
+    border-color: var(--cor-primaria);
+}
+
+.checkout-payment-card-header {
+    border: none !important;
+    border-radius: 0 !important;
+    justify-content: space-between;
+    cursor: pointer;
+    user-select: none;
+}
+
+.checkout-payment-card-arrow {
+    font-size: 18px;
+    transition: transform 0.3s ease;
+    color: #9ca3af;
+    line-height: 1;
+}
+
+.checkout-payment-card-arrow--open {
+    transform: rotate(180deg);
+    color: var(--cor-primaria);
+}
+
+.checkout-payment-card-suboptions {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border-top: 1px solid #f0f0f0;
+    animation: slideDown 0.25s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        max-height: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        max-height: 120px;
+        transform: translateY(0);
+    }
+}
+
+.checkout-payment--sub {
+    border: none !important;
+    border-radius: 0 !important;
+    padding-left: 24px;
+    background: #fafafa;
+}
+
+.checkout-payment--sub + .checkout-payment--sub {
+    border-top: 1px solid #f0f0f0 !important;
+}
+
+.checkout-payment--sub.checkout-payment--active {
+    background: rgba(196, 30, 46, 0.05);
+}
+
+.checkout-payment-fee-badge {
+    margin-left: auto;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    color: #dc2626;
+    background: #fef2f2;
+    padding: 2px 8px;
+    border-radius: 12px;
+    white-space: nowrap;
+}
+
+/* Card fee line in totals */
+.checkout-totals__row--fee {
+    color: #dc2626;
+    font-weight: 500;
+}
+
 
 /* Change */
 .checkout-change {
