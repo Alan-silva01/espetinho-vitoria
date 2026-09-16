@@ -58,6 +58,141 @@
 .btn-add-premium:hover { opacity: 0.9; }
 .btn-add-premium svg { width: 14px; height: 14px; stroke-width: 1.5; }
 
+/* Card Fees Section */
+.card-fees-section {
+    margin-bottom: 20px;
+}
+
+.card-fees-card {
+    background: #ffffff;
+    border: 1px solid #DFDFDF;
+    border-radius: 8px;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.card-fees-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-fees-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.card-fees-title svg {
+    flex-shrink: 0;
+}
+
+.card-fees-title h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #171717;
+    margin: 0 0 2px 0;
+}
+
+.card-fees-title p {
+    font-size: 12px;
+    color: #737373;
+    margin: 0;
+}
+
+.card-fees-form {
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.card-fees-inputs {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.card-fee-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.card-fee-input-group label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #404040;
+}
+
+.card-fee-field {
+    display: flex;
+    align-items: center;
+    background: #f9fafb;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    padding: 6px 10px;
+    height: 36px;
+    width: 110px;
+    transition: all 0.2s;
+}
+
+.card-fee-field:focus-within {
+    border-color: #C41E2E;
+    background: #ffffff;
+    box-shadow: 0 0 0 2px rgba(196, 30, 46, 0.1);
+}
+
+.card-fee-field input {
+    border: none;
+    outline: none;
+    background: transparent;
+    width: 100%;
+    font-size: 13px;
+    font-weight: 600;
+    color: #171717;
+}
+
+.fee-symbol {
+    font-size: 13px;
+    font-weight: 600;
+    color: #6b7280;
+    margin-left: 4px;
+}
+
+.btn-save-card-fees {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #171717;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    height: 36px;
+    transition: all 0.15s;
+}
+
+.btn-save-card-fees:hover:not(:disabled) {
+    background: #C41E2E;
+}
+
+.btn-save-card-fees:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-save-card-fees svg {
+    width: 14px;
+    height: 14px;
+}
+
 /* Controls */
 .freight-controls {
     display: flex;

@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react'
-import { Plus, Trash2, Edit3, X, MapPin, Truck, Search, AlertCircle, CheckCircle2 } from 'lucide-react'
+import { Plus, Trash2, Edit3, X, MapPin, Truck, Search, AlertCircle, CheckCircle2, CreditCard, Percent, Save } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { formatCurrency } from '../../lib/utils'
 import './FreightPage.css'
-
-
 
 export default function FreightPage() {
     const [loading, setLoading] = useState(true)
@@ -13,13 +11,75 @@ export default function FreightPage() {
     const [isAdding, setIsAdding] = useState(false)
     const [feedback, setFeedback] = useState({ type: '', msg: '' })
 
+    // Card fees state (from configuracoes_loja)
+    const [taxaCredito, setTaxaCredito] = useState('5.0')
+    const [taxaDebito, setTaxaDebito] = useState('5.0')
+    const [savingCardFees, setSavingCardFees] = useState(false)
+
     // Form state
     const [formData, setFormData] = useState({ local: '', valor_frete: '' })
     const [editingId, setEditingId] = useState(null)
 
     useEffect(() => {
         fetchFreightFees()
+        fetchCardFees()
     }, [])
+
+    async function fetchCardFees() {
+        try {
+            const { data, error } = await supabase
+                .from('configuracoes_loja')
+                .select('taxa_cartao_credito, taxa_cartao_debito')
+                .single()
+            if (error) throw error
+            if (data) {
+                if (data.taxa_cartao_credito !== null && data.taxa_cartao_credito !== undefined) {
+                    setTaxaCredito(String(data.taxa_cartao_credito))
+                }
+                if (data.taxa_cartao_debito !== null && data.taxa_cartao_debito !== undefined) {
+                    setTaxaDebito(String(data.taxa_cartao_debito))
+                }
+            }
+        } catch (err) {
+            console.error('Erro ao buscar taxas de cartão:', err)
+        }
+    }
+
+    async function handleSaveCardFees(e) {
+        e.preventDefault()
+        const cred = parseFloat(taxaCredito)
+        const deb = parseFloat(taxaDebito)
+        if (isNaN(cred) || cred < 0 || isNaN(deb) || deb < 0) {
+            showFeedback('error', 'Informe porcentagens válidas para as taxas de cartão')
+            return
+        }
+
+        setSavingCardFees(true)
+        try {
+            const { data: storeConfig } = await supabase
+                .from('configuracoes_loja')
+                .select('id')
+                .single()
+
+            if (!storeConfig?.id) throw new Error('Configuração da loja não encontrada')
+
+            const { error } = await supabase
+                .from('configuracoes_loja')
+                .update({
+                    taxa_cartao_credito: cred,
+                    taxa_cartao_debito: deb
+                })
+                .eq('id', storeConfig.id)
+
+            if (error) throw error
+            showFeedback('success', 'Taxas de cartão atualizadas com sucesso!')
+        } catch (err) {
+            console.error('Erro ao salvar taxas de cartão:', err)
+            showFeedback('error', 'Erro ao salvar taxas: ' + err.message)
+        } finally {
+            setSavingCardFees(false)
+        }
+    }
 
     async function fetchFreightFees() {
         setLoading(true)
@@ -127,6 +187,68 @@ export default function FreightPage() {
                     </button>
                 </div>
             </header>
+
+            {/* CARD FEES CONFIGURATION SECTION */}
+            <section className="card-fees-section">
+                <div className="card-fees-card">
+                    <div className="card-fees-header">
+                        <div className="card-fees-title">
+                            <CreditCard size={18} color="#C41E2E" />
+                            <div>
+                                <h3>Taxas da Maquininha de Cartão</h3>
+                                <p>Defina a porcentagem de acréscimo cobrada no checkout para pagamentos em cartão.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form className="card-fees-form" onSubmit={handleSaveCardFees}>
+                        <div className="card-fees-inputs">
+                            <div className="card-fee-input-group">
+                                <label>Crédito (%)</label>
+                                <div className="card-fee-field">
+                                    <input
+                                        type="number"
+                                        step="0.1"
+                                        min="0"
+                                        max="100"
+                                        value={taxaCredito}
+                                        onChange={e => setTaxaCredito(e.target.value)}
+                                        placeholder="Ex: 5"
+                                        required
+                                    />
+                                    <span className="fee-symbol">%</span>
+                                </div>
+                            </div>
+
+                            <div className="card-fee-input-group">
+                                <label>Débito (%)</label>
+                                <div className="card-fee-field">
+                                    <input
+                                        type="number"
+                                        step="0.1"
+                                        min="0"
+                                        max="100"
+                                        value={taxaDebito}
+                                        onChange={e => setTaxaDebito(e.target.value)}
+                                        placeholder="Ex: 5"
+                                        required
+                                    />
+                                    <span className="fee-symbol">%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button
+                            type="submit"
+                            className="btn-save-card-fees"
+                            disabled={savingCardFees}
+                        >
+                            <Save size={16} />
+                            <span>{savingCardFees ? 'Salvando...' : 'Salvar Taxas'}</span>
+                        </button>
+                    </form>
+                </div>
+            </section>
 
             <div className="freight-controls">
                 <div className="search-box-premium">

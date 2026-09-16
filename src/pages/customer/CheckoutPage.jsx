@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, MapPin, CreditCard, Receipt, Edit3, CheckCircle, User, X, AlertTriangle } from 'lucide-react'
 import { useCart } from '../../hooks/useCart'
 import { useOrders } from '../../hooks/useOrders'
+import { useStore } from '../../hooks/useStore'
 import { useCustomer } from '../../context/CustomerContext'
 import { formatCurrency, getImageUrl, filterPersonalizacao } from '../../lib/utils'
 import { supabase } from '../../lib/supabase'
@@ -15,6 +16,7 @@ export default function CheckoutPage() {
     const { customerCode } = useParams()
     const { items, subtotal, clearCart, removeItem } = useCart()
     const { createOrder, loading } = useOrders()
+    const { config } = useStore()
     const { customer, updateLastOrder } = useCustomer()
     const [isSubmitting, setIsSubmitting] = useState(false)
     const submitLockRef = useRef(false)
@@ -103,7 +105,12 @@ export default function CheckoutPage() {
 
     const isCartao = formaPagamento === 'cartao_credito' || formaPagamento === 'cartao_debito'
     const subtotalComEntrega = subtotal + taxaEntrega
-    const taxaCartao = isCartao ? Math.round(subtotalComEntrega * 0.05 * 100) / 100 : 0
+
+    const pctCredito = config?.taxa_cartao_credito !== undefined && config?.taxa_cartao_credito !== null ? Number(config.taxa_cartao_credito) : 5
+    const pctDebito = config?.taxa_cartao_debito !== undefined && config?.taxa_cartao_debito !== null ? Number(config.taxa_cartao_debito) : 5
+    const pctCartaoAtual = formaPagamento === 'cartao_credito' ? pctCredito : (formaPagamento === 'cartao_debito' ? pctDebito : 0)
+
+    const taxaCartao = isCartao && pctCartaoAtual > 0 ? Math.round(subtotalComEntrega * (pctCartaoAtual / 100) * 100) / 100 : 0
     const total = subtotalComEntrega + taxaCartao
     const [nomeRetirada, setNomeRetirada] = useState(customer?.nome || '')
     const [telefoneMesa, setTelefoneMesa] = useState('')
@@ -638,12 +645,16 @@ export default function CheckoutPage() {
                                             <label className={`checkout-payment checkout-payment--sub ${formaPagamento === 'cartao_credito' ? 'checkout-payment--active' : ''}`}>
                                                 <input type="radio" name="pagamento" checked={formaPagamento === 'cartao_credito'} onChange={() => setFormaPagamento('cartao_credito')} />
                                                 <span>Crédito</span>
-                                                <span className="checkout-payment-fee-badge">+5% taxa</span>
+                                                {pctCredito > 0 && (
+                                                    <span className="checkout-payment-fee-badge">+{pctCredito}% taxa</span>
+                                                )}
                                             </label>
                                             <label className={`checkout-payment checkout-payment--sub ${formaPagamento === 'cartao_debito' ? 'checkout-payment--active' : ''}`}>
                                                 <input type="radio" name="pagamento" checked={formaPagamento === 'cartao_debito'} onChange={() => setFormaPagamento('cartao_debito')} />
                                                 <span>Débito</span>
-                                                <span className="checkout-payment-fee-badge">+5% taxa</span>
+                                                {pctDebito > 0 && (
+                                                    <span className="checkout-payment-fee-badge">+{pctDebito}% taxa</span>
+                                                )}
                                             </label>
                                         </div>
                                     )}
@@ -728,7 +739,7 @@ export default function CheckoutPage() {
                             )}
                             {taxaCartao > 0 && (
                                 <div className="checkout-totals__row checkout-totals__row--fee">
-                                    <span>Taxa Cartão (5%)</span>
+                                    <span>Taxa Cartão ({pctCartaoAtual}%)</span>
                                     <span>{formatCurrency(taxaCartao)}</span>
                                 </div>
                             )}
