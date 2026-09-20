@@ -4,29 +4,33 @@ import { CartProvider } from './hooks/useCart'
 import Loading from './components/ui/Loading'
 // PWA: passive update strategy — NEVER auto-reload the page
 // Users get the latest version naturally on their next manual refresh
-try {
-  const { registerSW } = await import('virtual:pwa-register')
-  const updateSW = registerSW({
-    onRegisteredSW(swUrl, registration) {
-      if (registration) {
-        // Check for SW updates every 5 minutes (no page reload)
-        setInterval(() => {
-          registration.update()
-        }, 5 * 60 * 1000)
+// NOTE: Wrapped in async IIFE (not top-level await) for compatibility with
+// older Safari, Android WebViews, and in-app browsers (Instagram, WhatsApp, etc.)
+;(async () => {
+  try {
+    const { registerSW } = await import('virtual:pwa-register')
+    registerSW({
+      onRegisteredSW(swUrl, registration) {
+        if (registration) {
+          // Check for SW updates every 5 minutes (no page reload)
+          setInterval(() => {
+            registration.update()
+          }, 5 * 60 * 1000)
+        }
+      },
+      onNeedRefresh() {
+        // DO NOT call updateSW(true) — that triggers location.reload()
+        // which causes reload storms when multiple tabs are open
+        console.log('[PWA] New version available — will apply on next manual refresh')
+      },
+      onOfflineReady() {
+        console.log('[PWA] App ready for offline use')
       }
-    },
-    onNeedRefresh() {
-      // DO NOT call updateSW(true) — that triggers location.reload()
-      // which causes reload storms when multiple tabs are open
-      console.log('[PWA] New version available — will apply on next manual refresh')
-    },
-    onOfflineReady() {
-      console.log('[PWA] App ready for offline use')
-    }
-  })
-} catch (e) {
-  console.warn('[PWA] Service Worker registration failed — continuing without SW:', e.message)
-}
+    })
+  } catch (e) {
+    console.warn('[PWA] Service Worker registration failed — continuing without SW:', e.message)
+  }
+})()
 
 /* Customer Pages */
 const HomePage = lazy(() => import('./pages/customer/HomePage'))

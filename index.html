@@ -147,7 +147,13 @@
 </head>
 
 <body>
-  <div id="root"></div>
+  <div id="root">
+    <!-- Fallback visual: aparece enquanto JS carrega. React substitui ao montar. -->
+    <div id="app-loader" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#fff">
+      <img src="/logo.png" alt="Espetinho Vitória" style="width:80px;height:auto;margin-bottom:16px" />
+      <p style="color:#888;font-size:14px;margin:0">Carregando...</p>
+    </div>
+  </div>
   <script type="module" src="/src/main.jsx"></script>
 </body>
 
