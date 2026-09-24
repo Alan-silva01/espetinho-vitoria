@@ -1,0 +1,17 @@
+{
+  "testCommand": "node --test --test-reporter=tap",
+  "reporter": "tap",
+  "testGlobs": [
+    "test/**",
+    "tests/**",
+    "src/**/*.test.*",
+    "src/**/*.spec.*",
+    "__tests__/**"
+  ],
+  "srcGlobs": [
+    "src/App.jsx",
+    "src/components/ui/OptimizedImage.jsx",
+    "src/components/ui/OptimizedImage.css",
+    "index.html"
+  ]
+}

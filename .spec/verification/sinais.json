@@ -1,0 +1,968 @@
+{
+  "schema": 1,
+  "sinais": {
+    "ARQUIVO_ORFAO::—::src/App.css": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/App.css",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.400Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/assets/react.svg": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/assets/react.svg",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/components/ErrorBoundary.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/components/ErrorBoundary.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/components/admin/AdminSidebar.css": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/components/admin/AdminSidebar.css",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/components/admin/AdminSidebar.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/components/admin/AdminSidebar.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/components/admin/CreateOrderModal.css": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/components/admin/CreateOrderModal.css",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/components/admin/CreateOrderModal.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/components/admin/CreateOrderModal.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/components/admin/KanbanOrderCard.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/components/admin/KanbanOrderCard.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/components/admin/OrderDetailModal.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/components/admin/OrderDetailModal.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/components/admin/ThermalReceipt.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/components/admin/ThermalReceipt.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/components/customer/BottomNav.css": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/components/customer/BottomNav.css",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/components/customer/BottomNav.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/components/customer/BottomNav.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/components/customer/OutOfStockModal.css": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/components/customer/OutOfStockModal.css",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/components/customer/OutOfStockModal.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/components/customer/OutOfStockModal.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/components/customer/PromoMarquee.css": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/components/customer/PromoMarquee.css",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/components/customer/PromoMarquee.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/components/customer/PromoMarquee.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/components/customer/StockWarningModal.css": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/components/customer/StockWarningModal.css",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/components/customer/StockWarningModal.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/components/customer/StockWarningModal.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/components/customer/StoreClosedOverlay.css": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/components/customer/StoreClosedOverlay.css",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/components/customer/StoreClosedOverlay.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/components/customer/StoreClosedOverlay.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/components/ui/Badge.css": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/components/ui/Badge.css",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/components/ui/Badge.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/components/ui/Badge.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/components/ui/Button.css": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/components/ui/Button.css",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/components/ui/Button.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/components/ui/Button.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/components/ui/Dialog.css": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/components/ui/Dialog.css",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/components/ui/Dialog.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/components/ui/Dialog.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/components/ui/Loading.css": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/components/ui/Loading.css",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/components/ui/Loading.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/components/ui/Loading.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/components/ui/Modal.css": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/components/ui/Modal.css",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/components/ui/Modal.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/components/ui/Modal.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/components/ui/SkeletonLoader.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/components/ui/SkeletonLoader.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/context/AuthContext.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/context/AuthContext.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/context/CustomerContext.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/context/CustomerContext.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/context/NotificationSoundContext.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/context/NotificationSoundContext.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/context/StoreContext.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/context/StoreContext.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/hooks/useAuth.js": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/hooks/useAuth.js",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/hooks/useCart.js": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/hooks/useCart.js",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/hooks/useDriverAuth.js": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/hooks/useDriverAuth.js",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/hooks/useFavorites.js": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/hooks/useFavorites.js",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/hooks/useInventory.js": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/hooks/useInventory.js",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/hooks/useOrderNotificationSound.js": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/hooks/useOrderNotificationSound.js",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/hooks/useOrders.js": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/hooks/useOrders.js",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/hooks/useProducts.js": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/hooks/useProducts.js",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/hooks/useQzTray.js": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/hooks/useQzTray.js",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/hooks/useStore.js": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/hooks/useStore.js",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/hooks/useVisibilityRefresh.js": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/hooks/useVisibilityRefresh.js",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/index.css": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/index.css",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/layouts/AdminLayout.css": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/layouts/AdminLayout.css",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/layouts/AdminLayout.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/layouts/AdminLayout.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/layouts/CustomerLayout.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/layouts/CustomerLayout.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/layouts/admin.design-system.css": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/layouts/admin.design-system.css",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/lib/cloudinary.js": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/lib/cloudinary.js",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/lib/supabase.js": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/lib/supabase.js",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/lib/utils.js": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/lib/utils.js",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/main.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/main.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/admin/CustomersPage.css": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/admin/CustomersPage.css",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/admin/CustomersPage.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/admin/CustomersPage.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/admin/DashboardPage.css": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/admin/DashboardPage.css",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/admin/DashboardPage.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/admin/DashboardPage.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/admin/DriversPage.css": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/admin/DriversPage.css",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/admin/DriversPage.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/admin/DriversPage.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/admin/FreightPage.css": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/admin/FreightPage.css",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/admin/FreightPage.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/admin/FreightPage.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/admin/InventoryPage.css": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/admin/InventoryPage.css",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/admin/InventoryPage.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/admin/InventoryPage.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/admin/LoginPage.css": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/admin/LoginPage.css",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/admin/LoginPage.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/admin/LoginPage.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/admin/MenuPage.css": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/admin/MenuPage.css",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/admin/MenuPage.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/admin/MenuPage.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/admin/OpeningHoursPage.css": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/admin/OpeningHoursPage.css",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/admin/OpeningHoursPage.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/admin/OpeningHoursPage.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/admin/OrdersPage.css": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/admin/OrdersPage.css",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/admin/OrdersPage.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/admin/OrdersPage.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/admin/PromosPage.css": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/admin/PromosPage.css",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/admin/PromosPage.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/admin/PromosPage.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/admin/PromotionsPage.css": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/admin/PromotionsPage.css",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/admin/PromotionsPage.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/admin/PromotionsPage.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/admin/ReportsPage.css": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/admin/ReportsPage.css",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/admin/ReportsPage.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/admin/ReportsPage.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/admin/SettingsPage.css": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/admin/SettingsPage.css",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/admin/SettingsPage.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/admin/SettingsPage.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/admin/TablesPage.css": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/admin/TablesPage.css",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/admin/TablesPage.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/admin/TablesPage.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/customer/CartPage.css": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/customer/CartPage.css",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/customer/CartPage.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/customer/CartPage.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/customer/CheckoutPage.css": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/customer/CheckoutPage.css",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/customer/CheckoutPage.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/customer/CheckoutPage.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/customer/FavoritesPage.css": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/customer/FavoritesPage.css",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/customer/FavoritesPage.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/customer/FavoritesPage.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/customer/HomePage.css": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/customer/HomePage.css",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/customer/HomePage.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/customer/HomePage.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/customer/OrdersListPage.css": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/customer/OrdersListPage.css",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/customer/OrdersListPage.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/customer/OrdersListPage.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/customer/PlaceholderPages.css": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/customer/PlaceholderPages.css",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/customer/ProductPage.css": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/customer/ProductPage.css",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/customer/ProductPage.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/customer/ProductPage.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/customer/ProfilePage.css": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/customer/ProfilePage.css",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/customer/ProfilePage.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/customer/ProfilePage.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/customer/TableMenuPage.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/customer/TableMenuPage.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/customer/TrackingPage.css": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/customer/TrackingPage.css",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/customer/TrackingPage.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/customer/TrackingPage.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/driver/DriverDashboard.css": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/driver/DriverDashboard.css",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/driver/DriverDashboard.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/driver/DriverDashboard.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/driver/DriverLoginPage.css": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/driver/DriverLoginPage.css",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/pages/driver/DriverLoginPage.jsx": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/pages/driver/DriverLoginPage.jsx",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/services/n8nService.js": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/services/n8nService.js",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    },
+    "ARQUIVO_ORFAO::—::src/sw.js": {
+      "codigo": "ARQUIVO_ORFAO",
+      "feature": "—",
+      "ref": "src/sw.js",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-09-20T21:34:53.401Z",
+      "ultimaVez": "2026-09-20T21:34:53.401Z",
+      "gitRev": "e6c9731"
+    }
+  }
+}

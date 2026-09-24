@@ -9,6 +9,7 @@ import { optimizeUrl } from '../../lib/cloudinary'
 import Loading from '../../components/ui/Loading'
 import OptimizedImage from '../../components/ui/OptimizedImage'
 import StockWarningModal from '../../components/customer/StockWarningModal'
+import { validateAllOptions } from '../../lib/stockValidator'
 import './ProductPage.css'
 
 // Helper: normalize option to always get the name string
@@ -497,16 +498,6 @@ export default function ProductPage() {
         return 'Adicionar'
     }
 
-    function getOptionStock(optName) {
-        if (!optName || !products?.length) return null
-        const nameLower = String(optName).trim().toLowerCase()
-        const found = products.find(p => p?.nome && String(p.nome).trim().toLowerCase() === nameLower)
-        if (found && found.controlar_estoque) {
-            return found.quantidade_disponivel || 0
-        }
-        return null
-    }
-
     function handleAdd(e) {
         // 1. Check main product stock
         if (product.controlar_estoque) {
@@ -524,37 +515,15 @@ export default function ProductPage() {
             }
         }
 
-        // 2. Check accompaniments / options stock
-        for (const [, val] of Object.entries(selectedOptions)) {
-            const selectedList = Array.isArray(val) ? val : [val]
-            for (const optName of selectedList) {
-                if (!optName || typeof optName !== 'string') continue
-                const optStock = getOptionStock(optName)
-                if (optStock !== null) {
-                    let inCartCount = 0
-                    cartItems.forEach(cartItem => {
-                        if (!cartItem.personalizacao) return
-                        Object.values(cartItem.personalizacao).forEach(pVal => {
-                            const pList = Array.isArray(pVal) ? pVal : [pVal]
-                            pList.forEach(name => {
-                                if (typeof name === 'string' && name.trim().toLowerCase() === optName.trim().toLowerCase()) {
-                                    inCartCount += (cartItem.quantidade || 1)
-                                }
-                            })
-                        })
-                    })
-
-                    const requestedCount = inCartCount + (qty * 1)
-                    if (requestedCount > optStock) {
-                        setStockWarning({
-                            open: true,
-                            productName: optName,
-                            availableQty: Math.max(0, optStock - inCartCount)
-                        })
-                        return
-                    }
-                }
-            }
+        // 2. Check accompaniments / options stock using pure stockValidator
+        const optionValidation = validateAllOptions(selectedOptions, qty, products, cartItems)
+        if (!optionValidation.valid) {
+            setStockWarning({
+                open: true,
+                productName: optionValidation.productName,
+                availableQty: optionValidation.availableQty ?? 0
+            })
+            return
         }
 
         // Build options summary for display
@@ -932,8 +901,8 @@ export default function ProductPage() {
             <StockWarningModal
                 isOpen={stockWarning.open}
                 onClose={() => setStockWarning(prev => ({ ...prev, open: false }))}
-                productName={stockWarning.product}
-                availableQty={stockWarning.qty}
+                productName={stockWarning.productName || stockWarning.product}
+                availableQty={stockWarning.availableQty !== undefined ? stockWarning.availableQty : stockWarning.qty}
             />
         </div>
     )

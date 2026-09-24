@@ -1,0 +1,32 @@
+{
+  "feature": "fix-tela-preta",
+  "timestamp": "2026-09-20T21:34:47.465Z",
+  "gitRev": "e6c9731",
+  "command": "node --test --test-reporter=tap",
+  "reporter": "tap",
+  "exitCode": 0,
+  "testsParsed": 4,
+  "results": {
+    "AC-001": {
+      "status": "pass",
+      "testName": "AC-001: App.jsx não usa top-level await @spec:AC-001",
+      "method": "tap"
+    },
+    "AC-002": {
+      "status": "pass",
+      "testName": "AC-002: PWA continua sendo registrado @spec:AC-002",
+      "method": "tap"
+    },
+    "AC-003": {
+      "status": "pass",
+      "testName": "AC-003: HTML mostra fallback visual se JS falhar @spec:AC-003",
+      "method": "tap"
+    },
+    "AC-004": {
+      "status": "pass",
+      "testName": "AC-004: OptimizedImage não usa style jsx @spec:AC-004",
+      "method": "tap"
+    }
+  },
+  "principles": {}
+}
