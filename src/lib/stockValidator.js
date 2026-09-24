@@ -20,36 +20,98 @@ function normalizeText(text) {
 }
 
 /**
- * Busca o estoque disponível de uma opção (ex: "Arroz Baião") no catálogo de produtos.
- * Retorna null se o produto não existe ou não tem controle de estoque ativo.
+ * Busca o estoque disponível de uma opção (ex: "Arroz Baião") no catálogo de produtos
+ * ou dentro das opções de personalização (ex: opcoes_personalizacao de um produto).
+ * Retorna null se não houver controle de estoque definido.
  * Suporta correspondência exata ou normalizada/insensível a acentuação e substring.
  *
  * @param {string} optionName - Nome da opção (ex: "Arroz Baião")
- * @param {Array} products - Lista de produtos do catálogo
+ * @param {Array} [products] - Lista de produtos do catálogo
+ * @param {Object|Array} [productOrOptions] - Produto atual ou lista de opções/grupos de personalização
  * @returns {number|null} - Quantidade disponível ou null se sem controle
  */
-export function getOptionStock(optionName, products) {
-    if (!optionName || !products?.length) return null
+export function getOptionStock(optionName, products = [], productOrOptions = null) {
+    if (!optionName) return null
     const nameNorm = normalizeText(optionName)
     if (!nameNorm) return null
 
-    // 1. Procura correspondência exata normalizada (ex: "arroz baiao" === "arroz baiao")
-    let found = products.find(p => p?.nome && normalizeText(p.nome) === nameNorm)
+    // 1. Verificar em productOrOptions (opcoes_personalizacao do produto)
+    if (productOrOptions) {
+        let groups = []
+        if (Array.isArray(productOrOptions)) {
+            // Pode ser um array de grupos ou array de opções
+            groups = productOrOptions
+        } else if (productOrOptions.opcoes_personalizacao && Array.isArray(productOrOptions.opcoes_personalizacao)) {
+            groups = productOrOptions.opcoes_personalizacao
+        }
 
-    // 2. Se não encontrou, procura por substring/inclusão (ex: "Arroz Baião de Dois" contém "Arroz Baião")
-    if (!found) {
-        found = products.find(p => {
-            if (!p?.nome) return false
-            const pNorm = normalizeText(p.nome)
-            return pNorm.includes(nameNorm) || nameNorm.includes(pNorm)
-        })
+        for (const g of groups) {
+            // Se o item for um grupo com 'opcoes'
+            const opts = Array.isArray(g?.opcoes) ? g.opcoes : (g?.nome ? [g] : [])
+            for (const opt of opts) {
+                const oName = typeof opt === 'string' ? opt : (opt?.nome || opt?.name)
+                if (!oName) continue
+                const oNorm = normalizeText(oName)
+                if (oNorm === nameNorm || oNorm.includes(nameNorm) || nameNorm.includes(oNorm)) {
+                    if (typeof opt === 'object' && opt !== null) {
+                        if (opt.quantidade !== undefined && opt.quantidade !== null && opt.quantidade !== '') {
+                            return Number(opt.quantidade)
+                        }
+                        if (opt.quantidade_disponivel !== undefined && opt.quantidade_disponivel !== null) {
+                            return Number(opt.quantidade_disponivel)
+                        }
+                    }
+                }
+            }
+        }
     }
 
-    if (found && found.controlar_estoque) {
-        return found.quantidade_disponivel ?? 0
+    // 2. Verificar no catálogo de produtos (se for produto separado ou se os produtos tiverem opcoes_personalizacao)
+    if (products?.length) {
+        // 2a. Correspondência exata no nome do produto
+        let found = products.find(p => p?.nome && normalizeText(p.nome) === nameNorm)
+
+        // 2b. Correspondência por substring/inclusão
+        if (!found) {
+            found = products.find(p => {
+                if (!p?.nome) return false
+                const pNorm = normalizeText(p.nome)
+                return pNorm.includes(nameNorm) || nameNorm.includes(pNorm)
+            })
+        }
+
+        if (found && found.controlar_estoque) {
+            return found.quantidade_disponivel ?? 0
+        }
+
+        // 2c. Se não achou na linha principal do produto, verificar se algum produto tem a opção nas suas opcoes_personalizacao
+        for (const p of products) {
+            if (p.opcoes_personalizacao && Array.isArray(p.opcoes_personalizacao)) {
+                for (const g of p.opcoes_personalizacao) {
+                    if (!g?.opcoes) continue
+                    for (const opt of g.opcoes) {
+                        const oName = typeof opt === 'string' ? opt : (opt?.nome || opt?.name)
+                        if (!oName) continue
+                        const oNorm = normalizeText(oName)
+                        if (oNorm === nameNorm || oNorm.includes(nameNorm) || nameNorm.includes(oNorm)) {
+                            if (typeof opt === 'object' && opt !== null) {
+                                if (opt.quantidade !== undefined && opt.quantidade !== null && opt.quantidade !== '') {
+                                    return Number(opt.quantidade)
+                                }
+                                if (opt.quantidade_disponivel !== undefined && opt.quantidade_disponivel !== null) {
+                                    return Number(opt.quantidade_disponivel)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
+
     return null
 }
+
 
 /**
  * Conta quantas vezes uma opção já está no carrinho (somando quantidades).
@@ -90,12 +152,13 @@ export function getOptionCartCount(optionName, cartItems) {
  *
  * @param {string} optionName - Nome da opção
  * @param {number} requestedQty - Quantidade sendo pedida agora
- * @param {Array} products - Catálogo de produtos
- * @param {Array} cartItems - Itens no carrinho
+ * @param {Array} [products] - Catálogo de produtos
+ * @param {Array} [cartItems] - Itens no carrinho
+ * @param {Object|Array} [productOrOptions] - Produto atual ou opções de personalização
  * @returns {{ valid: boolean, availableQty: number|null, message: string|null }}
  */
-export function validateOptionStock(optionName, requestedQty, products, cartItems) {
-    const stock = getOptionStock(optionName, products)
+export function validateOptionStock(optionName, requestedQty, products = [], cartItems = [], productOrOptions = null) {
+    const stock = getOptionStock(optionName, products, productOrOptions)
 
     // Sem controle de estoque → sempre válido
     if (stock === null) {
@@ -123,11 +186,12 @@ export function validateOptionStock(optionName, requestedQty, products, cartItem
  *
  * @param {Object} selectedOptions - Mapa { grupoName: valor_ou_array }
  * @param {number} qty - Quantidade do item sendo adicionado
- * @param {Array} products - Catálogo de produtos
- * @param {Array} cartItems - Itens no carrinho
+ * @param {Array} [products] - Catálogo de produtos
+ * @param {Array} [cartItems] - Itens no carrinho
+ * @param {Object|Array} [productOrOptions] - Produto atual ou opções de personalização
  * @returns {{ valid: boolean, availableQty: number|null, productName: string|null, message: string|null }}
  */
-export function validateAllOptions(selectedOptions, qty, products, cartItems) {
+export function validateAllOptions(selectedOptions, qty, products = [], cartItems = [], productOrOptions = null) {
     if (!selectedOptions || typeof selectedOptions !== 'object') {
         return { valid: true, availableQty: null, productName: null, message: null }
     }
@@ -136,7 +200,7 @@ export function validateAllOptions(selectedOptions, qty, products, cartItems) {
         const selectedList = Array.isArray(val) ? val : [val]
         for (const optName of selectedList) {
             if (!optName || typeof optName !== 'string') continue
-            const result = validateOptionStock(optName, qty, products, cartItems)
+            const result = validateOptionStock(optName, qty, products, cartItems, productOrOptions)
             if (!result.valid) {
                 return { ...result, productName: optName }
             }
@@ -145,3 +209,4 @@ export function validateAllOptions(selectedOptions, qty, products, cartItems) {
 
     return { valid: true, availableQty: null, productName: null, message: null }
 }
+

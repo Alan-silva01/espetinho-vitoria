@@ -9,7 +9,7 @@ import { optimizeUrl } from '../../lib/cloudinary'
 import Loading from '../../components/ui/Loading'
 import OptimizedImage from '../../components/ui/OptimizedImage'
 import StockWarningModal from '../../components/customer/StockWarningModal'
-import { validateAllOptions } from '../../lib/stockValidator'
+import { validateAllOptions, validateOptionStock } from '../../lib/stockValidator'
 import './ProductPage.css'
 
 // Helper: normalize option to always get the name string
@@ -413,15 +413,31 @@ export default function ProductPage() {
 
     function handleOptionToggle(group, optionName) {
         const { grupo: groupName, tipo, maximo } = group
+        const current = selectedOptions[groupName] || (tipo === 'radio' ? '' : [])
+        const isCurrentlySelected = tipo === 'radio' ? current === optionName : (Array.isArray(current) && current.includes(optionName))
+
+        // Se estiver selecionando (não desmarcando), valida se tem estoque para a quantidade atual (qty)
+        if (!isCurrentlySelected) {
+            const stockCheck = validateOptionStock(optionName, qty, products, cartItems, product)
+            if (!stockCheck.valid) {
+                setStockWarning({
+                    open: true,
+                    productName: optionName,
+                    availableQty: stockCheck.availableQty ?? 0
+                })
+                return
+            }
+        }
+
         setSelectedOptions(prev => {
-            const current = prev[groupName] || (tipo === 'radio' ? '' : [])
+            const cur = prev[groupName] || (tipo === 'radio' ? '' : [])
 
             if (tipo === 'radio') {
-                return { ...prev, [groupName]: current === optionName ? '' : optionName }
+                return { ...prev, [groupName]: cur === optionName ? '' : optionName }
             }
 
             // checkbox
-            const arr = Array.isArray(current) ? current : []
+            const arr = Array.isArray(cur) ? cur : []
             if (arr.includes(optionName)) {
                 return { ...prev, [groupName]: arr.filter(o => o !== optionName) }
             } else {
@@ -516,7 +532,7 @@ export default function ProductPage() {
         }
 
         // 2. Check accompaniments / options stock using pure stockValidator
-        const optionValidation = validateAllOptions(selectedOptions, qty, products, cartItems)
+        const optionValidation = validateAllOptions(selectedOptions, qty, products, cartItems, product)
         if (!optionValidation.valid) {
             setStockWarning({
                 open: true,
@@ -869,15 +885,26 @@ export default function ProductPage() {
                     <button
                         className="product-footer__qty-btn product-footer__qty-btn--plus"
                         onClick={() => {
+                            const nextQty = qty + 1
                             if (product.controlar_estoque && qty >= product.quantidade_disponivel) {
                                 setStockWarning({
                                     open: true,
-                                    product: product.nome,
-                                    qty: product.quantidade_disponivel
+                                    productName: product.nome,
+                                    availableQty: product.quantidade_disponivel
                                 })
                                 return
                             }
-                            setQty(qty + 1)
+                            // Validar se opções selecionadas suportam a nova quantidade
+                            const optionValidation = validateAllOptions(selectedOptions, nextQty, products, cartItems, product)
+                            if (!optionValidation.valid) {
+                                setStockWarning({
+                                    open: true,
+                                    productName: optionValidation.productName,
+                                    availableQty: optionValidation.availableQty ?? 0
+                                })
+                                return
+                            }
+                            setQty(nextQty)
                         }}
                         disabled={!product.disponivel || (product.controlar_estoque && product.quantidade_disponivel <= 0)}
                     >

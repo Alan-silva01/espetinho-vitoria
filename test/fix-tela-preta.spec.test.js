@@ -29,7 +29,6 @@ function hasTopLevelAwait(source) {
 
   // Track brace depth: when we enter an arrow/function body, depth > 0
   let depth = 0;
-  let inAsyncContext = false;
   const asyncStack = [];
 
   // Tokenize simply by splitting on word boundaries

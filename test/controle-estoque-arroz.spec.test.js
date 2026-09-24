@@ -236,3 +236,114 @@ test('getOptionStock: match por substring (ex: Arroz Baião de Dois vs Arroz Bai
     assert.equal(getOptionStock('Arroz Baião', products), 2);
 });
 
+// ========== AC-009 — Resolução de estoque a partir de opcoes_personalizacao ==========
+
+test('AC-009: getOptionStock extrai estoque direto de opcoes_personalizacao @spec:AC-009', () => {
+    // Objeto de produto no formato real do Supabase:
+    const product = {
+        id: 'prod-espetinho',
+        nome: 'Espetinho de Frango',
+        opcoes_personalizacao: [
+            {
+                grupo: 'Tipo de Arroz',
+                tipo: 'radio',
+                opcoes: [
+                    { nome: 'Baião de Dois', quantidade: 21, disponivel: true },
+                    { nome: 'Arroz com Cenoura', quantidade: 1, disponivel: false },
+                    { nome: 'Arroz com Cuxá', quantidade: 0, disponivel: false },
+                    { nome: 'Arroz sem limite' } // sem controle/sem quantidade
+                ]
+            }
+        ]
+    };
+
+    // 1. Opção com estoque = 1
+    assert.equal(getOptionStock('Arroz com Cenoura', [], product), 1, 'Deveria retornar 1 para Arroz com Cenoura');
+
+    // 2. Opção com estoque = 21
+    assert.equal(getOptionStock('Baião de Dois', [], product), 21, 'Deveria retornar 21 para Baião de Dois');
+
+    // 3. Opção com estoque = 0 (esgotado)
+    assert.equal(getOptionStock('Arroz com Cuxá', [], product), 0, 'Deveria retornar 0 para Arroz com Cuxá');
+
+    // 4. Opção sem quantidade definida
+    assert.equal(getOptionStock('Arroz sem limite', [], product), null, 'Deveria retornar null quando não tem quantidade controlada');
+});
+
+test('AC-009: validateOptionStock com product.opcoes_personalizacao bloqueia quando pedido > estoque @spec:AC-009', () => {
+    const product = {
+        id: 'prod-espetinho',
+        nome: 'Espetinho de Frango',
+        opcoes_personalizacao: [
+            {
+                grupo: 'Tipo de Arroz',
+                tipo: 'radio',
+                opcoes: [
+                    { nome: 'Arroz com Cenoura', quantidade: 1, disponivel: false }
+                ]
+            }
+        ]
+    };
+
+    // Pedir 1 espetinho com Arroz com Cenoura (estoque = 1) -> Válido
+    const res1 = validateOptionStock('Arroz com Cenoura', 1, [], [], product);
+    assert.equal(res1.valid, true, 'Pedir 1 com estoque 1 deveria ser válido');
+
+    // Pedir 2 espetinhos com Arroz com Cenoura (estoque = 1) -> Bloqueado
+    const res2 = validateOptionStock('Arroz com Cenoura', 2, [], [], product);
+    assert.equal(res2.valid, false, 'Pedir 2 com estoque 1 deveria ser BLOQUEADO');
+    assert.equal(res2.availableQty, 1, 'Deveria indicar 1 disponível');
+    assert.ok(res2.message.includes('1'), 'Mensagem deve indicar que só tem 1 disponível');
+});
+// ========== AC-010 — Bloqueio no botão '+' de quantidade quando a opção selecionada não suporta ==========
+
+test('AC-010: validateAllOptions com nextQty excede estoque da opção selecionada @spec:AC-010', () => {
+    const product = {
+        id: 'prod-espetinho',
+        nome: 'Espetinho de Frango',
+        opcoes_personalizacao: [
+            {
+                grupo: 'Tipo de Arroz',
+                tipo: 'radio',
+                opcoes: [
+                    { nome: 'Arroz com Cenoura', quantidade: 1, disponivel: false }
+                ]
+            }
+        ]
+    };
+
+    const selectedOptions = { 'Tipo de Arroz': 'Arroz com Cenoura' };
+
+    // Usuário está em qty=1 e tenta clicar no '+' para nextQty=2
+    const validationNext = validateAllOptions(selectedOptions, 2, [], [], product);
+
+    assert.equal(validationNext.valid, false, 'Deveria bloquear o incremento para 2');
+    assert.equal(validationNext.productName, 'Arroz com Cenoura');
+    assert.equal(validationNext.availableQty, 1);
+});
+
+// ========== AC-011 — Bloqueio ao selecionar opção quando qty atual excede o estoque da opção ==========
+
+test('AC-011: validateOptionStock bloqueia seleção se qty atual > estoque da opção @spec:AC-011', () => {
+    const product = {
+        id: 'prod-espetinho',
+        nome: 'Espetinho de Frango',
+        opcoes_personalizacao: [
+            {
+                grupo: 'Tipo de Arroz',
+                tipo: 'radio',
+                opcoes: [
+                    { nome: 'Arroz com Cenoura', quantidade: 1, disponivel: false }
+                ]
+            }
+        ]
+    };
+
+    // Usuário já colocou qty = 4 no rodapé e tenta selecionar 'Arroz com Cenoura' (estoque = 1)
+    const currentQty = 4;
+    const result = validateOptionStock('Arroz com Cenoura', currentQty, [], [], product);
+
+    assert.equal(result.valid, false, 'Deveria bloquear a seleção pois qty=4 excede estoque=1');
+    assert.equal(result.availableQty, 1, 'Deveria informar que só há 1 unidade');
+    assert.ok(result.message.includes('1'), 'Mensagem de alerta deve exibir 1 unidade disponível');
+});
