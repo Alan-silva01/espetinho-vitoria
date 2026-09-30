@@ -5,7 +5,7 @@ import {
     PieChart as PieIcon, ArrowUp, Zap, Filter
 } from 'lucide-react'
 import {
-    AreaChart, Area, XAxis, YAxis, Tooltip,
+    AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid,
     ResponsiveContainer, PieChart, Pie, Cell
 } from 'recharts'
 import { supabase } from '../../lib/supabase'
@@ -153,7 +153,12 @@ export default function ReportsPage() {
                 }
             }
 
-            // Fetch all orders with automatic pagination to bypass Supabase 1000-row limit
+            // Calcular período anterior para comparação
+            const durationMs = endDate.getTime() - startDate.getTime()
+            const prevStartDate = new Date(startDate.getTime() - durationMs)
+            const prevEndDate = new Date(startDate.getTime() - 1)
+
+            // Fetch all orders with automatic pagination to bypass Supabase 1000-row limit (incluindo prevStartDate)
             let orders = []
             let page = 0
             const pageSize = 1000
@@ -173,7 +178,7 @@ export default function ReportsPage() {
                             produtos(nome, categorias(nome))
                         )
                     `)
-                    .gte('criado_em', startDate.toISOString())
+                    .gte('criado_em', prevStartDate.toISOString())
                     .lte('criado_em', endDate.toISOString())
                     .order('criado_em', { ascending: true })
                     .range(from, to)
@@ -198,8 +203,13 @@ export default function ReportsPage() {
             }
 
             if (orders) {
-                // Exclude cancelled orders from all calculations
-                const validOrders = orders.filter(o => o.status !== 'cancelado')
+                // Exclude cancelled orders
+                const allValidOrders = orders.filter(o => o.status !== 'cancelado')
+                // Valid orders for the SELECTED period only
+                const validOrders = allValidOrders.filter(o => {
+                    const d = new Date(o.criado_em)
+                    return d >= startDate && d <= endDate
+                })
                 const revenue = validOrders.reduce((sum, o) => sum + Number(o.valor_total), 0)
                 const ticket = validOrders.length > 0 ? revenue / validOrders.length : 0
 
@@ -272,76 +282,111 @@ export default function ReportsPage() {
                     color: name === 'Espetinhos' ? '#C62828' : '#3B82F6'
                 })).sort((a, b) => b.percent - a.percent))
 
-                // Chart data - GROUP BY DAY or MONTH with SP Timezone
-                const dailyData = {}
+                // Chart data - GROUP BY DAY or MONTH with SP Timezone and comparison with previous period
+                const chartPoints = []
                 
-                let chartStartDate = startDate;
+                let chartStartDate = new Date(startDate)
                 if (validOrders.length > 0) {
-                    const minOrderTime = Math.min(...validOrders.map(o => new Date(o.criado_em).getTime()));
-                    const minOrderDate = new Date(minOrderTime);
+                    const minOrderTime = Math.min(...validOrders.map(o => new Date(o.criado_em).getTime()))
+                    const minOrderDate = new Date(minOrderTime)
                     if (chartStartDate < minOrderDate || period === 'Todo o Período') {
-                        chartStartDate = minOrderDate;
+                        chartStartDate = minOrderDate
                     }
                 }
 
-                const diffTime = Math.abs(endDate - chartStartDate);
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                const isMonthView = diffDays > 31;
+                const diffTime = Math.abs(endDate - chartStartDate)
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+                const isMonthView = diffDays > 31
 
                 if (isMonthView) {
                     const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
                     const getMonthLabel = (dObj) => {
-                        const dateStr = dObj.toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' }) // 'YYYY-MM-DD'
+                        const dateStr = dObj.toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' })
                         const [y, m] = dateStr.split('-')
                         return `${months[parseInt(m, 10) - 1]}/${y.slice(-2)}`
                     }
 
-                    // Always start at day 1 to prevent setMonth overflow skipping months
                     const tempDate = new Date(chartStartDate.getFullYear(), chartStartDate.getMonth(), 1, 0, 0, 0)
                     const endMonthDate = new Date(endDate.getFullYear(), endDate.getMonth(), 1, 0, 0, 0)
 
                     while (tempDate <= endMonthDate) {
+                        const curYear = tempDate.getFullYear()
+                        const curMonth = tempDate.getMonth()
                         const label = getMonthLabel(tempDate)
-                        dailyData[label] = 0
+                        
+                        // Período anterior equivalente (1 ano antes para visão mensal)
+                        const prevYear = curYear - 1
+
+                        chartPoints.push({
+                            name: label,
+                            curYear,
+                            curMonth,
+                            prevYear,
+                            v: 0,
+                            vAnterior: 0
+                        })
+
                         tempDate.setMonth(tempDate.getMonth() + 1)
-                        if (Object.keys(dailyData).length > 60) break // limit to 5 years
+                        if (chartPoints.length > 60) break
                     }
 
-                    validOrders.forEach(o => {
+                    allValidOrders.forEach(o => {
                         const d = new Date(o.criado_em)
-                        const label = getMonthLabel(d)
-                        if (dailyData[label] !== undefined) {
-                            dailyData[label] += Number(o.valor_total || 0)
-                        } else {
-                            dailyData[label] = Number(o.valor_total || 0)
-                        }
+                        const dateStr = d.toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' })
+                        const [y, m] = dateStr.split('-').map(Number)
+                        const val = Number(o.valor_total || 0)
+
+                        const ptCur = chartPoints.find(p => p.curYear === y && p.curMonth === (m - 1))
+                        if (ptCur) ptCur.v += val
+
+                        const ptPrev = chartPoints.find(p => p.prevYear === y && p.curMonth === (m - 1))
+                        if (ptPrev) ptPrev.vAnterior += val
                     })
                 } else {
                     const getDayLabel = (dObj) => {
                         return dObj.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit', month: 'short' }).replace('.', '')
                     }
-
-                    const tempDate = new Date(chartStartDate)
-                    while (tempDate <= endDate) {
-                        const label = getDayLabel(tempDate)
-                        dailyData[label] = 0
-                        tempDate.setDate(tempDate.getDate() + 1)
-                        if (Object.keys(dailyData).length > 60) break
+                    const getDateKey = (dObj) => {
+                        return dObj.toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' })
                     }
 
-                    validOrders.forEach(o => {
+                    const totalDays = Math.max(1, Math.round((endDate.getTime() - chartStartDate.getTime()) / (1000 * 60 * 60 * 24)))
+                    const tempDate = new Date(chartStartDate)
+
+                    while (tempDate <= endDate) {
+                        const label = getDayLabel(tempDate)
+                        const curKey = getDateKey(tempDate)
+
+                        const prevDate = new Date(tempDate)
+                        prevDate.setDate(prevDate.getDate() - totalDays)
+                        const prevKey = getDateKey(prevDate)
+
+                        chartPoints.push({
+                            name: label,
+                            curKey,
+                            prevKey,
+                            v: 0,
+                            vAnterior: 0
+                        })
+
+                        tempDate.setDate(tempDate.getDate() + 1)
+                        if (chartPoints.length > 60) break
+                    }
+
+                    allValidOrders.forEach(o => {
                         const d = new Date(o.criado_em)
-                        const label = getDayLabel(d)
-                        if (dailyData[label] !== undefined) {
-                            dailyData[label] += Number(o.valor_total || 0)
-                        } else {
-                            dailyData[label] = Number(o.valor_total || 0)
-                        }
+                        const orderKey = getDateKey(d)
+                        const val = Number(o.valor_total || 0)
+
+                        const curNode = chartPoints.find(p => p.curKey === orderKey)
+                        if (curNode) curNode.v += val
+
+                        const prevNode = chartPoints.find(p => p.prevKey === orderKey)
+                        if (prevNode) prevNode.vAnterior += val
                     })
                 }
 
-                const newChartData = Object.entries(dailyData).map(([name, v]) => ({ name, v }))
-                setChartData(newChartData)
+                setChartData(chartPoints)
 
 
             }
@@ -543,43 +588,89 @@ export default function ReportsPage() {
                 <div className="reports-main-layout">
                     <div className="chart-section-large">
                         <div className="section-header">
-                            <h3>Vendas no Período</h3>
-                            <div className="legend">
-                                <span className="dot" />
-                                <span>Faturamento Bruto</span>
+                            <div className="chart-title-box">
+                                <h3>Vendas no Período</h3>
+                                <div className="chart-legend-simple">
+                                    <span className="legend-indicator black"></span>
+                                    <span>Atual</span>
+                                    <span className="legend-indicator gray-dashed"></span>
+                                    <span>Período anterior</span>
+                                </div>
                             </div>
                         </div>
                         <div className="main-chart-container">
-                            <ResponsiveContainer width="100%" height={300}>
-                                <AreaChart data={chartData}>
+                            <ResponsiveContainer width="100%" height={320}>
+                                <AreaChart data={chartData} margin={{ top: 15, right: 15, left: -10, bottom: 20 }}>
                                     <defs>
-                                        <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#C62828" stopOpacity={0.2} />
-                                            <stop offset="95%" stopColor="#C62828" stopOpacity={0} />
-                                        </linearGradient>
+                                        <pattern id="diagonalHatchReports" width="8" height="8" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+                                            <line x1="0" y1="0" x2="0" y2="8" stroke="#111827" strokeWidth="1" strokeOpacity="0.08" />
+                                        </pattern>
                                     </defs>
-                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#9CA3AF' }} dy={10} />
-                                    <Tooltip
-                                        formatter={(value) => [formatCurrency(value), 'Faturamento Bruto']}
-                                        labelFormatter={(label) => `Mês/Período: ${label}`}
-                                        contentStyle={{
-                                            backgroundColor: '#1E293B',
-                                            borderColor: '#334155',
-                                            borderRadius: '12px',
-                                            color: '#FFFFFF',
-                                            boxShadow: '0 10px 25px rgba(0,0,0,0.25)',
-                                            fontSize: '13px',
-                                            fontWeight: '600'
-                                        }}
-                                        itemStyle={{ color: '#F8FAFC', fontWeight: 'bold' }}
+
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F0F1F3" />
+
+                                    <XAxis
+                                        dataKey="name"
+                                        axisLine={false}
+                                        tickLine={false}
+                                        tick={{ fill: '#9CA3AF', fontSize: 11 }}
+                                        dy={10}
                                     />
+                                    <YAxis
+                                        axisLine={false}
+                                        tickLine={false}
+                                        tick={{ fill: '#9CA3AF', fontSize: 11 }}
+                                        tickFormatter={(v) => `R$${v >= 1000 ? `${(v/1000).toFixed(0)}k` : v}`}
+                                        dx={-5}
+                                    />
+
+                                    <Tooltip
+                                        content={({ active, payload, label }) => {
+                                            if (active && payload && payload.length) {
+                                                const cur = payload.find(p => p.dataKey === 'v')?.value || 0
+                                                const prev = payload.find(p => p.dataKey === 'vAnterior')?.value || 0
+                                                return (
+                                                    <div className="modern-chart-tooltip">
+                                                        <p className="tooltip-date">{label}</p>
+                                                        <div className="tooltip-row current">
+                                                            <span className="tooltip-indicator"></span>
+                                                            <span className="tooltip-txt">Atual:</span>
+                                                            <strong className="tooltip-val">{formatCurrency(cur)}</strong>
+                                                        </div>
+                                                        {prev > 0 && (
+                                                            <div className="tooltip-row prev">
+                                                                <span className="tooltip-indicator dashed"></span>
+                                                                <span className="tooltip-txt">Anterior:</span>
+                                                                <strong className="tooltip-val">{formatCurrency(prev)}</strong>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )
+                                            }
+                                            return null
+                                        }}
+                                    />
+
+                                    <Area
+                                        type="monotone"
+                                        dataKey="vAnterior"
+                                        stroke="#9CA3AF"
+                                        strokeWidth={2}
+                                        strokeDasharray="4 4"
+                                        fill="none"
+                                        dot={{ r: 3, fill: '#9CA3AF', strokeWidth: 0 }}
+                                        activeDot={{ r: 5, fill: '#9CA3AF' }}
+                                    />
+
                                     <Area
                                         type="monotone"
                                         dataKey="v"
-                                        stroke="#C62828"
-                                        strokeWidth={4}
+                                        stroke="#111827"
+                                        strokeWidth={3}
                                         fillOpacity={1}
-                                        fill="url(#colorSales)"
+                                        fill="url(#diagonalHatchReports)"
+                                        dot={{ r: 3.5, fill: '#111827', strokeWidth: 0 }}
+                                        activeDot={{ r: 6, fill: '#111827' }}
                                     />
                                 </AreaChart>
                             </ResponsiveContainer>

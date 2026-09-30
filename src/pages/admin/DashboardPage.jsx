@@ -74,8 +74,11 @@ export default function DashboardPage() {
             const startDate = new Date(today)
             startDate.setDate(startDate.getDate() - daysToFetch)
 
-            // For revenue comparison, we need at least since yesterday
-            const fetchFrom = startDate < yesterday ? startDate : yesterday
+            // Para comparar com o período anterior, buscamos 2x o período
+            const previousPeriodStart = new Date(today)
+            previousPeriodStart.setDate(previousPeriodStart.getDate() - (daysToFetch * 2))
+
+            const fetchFrom = previousPeriodStart < yesterday ? previousPeriodStart : yesterday
 
             // 1. Fetch Orders for Stats and Chart
             const { data: orders, error: ordersErr } = await supabase
@@ -118,28 +121,40 @@ export default function DashboardPage() {
                 revenueDiff = 100
             }
 
-            // Real Upsell Rate Calculation
-            const ordersWithUpsell = orders?.filter(o => o.itens?.some(i => i.eh_upsell)).length || 0
-            const realUpsellRate = orders?.length > 0 ? (ordersWithUpsell / orders.length) * 100 : 0
+            // Real Upsell Rate Calculation (Baseado nos pedidos ativos de HOJE)
+            const ordersWithUpsell = todayOrders.filter(o => o.itens?.some(i => i.eh_upsell)).length
+            const realUpsellRate = todayOrders.length > 0 ? (ordersWithUpsell / todayOrders.length) * 100 : 0
 
             // 2. Chart Data (timezone-aware)
             const chartNodes = Array.from({ length: daysToFetch }, (_, i) => {
                 const date = new Date(today)
                 date.setDate(date.getDate() - (daysToFetch - 1 - i))
+                
+                const prevDate = new Date(date)
+                prevDate.setDate(prevDate.getDate() - daysToFetch)
+
                 return {
                     name: daysToFetch > 7
                         ? date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', timeZone: 'America/Sao_Paulo' })
                         : date.toLocaleDateString('pt-BR', { weekday: 'short', timeZone: 'America/Sao_Paulo' }).replace('.', ''),
                     fullDate: date.toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' }),
-                    valor: 0
+                    prevFullDate: prevDate.toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' }),
+                    valor: 0,
+                    valorAnterior: 0
                 }
             })
 
-            orders.filter(o => o.status !== 'cancelado').forEach(order => {
+            const activeOrders = orders.filter(o => o.status !== 'cancelado')
+
+            activeOrders.forEach(order => {
                 const orderDate = new Date(order.criado_em).toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' })
-                const day = chartNodes.find(d => d.fullDate === orderDate)
-                if (day) {
-                    day.valor += Number(order.valor_total)
+                const currentDay = chartNodes.find(d => d.fullDate === orderDate)
+                if (currentDay) {
+                    currentDay.valor += Number(order.valor_total)
+                }
+                const prevDay = chartNodes.find(d => d.prevFullDate === orderDate)
+                if (prevDay) {
+                    prevDay.valorAnterior += Number(order.valor_total)
                 }
             })
 
@@ -364,132 +379,169 @@ export default function DashboardPage() {
                     </div>
                 </div>
 
-                {/* Period Volumetric Highlights (Requested) */}
-                <div className="metrics-grid volumetric-row">
-                    <div className="metric-card minimal red">
-                        <div className="card-content">
-                            <p className="card-label">Espetinhos</p>
-                            <div className="value-row">
-                                <h3 className="card-value">{stats.itemCount.espetos}</h3>
-                                <Flame size={16} className="text-red-500" />
-                            </div>
-                            <span className="trend-text">hoje</span>
-                        </div>
+                {/* Saídas de hoje elegante */}
+                <div className="volume-pills-bar">
+                    <span className="volume-bar-title">Saídas de hoje:</span>
+                    <div className="volume-pill-item">
+                        <span className="vol-name">Espetinhos</span>
+                        <strong className="vol-count">{stats.itemCount.espetos}</strong>
                     </div>
-                    <div className="metric-card minimal purple">
-                        <div className="card-content">
-                            <p className="card-label">Açaí Tradicional</p>
-                            <div className="value-row">
-                                <h3 className="card-value">{stats.itemCount.acaiTradicional}</h3>
-                                <div className="dot purple" />
-                            </div>
-                            <span className="trend-text">hoje</span>
-                        </div>
+                    <div className="volume-pill-item">
+                        <span className="vol-name">Açaí Tradicional</span>
+                        <strong className="vol-count">{stats.itemCount.acaiTradicional}</strong>
                     </div>
-                    <div className="metric-card minimal purple-light">
-                        <div className="card-content">
-                            <p className="card-label">Açaí Especial</p>
-                            <div className="value-row">
-                                <h3 className="card-value">{stats.itemCount.acaiEspecial}</h3>
-                                <Stars size={16} className="text-purple-400" />
-                            </div>
-                            <span className="trend-text">hoje</span>
-                        </div>
+                    <div className="volume-pill-item">
+                        <span className="vol-name">Açaí Especial</span>
+                        <strong className="vol-count">{stats.itemCount.acaiEspecial}</strong>
                     </div>
-                    <div className="metric-card minimal blue">
-                        <div className="card-content">
-                            <p className="card-label">Refrigerantes</p>
-                            <div className="value-row">
-                                <h3 className="card-value">{stats.itemCount.refrigerantes}</h3>
-                                <ShoppingBag size={16} className="text-blue-500" />
-                            </div>
-                            <span className="trend-text">hoje</span>
-                        </div>
+                    <div className="volume-pill-item">
+                        <span className="vol-name">Refrigerantes</span>
+                        <strong className="vol-count">{stats.itemCount.refrigerantes}</strong>
                     </div>
                 </div>
 
                 <div className="dashboard-content-grid">
                     <div className="main-stats-column">
-                        {/* Chart Card */}
-                        <div className="chart-card-premium">
-                            <div className="chart-header">
-                                <h3>Vendas ({timeframe === '7' ? '7 dias' : '30 dias'})</h3>
-                                <select
-                                    value={timeframe}
-                                    onChange={(e) => setTimeframe(e.target.value)}
-                                >
-                                    <option value="7">Última semana</option>
-                                    <option value="30">Último mês</option>
-                                </select>
-                            </div>
-                            <div className="chart-container-inner">
-                                <ResponsiveContainer width="100%" height={250}>
-                                    <AreaChart data={chartData}>
-                                        <defs>
-                                            <linearGradient id="colorValor" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#B91C1C" stopOpacity={0.2} />
-                                                <stop offset="95%" stopColor="#B91C1C" stopOpacity={0} />
-                                            </linearGradient>
-                                        </defs>
-                                        <Tooltip
-                                            contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
-                                            cursor={{ stroke: '#B91C1C', strokeWidth: 2, strokeDasharray: '5 5' }}
-                                            formatter={(value) => [formatCurrency(value), 'Valor']}
-                                        />
-                                        <Area
-                                            type="monotone"
-                                            dataKey="valor"
-                                            stroke="#B91C1C"
-                                            strokeWidth={4}
-                                            fillOpacity={1}
-                                            fill="url(#colorValor)"
-                                        />
-                                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#9CA3AF' }} dy={10} />
-                                    </AreaChart>
-                                </ResponsiveContainer>
-                            </div>
-                        </div>
-
-                        {/* Recent Orders Table-Style */}
-                        <div className="recent-orders-card">
-                            <div className="card-header">
-                                <h3>Últimos Pedidos</h3>
-                                <button className="view-all">Ver todos</button>
-                            </div>
-                            <div className="orders-list">
-                                {recentOrders.map(order => (
-                                    <div key={order.id} className="order-row-item">
-                                        <div className="order-icon-wrapper">
-                                            {order.tipo_pedido === 'entrega' ? <Truck size={18} /> : (order.tipo_pedido === 'retirada' ? <ShoppingBag size={18} /> : <Utensils size={18} />)}
-                                        </div>
-                                        <div className="order-main-info">
-                                            <p className="order-name">
-                                                {order.nome_cliente || 'Cliente'}
-                                                <span className="order-type-tiny">
-                                                    ({order.tipo_pedido === 'entrega' ? 'Entrega' : (order.tipo_pedido === 'retirada' ? 'Retirada' : 'Mesa')})
-                                                </span>
-                                            </p>
-                                            <p className="order-meta">ped: {order.numero_pedido} • {new Date(order.criado_em).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
-                                        </div>
-                                        <div className="order-right-info">
-                                            <span className={`status-tag ${order.status}`}>{order.status === 'saiu_entrega' ? 'saiu para entrega' : order.status}</span>
-                                            <p className="order-total">{formatCurrency(order.valor_total)}</p>
+                        {/* Chart + Últimos Pedidos lado a lado, mesma altura */}
+                        <div className="chart-and-orders-row">
+                            {/* Chart Card */}
+                            <div className="chart-card-premium chart-flex">
+                                <div className="chart-header">
+                                    <div className="chart-title-box">
+                                        <h3>Vendas ({timeframe === '7' ? '7 dias' : '30 dias'})</h3>
+                                        <div className="chart-legend-simple">
+                                            <span className="legend-indicator black"></span>
+                                            <span>Atual</span>
+                                            <span className="legend-indicator gray-dashed"></span>
+                                            <span>Período anterior</span>
                                         </div>
                                     </div>
-                                ))}
+                                    <select
+                                        value={timeframe}
+                                        onChange={(e) => setTimeframe(e.target.value)}
+                                    >
+                                        <option value="7">Última semana</option>
+                                        <option value="30">Último mês</option>
+                                    </select>
+                                </div>
+                                <div className="chart-container-inner chart-container-flex">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <AreaChart data={chartData} margin={{ top: 15, right: 15, left: -10, bottom: 20 }}>
+                                            <defs>
+                                                <linearGradient id="colorValorPreto" x1="0" y1="0" x2="0" y2="1">
+                                                    <stop offset="5%" stopColor="#111827" stopOpacity={0.08} />
+                                                    <stop offset="95%" stopColor="#111827" stopOpacity={0} />
+                                                </linearGradient>
+                                                <pattern id="diagonalHatch" width="8" height="8" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+                                                    <line x1="0" y1="0" x2="0" y2="8" stroke="#111827" strokeWidth="1" strokeOpacity="0.08" />
+                                                </pattern>
+                                            </defs>
+
+                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F0F1F3" />
+
+                                            <Tooltip
+                                                content={({ active, payload, label }) => {
+                                                    if (active && payload && payload.length) {
+                                                        const cur = payload.find(p => p.dataKey === 'valor')?.value || 0
+                                                        const prev = payload.find(p => p.dataKey === 'valorAnterior')?.value || 0
+                                                        return (
+                                                            <div className="modern-chart-tooltip">
+                                                                <p className="tooltip-date">{label}</p>
+                                                                <div className="tooltip-row current">
+                                                                    <span className="tooltip-indicator"></span>
+                                                                    <span className="tooltip-txt">Atual:</span>
+                                                                    <strong className="tooltip-val">{formatCurrency(cur)}</strong>
+                                                                </div>
+                                                                {prev > 0 && (
+                                                                    <div className="tooltip-row prev">
+                                                                        <span className="tooltip-indicator dashed"></span>
+                                                                        <span className="tooltip-txt">Anterior:</span>
+                                                                        <strong className="tooltip-val">{formatCurrency(prev)}</strong>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        )
+                                                    }
+                                                    return null
+                                                }}
+                                            />
+
+                                            <Area
+                                                type="monotone"
+                                                dataKey="valorAnterior"
+                                                stroke="#9CA3AF"
+                                                strokeWidth={2}
+                                                strokeDasharray="4 4"
+                                                fill="none"
+                                                dot={{ r: 3, fill: '#9CA3AF', strokeWidth: 0 }}
+                                                activeDot={{ r: 5, fill: '#9CA3AF' }}
+                                            />
+
+                                            <Area
+                                                type="monotone"
+                                                dataKey="valor"
+                                                stroke="#111827"
+                                                strokeWidth={3}
+                                                fillOpacity={1}
+                                                fill="url(#diagonalHatch)"
+                                                dot={{ r: 3.5, fill: '#111827', strokeWidth: 0 }}
+                                                activeDot={{ r: 6, fill: '#111827' }}
+                                            />
+
+                                            <XAxis
+                                                dataKey="name"
+                                                axisLine={false}
+                                                tickLine={false}
+                                                tick={{ fontSize: 12, fill: '#6B7280' }}
+                                                dy={12}
+                                            />
+                                            <YAxis
+                                                axisLine={false}
+                                                tickLine={false}
+                                                tick={{ fontSize: 11, fill: '#9CA3AF' }}
+                                                tickFormatter={(val) => `R$${val >= 1000 ? `${(val/1000).toFixed(1)}k` : val}`}
+                                            />
+                                        </AreaChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            </div>
+
+                            {/* Últimos Pedidos - ao lado do gráfico, mesma altura */}
+                            <div className="recent-orders-card side-compact">
+                                <div className="card-header">
+                                    <h3>Últimos Pedidos</h3>
+                                    <button className="view-all">Ver todos</button>
+                                </div>
+                                <div className="orders-list">
+                                    {recentOrders.map(order => (
+                                        <div key={order.id} className="order-row-item">
+                                            <div className="order-icon-wrapper">
+                                                {order.tipo_pedido === 'entrega' ? <Truck size={16} /> : (order.tipo_pedido === 'retirada' ? <ShoppingBag size={16} /> : <Utensils size={16} />)}
+                                            </div>
+                                            <div className="order-main-info">
+                                                <p className="order-name">
+                                                    {order.nome_cliente || 'Cliente'}
+                                                </p>
+                                                <p className="order-meta">#{order.numero_pedido} • {new Date(order.criado_em).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                                            </div>
+                                            <div className="order-right-info">
+                                                <span className={`status-tag ${order.status}`}>{order.status === 'saiu_entrega' ? 'saiu' : order.status}</span>
+                                                <p className="order-total">{formatCurrency(order.valor_total)}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div className="sidebar-stats-column">
-                        {/* Stock Alerts Card */}
+                        {/* Alertas de Estoque - abaixo dos pedidos */}
                         {lowStockProducts.length > 0 && (
-                            <div className="stats-box-card alerts-card">
+                            <div className="stats-box-card alerts-card full-bottom">
                                 <div className="card-header">
                                     <h3>Alertas de Estoque</h3>
                                     <span className="dot animate-pulse"></span>
                                 </div>
-                                <div className="category-bars">
+                                <div className="category-bars alerts-grid-layout">
                                     {lowStockProducts.map(p => (
                                         <div key={p.id} className="progress-item alert-item">
                                             <div className="progress-info">
@@ -510,49 +562,49 @@ export default function DashboardPage() {
                                 </div>
                             </div>
                         )}
+                        {/* Bottom row: Por Categoria + Mais Vendidos */}
+                        <div className="bottom-stats-row">
+                            <div className="stats-box-card">
+                                <div className="card-header">
+                                    <h3>Por Categoria</h3>
+                                    <MoreHorizontal size={18} color="#9CA3AF" />
+                                </div>
+                                <div className="category-bars">
+                                    {categorySales.map(cat => (
+                                        <div key={cat.name} className="progress-item">
+                                            <div className="progress-info">
+                                                <span>{cat.name}</span>
+                                                <strong>{cat.percent}%</strong>
+                                            </div>
+                                            <div className="progress-bg">
+                                                <div className="progress-fill" style={{ width: `${cat.percent}%`, backgroundColor: cat.color }} />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
 
-                        {/* Category Breakdown */}
-                        <div className="stats-box-card">
-                            <div className="card-header">
-                                <h3>Por Categoria</h3>
-                                <MoreHorizontal size={18} color="#9CA3AF" />
-                            </div>
-                            <div className="category-bars">
-                                {categorySales.map(cat => (
-                                    <div key={cat.name} className="progress-item">
-                                        <div className="progress-info">
-                                            <span>{cat.name}</span>
-                                            <strong>{cat.percent}%</strong>
+                            <div className="stats-box-card">
+                                <div className="card-header">
+                                    <h3>Mais Vendidos</h3>
+                                </div>
+                                <div className="top-products-vertical">
+                                    {topProducts.map(p => (
+                                        <div key={p.id} className="top-product-row group">
+                                            <div className="product-img">
+                                                <img src={p.imagem_url || 'https://via.placeholder.com/50'} alt={p.nome} />
+                                            </div>
+                                            <div className="product-info">
+                                                <h4>{p.nome}</h4>
+                                                <p>{p.categoria}</p>
+                                            </div>
+                                            <div className="product-sales">
+                                                <span className="sales-num">{p.vendas}</span>
+                                                <span className="sales-unit">unid.</span>
+                                            </div>
                                         </div>
-                                        <div className="progress-bg">
-                                            <div className="progress-fill" style={{ width: `${cat.percent}%`, backgroundColor: cat.color }} />
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Top Products */}
-                        <div className="stats-box-card">
-                            <div className="card-header">
-                                <h3>Mais Vendidos</h3>
-                            </div>
-                            <div className="top-products-vertical">
-                                {topProducts.map(p => (
-                                    <div key={p.id} className="top-product-row group">
-                                        <div className="product-img">
-                                            <img src={p.imagem_url || 'https://via.placeholder.com/50'} alt={p.nome} />
-                                        </div>
-                                        <div className="product-info">
-                                            <h4 className="group-hover:text-primary">{p.nome}</h4>
-                                            <p>{p.categoria}</p>
-                                        </div>
-                                        <div className="product-sales">
-                                            <span className="sales-num">{p.vendas}</span>
-                                            <span className="sales-unit">unid.</span>
-                                        </div>
-                                    </div>
-                                ))}
+                                    ))}
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -97,14 +97,14 @@
 
 .metrics-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 12px;
-    margin-bottom: 24px;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+    margin-bottom: 12px;
 }
 
 .metric-card {
-    border-radius: 12px;
-    padding: 16px 20px;
+    border-radius: 8px;
+    padding: 10px 14px;
     position: relative;
     overflow: hidden;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -119,8 +119,8 @@
 
 .metric-card.standard {
     background: white;
-    border: 1px solid #DFDFDF;
-    box-shadow: none;
+    border: 1px solid #E5E7EB;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
 }
 
 .dark .metric-card.standard {
@@ -132,24 +132,24 @@
     position: absolute;
     top: -20px;
     right: -20px;
-    width: 120px;
-    height: 120px;
+    width: 80px;
+    height: 80px;
     background: rgba(255, 255, 255, 0.08);
     border-radius: 50%;
-    filter: blur(20px);
+    filter: blur(15px);
 }
 
 .card-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 12px;
+    align-items: center;
+    margin-bottom: 6px;
 }
 
 .icon-wrapper {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
+    width: 24px;
+    height: 24px;
+    border-radius: 5px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -158,9 +158,9 @@
 }
 
 .icon-wrapper svg {
-    width: 18px !important;
-    height: 18px !important;
-    stroke-width: 1.5 !important;
+    width: 13px !important;
+    height: 13px !important;
+    stroke-width: 1.75 !important;
 }
 
 .metric-card.primary .icon-wrapper {
@@ -171,45 +171,46 @@
 
 .card-label {
     font-size: 11px;
-    font-weight: 600;
-    margin-bottom: 4px;
-    color: #525252;
+    font-weight: 500;
+    margin-bottom: 2px;
+    color: #6B7280;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.03em;
 }
 
 .metric-card.primary .card-label {
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(255, 255, 255, 0.85);
 }
 
 .card-value {
-    font-size: 20px;
+    font-size: 16px;
     font-weight: 700;
-    margin-bottom: 8px;
+    margin-bottom: 3px;
     letter-spacing: -0.01em;
+    line-height: 1.2;
 }
 
 .card-footer {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 5px;
 }
 
 .trend-badge {
     background: rgba(255, 255, 255, 0.2);
-    padding: 2px 8px;
-    border-radius: 6px;
-    font-size: 11px;
-    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 2px;
 }
 
 .trend-positive {
     color: #10B981;
-    font-weight: 700;
-    font-size: 12px;
+    font-weight: 600;
+    font-size: 10px;
 }
 
 .trend-negative {
@@ -218,24 +219,24 @@
 
 .trend-stable {
     color: #9CA3AF;
-    font-weight: 700;
-    font-size: 12px;
+    font-weight: 600;
+    font-size: 10px;
 }
 
 .trend-text {
-    font-size: 11px;
+    font-size: 10px;
     color: #9CA3AF;
 }
 
 .metric-card.primary .trend-text {
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(255, 255, 255, 0.7);
 }
 
 /* Circular Progress */
 .circular-progress {
     position: relative;
-    width: 40px;
-    height: 40px;
+    width: 24px;
+    height: 24px;
 }
 
 .circular-svg {
@@ -265,26 +266,255 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 800;
     color: #6B7280;
 }
 
-/* Dashboard Main Grid */
+/* Volume Pills Bar */
+.volume-pills-bar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    background: #F8F9FA;
+    border: 1px solid #EAECF0;
+    border-radius: 10px;
+    padding: 10px 16px;
+    margin-bottom: 24px;
+}
+
+.dark .volume-pills-bar {
+    background: #18181B;
+    border-color: #27272A;
+}
+
+.volume-bar-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #475467;
+}
+
+.dark .volume-bar-title {
+    color: #A1A1AA;
+}
+
+.volume-pill-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #FFFFFF;
+    border: 1px solid #E4E7EC;
+    padding: 5px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+}
+
+.dark .volume-pill-item {
+    background: #27272A;
+    border-color: #3F3F46;
+}
+
+.volume-pill-item .vol-name {
+    color: #667085;
+}
+
+.dark .volume-pill-item .vol-name {
+    color: #A1A1AA;
+}
+
+.volume-pill-item .vol-count {
+    color: #101828;
+    font-weight: 700;
+}
+
+.dark .volume-pill-item .vol-count {
+    color: #FFFFFF;
+}
+
+/* Chart Title Box & Legend */
+.chart-title-box {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.chart-title-box h3 {
+    margin: 0;
+}
+
+.chart-legend-simple {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 12px;
+    color: #6B7280;
+    margin-top: 4px;
+}
+
+.legend-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.legend-indicator.black {
+    background: #111827;
+}
+
+.legend-indicator.gray-dashed {
+    background: #9CA3AF;
+}
+
+/* Tooltip Custom */
+.modern-chart-tooltip {
+    background: #FFFFFF;
+    border: 1px solid #EAECF0;
+    border-radius: 8px;
+    padding: 10px 14px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.dark .modern-chart-tooltip {
+    background: #18181B;
+    border-color: #27272A;
+}
+
+.tooltip-date {
+    font-size: 11px;
+    font-weight: 600;
+    color: #667085;
+    margin: 0 0 6px 0;
+    text-transform: capitalize;
+}
+
+.tooltip-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+}
+
+.tooltip-row.prev {
+    margin-top: 4px;
+    opacity: 0.85;
+}
+
+.tooltip-indicator {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #111827;
+}
+
+.tooltip-indicator.dashed {
+    background: #9CA3AF;
+}
+
+.tooltip-txt {
+    color: #475467;
+}
+
+.tooltip-val {
+    color: #101828;
+    margin-left: auto;
+}
+
+.dark .tooltip-val {
+    color: #FFFFFF;
+}
+
+/* Dashboard Main Grid - single column, full width */
 .dashboard-content-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.main-stats-column {
+    width: 100%;
+}
+
+.bottom-stats-row {
     display: grid;
-    grid-template-columns: 1.5fr 1fr;
-    gap: 24px;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 0;
+}
+
+/* Chart + Recent Orders side by side */
+.chart-and-orders-row {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 16px;
+    align-items: stretch;
+    margin-bottom: 0;
+}
+
+/* Chart card stretches to fill row height */
+.chart-card-premium.chart-flex {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 0;
+}
+
+.chart-container-flex {
+    flex: 1;
+    min-height: 240px;
+    margin-top: 16px;
+}
+
+/* Compact variant for the orders card when beside the chart */
+.recent-orders-card.side-compact {
+    margin-bottom: 0;
+    overflow-y: auto;
+}
+
+.recent-orders-card.side-compact .order-row-item {
+    padding: 8px 6px;
+    gap: 10px;
+}
+
+.recent-orders-card.side-compact .order-icon-wrapper {
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+}
+
+.recent-orders-card.side-compact .order-name {
+    font-size: 12px;
+    gap: 4px;
+}
+
+.recent-orders-card.side-compact .order-meta {
+    font-size: 10px;
+}
+
+.recent-orders-card.side-compact .order-total {
+    font-size: 12px;
+}
+
+/* Alerts card at the bottom spanning full width */
+.alerts-card.full-bottom {
+    margin-top: 16px;
+}
+
+/* Alerts in grid layout when multiple */
+.alerts-grid-layout {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
 }
 
 .chart-card-premium,
 .recent-orders-card,
 .stats-box-card {
     background: white;
-    border-radius: 24px;
-    padding: 24px;
-    border: 1px solid #F3F4F6;
-    margin-bottom: 24px;
+    border-radius: 8px;
+    padding: 16px 20px;
+    border: 1px solid #E5E7EB;
+    margin-bottom: 16px;
 }
 
 .dark .chart-card-premium,
@@ -299,7 +529,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 24px;
+    margin-bottom: 14px;
 }
 
 .chart-header h3,
@@ -336,9 +566,9 @@
 .order-row-item {
     display: flex;
     align-items: center;
-    gap: 16px;
-    padding: 12px;
-    border-radius: 16px;
+    gap: 12px;
+    padding: 8px 6px;
+    border-radius: 6px;
     transition: all 0.2s;
 }
 
@@ -351,14 +581,15 @@
 }
 
 .order-icon-wrapper {
-    width: 48px;
-    height: 48px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     background: #F3F4F6;
     display: flex;
     align-items: center;
     justify-content: center;
     color: #374151;
+    flex-shrink: 0;
 }
 
 .dark .order-icon-wrapper {
@@ -368,15 +599,17 @@
 
 .order-main-info {
     flex: 1;
+    min-width: 0;
 }
 
 .order-name {
-    font-size: 14px;
-    font-weight: 700;
+    font-size: 13px;
+    font-weight: 600;
     margin-bottom: 2px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
 }
 
 .order-type-tiny {
