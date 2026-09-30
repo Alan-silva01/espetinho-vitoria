@@ -147,7 +147,7 @@ export default function OrdersPage() {
                         produtos(nome, opcoes_personalizacao),
                         variacoes_produto(nome)
                     ),
-                    clientes(telefone, nome)
+                    clientes(telefone, nome, avatr_url)
                 `)
                 .eq('id', orderId)
                 .single()
@@ -351,7 +351,7 @@ export default function OrdersPage() {
                         produtos(nome, opcoes_personalizacao),
                         variacoes_produto(nome)
                     ),
-                    clientes(telefone, nome),
+                    clientes(telefone, nome, avatr_url),
                     mesas(numero)
                 `)
                 .gte('criado_em', midnightISO)

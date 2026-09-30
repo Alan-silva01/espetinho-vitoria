@@ -85,7 +85,8 @@ export default function DashboardPage() {
                 .from('pedidos')
                 .select(`
                     id, valor_total, criado_em, status, 
-                    nome_cliente, numero_pedido, tipo_pedido,
+                    nome_cliente, numero_pedido, tipo_pedido, cliente_id,
+                    clientes:cliente_id(avatr_url, nome),
                     itens:itens_pedido(
                         quantidade,
                         eh_upsell,
@@ -93,6 +94,7 @@ export default function DashboardPage() {
                     )
                 `)
                 .gte('criado_em', fetchFrom.toISOString())
+                .order('criado_em', { ascending: false })
                 .abortSignal(controller.signal)
 
             if (ordersErr) throw ordersErr
@@ -513,23 +515,44 @@ export default function DashboardPage() {
                                     <button className="view-all">Ver todos</button>
                                 </div>
                                 <div className="orders-list">
-                                    {recentOrders.map(order => (
-                                        <div key={order.id} className="order-row-item">
-                                            <div className="order-icon-wrapper">
-                                                {order.tipo_pedido === 'entrega' ? <Truck size={16} /> : (order.tipo_pedido === 'retirada' ? <ShoppingBag size={16} /> : <Utensils size={16} />)}
+                                    {recentOrders.map(order => {
+                                        const customerAvatar = order.clientes?.avatar_url || order.clientes?.avatr_url || null
+                                        const clientInitial = (order.nome_cliente || 'C').charAt(0).toUpperCase()
+                                        
+                                        return (
+                                            <div key={order.id} className="order-row-item">
+                                                <div className="order-avatar-wrapper">
+                                                    {customerAvatar ? (
+                                                        <img
+                                                            src={customerAvatar}
+                                                            alt={order.nome_cliente || 'Cliente'}
+                                                            className="order-avatar-img"
+                                                            onError={(e) => {
+                                                                e.target.style.display = 'none'
+                                                                e.target.nextSibling.style.display = 'flex'
+                                                            }}
+                                                        />
+                                                    ) : null}
+                                                    <div
+                                                        className="order-avatar-fallback"
+                                                        style={{ display: customerAvatar ? 'none' : 'flex' }}
+                                                    >
+                                                        {clientInitial}
+                                                    </div>
+                                                </div>
+                                                <div className="order-main-info">
+                                                    <p className="order-name">
+                                                        {order.nome_cliente || 'Cliente'}
+                                                    </p>
+                                                    <p className="order-meta">#{order.numero_pedido} • {new Date(order.criado_em).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                                                </div>
+                                                <div className="order-right-info">
+                                                    <span className={`status-tag ${order.status}`}>{order.status === 'saiu_entrega' ? 'saiu' : order.status}</span>
+                                                    <p className="order-total">{formatCurrency(order.valor_total)}</p>
+                                                </div>
                                             </div>
-                                            <div className="order-main-info">
-                                                <p className="order-name">
-                                                    {order.nome_cliente || 'Cliente'}
-                                                </p>
-                                                <p className="order-meta">#{order.numero_pedido} • {new Date(order.criado_em).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
-                                            </div>
-                                            <div className="order-right-info">
-                                                <span className={`status-tag ${order.status}`}>{order.status === 'saiu_entrega' ? 'saiu' : order.status}</span>
-                                                <p className="order-total">{formatCurrency(order.valor_total)}</p>
-                                            </div>
-                                        </div>
-                                    ))}
+                                        )
+                                    })}
                                 </div>
                             </div>
                         </div>

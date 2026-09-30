@@ -47,28 +47,44 @@ export default function OrderDetailModal({
                 {/* SUMMARY SECTION */}
                 <div className="modal-v5-summary">
                     <div className="summary-main">
-                        <div className="summary-id-group">
-                            <div className="summary-id-row">
-                                <h3>Pedido {order.numero_pedido}</h3>
-                                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                        <div className="summary-customer-profile-row">
+                            {/* Miniatura da Foto do Cliente */}
+                            <div className="summary-avatar-thumb">
+                                {order.clientes?.avatr_url ? (
+                                    <img
+                                        src={order.clientes.avatr_url}
+                                        alt={order.nome_cliente || 'Cliente'}
+                                        className="summary-avatar-img"
+                                    />
+                                ) : (
+                                    <div className="summary-avatar-fallback">
+                                        {order.nome_cliente ? order.nome_cliente.charAt(0).toUpperCase() : '?'}
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="summary-id-group">
+                                <div className="summary-id-row">
+                                    <h4 className="summary-customer-name-bold">{order.nome_cliente || 'Sem nome'}</h4>
+                                    <span className="summary-order-number-pill">Pedido #{order.numero_pedido}</span>
                                     <div className={`status-badge-v5 ${order.status}`}>
-                                        <Timer size={14} />
+                                        <Timer size={13} />
                                         {order.status === 'cancelado' ? 'Cancelado' :
                                             order.status === 'confirmado' ? 'Confirmado' :
                                                 order.status === 'preparando' ? 'Em Preparo' :
                                                     order.status === 'saiu_entrega' ? 'Em Entrega' : 'Entregue'}
                                     </div>
                                     {order.comanda_status === 'fechamento_solicitado' && order.status !== 'cancelado' && (
-                                        <span className="pulse-alert" style={{ background: '#f59e0b', color: 'white', fontSize: '12px', fontWeight: '700', padding: '4px 12px', borderRadius: '8px', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                            <Receipt size={14} />
+                                        <span className="pulse-alert" style={{ background: '#f59e0b', color: 'white', fontSize: '11px', fontWeight: '700', padding: '3px 10px', borderRadius: '8px', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                            <Receipt size={13} />
                                             Solicitou Fechamento
                                         </span>
                                     )}
                                 </div>
+                                <p className="summary-meta">
+                                    <strong>{new Date(order.criado_em).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })}</strong> às <strong>{new Date(order.criado_em).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</strong> • {order.tipo_pedido === 'mesa' && order.mesas ? `MESA ${order.mesas.numero}` : order.tipo_pedido?.toUpperCase()}
+                                </p>
                             </div>
-                            <p className="summary-meta">
-                                {new Date(order.criado_em).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })} • {new Date(order.criado_em).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} • Cliente: {order.nome_cliente} • {order.tipo_pedido === 'mesa' && order.mesas ? `MESA ${order.mesas.numero}` : order.tipo_pedido?.toUpperCase()}
-                            </p>
                         </div>
 
                         <div className="summary-actions">

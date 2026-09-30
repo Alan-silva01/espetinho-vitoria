@@ -110,7 +110,7 @@
     background: white;
     border-radius: 8px;
     border: 1px solid #DFDFDF;
-    overflow: hidden;
+    overflow: visible;
     display: flex;
     flex-direction: column;
     flex: 1;
@@ -225,12 +225,26 @@
 .btn-outline svg { width: 13px; height: 13px; stroke-width: 1.5; }
 
 /* Table */
-.table-responsive { overflow-x: auto; flex: 1; }
+.table-responsive { 
+    overflow-x: auto; 
+    overflow-y: visible;
+    flex: 1; 
+}
 
 .customers-table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
     text-align: left;
+}
+
+.customers-table tbody tr {
+    position: relative;
+    transition: background 0.15s ease;
+}
+
+.customers-table tbody tr:hover {
+    z-index: 500;
 }
 
 .customers-table th {
@@ -249,38 +263,208 @@
     border-bottom: 1px solid #F3F4F6;
     font-size: 13px;
     color: #171717;
+    overflow: visible;
 }
 
 .customer-cell {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
 }
 
-.customer-cell .avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
+.avatar-wrapper {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+}
+
+.customer-avatar-img {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    object-fit: cover;
+    border: 1.5px solid #EAECF0;
     background: #F3F4F6;
-    color: #525252;
+    display: block;
+}
+
+.customer-cell .avatar,
+.avatar-fallback {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: #F3F4F6;
+    color: #374151;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    font-size: 12px;
+    font-size: 16px;
     flex-shrink: 0;
+    border: 1px solid #E5E7EB;
 }
 
 .customer-cell .info strong {
     display: block;
-    font-size: 13px;
+    font-size: 13.5px;
     font-weight: 600;
-    margin-bottom: 1px;
+    margin-bottom: 2px;
 }
 
 .customer-cell .info span {
     font-size: 11px;
     color: #9CA3AF;
+}
+
+/* Customer Profile Header in Edit Modal (Photo on Left, Name/Phone on Right) */
+.modal-customer-profile-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #F3F4F6;
+}
+
+.modal-customer-avatar-box {
+    flex-shrink: 0;
+}
+
+.modal-avatar-clickable {
+    position: relative;
+    width: 125px;
+    height: 125px;
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid #E5E7EB;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: all 0.2s ease;
+}
+
+.modal-avatar-clickable:hover {
+    border-color: #C41E2E;
+    transform: scale(1.02);
+    box-shadow: 0 6px 18px rgba(196, 30, 46, 0.25);
+}
+
+.modal-avatar-large-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.modal-avatar-zoom-badge {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(2px);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    text-align: center;
+    padding: 4px 0;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.modal-avatar-clickable:hover .modal-avatar-zoom-badge {
+    opacity: 1;
+}
+
+.modal-avatar-large-fallback {
+    width: 125px;
+    height: 125px;
+    border-radius: 16px;
+    background: #F3F4F6;
+    border: 2px dashed #D1D5DB;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    font-weight: 700;
+    color: #6B7280;
+}
+
+.modal-customer-info-fields {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.modal-customer-info-fields .input-group {
+    margin-bottom: 0;
+}
+
+/* Lightbox Modal (Foto Ampliada) */
+.photo-preview-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+    padding: 20px;
+}
+
+.photo-preview-content {
+    position: relative;
+    max-width: 90vw;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.photo-preview-img {
+    max-width: 85vw;
+    max-height: 80vh;
+    border-radius: 12px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    object-fit: contain;
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    background: #111;
+}
+
+.photo-preview-close {
+    position: absolute;
+    top: -42px;
+    right: -6px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.photo-preview-close:hover {
+    background: rgba(255, 255, 255, 0.4);
+    transform: scale(1.1);
+}
+
+.photo-preview-caption {
+    margin-top: 10px;
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
 }
 
 .ref-code {
@@ -402,20 +586,24 @@
 .modal-edit-customer {
     background: white;
     width: 100%;
-    max-width: 400px;
-    border-radius: 10px;
+    max-width: 540px;
+    max-height: 90vh;
+    border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
 }
 
 .modal-header {
     padding: 16px 20px;
     background: #F9FAFB;
     border-bottom: 1px solid #DFDFDF;
+    flex-shrink: 0;
 }
 
 .modal-header h2 {
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 700;
     color: #171717;
     margin-bottom: 2px;
@@ -431,6 +619,8 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
+    overflow-y: auto;
+    flex: 1;
 }
 
 .input-group {
@@ -470,6 +660,7 @@
     gap: 8px;
     border-top: 1px solid #DFDFDF;
     background: #F9FAFB;
+    flex-shrink: 0;
 }
 
 .modal-footer button {
@@ -516,7 +707,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1000;
+    z-index: 10000;
     padding: 20px;
 }
 

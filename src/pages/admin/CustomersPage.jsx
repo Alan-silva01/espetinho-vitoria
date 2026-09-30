@@ -1,15 +1,18 @@
 import { useState, useEffect, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import {
     Users, Search, Filter, Mail,
     Phone, ShoppingBag, Calendar,
     MoreHorizontal, ChevronLeft, ChevronRight,
-    UserPlus, ExternalLink, Trash2, Edit2, Shield, Smartphone
+    UserPlus, ExternalLink, Trash2, Edit2, Shield, Smartphone,
+    Image as ImageIcon, X
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import n8nService from '../../services/n8nService'
 import { formatCurrency } from '../../lib/utils'
 import { useVisibilityRefresh } from '../../hooks/useVisibilityRefresh'
 import { ListPageSkeleton } from '../../components/ui/SkeletonLoader'
+import { uploadImage, isCloudinaryConfigured } from '../../lib/cloudinary'
 import './CustomersPage.css'
 
 
@@ -21,8 +24,11 @@ export default function CustomersPage() {
     const [loyaltyFilter, setLoyaltyFilter] = useState('all') // 'all' | 'with_orders' | 'no_orders'
     const [deleteConfirm, setDeleteConfirm] = useState({ open: false, id: null, nome: '' })
     const [editModal, setEditModal] = useState({ open: false, mode: 'create', customer: null })
-    const [formData, setFormData] = useState({ nome: '', whatsapp: '' })
+    const [formData, setFormData] = useState({ nome: '', whatsapp: '', avatar_url: '' })
     const [saving, setSaving] = useState(false)
+    const [uploadingAvatar, setUploadingAvatar] = useState(false)
+    const [uploadProgress, setUploadProgress] = useState(0)
+    const [previewPhotoModal, setPreviewPhotoModal] = useState({ open: false, url: '', nome: '' })
 
     useEffect(() => {
         fetchCustomers()
@@ -40,7 +46,7 @@ export default function CustomersPage() {
             // Specify columns explicitly to avoid 406 errors and optimize fetch
             const { data: customersData, error: custErr } = await supabase
                 .from('clientes')
-                .select('id, codigo, nome, telefone, dados, criado_em, autorizado')
+                .select('id, codigo, nome, telefone, dados, criado_em, autorizado, avatr_url')
                 .order('criado_em', { ascending: false })
 
             if (custErr) throw custErr
@@ -66,8 +72,11 @@ export default function CustomersPage() {
                         ? new Date(Math.max(...relatedOrders.map(p => new Date(p.criado_em)))).toLocaleDateString('pt-BR')
                         : 'Sem pedidos'
 
+                    const avatarUrl = c.avatar_url || c.avatr_url || c.dados?.avatar_url || null
+
                     return {
                         ...c,
+                        avatarUrl,
                         totalOrders: relatedOrders.length,
                         lastOrder: lastOrderDate,
                         displayPhone: c.dados?.whatsapp || c.telefone || 'Não informado'
@@ -90,6 +99,7 @@ export default function CustomersPage() {
             setFormData({
                 nome: customer.nome || '',
                 whatsapp: customer.dados?.whatsapp || customer.telefone || '',
+                avatar_url: customer.avatarUrl || '',
                 rua: addr.rua || addr.street || '',
                 numero: addr.numero || addr.number || '',
                 bairro: addr.bairro || addr.neighborhood || '',
@@ -101,12 +111,43 @@ export default function CustomersPage() {
             setFormData({
                 nome: '',
                 whatsapp: '',
+                avatar_url: '',
                 rua: '',
                 numero: '',
                 bairro: '',
                 complemento: '',
                 referencia: ''
             })
+        }
+    }
+
+    const handleAvatarUpload = async (e) => {
+        const file = e.target.files[0]
+        if (!file) return
+
+        if (!isCloudinaryConfigured) {
+            alert('Cloudinary não configurado. Verifique o arquivo .env')
+            return
+        }
+
+        setUploadingAvatar(true)
+        setUploadProgress(0)
+
+        try {
+            const result = await uploadImage(file, {
+                folder: 'espetinho-vitoria/clientes',
+                onProgress: (pct) => setUploadProgress(pct)
+            })
+
+            // Salvar url com otimização automática de compressão
+            const optimized = result.url.replace('/upload/', '/upload/w_400,c_limit,q_auto,f_auto/')
+            setFormData(prev => ({ ...prev, avatar_url: optimized }))
+        } catch (err) {
+            console.error('Falha no upload do avatar:', err)
+            alert('Erro ao enviar imagem. Verifique sua conexão e tente novamente.')
+        } finally {
+            setUploadingAvatar(false)
+            setUploadProgress(0)
         }
     }
 
@@ -127,6 +168,7 @@ export default function CustomersPage() {
                 ...baseDados,
                 nome: formData.nome,
                 whatsapp: formData.whatsapp,
+                avatar_url: formData.avatar_url || null,
                 endereco: {
                     ...(baseDados.endereco || {}),
                     rua: formData.rua || '',
@@ -139,6 +181,7 @@ export default function CustomersPage() {
 
             const payload = {
                 nome: formData.nome,
+                avatr_url: formData.avatar_url || null,
                 // telefone: DO NOT UPDATE THIS FIELD (Per user request)
                 dados: updatedDados
             }
@@ -364,10 +407,32 @@ export default function CustomersPage() {
                         </thead>
                         <tbody>
                             {filteredCustomers.map(customer => (
-                                <tr key={customer.id}>
+                                <tr
+                                    key={customer.id}
+                                    className="customer-clickable-row"
+                                    onClick={() => openEditModal(customer)}
+                                >
                                     <td>
                                         <div className="customer-cell">
-                                            <div className="avatar">{customer.nome.charAt(0)}</div>
+                                            <div className="avatar-wrapper">
+                                                {customer.avatarUrl ? (
+                                                    <img
+                                                        src={customer.avatarUrl}
+                                                        alt={customer.nome}
+                                                        className="customer-avatar-img"
+                                                        onError={(e) => {
+                                                            e.target.style.display = 'none'
+                                                            e.target.nextSibling.style.display = 'flex'
+                                                        }}
+                                                    />
+                                                ) : null}
+                                                <div
+                                                    className="avatar avatar-fallback"
+                                                    style={{ display: customer.avatarUrl ? 'none' : 'flex' }}
+                                                >
+                                                    {customer.nome ? customer.nome.charAt(0).toUpperCase() : '?'}
+                                                </div>
+                                            </div>
                                             <div className="info">
                                                 <strong>{customer.nome}</strong>
                                                 <span>Cadastrado em {new Date(customer.criado_em).toLocaleDateString('pt-BR')}</span>
@@ -387,7 +452,7 @@ export default function CustomersPage() {
                                         </div>
                                     </td>
                                     <td>{customer.lastOrder}</td>
-                                    <td>
+                                    <td onClick={e => e.stopPropagation()}>
                                         <div className="toggle-switch-wrapper" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                             <label className="switch" style={{ position: 'relative', display: 'inline-block', width: '36px', height: '20px' }}>
                                                 <input
@@ -411,7 +476,7 @@ export default function CustomersPage() {
                                             {customer.autorizado && <Shield size={14} color="var(--cor-sucesso, #10b981)" />}
                                         </div>
                                     </td>
-                                    <td>
+                                    <td onClick={e => e.stopPropagation()}>
                                         <div className="actions-cell">
                                             <button title="Enviar Link do App" onClick={() => enviarLinkApp(customer)} style={{ color: '#10b981' }}><Smartphone size={16} /></button>
                                             <button title="Ver Detalhes" onClick={() => window.open(`https://wa.me/${customer.displayPhone.replace(/\D/g, '')}`, '_blank')}><ExternalLink size={16} /></button>
@@ -435,34 +500,66 @@ export default function CustomersPage() {
                 </div>
             </div>
 
-            {/* Modal de Criar/Editar Cliente */}
-            {editModal.open && (
-                <div className="admin-modal-overlay">
-                    <div className="modal-edit-customer animate-scale-in">
+            {/* Modal de Criar/Editar Cliente — Portal para evitar bug de scroll */}
+            {editModal.open && createPortal(
+                <div
+                    className="admin-modal-overlay"
+                    onClick={() => setEditModal({ open: false, mode: 'create', customer: null })}
+                >
+                    <div
+                        className="modal-edit-customer animate-scale-in"
+                        onClick={e => e.stopPropagation()}
+                    >
                         <div className="modal-header">
                             <h2>{editModal.mode === 'edit' ? 'Editar Cliente' : 'Novo Cliente'}</h2>
                             <p>{editModal.mode === 'edit' ? 'Altere as informações abaixo.' : 'Preencha os dados do novo cliente.'}</p>
                         </div>
 
                         <div className="modal-body">
-                            <div className="input-group">
-                                <label>Nome do Cliente</label>
-                                <input
-                                    type="text"
-                                    placeholder="Ex: Alan Silva"
-                                    value={formData.nome}
-                                    onChange={e => setFormData({ ...formData, nome: e.target.value })}
-                                />
-                            </div>
+                            {/* Cabeçalho do Cliente: Foto Maior na Esquerda + Nome e Telefone ao Lado */}
+                            <div className="modal-customer-profile-header">
+                                <div className="modal-customer-avatar-box">
+                                    {formData.avatar_url ? (
+                                        <div
+                                            className="modal-avatar-clickable"
+                                            title="Clique para ampliar a foto"
+                                            onClick={() => setPreviewPhotoModal({ open: true, url: formData.avatar_url, nome: formData.nome })}
+                                        >
+                                            <img
+                                                src={formData.avatar_url}
+                                                alt={formData.nome || 'Avatar'}
+                                                className="modal-avatar-large-img"
+                                            />
+                                            <span className="modal-avatar-zoom-badge">🔍 Ampliar</span>
+                                        </div>
+                                    ) : (
+                                        <div className="modal-avatar-large-fallback">
+                                            {formData.nome ? formData.nome.charAt(0).toUpperCase() : <Users size={32} />}
+                                        </div>
+                                    )}
+                                </div>
 
-                            <div className="input-group">
-                                <label>WhatsApp / Telefone</label>
-                                <input
-                                    type="text"
-                                    placeholder="Ex: (99) 99999-9999"
-                                    value={formData.whatsapp}
-                                    onChange={e => setFormData({ ...formData, whatsapp: e.target.value })}
-                                />
+                                <div className="modal-customer-info-fields">
+                                    <div className="input-group">
+                                        <label>Nome do Cliente</label>
+                                        <input
+                                            type="text"
+                                            placeholder="Ex: Alan Silva"
+                                            value={formData.nome}
+                                            onChange={e => setFormData({ ...formData, nome: e.target.value })}
+                                        />
+                                    </div>
+
+                                    <div className="input-group">
+                                        <label>WhatsApp / Telefone</label>
+                                        <input
+                                            type="text"
+                                            placeholder="Ex: (99) 99999-9999"
+                                            value={formData.whatsapp}
+                                            onChange={e => setFormData({ ...formData, whatsapp: e.target.value })}
+                                        />
+                                    </div>
+                                </div>
                             </div>
 
                             <div className="input-group-heading" style={{ marginTop: '16px', marginBottom: '8px', fontWeight: 'bold', fontSize: '14px', color: 'var(--cor-primaria, #FF6A00)' }}>
@@ -538,11 +635,12 @@ export default function CustomersPage() {
                             </button>
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
 
-            {/* Modal de Confirmação de Exclusão */}
-            {deleteConfirm.open && (
+            {/* Modal de Confirmação de Exclusão — Portal */}
+            {deleteConfirm.open && createPortal(
                 <div
                     className="admin-modal-overlay"
                     onClick={() => setDeleteConfirm({ open: false, id: null, nome: '' })}
@@ -582,7 +680,41 @@ export default function CustomersPage() {
                             </button>
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
+            )}
+
+            {/* Modal de Foto Ampliada (Lightbox) — Portal */}
+            {previewPhotoModal.open && createPortal(
+                <div
+                    className="admin-modal-overlay photo-preview-overlay"
+                    onClick={() => setPreviewPhotoModal({ open: false, url: '', nome: '' })}
+                >
+                    <div
+                        className="photo-preview-content animate-scale-in"
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <button
+                            type="button"
+                            className="photo-preview-close"
+                            onClick={() => setPreviewPhotoModal({ open: false, url: '', nome: '' })}
+                            title="Fechar"
+                        >
+                            <X size={20} />
+                        </button>
+                        <img
+                            src={previewPhotoModal.url}
+                            alt={previewPhotoModal.nome || 'Foto do Cliente'}
+                            className="photo-preview-img"
+                        />
+                        {previewPhotoModal.nome && (
+                            <div className="photo-preview-caption">
+                                <strong>{previewPhotoModal.nome}</strong>
+                            </div>
+                        )}
+                    </div>
+                </div>,
+                document.body
             )}
         </div>
     )

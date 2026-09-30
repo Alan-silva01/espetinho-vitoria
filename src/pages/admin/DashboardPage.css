@@ -580,21 +580,48 @@
     background: #374151;
 }
 
-.order-icon-wrapper {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: #F3F4F6;
+.order-icon-wrapper,
+.order-avatar-wrapper {
+    position: relative;
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #374151;
     flex-shrink: 0;
+    overflow: hidden;
 }
 
+.order-avatar-img {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    object-fit: cover;
+    border: 1.5px solid #EAECF0;
+    background: #F3F4F6;
+    display: block;
+}
+
+.order-avatar-fallback {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background: #F3F4F6;
+    color: #111827;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 15px;
+    border: 1px solid #E5E7EB;
+}
+
+.dark .order-avatar-fallback,
 .dark .order-icon-wrapper {
     background: #111827;
     color: #9CA3AF;
+    border-color: #374151;
 }
 
 .order-main-info {
