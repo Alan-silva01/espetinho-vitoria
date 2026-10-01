@@ -57,6 +57,7 @@ const CustomersPage = lazy(() => import('./pages/admin/CustomersPage'))
 const OpeningHoursPage = lazy(() => import('./pages/admin/OpeningHoursPage'))
 const FreightPage = lazy(() => import('./pages/admin/FreightPage'))
 const TablesPage = lazy(() => import('./pages/admin/TablesPage'))
+const DeliveryMapPage = lazy(() => import('./pages/admin/DeliveryMapPage'))
 
 /* Driver Pages */
 const DriverLoginPage = lazy(() => import('./pages/driver/DriverLoginPage'))
@@ -112,6 +113,7 @@ function App() {
                   <Route path="/admin" element={<AdminLayout />}>
                     <Route index element={<DashboardPage />} />
                     <Route path="pedidos" element={<OrdersPage />} />
+                    <Route path="mapa" element={<DeliveryMapPage />} />
                     <Route path="estoque" element={<InventoryPage />} />
                     <Route path="cardapio" element={<MenuPage />} />
                     <Route path="promocoes" element={<PromotionsPage />} />

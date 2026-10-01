@@ -17,7 +17,8 @@ import {
     Clock,
     ChevronLeft,
     ChevronRight,
-    QrCode
+    QrCode,
+    Map
 } from 'lucide-react'
 import './AdminSidebar.css'
 import logoImg from '../../../logo.png'
@@ -25,6 +26,7 @@ import logoImg from '../../../logo.png'
 const navItems = [
     { to: '/admin', icon: LayoutDashboard, label: 'Dashboard', end: true },
     { to: '/admin/pedidos', icon: ClipboardList, label: 'Pedidos' },
+    { to: '/admin/mapa', icon: Map, label: 'Mapa' },
     { to: '/admin/cardapio', icon: UtensilsCrossed, label: 'Cardápio' },
     { to: '/admin/estoque', icon: Package, label: 'Estoque' },
     { to: '/admin/promocoes', icon: Megaphone, label: 'Promoções' },

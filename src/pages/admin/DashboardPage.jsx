@@ -16,6 +16,7 @@ import { formatCurrency } from '../../lib/utils'
 import { formatOrderNumberWithoutHash, filterTodayOrders } from '../../lib/dashboardOrderUtils'
 import { useVisibilityRefresh } from '../../hooks/useVisibilityRefresh'
 import { DashboardSkeleton } from '../../components/ui/SkeletonLoader'
+import DeliveryHeatMap from '../../components/admin/DeliveryHeatMap'
 import './DashboardPage.css'
 
 
@@ -481,105 +482,112 @@ export default function DashboardPage() {
                             )}
                         </div>
 
-                        {/* Gráfico de Vendas 100% Expandido (Abaixo dos Pedidos) */}
-                        <div className="chart-card-premium chart-expanded-full">
-                            <div className="chart-header">
-                                <div className="chart-title-box">
-                                    <h3>Vendas ({timeframe === '7' ? '7 dias' : '30 dias'})</h3>
-                                    <div className="chart-legend-simple">
-                                        <span className="legend-indicator black"></span>
-                                        <span>Atual</span>
-                                        <span className="legend-indicator gray-dashed"></span>
-                                        <span>Período anterior</span>
+                        {/* Gráfico + Mapa de Calor — lado a lado */}
+                        <div className="chart-map-row">
+                            <div className="chart-card-premium chart-col">
+                                <div className="chart-header">
+                                    <div className="chart-title-box">
+                                        <h3>Vendas ({timeframe === '7' ? '7 dias' : '30 dias'})</h3>
+                                        <div className="chart-legend-simple">
+                                            <span className="legend-indicator black"></span>
+                                            <span>Atual</span>
+                                            <span className="legend-indicator gray-dashed"></span>
+                                            <span>Período anterior</span>
+                                        </div>
                                     </div>
+                                    <select
+                                        value={timeframe}
+                                        onChange={(e) => setTimeframe(e.target.value)}
+                                    >
+                                        <option value="7">Última semana</option>
+                                        <option value="30">Último mês</option>
+                                    </select>
                                 </div>
-                                <select
-                                    value={timeframe}
-                                    onChange={(e) => setTimeframe(e.target.value)}
-                                >
-                                    <option value="7">Última semana</option>
-                                    <option value="30">Último mês</option>
-                                </select>
-                            </div>
-                            <div className="chart-container-inner chart-container-expanded">
-                                <ResponsiveContainer width="100%" height={220}>
-                                    <AreaChart data={chartData} margin={{ top: 15, right: 15, left: -10, bottom: 20 }}>
-                                        <defs>
-                                            <linearGradient id="colorValorPreto" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#111827" stopOpacity={0.08} />
-                                                <stop offset="95%" stopColor="#111827" stopOpacity={0} />
-                                            </linearGradient>
-                                            <pattern id="diagonalHatch" width="8" height="8" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
-                                                <line x1="0" y1="0" x2="0" y2="8" stroke="#111827" strokeWidth="1" strokeOpacity="0.08" />
-                                            </pattern>
-                                        </defs>
+                                <div className="chart-container-inner chart-container-expanded">
+                                    <ResponsiveContainer width="100%" height={220}>
+                                        <AreaChart data={chartData} margin={{ top: 15, right: 15, left: -10, bottom: 20 }}>
+                                            <defs>
+                                                <linearGradient id="colorValorPreto" x1="0" y1="0" x2="0" y2="1">
+                                                    <stop offset="5%" stopColor="#111827" stopOpacity={0.08} />
+                                                    <stop offset="95%" stopColor="#111827" stopOpacity={0} />
+                                                </linearGradient>
+                                                <pattern id="diagonalHatch" width="8" height="8" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+                                                    <line x1="0" y1="0" x2="0" y2="8" stroke="#111827" strokeWidth="1" strokeOpacity="0.08" />
+                                                </pattern>
+                                            </defs>
 
-                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F0F1F3" />
+                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F0F1F3" />
 
-                                        <Tooltip
-                                            content={({ active, payload, label }) => {
-                                                if (active && payload && payload.length) {
-                                                    const cur = payload.find(p => p.dataKey === 'valor')?.value || 0
-                                                    const prev = payload.find(p => p.dataKey === 'valorAnterior')?.value || 0
-                                                    return (
-                                                        <div className="modern-chart-tooltip">
-                                                            <p className="tooltip-date">{label}</p>
-                                                            <div className="tooltip-row current">
-                                                                <span className="tooltip-indicator"></span>
-                                                                <span className="tooltip-txt">Atual:</span>
-                                                                <strong className="tooltip-val">{formatCurrency(cur)}</strong>
-                                                            </div>
-                                                            {prev > 0 && (
-                                                                <div className="tooltip-row prev">
-                                                                    <span className="tooltip-indicator dashed"></span>
-                                                                    <span className="tooltip-txt">Anterior:</span>
-                                                                    <strong className="tooltip-val">{formatCurrency(prev)}</strong>
+                                            <Tooltip
+                                                content={({ active, payload, label }) => {
+                                                    if (active && payload && payload.length) {
+                                                        const cur = payload.find(p => p.dataKey === 'valor')?.value || 0
+                                                        const prev = payload.find(p => p.dataKey === 'valorAnterior')?.value || 0
+                                                        return (
+                                                            <div className="modern-chart-tooltip">
+                                                                <p className="tooltip-date">{label}</p>
+                                                                <div className="tooltip-row current">
+                                                                    <span className="tooltip-indicator"></span>
+                                                                    <span className="tooltip-txt">Atual:</span>
+                                                                    <strong className="tooltip-val">{formatCurrency(cur)}</strong>
                                                                 </div>
-                                                            )}
-                                                        </div>
-                                                    )
-                                                }
-                                                return null
-                                            }}
-                                        />
+                                                                {prev > 0 && (
+                                                                    <div className="tooltip-row prev">
+                                                                        <span className="tooltip-indicator dashed"></span>
+                                                                        <span className="tooltip-txt">Anterior:</span>
+                                                                        <strong className="tooltip-val">{formatCurrency(prev)}</strong>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        )
+                                                    }
+                                                    return null
+                                                }}
+                                            />
 
-                                        <Area
-                                            type="monotone"
-                                            dataKey="valorAnterior"
-                                            stroke="#9CA3AF"
-                                            strokeWidth={2}
-                                            strokeDasharray="4 4"
-                                            fill="none"
-                                            dot={{ r: 3, fill: '#9CA3AF', strokeWidth: 0 }}
-                                            activeDot={{ r: 5, fill: '#9CA3AF' }}
-                                        />
+                                            <Area
+                                                type="monotone"
+                                                dataKey="valorAnterior"
+                                                stroke="#9CA3AF"
+                                                strokeWidth={2}
+                                                strokeDasharray="4 4"
+                                                fill="none"
+                                                dot={{ r: 3, fill: '#9CA3AF', strokeWidth: 0 }}
+                                                activeDot={{ r: 5, fill: '#9CA3AF' }}
+                                            />
 
-                                        <Area
-                                            type="monotone"
-                                            dataKey="valor"
-                                            stroke="#111827"
-                                            strokeWidth={3}
-                                            fillOpacity={1}
-                                            fill="url(#diagonalHatch)"
-                                            dot={{ r: 3.5, fill: '#111827', strokeWidth: 0 }}
-                                            activeDot={{ r: 6, fill: '#111827' }}
-                                        />
+                                            <Area
+                                                type="monotone"
+                                                dataKey="valor"
+                                                stroke="#111827"
+                                                strokeWidth={3}
+                                                fillOpacity={1}
+                                                fill="url(#diagonalHatch)"
+                                                dot={{ r: 3.5, fill: '#111827', strokeWidth: 0 }}
+                                                activeDot={{ r: 6, fill: '#111827' }}
+                                            />
 
-                                        <XAxis
-                                            dataKey="name"
-                                            axisLine={false}
-                                            tickLine={false}
-                                            tick={{ fontSize: 12, fill: '#6B7280' }}
-                                            dy={12}
-                                        />
-                                        <YAxis
-                                            axisLine={false}
-                                            tickLine={false}
-                                            tick={{ fontSize: 11, fill: '#9CA3AF' }}
-                                            tickFormatter={(val) => `R$${val >= 1000 ? `${(val/1000).toFixed(1)}k` : val}`}
-                                        />
-                                    </AreaChart>
-                                </ResponsiveContainer>
+                                            <XAxis
+                                                dataKey="name"
+                                                axisLine={false}
+                                                tickLine={false}
+                                                tick={{ fontSize: 12, fill: '#6B7280' }}
+                                                dy={12}
+                                            />
+                                            <YAxis
+                                                axisLine={false}
+                                                tickLine={false}
+                                                tick={{ fontSize: 11, fill: '#9CA3AF' }}
+                                                tickFormatter={(val) => `R$${val >= 1000 ? `${(val/1000).toFixed(1)}k` : val}`}
+                                            />
+                                        </AreaChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            </div>
+
+                            {/* Mapa de Calor — ao lado do gráfico */}
+                            <div className="heatmap-col">
+                                <DeliveryHeatMap />
                             </div>
                         </div>
 
@@ -657,6 +665,7 @@ export default function DashboardPage() {
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>
