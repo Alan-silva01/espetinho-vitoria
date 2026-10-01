@@ -67,26 +67,16 @@ const KanbanOrderCard = memo(function KanbanOrderCard({
     const customerAvatar = order.clientes?.avatr_url || order.clientes?.avatar_url || null
     const customerInitial = getCleanInitial(order.nome_cliente)
 
+    // No mobile (touch devices), drag is disabled — navigation is button-only
+    const isTouchDevice = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches
+
     return (
         <div
-            draggable
-            onDragStart={(e) => onDragStart(e, order.id)}
-            onDragEnd={onDragEnd}
-            onTouchStart={(e) => onTouchStart(e, order.id)}
-            onTouchMove={onTouchMove}
+            draggable={!isTouchDevice}
+            onDragStart={!isTouchDevice ? (e) => onDragStart(e, order.id) : undefined}
+            onDragEnd={!isTouchDevice ? onDragEnd : undefined}
             onTouchEnd={(e) => {
-                const touch = e.changedTouches[0]
-                const targetElement = document.elementFromPoint(touch.clientX, touch.clientY)
-                const column = targetElement?.closest('.kanban-col')
-                if (column) {
-                    const targetStage = column.getAttribute('data-stage')
-                    if (targetStage && targetStage !== order.status) {
-                        const allowed = validTransitions[order.status] || []
-                        if (allowed.includes(targetStage)) {
-                            onStatusChange(order.id, targetStage)
-                        }
-                    }
-                }
+                // On mobile: just propagate, no drag-to-column logic
                 onTouchEnd(e)
             }}
             className={`order-card-ref-exact ${order.status === 'cancelado' ? 'cancelled' : ''}`}

@@ -160,7 +160,7 @@
 
 .nav-item:hover {
     color: #171717;
-    background: #F3F4F6;
+    background: transparent;
 }
 
 .nav-item:hover svg {
@@ -168,7 +168,7 @@
 }
 
 .nav-item.active {
-    background: #FEE2E2;
+    background: transparent;
     color: #C41E2E;
     font-weight: 600;
 }
@@ -183,7 +183,7 @@
     left: 0;
     top: 50%;
     transform: translateY(-50%);
-    height: 16px;
+    height: 18px;
     width: 3px;
     border-radius: 0 4px 4px 0;
     background-color: #C41E2E;

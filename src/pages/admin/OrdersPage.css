@@ -3,7 +3,7 @@
     height: 100vh;
     display: flex;
     flex-direction: column;
-    background: #FCFCFC;
+    background: #EEEFF1;
     overflow: hidden;
     box-sizing: border-box;
 }
@@ -452,22 +452,30 @@
     border-radius: 14px;
     padding: 14px 16px 14px 16px;
     border: 1px solid #e5e7eb;
-    box-shadow: 0 2px 10px -2px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 2px 8px -1px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0,0,0,0.05);
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
-    cursor: grab;
+    cursor: default;
     flex-shrink: 0;
     user-select: none;
-    touch-action: pan-y;
+    touch-action: auto;
     display: flex;
     flex-direction: column;
     gap: 9px;
 }
 
+/* Desktop only: draggable cursor */
+@media (pointer: fine) {
+    .order-card-ref-exact {
+        cursor: grab;
+        touch-action: none;
+    }
+}
+
 .order-card-ref-exact:hover {
-    box-shadow: 0 6px 18px -3px rgba(0, 0, 0, 0.07);
-    transform: translateY(-1px);
+    box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.13), 0 2px 6px rgba(0,0,0,0.06);
+    transform: translateY(-2px);
 }
 
 .order-card-ref-exact.cancelled {
