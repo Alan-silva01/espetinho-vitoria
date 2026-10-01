@@ -1,16 +1,44 @@
 import { memo } from 'react'
 import {
     Timer, Receipt, Trash2,
-    Store, Bike, Utensils, RotateCcw
+    Store, Bike, Utensils, RotateCcw,
+    Wallet, MessageSquare, MoreVertical
 } from 'lucide-react'
-import { formatCurrency, getSmartItemName } from '../../lib/utils'
+import { formatCurrency } from '../../lib/utils'
 
-const getItemDisplayName = (item) => {
-    return getSmartItemName(
-        item.produtos?.nome,
-        item.variacoes_produto?.nome,
-        item.personalizacao
-    )
+import {
+    SkewerIcon,
+    DrinkGlassIcon,
+    BowlAcaiLineIcon,
+    getItemDisplayName,
+    getCleanInitial,
+    getProductIconPath,
+    renderItemProductIcon
+} from '../../lib/itemIcons'
+
+const getItemIcon = (item) => {
+    return renderItemProductIcon(item, { size: 24, imgClassName: 'card-ref-product-icon-img' })
+}
+
+const formatMinutesAgo = (date, getMinutesAgo) => {
+    const rawMinutes = typeof getMinutesAgo === 'function' ? getMinutesAgo(date) : 0
+    if (rawMinutes < 60) {
+        return `${rawMinutes} min atrás`
+    }
+    const hours = Math.floor(rawMinutes / 60)
+    const mins = rawMinutes % 60
+    return `${hours}:${mins.toString().padStart(2, '0')} hr atrás`
+}
+
+const getItemSubtitle = (item) => {
+    if (item.variacoes_produto?.nome) {
+        return item.variacoes_produto.nome
+    }
+    if (item.personalizacao && typeof item.personalizacao === 'object') {
+        const values = Object.values(item.personalizacao).filter(Boolean)
+        if (values.length > 0) return values.slice(0, 2).join(' • ')
+    }
+    return null
 }
 
 const KanbanOrderCard = memo(function KanbanOrderCard({
@@ -28,6 +56,9 @@ const KanbanOrderCard = memo(function KanbanOrderCard({
     onStatusChange,
     validTransitions
 }) {
+    const customerAvatar = order.clientes?.avatr_url || order.clientes?.avatar_url || null
+    const customerInitial = getCleanInitial(order.nome_cliente)
+
     return (
         <div
             draggable
@@ -50,52 +81,106 @@ const KanbanOrderCard = memo(function KanbanOrderCard({
                 }
                 onTouchEnd(e)
             }}
-            className={`order-card-v2 ${order.status === 'cancelado' ? 'cancelled' : (order.status === 'preparando' || order.status === 'pronto') ? 'border-purple' : order.status === 'saiu_entrega' ? 'border-orange' : order.status === 'entregue' ? 'border-green' : ''}`}
+            className={`order-card-ref-exact ${order.status === 'cancelado' ? 'cancelled' : ''}`}
             onClick={() => onSelect(order)}
         >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
-                    <span className={`type-tag ${order.tipo_pedido}`}>
-                        {order.tipo_pedido === 'entrega' ? <Bike size={12} /> : order.tipo_pedido === 'mesa' ? <Utensils size={12} /> : <Store size={12} />}
-                        {order.tipo_pedido === 'mesa' ? (order.mesas ? `Mesa ${order.mesas.numero}` : 'Mesa') : order.tipo_pedido}
-                    </span>
-                    {order.comanda_status === 'fechamento_solicitado' && order.status !== 'cancelado' && (
-                        <span className="pulse-alert" style={{ background: '#f59e0b', color: 'white', fontSize: '10px', fontWeight: '800', padding: '2px 8px', borderRadius: '6px', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            <Receipt size={12} />
-                            FECHAR CONTA
-                        </span>
+            {/* Header: Foto com status verde + Nome + Pedido + Tempo + Tag Entrega abaixo + 3 pontos à direita */}
+            <div className="card-ref-header">
+                <div className="card-ref-avatar-wrapper">
+                    {customerAvatar ? (
+                        <img
+                            src={customerAvatar}
+                            alt={order.nome_cliente || 'Cliente'}
+                            className="card-ref-avatar-img"
+                        />
+                    ) : (
+                        <div className="card-ref-avatar-fallback">
+                            {customerInitial}
+                        </div>
                     )}
-                    {order.status === 'cancelado' && (
-                        <span style={{ background: '#DC2626', color: 'white', fontSize: '10px', fontWeight: '800', padding: '2px 8px', borderRadius: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>CANCELADO</span>
-                    )}
+                    {/* Indicador de Status Verde Online */}
+                    <span className="card-ref-status-dot" />
                 </div>
-                <div style={{ fontSize: '12px', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <Timer size={12} />
-                    <span>{getMinutesAgo(order.criado_em)} min atrás</span>
-                </div>
-            </div>
 
-            <div className="card-title-group">
-                <span className="order-id">PEDIDO - {order.numero_pedido}</span>
-                <h4 className="customer-name-v2">Cliente: {order.nome_cliente || 'Sem nome'}</h4>
-            </div>
-
-            <div className="items-preview" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                {order.itens?.map((item, idx) => (
-                    <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '4px' }}>
-                        <span style={{ fontWeight: 'bold', color: '#334155', whiteSpace: 'nowrap' }}>{item.quantidade}x </span>
-                        <span style={{ fontWeight: 'bold', color: '#0f172a' }}>{getItemDisplayName(item)}</span>
+                <div className="card-ref-user-meta">
+                    <h4 className="card-ref-customer-name" title={order.nome_cliente || 'Sem nome'}>
+                        {order.nome_cliente || 'Sem nome'}
+                    </h4>
+                    <p className="card-ref-order-id">
+                        Pedido: {order.numero_pedido}
+                    </p>
+                    <div className="card-ref-time-row">
+                        <Timer size={13} className="card-ref-clock-icon" />
+                        <span>{formatMinutesAgo(order.criado_em, getMinutesAgo)}</span>
                     </div>
-                ))}
+
+                    <div className="card-ref-delivery-row">
+                        <span className={`card-ref-type-clean ${order.tipo_pedido}`}>
+                            {order.tipo_pedido === 'entrega' ? <Bike size={13} /> : order.tipo_pedido === 'mesa' ? <Utensils size={13} /> : <Store size={13} />}
+                            <span>{order.tipo_pedido === 'mesa' ? (order.mesas ? `Mesa ${order.mesas.numero}` : 'Mesa') : order.tipo_pedido === 'entrega' ? 'Entrega' : 'Retirada'}</span>
+                        </span>
+                    </div>
+                </div>
+
+                <button
+                    className="card-ref-menu-btn"
+                    title="Opções do pedido"
+                    onClick={(e) => {
+                        e.stopPropagation()
+                        onSelect(order)
+                    }}
+                >
+                    <MoreVertical size={18} />
+                </button>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #f1f5f9' }}>
-                <span style={{ fontSize: '14px', fontWeight: 'bold', color: order.status === 'cancelado' ? '#94a3b8' : '#0f172a', textDecoration: order.status === 'cancelado' ? 'line-through' : 'none' }}>{formatCurrency(order.valor_total)}</span>
+            {/* Alerta de Fechamento de Comanda se houver */}
+            {order.comanda_status === 'fechamento_solicitado' && order.status !== 'cancelado' && (
+                <div className="card-ref-alert-banner">
+                    <Receipt size={13} />
+                    <span>FECHAR CONTA SOLICITADO</span>
+                </div>
+            )}
 
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            {/* Separador sutil */}
+            <div className="card-ref-divider" />
+
+            {/* Lista dos Itens: Ícone de linha preta + Quantidade em negrito + Nome do Produto + Subtítulo */}
+            <div className="card-ref-items-list">
+                {order.itens?.map((item, idx) => {
+                    const subtitle = getItemSubtitle(item)
+                    return (
+                        <div key={idx} className="card-ref-item-row">
+                            <div className="card-ref-item-icon">
+                                {getItemIcon(item)}
+                            </div>
+                            <div className="card-ref-item-info">
+                                <div className="card-ref-item-headline">
+                                    <span className="card-ref-item-qty">{item.quantidade}x</span>
+                                    <span className="card-ref-item-name">{getItemDisplayName(item)}</span>
+                                </div>
+                                {subtitle && (
+                                    <span className="card-ref-item-subtitle">{subtitle}</span>
+                                )}
+                            </div>
+                        </div>
+                    )
+                })}
+            </div>
+
+            {/* Rodapé: Carteira + R$ 27,00 (Preço em negrito grande) + Botão "Ver detalhes" + Botão Lixeira */}
+            <div className="card-ref-footer">
+                <div className="card-ref-price-group">
+                    <Wallet size={22} className="card-ref-wallet-icon" />
+                    <span className="card-ref-price-val">
+                        {formatCurrency(order.valor_total)}
+                    </span>
+                </div>
+
+                <div className="card-ref-footer-buttons">
                     {order.status !== 'cancelado' && (
                         <button
-                            className="btn-cancel-card"
+                            className="card-ref-btn-trash"
                             title="Cancelar pedido"
                             onClick={(e) => {
                                 e.stopPropagation()
@@ -105,46 +190,17 @@ const KanbanOrderCard = memo(function KanbanOrderCard({
                             <Trash2 size={16} />
                         </button>
                     )}
-                    {order.status === 'cancelado' ? (
+
+                    {order.status === 'cancelado' && (
                         <button
-                            className="quick-action stage-confirmado"
-                            style={{ background: '#10B981', borderColor: '#059669' }}
+                            className="card-ref-btn-reactivate"
+                            title="Reativar pedido"
                             onClick={(e) => {
                                 e.stopPropagation()
                                 onReactivate(order)
                             }}
                         >
-                            <RotateCcw size={14} style={{ marginRight: '4px' }} /> Reativar
-                        </button>
-                    ) : stage.next && (
-                        <button
-                            className={`quick-action stage-${stage.next}`}
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                const nextStatus = (order.tipo_pedido === 'mesa' && stage.id === 'preparando') ? 'entregue' : stage.next;
-                                onStatusChange(order.id, nextStatus);
-                            }}
-                        >
-                            {
-                                stage.id === 'confirmado' ? (
-                                    <>
-                                        <span className="desktop-btn-label">Iniciar</span>
-                                        <span className="mobile-btn-label">Preparar</span>
-                                    </>
-                                ) : stage.id === 'preparando' ? (
-                                    order.tipo_pedido === 'mesa' ? 'Servir' : (
-                                        <>
-                                            <span className="desktop-btn-label">Enviar</span>
-                                            <span className="mobile-btn-label">Saiu p/ Entrega</span>
-                                        </>
-                                    )
-                                ) : stage.id === 'saiu_entrega' ? (
-                                    <>
-                                        <span className="desktop-btn-label">Concluir</span>
-                                        <span className="mobile-btn-label">Entregue</span>
-                                    </>
-                                ) : 'Iniciar'
-                            }
+                            <RotateCcw size={15} />
                         </button>
                     )}
                 </div>

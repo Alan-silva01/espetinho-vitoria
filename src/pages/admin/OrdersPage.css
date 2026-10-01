@@ -444,6 +444,415 @@
     margin: 0;
 }
 
+/* ========================================================
+   ESTILO EXATO DO CARD KANBAN (BASEADO 100% NA REFERÊNCIA)
+   ======================================================== */
+.order-card-ref-exact {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 14px 16px 14px 16px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 2px 10px -2px rgba(0, 0, 0, 0.04);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    cursor: grab;
+    flex-shrink: 0;
+    user-select: none;
+    touch-action: pan-y;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+.order-card-ref-exact:hover {
+    box-shadow: 0 6px 18px -3px rgba(0, 0, 0, 0.07);
+    transform: translateY(-1px);
+}
+
+.order-card-ref-exact.cancelled {
+    opacity: 0.65;
+    border: 2px dashed #ef4444;
+    background: #fffafa;
+}
+
+/* Faixa superior preta do topo */
+.order-card-ref-exact::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: #0f172a;
+    border-top-left-radius: 14px;
+    border-top-right-radius: 14px;
+}
+
+/* Header do Card */
+.card-ref-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    position: relative;
+    padding-top: 2px;
+}
+
+.card-ref-avatar-wrapper {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.card-ref-avatar-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+    border: 1.5px solid #ffffff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.card-ref-avatar-fallback {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: #e2e8f0;
+    color: #334155;
+    font-size: 16px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1.5px solid #ffffff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.card-ref-status-dot {
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #22c55e;
+    border: 2px solid #ffffff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.card-ref-user-meta {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.card-ref-customer-name {
+    font-size: 14px;
+    font-weight: 800;
+    color: #09090b;
+    margin: 0;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.card-ref-order-id {
+    font-size: 11.5px;
+    font-weight: 500;
+    color: #71717a;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.card-ref-time-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: #71717a;
+    font-weight: 500;
+    margin-top: 1px;
+    line-height: 1.2;
+}
+
+.card-ref-clock-icon {
+    color: #71717a;
+    width: 12px;
+    height: 12px;
+}
+
+.card-ref-delivery-row {
+    margin-top: 1px;
+}
+
+.card-ref-type-clean {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    border: none;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+}
+
+.card-ref-type-clean.retirada {
+    color: #16a34a; /* Verde para Retirada */
+}
+
+.card-ref-type-clean.retirada svg {
+    color: #16a34a;
+}
+
+.card-ref-type-clean.entrega {
+    color: #2563eb; /* Azul para Entrega */
+}
+
+.card-ref-type-clean.entrega svg {
+    color: #2563eb;
+}
+
+.card-ref-type-clean.mesa {
+    color: #db2777;
+}
+
+.card-ref-type-clean.mesa svg {
+    color: #db2777;
+}
+
+.card-ref-menu-btn {
+    background: transparent;
+    border: none;
+    color: #71717a;
+    cursor: pointer;
+    padding: 2px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, color 0.15s;
+    margin-top: -2px;
+}
+
+.card-ref-menu-btn:hover {
+    background: #f4f4f5;
+    color: #09090b;
+}
+
+/* Banner de alerta de fechamento */
+.card-ref-alert-banner {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #fef3c7;
+    color: #d97706;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+}
+
+/* Linha divisória sutil */
+.card-ref-divider {
+    height: 1px;
+    background: #f1f5f9;
+    margin: 0;
+}
+
+/* Lista de Itens com ícones pretos */
+.card-ref-items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.card-ref-item-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.card-ref-item-icon {
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #0f172a;
+}
+
+.card-ref-item-icon svg {
+    width: 22px;
+    height: 22px;
+}
+
+.card-ref-product-icon-img {
+    width: 26px;
+    height: 26px;
+    object-fit: contain;
+    display: block;
+}
+
+.card-ref-item-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0px;
+}
+
+.card-ref-item-headline {
+    display: flex;
+    align-items: flex-start;
+    gap: 5px;
+    line-height: 1.25;
+}
+
+.card-ref-item-qty {
+    font-size: 11.5px;
+    font-weight: 800;
+    color: #09090b;
+    flex-shrink: 0;
+}
+
+.card-ref-item-name {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #09090b;
+    letter-spacing: -0.01em;
+    word-break: break-word;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.card-ref-item-subtitle {
+    font-size: 11px;
+    font-weight: 500;
+    color: #94a3b8;
+    line-height: 1.15;
+    margin-top: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Rodapé do Card */
+.card-ref-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 2px;
+    padding-top: 8px;
+}
+
+.card-ref-price-group {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.card-ref-wallet-icon {
+    color: #09090b;
+    width: 18px;
+    height: 18px;
+}
+
+.card-ref-price-val {
+    font-size: 16px;
+    font-weight: 800;
+    color: #09090b;
+    letter-spacing: -0.01em;
+}
+
+.card-ref-footer-buttons {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.card-ref-btn-details {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #f4f4f5;
+    border: 1px solid #e4e4e7;
+    color: #18181b;
+    padding: 6px 12px;
+    border-radius: 9px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.card-ref-btn-details svg {
+    width: 13px;
+    height: 13px;
+}
+
+.card-ref-btn-details:hover {
+    background: #e4e4e7;
+    color: #000000;
+}
+
+.card-ref-btn-trash {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    border: 1px solid #e4e4e7;
+    background: #ffffff;
+    color: #71717a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.card-ref-btn-trash svg {
+    width: 14px;
+    height: 14px;
+}
+
+.card-ref-btn-trash:hover {
+    background: #fee2e2;
+    border-color: #fca5a5;
+    color: #dc2626;
+}
+
+.card-ref-btn-reactivate {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    border: 1px solid #a7f3d0;
+    background: #ecfdf5;
+    color: #059669;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.card-ref-btn-reactivate:hover {
+    background: #10b981;
+    color: #ffffff;
+}
+
 .address-preview {
     display: flex;
     align-items: center;
@@ -1065,19 +1474,19 @@
 .v5-items-list {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 0;
 }
 
 .v5-item-row {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    padding: 12px 0;
-    border-bottom: 1px solid #f8fafc;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #e2e8f0;
 }
 
 .v5-item-row:last-child {
-    border: none;
+    border-bottom: none;
 }
 
 .v5-item-main {
@@ -1086,15 +1495,23 @@
 }
 
 .v5-item-icon {
-    width: 44px;
-    height: 44px;
-    background: #f1f5f9;
-    border-radius: 10px;
+    width: 56px;
+    height: 56px;
+    background: transparent;
+    border-radius: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     color: #94a3b8;
     flex-shrink: 0;
+    overflow: visible;
+}
+
+.v5-item-icon-img {
+    width: 52px;
+    height: 52px;
+    object-fit: contain;
+    display: block;
 }
 
 .v5-item-info h4 {

@@ -348,8 +348,8 @@ export default function OrdersPage() {
                     *,
                     itens:itens_pedido(
                         *,
-                        produtos(nome, opcoes_personalizacao),
-                        variacoes_produto(nome)
+                        produtos(nome, imagem_url, opcoes_personalizacao, categorias(nome)),
+                        variacoes_produto(nome, imagem_url)
                     ),
                     clientes(telefone, nome, avatr_url),
                     mesas(numero)

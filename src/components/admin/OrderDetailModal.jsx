@@ -1,9 +1,10 @@
 import {
     X, Timer, Printer, Receipt,
-    Bike, ChefHat, GlassWater, IceCreamCone, UtensilsCrossed,
+    Bike, ChefHat, Store, Utensils,
     XCircle, CheckCircle, ArrowRight, RotateCcw, ReceiptText
 } from 'lucide-react'
 import { formatCurrency, filterPersonalizacao, getSmartItemName } from '../../lib/utils'
+import { renderItemProductIcon, getCleanInitial } from '../../lib/itemIcons'
 
 const getItemDisplayName = (item) => {
     return getSmartItemName(
@@ -58,7 +59,7 @@ export default function OrderDetailModal({
                                     />
                                 ) : (
                                     <div className="summary-avatar-fallback">
-                                        {order.nome_cliente ? order.nome_cliente.charAt(0).toUpperCase() : '?'}
+                                        {getCleanInitial(order.nome_cliente)}
                                     </div>
                                 )}
                             </div>
@@ -66,7 +67,7 @@ export default function OrderDetailModal({
                             <div className="summary-id-group">
                                 <div className="summary-id-row">
                                     <h4 className="summary-customer-name-bold">{order.nome_cliente || 'Sem nome'}</h4>
-                                    <span className="summary-order-number-pill">Pedido #{order.numero_pedido}</span>
+                                    <span className="summary-order-number-pill">Pedido {order.numero_pedido}</span>
                                     <div className={`status-badge-v5 ${order.status}`}>
                                         <Timer size={13} />
                                         {order.status === 'cancelado' ? 'Cancelado' :
@@ -82,7 +83,20 @@ export default function OrderDetailModal({
                                     )}
                                 </div>
                                 <p className="summary-meta">
-                                    <strong>{new Date(order.criado_em).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })}</strong> às <strong>{new Date(order.criado_em).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</strong> • {order.tipo_pedido === 'mesa' && order.mesas ? `MESA ${order.mesas.numero}` : order.tipo_pedido?.toUpperCase()}
+                                    <strong>{new Date(order.criado_em).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })}</strong> às <strong>{new Date(order.criado_em).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</strong> •{' '}
+                                    {order.tipo_pedido === 'mesa' && order.mesas ? (
+                                        `Mesa ${order.mesas.numero}`
+                                    ) : order.tipo_pedido === 'entrega' ? (
+                                        <span style={{ color: '#2563eb', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                                            <Bike size={12} /> Entrega
+                                        </span>
+                                    ) : order.tipo_pedido === 'retirada' ? (
+                                        <span style={{ color: '#16a34a', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                                            <Store size={12} /> Retirada
+                                        </span>
+                                    ) : (
+                                        order.tipo_pedido?.toUpperCase()
+                                    )}
                                 </p>
                             </div>
                         </div>
@@ -124,8 +138,7 @@ export default function OrderDetailModal({
                             <div key={idx} className="v5-item-row">
                                 <div className="v5-item-main">
                                     <div className="v5-item-icon">
-                                        {item.produtos?.categoria?.nome?.toLowerCase()?.includes('bebida') ? <GlassWater size={20} /> :
-                                            item.produtos?.categoria?.nome?.toLowerCase()?.includes('açai') ? <IceCreamCone size={20} /> : <UtensilsCrossed size={20} />}
+                                        {renderItemProductIcon(item, { size: 22, imgClassName: 'v5-item-icon-img' })}
                                     </div>
                                     <div className="v5-item-info">
                                         <h4>{item.quantidade}x {getItemDisplayName(item)}</h4>
