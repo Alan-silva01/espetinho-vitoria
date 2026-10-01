@@ -4,13 +4,13 @@
 
 ## T-001 — Criar funções puras de validação de estoque [concluida]
 
-- Refs: US-001, AC-001 a AC-008
+- Refs: US-001, AC-001, AC-002, AC-003, AC-004, AC-005, AC-006, AC-007, AC-008
 - Arquivos: src/lib/stockValidator.js
 - Notas: Funções puras sem dependência de React. Lógica extraída do ProductPage.jsx.
 
 ## T-002 — Criar testes TDD para validação de estoque [concluida]
 
-- Refs: US-001, AC-001 a AC-008
+- Refs: US-001, AC-001, AC-002, AC-003, AC-004, AC-005, AC-006, AC-007, AC-008
 - Arquivos: test/controle-estoque-arroz.spec.test.js
 - Notas: Cada AC tem um teste correspondente com tag @spec:AC-xxx.
 

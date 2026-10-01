@@ -963,6 +963,330 @@
       "primeiraVez": "2026-09-20T21:34:53.401Z",
       "ultimaVez": "2026-09-20T21:34:53.401Z",
       "gitRev": "e6c9731"
+    },
+    "ID_DUPLICADO::fix-tela-preta::US-001": {
+      "codigo": "ID_DUPLICADO",
+      "feature": "fix-tela-preta",
+      "ref": "US-001",
+      "ocorrencias": 2,
+      "primeiraVez": "2026-10-01T22:08:24.939Z",
+      "ultimaVez": "2026-10-01T22:12:32.376Z",
+      "gitRev": "7f3d8ed"
+    },
+    "ID_DUPLICADO::fix-tela-preta::AC-001": {
+      "codigo": "ID_DUPLICADO",
+      "feature": "fix-tela-preta",
+      "ref": "AC-001",
+      "ocorrencias": 2,
+      "primeiraVez": "2026-10-01T22:08:24.944Z",
+      "ultimaVez": "2026-10-01T22:12:32.377Z",
+      "gitRev": "7f3d8ed"
+    },
+    "ID_DUPLICADO::fix-tela-preta::AC-002": {
+      "codigo": "ID_DUPLICADO",
+      "feature": "fix-tela-preta",
+      "ref": "AC-002",
+      "ocorrencias": 2,
+      "primeiraVez": "2026-10-01T22:08:24.944Z",
+      "ultimaVez": "2026-10-01T22:12:32.377Z",
+      "gitRev": "7f3d8ed"
+    },
+    "ID_DUPLICADO::fix-tela-preta::AC-003": {
+      "codigo": "ID_DUPLICADO",
+      "feature": "fix-tela-preta",
+      "ref": "AC-003",
+      "ocorrencias": 2,
+      "primeiraVez": "2026-10-01T22:08:24.944Z",
+      "ultimaVez": "2026-10-01T22:12:32.377Z",
+      "gitRev": "7f3d8ed"
+    },
+    "ID_DUPLICADO::fix-tela-preta::AC-004": {
+      "codigo": "ID_DUPLICADO",
+      "feature": "fix-tela-preta",
+      "ref": "AC-004",
+      "ocorrencias": 2,
+      "primeiraVez": "2026-10-01T22:08:24.944Z",
+      "ultimaVez": "2026-10-01T22:12:32.377Z",
+      "gitRev": "7f3d8ed"
+    },
+    "ID_DUPLICADO::fix-tela-preta::ASM-001": {
+      "codigo": "ID_DUPLICADO",
+      "feature": "fix-tela-preta",
+      "ref": "ASM-001",
+      "ocorrencias": 2,
+      "primeiraVez": "2026-10-01T22:08:24.944Z",
+      "ultimaVez": "2026-10-01T22:12:32.377Z",
+      "gitRev": "7f3d8ed"
+    },
+    "ID_DUPLICADO::fix-tela-preta::ASM-002": {
+      "codigo": "ID_DUPLICADO",
+      "feature": "fix-tela-preta",
+      "ref": "ASM-002",
+      "ocorrencias": 2,
+      "primeiraVez": "2026-10-01T22:08:24.944Z",
+      "ultimaVez": "2026-10-01T22:12:32.377Z",
+      "gitRev": "7f3d8ed"
+    },
+    "SECAO_AUSENTE::controle-estoque-arroz::.spec/features/controle-estoque-arroz/spec.md": {
+      "codigo": "SECAO_AUSENTE",
+      "feature": "controle-estoque-arroz",
+      "ref": ".spec/features/controle-estoque-arroz/spec.md",
+      "ocorrencias": 2,
+      "primeiraVez": "2026-10-01T22:08:24.944Z",
+      "ultimaVez": "2026-10-01T22:12:32.377Z",
+      "gitRev": "7f3d8ed"
+    },
+    "REF_MALFORMADA::controle-estoque-arroz::T-001": {
+      "codigo": "REF_MALFORMADA",
+      "feature": "controle-estoque-arroz",
+      "ref": "T-001",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-01T22:08:24.944Z",
+      "ultimaVez": "2026-10-01T22:08:24.944Z",
+      "gitRev": "7f3d8ed"
+    },
+    "REF_MALFORMADA::controle-estoque-arroz::T-002": {
+      "codigo": "REF_MALFORMADA",
+      "feature": "controle-estoque-arroz",
+      "ref": "T-002",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-01T22:08:24.944Z",
+      "ultimaVez": "2026-10-01T22:08:24.944Z",
+      "gitRev": "7f3d8ed"
+    },
+    "TASK_CONCLUIDA_SEM_PROVA::controle-estoque-arroz::T-001": {
+      "codigo": "TASK_CONCLUIDA_SEM_PROVA",
+      "feature": "controle-estoque-arroz",
+      "ref": "T-001",
+      "ocorrencias": 2,
+      "primeiraVez": "2026-10-01T22:08:24.944Z",
+      "ultimaVez": "2026-10-01T22:08:24.944Z",
+      "gitRev": "7f3d8ed"
+    },
+    "TASK_CONCLUIDA_SEM_PROVA::controle-estoque-arroz::T-002": {
+      "codigo": "TASK_CONCLUIDA_SEM_PROVA",
+      "feature": "controle-estoque-arroz",
+      "ref": "T-002",
+      "ocorrencias": 2,
+      "primeiraVez": "2026-10-01T22:08:24.944Z",
+      "ultimaVez": "2026-10-01T22:08:24.944Z",
+      "gitRev": "7f3d8ed"
+    },
+    "TASK_CONCLUIDA_SEM_PROVA::controle-estoque-arroz::T-004": {
+      "codigo": "TASK_CONCLUIDA_SEM_PROVA",
+      "feature": "controle-estoque-arroz",
+      "ref": "T-004",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-01T22:08:24.944Z",
+      "ultimaVez": "2026-10-01T22:08:24.944Z",
+      "gitRev": "7f3d8ed"
+    },
+    "TASK_CONCLUIDA_SEM_PROVA::controle-estoque-arroz::T-005": {
+      "codigo": "TASK_CONCLUIDA_SEM_PROVA",
+      "feature": "controle-estoque-arroz",
+      "ref": "T-005",
+      "ocorrencias": 2,
+      "primeiraVez": "2026-10-01T22:08:24.944Z",
+      "ultimaVez": "2026-10-01T22:08:24.944Z",
+      "gitRev": "7f3d8ed"
+    },
+    "AC_SEM_PROVA::controle-estoque-arroz::AC-001": {
+      "codigo": "AC_SEM_PROVA",
+      "feature": "controle-estoque-arroz",
+      "ref": "AC-001",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-01T22:08:24.944Z",
+      "ultimaVez": "2026-10-01T22:08:24.944Z",
+      "gitRev": "7f3d8ed"
+    },
+    "AC_SEM_PROVA::controle-estoque-arroz::AC-002": {
+      "codigo": "AC_SEM_PROVA",
+      "feature": "controle-estoque-arroz",
+      "ref": "AC-002",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-01T22:08:24.944Z",
+      "ultimaVez": "2026-10-01T22:08:24.944Z",
+      "gitRev": "7f3d8ed"
+    },
+    "AC_SEM_PROVA::controle-estoque-arroz::AC-003": {
+      "codigo": "AC_SEM_PROVA",
+      "feature": "controle-estoque-arroz",
+      "ref": "AC-003",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-01T22:08:24.944Z",
+      "ultimaVez": "2026-10-01T22:08:24.944Z",
+      "gitRev": "7f3d8ed"
+    },
+    "AC_SEM_PROVA::controle-estoque-arroz::AC-004": {
+      "codigo": "AC_SEM_PROVA",
+      "feature": "controle-estoque-arroz",
+      "ref": "AC-004",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-01T22:08:24.944Z",
+      "ultimaVez": "2026-10-01T22:08:24.944Z",
+      "gitRev": "7f3d8ed"
+    },
+    "AC_SEM_PROVA::controle-estoque-arroz::AC-005": {
+      "codigo": "AC_SEM_PROVA",
+      "feature": "controle-estoque-arroz",
+      "ref": "AC-005",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-01T22:08:24.944Z",
+      "ultimaVez": "2026-10-01T22:08:24.944Z",
+      "gitRev": "7f3d8ed"
+    },
+    "AC_SEM_PROVA::controle-estoque-arroz::AC-006": {
+      "codigo": "AC_SEM_PROVA",
+      "feature": "controle-estoque-arroz",
+      "ref": "AC-006",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-01T22:08:24.944Z",
+      "ultimaVez": "2026-10-01T22:08:24.944Z",
+      "gitRev": "7f3d8ed"
+    },
+    "AC_SEM_PROVA::controle-estoque-arroz::AC-007": {
+      "codigo": "AC_SEM_PROVA",
+      "feature": "controle-estoque-arroz",
+      "ref": "AC-007",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-01T22:08:24.944Z",
+      "ultimaVez": "2026-10-01T22:08:24.944Z",
+      "gitRev": "7f3d8ed"
+    },
+    "AC_SEM_PROVA::controle-estoque-arroz::AC-008": {
+      "codigo": "AC_SEM_PROVA",
+      "feature": "controle-estoque-arroz",
+      "ref": "AC-008",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-01T22:08:24.944Z",
+      "ultimaVez": "2026-10-01T22:08:24.944Z",
+      "gitRev": "7f3d8ed"
+    },
+    "AC_SEM_PROVA::controle-estoque-arroz::AC-009": {
+      "codigo": "AC_SEM_PROVA",
+      "feature": "controle-estoque-arroz",
+      "ref": "AC-009",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-01T22:08:24.944Z",
+      "ultimaVez": "2026-10-01T22:08:24.944Z",
+      "gitRev": "7f3d8ed"
+    },
+    "AC_SEM_PROVA::controle-estoque-arroz::AC-010": {
+      "codigo": "AC_SEM_PROVA",
+      "feature": "controle-estoque-arroz",
+      "ref": "AC-010",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-01T22:08:24.944Z",
+      "ultimaVez": "2026-10-01T22:08:24.944Z",
+      "gitRev": "7f3d8ed"
+    },
+    "AC_SEM_PROVA::controle-estoque-arroz::AC-011": {
+      "codigo": "AC_SEM_PROVA",
+      "feature": "controle-estoque-arroz",
+      "ref": "AC-011",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-01T22:08:24.944Z",
+      "ultimaVez": "2026-10-01T22:08:24.944Z",
+      "gitRev": "7f3d8ed"
+    },
+    "TASK_CONCLUIDA_SEM_PROVA::dashboard-grafico-scroll-pedidos::T-006": {
+      "codigo": "TASK_CONCLUIDA_SEM_PROVA",
+      "feature": "dashboard-grafico-scroll-pedidos",
+      "ref": "T-006",
+      "ocorrencias": 2,
+      "primeiraVez": "2026-10-01T22:08:24.944Z",
+      "ultimaVez": "2026-10-01T22:08:24.944Z",
+      "gitRev": "7f3d8ed"
+    },
+    "ARQUIVO_INEXISTENTE::dashboard-grafico-scroll-pedidos::T-007": {
+      "codigo": "ARQUIVO_INEXISTENTE",
+      "feature": "dashboard-grafico-scroll-pedidos",
+      "ref": "T-007",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-01T22:08:24.944Z",
+      "ultimaVez": "2026-10-01T22:08:24.944Z",
+      "gitRev": "7f3d8ed"
+    },
+    "AC_SEM_TESTE::dashboard-grafico-scroll-pedidos::AC-012": {
+      "codigo": "AC_SEM_TESTE",
+      "feature": "dashboard-grafico-scroll-pedidos",
+      "ref": "AC-012",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-01T22:08:24.944Z",
+      "ultimaVez": "2026-10-01T22:08:24.944Z",
+      "gitRev": "7f3d8ed"
+    },
+    "AC_SEM_TESTE::dashboard-grafico-scroll-pedidos::AC-013": {
+      "codigo": "AC_SEM_TESTE",
+      "feature": "dashboard-grafico-scroll-pedidos",
+      "ref": "AC-013",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-01T22:08:24.944Z",
+      "ultimaVez": "2026-10-01T22:08:24.944Z",
+      "gitRev": "7f3d8ed"
+    },
+    "AC_SEM_TESTE::dashboard-grafico-scroll-pedidos::AC-014": {
+      "codigo": "AC_SEM_TESTE",
+      "feature": "dashboard-grafico-scroll-pedidos",
+      "ref": "AC-014",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-01T22:08:24.944Z",
+      "ultimaVez": "2026-10-01T22:08:24.944Z",
+      "gitRev": "7f3d8ed"
+    },
+    "AC_SEM_TESTE::dashboard-grafico-scroll-pedidos::AC-015": {
+      "codigo": "AC_SEM_TESTE",
+      "feature": "dashboard-grafico-scroll-pedidos",
+      "ref": "AC-015",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-01T22:08:24.944Z",
+      "ultimaVez": "2026-10-01T22:08:24.944Z",
+      "gitRev": "7f3d8ed"
+    },
+    "AC_SEM_TESTE::dashboard-grafico-scroll-pedidos::AC-016": {
+      "codigo": "AC_SEM_TESTE",
+      "feature": "dashboard-grafico-scroll-pedidos",
+      "ref": "AC-016",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-01T22:08:24.944Z",
+      "ultimaVez": "2026-10-01T22:08:24.944Z",
+      "gitRev": "7f3d8ed"
+    },
+    "TASK_CONCLUIDA_SEM_PROVA::fix-tela-preta::T-001": {
+      "codigo": "TASK_CONCLUIDA_SEM_PROVA",
+      "feature": "fix-tela-preta",
+      "ref": "T-001",
+      "ocorrencias": 2,
+      "primeiraVez": "2026-10-01T22:08:24.944Z",
+      "ultimaVez": "2026-10-01T22:08:24.944Z",
+      "gitRev": "7f3d8ed"
+    },
+    "TASK_CONCLUIDA_SEM_PROVA::fix-tela-preta::T-002": {
+      "codigo": "TASK_CONCLUIDA_SEM_PROVA",
+      "feature": "fix-tela-preta",
+      "ref": "T-002",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-01T22:08:24.944Z",
+      "ultimaVez": "2026-10-01T22:08:24.944Z",
+      "gitRev": "7f3d8ed"
+    },
+    "TASK_CONCLUIDA_SEM_PROVA::fix-tela-preta::T-003": {
+      "codigo": "TASK_CONCLUIDA_SEM_PROVA",
+      "feature": "fix-tela-preta",
+      "ref": "T-003",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-01T22:08:24.944Z",
+      "ultimaVez": "2026-10-01T22:08:24.944Z",
+      "gitRev": "7f3d8ed"
+    },
+    "VERIFY_OBSOLETO::fix-tela-preta::—": {
+      "codigo": "VERIFY_OBSOLETO",
+      "feature": "fix-tela-preta",
+      "ref": "—",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-01T22:08:24.944Z",
+      "ultimaVez": "2026-10-01T22:08:24.944Z",
+      "gitRev": "7f3d8ed"
     }
   }
 }

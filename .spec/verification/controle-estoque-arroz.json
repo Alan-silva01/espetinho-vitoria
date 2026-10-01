@@ -1,0 +1,67 @@
+{
+  "feature": "controle-estoque-arroz",
+  "timestamp": "2026-10-01T22:12:11.607Z",
+  "gitRev": "7f3d8ed",
+  "command": "node --test --test-reporter=tap",
+  "reporter": "tap",
+  "exitCode": 0,
+  "testsParsed": 30,
+  "results": {
+    "AC-001": {
+      "status": "pass",
+      "testName": "AC-001: Arroz Baião estoque=1, pedir 1, carrinho vazio → válido @spec:AC-001",
+      "method": "tap"
+    },
+    "AC-002": {
+      "status": "pass",
+      "testName": "AC-002: Arroz Baião estoque=1, pedir 2, carrinho vazio → bloqueado com mensagem @spec:AC-002",
+      "method": "tap"
+    },
+    "AC-003": {
+      "status": "pass",
+      "testName": "AC-003: Arroz Baião estoque=1, já tem 1 no carrinho, pedir mais 1 → bloqueado @spec:AC-003",
+      "method": "tap"
+    },
+    "AC-004": {
+      "status": "pass",
+      "testName": "AC-004: Arroz Branco sem controle de estoque → sempre válido @spec:AC-004",
+      "method": "tap"
+    },
+    "AC-005": {
+      "status": "pass",
+      "testName": "AC-005: Arroz Baião estoque=0 (esgotado), pedir 1 → bloqueado @spec:AC-005",
+      "method": "tap"
+    },
+    "AC-006": {
+      "status": "pass",
+      "testName": "AC-006: Arroz Baião estoque=5, pedir 3, carrinho vazio → válido @spec:AC-006",
+      "method": "tap"
+    },
+    "AC-007": {
+      "status": "pass",
+      "testName": "AC-007: Arroz Baião estoque=5, 3 no carrinho, pedir mais 3 → bloqueado, disponível=2 @spec:AC-007",
+      "method": "tap"
+    },
+    "AC-008": {
+      "status": "pass",
+      "testName": "AC-008: validateAllOptions — um arroz OK, outro esgotado → falha no primeiro inválido @spec:AC-008",
+      "method": "tap"
+    },
+    "AC-009": {
+      "status": "pass",
+      "testName": "AC-009: getOptionStock extrai estoque direto de opcoes_personalizacao @spec:AC-009",
+      "method": "tap"
+    },
+    "AC-010": {
+      "status": "pass",
+      "testName": "AC-010: validateAllOptions com nextQty excede estoque da opção selecionada @spec:AC-010",
+      "method": "tap"
+    },
+    "AC-011": {
+      "status": "pass",
+      "testName": "AC-011: validateOptionStock bloqueia seleção se qty atual > estoque da opção @spec:AC-011",
+      "method": "tap"
+    }
+  },
+  "principles": {}
+}

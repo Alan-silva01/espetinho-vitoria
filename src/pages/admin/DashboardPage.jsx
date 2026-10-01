@@ -1,10 +1,11 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import {
     DollarSign, ShoppingBag, Users, Heart,
     TrendingUp, ArrowUpRight, ArrowDownRight,
     Flame, Award, Clock, Receipt, Stars, Calendar,
     BarChart3, ChevronRight, MoreHorizontal,
-    Utensils, Truck, Check, Search, Bell
+    Utensils, Truck, Check, Search, Bell,
+    Sparkles, ArrowRight
 } from 'lucide-react'
 import {
     AreaChart, Area, XAxis, YAxis, Tooltip,
@@ -12,6 +13,7 @@ import {
 } from 'recharts'
 import { supabase } from '../../lib/supabase'
 import { formatCurrency } from '../../lib/utils'
+import { formatOrderNumberWithoutHash, filterTodayOrders } from '../../lib/dashboardOrderUtils'
 import { useVisibilityRefresh } from '../../hooks/useVisibilityRefresh'
 import { DashboardSkeleton } from '../../components/ui/SkeletonLoader'
 import './DashboardPage.css'
@@ -36,6 +38,7 @@ export default function DashboardPage() {
     const [timeframe, setTimeframe] = useState('7') // '7' ou '30' dias
     const [topProducts, setTopProducts] = useState([])
     const [recentOrders, setRecentOrders] = useState([])
+    const [todayOrdersList, setTodayOrdersList] = useState([])
     const [categorySales, setCategorySales] = useState([])
     const [lowStockProducts, setLowStockProducts] = useState([])
     const [chartData, setChartData] = useState([])
@@ -198,6 +201,8 @@ export default function DashboardPage() {
             })
 
             setRecentOrders(orders.slice(0, 4))
+            const filteredToday = filterTodayOrders(orders, today)
+            setTodayOrdersList(filteredToday)
             setChartData(chartNodes)
 
             // 3. Category Breakdown
@@ -381,179 +386,200 @@ export default function DashboardPage() {
                     </div>
                 </div>
 
-                {/* Saídas de hoje elegante */}
-                <div className="volume-pills-bar">
-                    <span className="volume-bar-title">Saídas de hoje:</span>
-                    <div className="volume-pill-item">
-                        <span className="vol-name">Espetinhos</span>
-                        <strong className="vol-count">{stats.itemCount.espetos}</strong>
-                    </div>
-                    <div className="volume-pill-item">
-                        <span className="vol-name">Açaí Tradicional</span>
-                        <strong className="vol-count">{stats.itemCount.acaiTradicional}</strong>
-                    </div>
-                    <div className="volume-pill-item">
-                        <span className="vol-name">Açaí Especial</span>
-                        <strong className="vol-count">{stats.itemCount.acaiEspecial}</strong>
-                    </div>
-                    <div className="volume-pill-item">
-                        <span className="vol-name">Refrigerantes</span>
-                        <strong className="vol-count">{stats.itemCount.refrigerantes}</strong>
-                    </div>
-                </div>
-
                 <div className="dashboard-content-grid">
                     <div className="main-stats-column">
-                        {/* Chart + Últimos Pedidos lado a lado, mesma altura */}
-                        <div className="chart-and-orders-row">
-                            {/* Chart Card */}
-                            <div className="chart-card-premium chart-flex">
-                                <div className="chart-header">
-                                    <div className="chart-title-box">
-                                        <h3>Vendas ({timeframe === '7' ? '7 dias' : '30 dias'})</h3>
-                                        <div className="chart-legend-simple">
-                                            <span className="legend-indicator black"></span>
-                                            <span>Atual</span>
-                                            <span className="legend-indicator gray-dashed"></span>
-                                            <span>Período anterior</span>
-                                        </div>
+                        {/* Pedidos do Dia em Scroll Infinito Horizontal (Acima do Gráfico) */}
+                        <div className="today-orders-section">
+                            <div className="today-orders-header">
+                                <div className="today-orders-title-wrap">
+                                    <div className="today-badge-live">
+                                        <span className="live-ping"></span>
+                                        <span className="live-dot"></span>
                                     </div>
-                                    <select
-                                        value={timeframe}
-                                        onChange={(e) => setTimeframe(e.target.value)}
-                                    >
-                                        <option value="7">Última semana</option>
-                                        <option value="30">Último mês</option>
-                                    </select>
+                                    <h3>Pedidos de Hoje</h3>
+                                    <span className="today-orders-count-badge">
+                                        {todayOrdersList.length} {todayOrdersList.length === 1 ? 'pedido' : 'pedidos'}
+                                    </span>
                                 </div>
-                                <div className="chart-container-inner chart-container-flex">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <AreaChart data={chartData} margin={{ top: 15, right: 15, left: -10, bottom: 20 }}>
-                                            <defs>
-                                                <linearGradient id="colorValorPreto" x1="0" y1="0" x2="0" y2="1">
-                                                    <stop offset="5%" stopColor="#111827" stopOpacity={0.08} />
-                                                    <stop offset="95%" stopColor="#111827" stopOpacity={0} />
-                                                </linearGradient>
-                                                <pattern id="diagonalHatch" width="8" height="8" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
-                                                    <line x1="0" y1="0" x2="0" y2="8" stroke="#111827" strokeWidth="1" strokeOpacity="0.08" />
-                                                </pattern>
-                                            </defs>
-
-                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F0F1F3" />
-
-                                            <Tooltip
-                                                content={({ active, payload, label }) => {
-                                                    if (active && payload && payload.length) {
-                                                        const cur = payload.find(p => p.dataKey === 'valor')?.value || 0
-                                                        const prev = payload.find(p => p.dataKey === 'valorAnterior')?.value || 0
-                                                        return (
-                                                            <div className="modern-chart-tooltip">
-                                                                <p className="tooltip-date">{label}</p>
-                                                                <div className="tooltip-row current">
-                                                                    <span className="tooltip-indicator"></span>
-                                                                    <span className="tooltip-txt">Atual:</span>
-                                                                    <strong className="tooltip-val">{formatCurrency(cur)}</strong>
-                                                                </div>
-                                                                {prev > 0 && (
-                                                                    <div className="tooltip-row prev">
-                                                                        <span className="tooltip-indicator dashed"></span>
-                                                                        <span className="tooltip-txt">Anterior:</span>
-                                                                        <strong className="tooltip-val">{formatCurrency(prev)}</strong>
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                        )
-                                                    }
-                                                    return null
-                                                }}
-                                            />
-
-                                            <Area
-                                                type="monotone"
-                                                dataKey="valorAnterior"
-                                                stroke="#9CA3AF"
-                                                strokeWidth={2}
-                                                strokeDasharray="4 4"
-                                                fill="none"
-                                                dot={{ r: 3, fill: '#9CA3AF', strokeWidth: 0 }}
-                                                activeDot={{ r: 5, fill: '#9CA3AF' }}
-                                            />
-
-                                            <Area
-                                                type="monotone"
-                                                dataKey="valor"
-                                                stroke="#111827"
-                                                strokeWidth={3}
-                                                fillOpacity={1}
-                                                fill="url(#diagonalHatch)"
-                                                dot={{ r: 3.5, fill: '#111827', strokeWidth: 0 }}
-                                                activeDot={{ r: 6, fill: '#111827' }}
-                                            />
-
-                                            <XAxis
-                                                dataKey="name"
-                                                axisLine={false}
-                                                tickLine={false}
-                                                tick={{ fontSize: 12, fill: '#6B7280' }}
-                                                dy={12}
-                                            />
-                                            <YAxis
-                                                axisLine={false}
-                                                tickLine={false}
-                                                tick={{ fontSize: 11, fill: '#9CA3AF' }}
-                                                tickFormatter={(val) => `R$${val >= 1000 ? `${(val/1000).toFixed(1)}k` : val}`}
-                                            />
-                                        </AreaChart>
-                                    </ResponsiveContainer>
+                                <div className="today-orders-actions">
+                                    <span className="today-orders-scroll-hint">
+                                        Scroll horizontal ativo
+                                    </span>
                                 </div>
                             </div>
 
-                            {/* Últimos Pedidos - ao lado do gráfico, mesma altura */}
-                            <div className="recent-orders-card side-compact">
-                                <div className="card-header">
-                                    <h3>Últimos Pedidos</h3>
-                                    <button className="view-all">Ver todos</button>
+                            {todayOrdersList.length === 0 ? (
+                                <div className="today-orders-empty">
+                                    <Clock size={20} className="text-gray-400" />
+                                    <span>Nenhum pedido realizado hoje até o momento.</span>
                                 </div>
-                                <div className="orders-list">
-                                    {recentOrders.map(order => {
-                                        const customerAvatar = order.clientes?.avatar_url || order.clientes?.avatr_url || null
-                                        const clientInitial = (order.nome_cliente || 'C').charAt(0).toUpperCase()
-                                        
-                                        return (
-                                            <div key={order.id} className="order-row-item">
-                                                <div className="order-avatar-wrapper">
-                                                    {customerAvatar ? (
-                                                        <img
-                                                            src={customerAvatar}
-                                                            alt={order.nome_cliente || 'Cliente'}
-                                                            className="order-avatar-img"
-                                                            onError={(e) => {
-                                                                e.target.style.display = 'none'
-                                                                e.target.nextSibling.style.display = 'flex'
-                                                            }}
-                                                        />
-                                                    ) : null}
-                                                    <div
-                                                        className="order-avatar-fallback"
-                                                        style={{ display: customerAvatar ? 'none' : 'flex' }}
-                                                    >
-                                                        {clientInitial}
+                            ) : (
+                                <div className="today-orders-marquee">
+                                    {/* Duplicamos os cards em 2 conjuntos idênticos para loop contínuo infinito e sem corte */}
+                                    <div className={`today-orders-track ${todayOrdersList.length >= 2 ? 'orders-infinite-scroll' : ''}`}>
+                                        {(todayOrdersList.length >= 2
+                                            ? [...todayOrdersList, ...todayOrdersList]
+                                            : todayOrdersList
+                                        ).map((order, index) => {
+                                            const customerAvatar = order.clientes?.avatar_url || order.clientes?.avatr_url || null
+                                            const clientInitial = (order.nome_cliente || 'C').charAt(0).toUpperCase()
+                                            const orderNumClean = formatOrderNumberWithoutHash(order.numero_pedido)
+                                            const orderTime = order.criado_em ? new Date(order.criado_em).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''
+
+                                            return (
+                                                <div key={`${order.id}-${index}`} className="today-order-card">
+                                                    <div className="today-order-avatar-wrap">
+                                                        {customerAvatar ? (
+                                                            <img
+                                                                src={customerAvatar}
+                                                                alt={order.nome_cliente || 'Cliente'}
+                                                                className="order-avatar-img today-avatar-img"
+                                                                onError={(e) => {
+                                                                    e.target.style.display = 'none'
+                                                                    if (e.target.nextSibling) {
+                                                                        e.target.nextSibling.style.display = 'flex'
+                                                                    }
+                                                                }}
+                                                            />
+                                                        ) : null}
+                                                        <div
+                                                            className="order-avatar-fallback today-avatar-fallback"
+                                                            style={{ display: customerAvatar ? 'none' : 'flex' }}
+                                                        >
+                                                            {clientInitial}
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="today-order-body">
+                                                        <div className="today-order-headline">
+                                                            <h4 className="today-order-client-name" title={order.nome_cliente || 'Cliente'}>
+                                                                {order.nome_cliente || 'Cliente'}
+                                                            </h4>
+                                                            <span className={`status-tag ${order.status}`}>
+                                                                {order.status === 'saiu_entrega' ? 'saiu' : order.status}
+                                                            </span>
+                                                        </div>
+                                                        <div className="today-order-meta-line">
+                                                            <span className="today-order-num-clean" title={`Pedido ${orderNumClean}`}>
+                                                                {orderNumClean}
+                                                            </span>
+                                                            <span className="today-order-dot-sep">•</span>
+                                                            <span className="today-order-time-stamp">{orderTime}</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="today-order-footer">
+                                                        <span className="today-order-price-val">
+                                                            {formatCurrency(order.valor_total)}
+                                                        </span>
                                                     </div>
                                                 </div>
-                                                <div className="order-main-info">
-                                                    <p className="order-name">
-                                                        {order.nome_cliente || 'Cliente'}
-                                                    </p>
-                                                    <p className="order-meta">#{order.numero_pedido} • {new Date(order.criado_em).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
-                                                </div>
-                                                <div className="order-right-info">
-                                                    <span className={`status-tag ${order.status}`}>{order.status === 'saiu_entrega' ? 'saiu' : order.status}</span>
-                                                    <p className="order-total">{formatCurrency(order.valor_total)}</p>
-                                                </div>
-                                            </div>
-                                        )
-                                    })}
+                                            )
+                                        })}
+                                    </div>
                                 </div>
+                            )}
+                        </div>
+
+                        {/* Gráfico de Vendas 100% Expandido (Abaixo dos Pedidos) */}
+                        <div className="chart-card-premium chart-expanded-full">
+                            <div className="chart-header">
+                                <div className="chart-title-box">
+                                    <h3>Vendas ({timeframe === '7' ? '7 dias' : '30 dias'})</h3>
+                                    <div className="chart-legend-simple">
+                                        <span className="legend-indicator black"></span>
+                                        <span>Atual</span>
+                                        <span className="legend-indicator gray-dashed"></span>
+                                        <span>Período anterior</span>
+                                    </div>
+                                </div>
+                                <select
+                                    value={timeframe}
+                                    onChange={(e) => setTimeframe(e.target.value)}
+                                >
+                                    <option value="7">Última semana</option>
+                                    <option value="30">Último mês</option>
+                                </select>
+                            </div>
+                            <div className="chart-container-inner chart-container-expanded">
+                                <ResponsiveContainer width="100%" height={220}>
+                                    <AreaChart data={chartData} margin={{ top: 15, right: 15, left: -10, bottom: 20 }}>
+                                        <defs>
+                                            <linearGradient id="colorValorPreto" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="5%" stopColor="#111827" stopOpacity={0.08} />
+                                                <stop offset="95%" stopColor="#111827" stopOpacity={0} />
+                                            </linearGradient>
+                                            <pattern id="diagonalHatch" width="8" height="8" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+                                                <line x1="0" y1="0" x2="0" y2="8" stroke="#111827" strokeWidth="1" strokeOpacity="0.08" />
+                                            </pattern>
+                                        </defs>
+
+                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F0F1F3" />
+
+                                        <Tooltip
+                                            content={({ active, payload, label }) => {
+                                                if (active && payload && payload.length) {
+                                                    const cur = payload.find(p => p.dataKey === 'valor')?.value || 0
+                                                    const prev = payload.find(p => p.dataKey === 'valorAnterior')?.value || 0
+                                                    return (
+                                                        <div className="modern-chart-tooltip">
+                                                            <p className="tooltip-date">{label}</p>
+                                                            <div className="tooltip-row current">
+                                                                <span className="tooltip-indicator"></span>
+                                                                <span className="tooltip-txt">Atual:</span>
+                                                                <strong className="tooltip-val">{formatCurrency(cur)}</strong>
+                                                            </div>
+                                                            {prev > 0 && (
+                                                                <div className="tooltip-row prev">
+                                                                    <span className="tooltip-indicator dashed"></span>
+                                                                    <span className="tooltip-txt">Anterior:</span>
+                                                                    <strong className="tooltip-val">{formatCurrency(prev)}</strong>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    )
+                                                }
+                                                return null
+                                            }}
+                                        />
+
+                                        <Area
+                                            type="monotone"
+                                            dataKey="valorAnterior"
+                                            stroke="#9CA3AF"
+                                            strokeWidth={2}
+                                            strokeDasharray="4 4"
+                                            fill="none"
+                                            dot={{ r: 3, fill: '#9CA3AF', strokeWidth: 0 }}
+                                            activeDot={{ r: 5, fill: '#9CA3AF' }}
+                                        />
+
+                                        <Area
+                                            type="monotone"
+                                            dataKey="valor"
+                                            stroke="#111827"
+                                            strokeWidth={3}
+                                            fillOpacity={1}
+                                            fill="url(#diagonalHatch)"
+                                            dot={{ r: 3.5, fill: '#111827', strokeWidth: 0 }}
+                                            activeDot={{ r: 6, fill: '#111827' }}
+                                        />
+
+                                        <XAxis
+                                            dataKey="name"
+                                            axisLine={false}
+                                            tickLine={false}
+                                            tick={{ fontSize: 12, fill: '#6B7280' }}
+                                            dy={12}
+                                        />
+                                        <YAxis
+                                            axisLine={false}
+                                            tickLine={false}
+                                            tick={{ fontSize: 11, fill: '#9CA3AF' }}
+                                            tickFormatter={(val) => `R$${val >= 1000 ? `${(val/1000).toFixed(1)}k` : val}`}
+                                        />
+                                    </AreaChart>
+                                </ResponsiveContainer>
                             </div>
                         </div>
 

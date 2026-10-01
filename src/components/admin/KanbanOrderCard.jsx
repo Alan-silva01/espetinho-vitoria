@@ -41,6 +41,13 @@ const getItemSubtitle = (item) => {
     return null
 }
 
+// Map each stage to the next action
+const STAGE_ACTION = {
+    confirmado:   { label: 'Preparar',  next: 'preparando'   },
+    preparando:   { label: 'Enviar',    next: 'saiu_entrega' },
+    saiu_entrega: { label: 'Concluir',  next: 'entregue'     },
+}
+
 const KanbanOrderCard = memo(function KanbanOrderCard({
     order,
     stage,
@@ -56,6 +63,7 @@ const KanbanOrderCard = memo(function KanbanOrderCard({
     onStatusChange,
     validTransitions
 }) {
+    const action = STAGE_ACTION[order.status] || null
     const customerAvatar = order.clientes?.avatr_url || order.clientes?.avatar_url || null
     const customerInitial = getCleanInitial(order.nome_cliente)
 
@@ -168,7 +176,7 @@ const KanbanOrderCard = memo(function KanbanOrderCard({
                 })}
             </div>
 
-            {/* Rodapé: Carteira + R$ 27,00 (Preço em negrito grande) + Botão "Ver detalhes" + Botão Lixeira */}
+            {/* Rodapé: Preço + Botão de Ação + Lixeira */}
             <div className="card-ref-footer">
                 <div className="card-ref-price-group">
                     <Wallet size={22} className="card-ref-wallet-icon" />
@@ -178,6 +186,20 @@ const KanbanOrderCard = memo(function KanbanOrderCard({
                 </div>
 
                 <div className="card-ref-footer-buttons">
+                    {/* Botão de avanço de status por coluna */}
+                    {action && order.status !== 'cancelado' && (
+                        <button
+                            className="card-ref-btn-advance"
+                            title={action.label}
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                onStatusChange(order.id, action.next)
+                            }}
+                        >
+                            {action.label}
+                        </button>
+                    )}
+
                     {order.status !== 'cancelado' && (
                         <button
                             className="card-ref-btn-trash"
