@@ -5,10 +5,11 @@
 
 .customers-page-wrapper {
     padding: 24px 32px;
-    height: 100vh;
+    height: 100%;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
+    box-sizing: border-box;
 }
 
 /* Header */
@@ -110,10 +111,11 @@
     background: white;
     border-radius: 8px;
     border: 1px solid #DFDFDF;
-    overflow: visible;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     flex: 1;
+    min-height: 0; /* Permite que flex item encolha abaixo do conteúdo natural */
 }
 
 .table-toolbar {
@@ -122,6 +124,11 @@
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid #DFDFDF;
+    flex-shrink: 0; /* Não encolhe */
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: white;
 }
 
 .search-bar-v3 {
@@ -254,9 +261,10 @@
 
 /* Table */
 .table-responsive { 
-    overflow-x: auto; 
-    overflow-y: visible;
-    flex: 1; 
+    overflow-x: auto;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
 }
 
 .customers-table {
@@ -609,6 +617,17 @@
 }
 
 .pagination-ctrls button:disabled { opacity: 0.4; cursor: default; }
+
+.pagination-ellipsis {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    font-size: 13px;
+    color: #9CA3AF;
+    user-select: none;
+}
 
 /* Modal Edit Customer */
 .modal-edit-customer {

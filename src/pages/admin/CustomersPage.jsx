@@ -23,6 +23,7 @@ export default function CustomersPage() {
     const [loading, setLoading] = useState(true)
     const [searchTerm, setSearchTerm] = useState('')
     const [loyaltyFilter, setLoyaltyFilter] = useState('all') // 'all' | 'with_orders' | 'no_orders'
+    const [currentPage, setCurrentPage] = useState(1)
     const [deleteConfirm, setDeleteConfirm] = useState({ open: false, id: null, nome: '' })
     const [editModal, setEditModal] = useState({ open: false, mode: 'create', customer: null })
     const [formData, setFormData] = useState({ nome: '', whatsapp: '', avatar_url: '' })
@@ -30,6 +31,8 @@ export default function CustomersPage() {
     const [uploadingAvatar, setUploadingAvatar] = useState(false)
     const [uploadProgress, setUploadProgress] = useState(0)
     const [previewPhotoModal, setPreviewPhotoModal] = useState({ open: false, url: '', nome: '' })
+
+    const ITEMS_PER_PAGE = 100
 
     useEffect(() => {
         fetchCustomers()
@@ -237,6 +240,9 @@ export default function CustomersPage() {
             .replace(/[\u0300-\u036f]/g, '')
             .trim()
     }
+
+    // Reset para página 1 sempre que busca ou filtro mudar
+    useEffect(() => { setCurrentPage(1) }, [searchTerm, loyaltyFilter])
 
     const filteredCustomers = customers.filter(c => {
         // Loyalty filter
@@ -446,7 +452,9 @@ export default function CustomersPage() {
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredCustomers.map(customer => (
+                            {filteredCustomers
+                                .slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
+                                .map(customer => (
                                 <tr
                                     key={customer.id}
                                     className="customer-clickable-row"
@@ -531,11 +539,53 @@ export default function CustomersPage() {
                 </div>
 
                 <div className="table-pagination">
-                    <span>Exibindo {filteredCustomers.length} de {customers.length} clientes</span>
+                    <span>
+                        Exibindo{' '}
+                        <strong>{Math.min((currentPage - 1) * ITEMS_PER_PAGE + 1, filteredCustomers.length)}</strong>
+                        {' '}–{' '}
+                        <strong>{Math.min(currentPage * ITEMS_PER_PAGE, filteredCustomers.length)}</strong>
+                        {' '}de{' '}
+                        <strong>{filteredCustomers.length}</strong> clientes
+                    </span>
                     <div className="pagination-ctrls">
-                        <button disabled><ChevronLeft size={20} /></button>
-                        <button className="active">1</button>
-                        <button><ChevronRight size={20} /></button>
+                        <button
+                            disabled={currentPage === 1}
+                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                            title="Página anterior"
+                        >
+                            <ChevronLeft size={16} />
+                        </button>
+                        {Array.from({ length: Math.ceil(filteredCustomers.length / ITEMS_PER_PAGE) }, (_, i) => i + 1)
+                            .filter(p => {
+                                const total = Math.ceil(filteredCustomers.length / ITEMS_PER_PAGE)
+                                return p === 1 || p === total || Math.abs(p - currentPage) <= 1
+                            })
+                            .reduce((acc, p, idx, arr) => {
+                                if (idx > 0 && p - arr[idx - 1] > 1) acc.push('...')
+                                acc.push(p)
+                                return acc
+                            }, [])
+                            .map((item, idx) =>
+                                item === '...' ? (
+                                    <span key={`ellipsis-${idx}`} className="pagination-ellipsis">…</span>
+                                ) : (
+                                    <button
+                                        key={item}
+                                        className={currentPage === item ? 'active' : ''}
+                                        onClick={() => setCurrentPage(item)}
+                                    >
+                                        {item}
+                                    </button>
+                                )
+                            )
+                        }
+                        <button
+                            disabled={currentPage >= Math.ceil(filteredCustomers.length / ITEMS_PER_PAGE)}
+                            onClick={() => setCurrentPage(p => Math.min(Math.ceil(filteredCustomers.length / ITEMS_PER_PAGE), p + 1))}
+                            title="Próxima página"
+                        >
+                            <ChevronRight size={16} />
+                        </button>
                     </div>
                 </div>
             </div>
