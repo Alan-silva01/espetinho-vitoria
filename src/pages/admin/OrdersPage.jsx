@@ -619,6 +619,10 @@ export default function OrdersPage() {
     })
 
     const onTouchStart = (e, orderId) => {
+        // If the touch originated on a button (action buttons inside the card),
+        // do NOT start drag — let the button's click handler work normally.
+        if (e.target.closest('button')) return
+
         const touch = e.touches[0]
         const card = e.currentTarget
         const rect = card.getBoundingClientRect()

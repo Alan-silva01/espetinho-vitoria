@@ -75,8 +75,14 @@ const KanbanOrderCard = memo(function KanbanOrderCard({
             draggable={!isTouchDevice}
             onDragStart={!isTouchDevice ? (e) => onDragStart(e, order.id) : undefined}
             onDragEnd={!isTouchDevice ? onDragEnd : undefined}
+            onTouchStart={(e) => {
+                // If user touched a button inside the card, skip drag logic
+                if (e.target.closest('button')) return
+                onTouchStart(e, order.id)
+            }}
             onTouchEnd={(e) => {
-                // On mobile: just propagate, no drag-to-column logic
+                // If user touched a button inside the card, skip drag logic
+                if (e.target.closest('button')) return
                 onTouchEnd(e)
             }}
             className={`order-card-ref-exact ${order.status === 'cancelado' ? 'cancelled' : ''}`}
