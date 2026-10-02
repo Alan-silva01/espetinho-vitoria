@@ -863,3 +863,236 @@
     transform: none;
     box-shadow: none;
 }
+
+/* ═════════════════════════════════════════════════════════════════
+   MODAL DE PERFIL DO CLIENTE — DESIGN FIEL AO CARD
+   ═════════════════════════════════════════════════════════════════ */
+.customer-profile-card-overlay {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(17, 24, 39, 0.45);
+    backdrop-filter: blur(8px);
+    z-index: 9999;
+}
+
+.customer-profile-card {
+    position: relative;
+    width: 100%;
+    max-width: 360px;
+    background: #ffffff;
+    border-radius: 28px;
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Botão Fechar no canto superior esquerdo */
+.customer-profile-card__close {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #4B5563;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.customer-profile-card__close:hover {
+    background: #ffffff;
+    color: #111827;
+    transform: scale(1.05);
+}
+
+/* Top Banner Suave com Textura / Curvas Orgânicas */
+.customer-profile-card__banner {
+    position: relative;
+    height: 125px;
+    background: linear-gradient(135deg, #E6EFF8 0%, #DDE8F4 50%, #E2EDF8 100%);
+    background-image: 
+        radial-gradient(ellipse at 20% 30%, rgba(255, 255, 255, 0.6) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 70%, rgba(210, 225, 242, 0.7) 0%, transparent 60%);
+    display: flex;
+    justify-content: flex-end;
+    padding: 14px 16px;
+}
+
+/* Botão de Editar no canto superior direito (Lápis no lugar do +) */
+.customer-profile-card__edit-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #1F2937;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+    transition: all 0.2s ease;
+    z-index: 5;
+}
+
+.customer-profile-card__edit-btn:hover {
+    transform: scale(1.06);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+    color: #C41E2E;
+}
+
+/* Avatar Centralizado flutuando sobre o Banner */
+.customer-profile-card__avatar-section {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    margin-top: -54px;
+    z-index: 2;
+}
+
+.customer-profile-card__avatar-wrap {
+    width: 98px;
+    height: 98px;
+    border-radius: 50%;
+    background: #F3F4F6;
+    border: 5px solid #ffffff;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.customer-profile-card__avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.customer-profile-card__avatar-fallback {
+    width: 100%;
+    height: 100%;
+    background: #E5E7EB;
+    color: #374151;
+    font-size: 34px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Corpo do Card */
+.customer-profile-card__body {
+    padding: 14px 24px 26px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+/* Linha do Nome + Ícone Verificado */
+.customer-profile-card__name-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    margin-bottom: 6px;
+}
+
+.customer-profile-card__name {
+    font-size: 20px;
+    font-weight: 800;
+    color: #111827;
+    margin: 0;
+    letter-spacing: -0.02em;
+}
+
+.customer-profile-card__verific-icon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+/* Telefone / WhatsApp */
+.customer-profile-card__phone-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #6B7280;
+    margin-bottom: 14px;
+}
+
+.customer-profile-card__phone-icon {
+    color: #9CA3AF;
+}
+
+/* Endereço de Entrega */
+.customer-profile-card__address-box {
+    width: 100%;
+    background: #F9FAFB;
+    border: 1px solid #F0F2F5;
+    border-radius: 14px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+.customer-profile-card__address-icon {
+    color: #EF4444;
+    flex-shrink: 0;
+}
+
+.customer-profile-card__address-text {
+    font-size: 12.5px;
+    line-height: 1.4;
+    color: #4B5563;
+    font-weight: 500;
+    word-break: break-word;
+}
+
+/* Seção de Contador de Pedidos (Estilo Stats na parte inferior) */
+.customer-profile-card__stats-row {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-top: 1px solid #F1F3F5;
+    padding-top: 16px;
+}
+
+.customer-profile-card__stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.customer-profile-card__stat-val {
+    font-size: 24px;
+    font-weight: 800;
+    color: #111827;
+    line-height: 1;
+    letter-spacing: -0.02em;
+}
+
+.customer-profile-card__stat-lbl {
+    font-size: 12px;
+    font-weight: 600;
+    color: #9CA3AF;
+    text-transform: capitalize;
+}

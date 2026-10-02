@@ -346,11 +346,13 @@ export default function CheckoutPage() {
         }
 
         try {
+            // FIX: para entrega, usar sempre customer.nome do banco (via CustomerContext)
+            // em vez de addressData.nome_recebedor do localStorage, que pode estar desatualizado.
             const nomeCliente = (tipoPedido === 'mesa'
                 ? (nomeRetirada || `Mesa ${mesaNumero}`)
                 : tipoPedido === 'retirada'
                     ? nomeRetirada
-                    : (addressData.nome_recebedor || '')).trim()
+                    : (customer?.nome || addressData.nome_recebedor || '')).trim()
 
             let comandaId = localStorage.getItem('espetinho_comanda_id')
             if (tipoPedido === 'mesa' && !comandaId) {
@@ -402,11 +404,13 @@ export default function CheckoutPage() {
 
             if (tipoPedido !== 'mesa' && targetClientId) {
                 try {
+                    // FIX: não passar nome no extraInfo — o nome já vem correto do banco
+                    // via customer.nome. Evita qualquer risco de sobrescrita do nome cadastral.
                     await updateLastOrder(
                         `Pedido #${pedido.numero_pedido || pedido.id.slice(0, 5)}: ${summary}`,
                         tipoPedido === 'entrega' ? addressData : null,
                         targetClientId,
-                        { nome: orderData.nome_cliente }
+                        {}
                     )
                 } catch (updateErr) {
                     console.warn('[Checkout] Erro ao atualizar dados recentes do cliente:', updateErr)

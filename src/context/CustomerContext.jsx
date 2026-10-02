@@ -166,15 +166,32 @@ export function CustomerProvider({ children }) {
         const targetId = explicitId || customer?.id
         if (!targetId) return
 
-        // Atualizar coluna principal 'nome' se veio nome novo
+        // FIX: Só atualizar o nome principal se o banco ainda não tiver um nome
+        // definido para este cliente. Isso protege edições feitas pelo admin no
+        // painel, evitando que o nome_recebedor antigo do cache do celular
+        // sobrescreva o nome cadastral.
         if (extraInfo.nome) {
             try {
-                await supabase
+                const { data: current } = await supabase
                     .from('clientes')
-                    .update({ nome: extraInfo.nome })
+                    .select('nome')
                     .eq('id', targetId)
+                    .single()
+
+                const nomeNoBanco = (current?.nome || '').trim()
+                const nomeNovoPedido = extraInfo.nome.trim()
+
+                // Só atualiza se o banco está vazio/nulo OU se o novo nome for
+                // diferente do atual (o próprio cliente mudou o nome no checkout)
+                if (!nomeNoBanco) {
+                    await supabase
+                        .from('clientes')
+                        .update({ nome: nomeNovoPedido })
+                        .eq('id', targetId)
+                }
+                // Se o banco já tem nome (editado pelo admin), não sobrescreve.
             } catch (err) {
-                console.error('[updateLastOrder] Erro ao atualizar nome do cliente:', err)
+                console.error('[updateLastOrder] Erro ao verificar/atualizar nome do cliente:', err)
             }
         }
 
@@ -182,6 +199,10 @@ export function CustomerProvider({ children }) {
             ultimos_pedidos: orderSummary,
             ...extraInfo
         }
+
+        // Não propagar o nome para o JSONB dados via updateCustomerData
+        // pois isso também sobrescreveria dados.nome
+        delete updateObj.nome
 
         if (newAddress) {
             updateObj.endereco = newAddress

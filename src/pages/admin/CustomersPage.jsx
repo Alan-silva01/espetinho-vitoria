@@ -5,8 +5,9 @@ import {
     Phone, ShoppingBag, Calendar,
     MoreHorizontal, ChevronLeft, ChevronRight,
     UserPlus, ExternalLink, Trash2, Edit2, Shield, Smartphone,
-    Image as ImageIcon, X
+    Image as ImageIcon, X, MapPin, Pencil
 } from 'lucide-react'
+import iconVerificImg from '../../../docs/icons/icon-verific.png'
 import { supabase } from '../../lib/supabase'
 import n8nService from '../../services/n8nService'
 import { formatCurrency } from '../../lib/utils'
@@ -43,43 +44,41 @@ export default function CustomersPage() {
     async function fetchCustomers(isSilent = false) {
         if (!isSilent) setLoading(true)
         try {
-            // Specify columns explicitly to avoid 406 errors and optimize fetch
+            // Busca clientes já trazendo os pedidos relacionados via chave estrangeira
             const { data: customersData, error: custErr } = await supabase
                 .from('clientes')
-                .select('id, codigo, nome, telefone, dados, criado_em, autorizado, avatr_url')
+                .select('id, codigo, nome, telefone, dados, criado_em, autorizado, avatr_url, pedidos(id, valor_total, criado_em)')
                 .order('criado_em', { ascending: false })
 
             if (custErr) throw custErr
 
-            const { data: allOrders, error: ordersErr } = await supabase
-                .from('pedidos')
-                .select('valor_total, criado_em, telefone_cliente, cliente_id')
-
-            if (ordersErr) console.warn('[fetchCustomers] Erro ao buscar pedidos relacionados:', ordersErr)
-
             if (customersData) {
                 const enriched = customersData.map(c => {
-                    const phoneRaw = c.telefone?.replace(/\D/g, '') || ''
-                    const whatsappRaw = c.dados?.whatsapp?.replace(/\D/g, '') || ''
-
-                    const relatedOrders = allOrders?.filter(p => {
-                        if (p.cliente_id === c.id) return true
-                        const pPhone = p.telefone_cliente?.replace(/\D/g, '') || ''
-                        return pPhone && (pPhone === phoneRaw || pPhone === whatsappRaw)
-                    }) || []
+                    const relatedOrders = c.pedidos || []
 
                     const lastOrderDate = relatedOrders.length > 0
                         ? new Date(Math.max(...relatedOrders.map(p => new Date(p.criado_em)))).toLocaleDateString('pt-BR')
                         : 'Sem pedidos'
 
                     const avatarUrl = c.avatar_url || c.avatr_url || c.dados?.avatar_url || null
+                    const addr = c.dados?.endereco || c.dados || {}
+                    const parts = [
+                        addr.rua || addr.street,
+                        addr.numero || addr.number ? `nº ${addr.numero || addr.number}` : null,
+                        addr.bairro || addr.neighborhood,
+                        addr.complemento,
+                        addr.referencia || addr.reference ? `Ref: ${addr.referencia || addr.reference}` : null
+                    ].filter(Boolean)
+                    const fullAddress = parts.length > 0 ? parts.join(', ') : 'Endereço não cadastrado'
 
                     return {
                         ...c,
                         avatarUrl,
                         totalOrders: relatedOrders.length,
                         lastOrder: lastOrderDate,
-                        displayPhone: c.dados?.whatsapp || c.telefone || 'Não informado'
+                        displayPhone: c.dados?.whatsapp || c.telefone || 'Não informado',
+                        fullAddress,
+                        addressDetails: addr
                     }
                 })
                 setCustomers(enriched)
@@ -91,6 +90,8 @@ export default function CustomersPage() {
             setLoading(false)
         }
     }
+
+    const [profileModal, setProfileModal] = useState({ open: false, customer: null })
 
     function openEditModal(customer = null) {
         if (customer) {
@@ -167,6 +168,10 @@ export default function CustomersPage() {
             const updatedDados = {
                 ...baseDados,
                 nome: formData.nome,
+                // FIX: sincronizar nome_recebedor ao editar para evitar que o
+                // nome antigo sobrescreva a coluna principal quando o cliente
+                // fizer um novo pedido via checkout.
+                nome_recebedor: formData.nome,
                 whatsapp: formData.whatsapp,
                 avatar_url: formData.avatar_url || null,
                 endereco: {
@@ -175,7 +180,9 @@ export default function CustomersPage() {
                     numero: formData.numero || '',
                     bairro: formData.bairro || '',
                     complemento: formData.complemento || '',
-                    referencia: formData.referencia || ''
+                    referencia: formData.referencia || '',
+                    // FIX: também atualizar nome_recebedor dentro do endereço
+                    nome_recebedor: formData.nome
                 }
             }
 
@@ -410,7 +417,7 @@ export default function CustomersPage() {
                                 <tr
                                     key={customer.id}
                                     className="customer-clickable-row"
-                                    onClick={() => openEditModal(customer)}
+                                    onClick={() => setProfileModal({ open: true, customer })}
                                 >
                                     <td>
                                         <div className="customer-cell">
@@ -633,6 +640,105 @@ export default function CustomersPage() {
                             >
                                 {saving ? 'Salvando...' : 'Salvar Cliente'}
                             </button>
+                        </div>
+                    </div>
+                </div>,
+                document.body
+            )}
+
+            {/* Modal do Perfil do Cliente — Design Fiel ao Card */}
+            {profileModal.open && profileModal.customer && createPortal(
+                <div
+                    className="admin-modal-overlay customer-profile-card-overlay"
+                    onClick={() => setProfileModal({ open: false, customer: null })}
+                >
+                    <div
+                        className="customer-profile-card animate-scale-in"
+                        onClick={e => e.stopPropagation()}
+                    >
+                        {/* Botão de Fechar discreto */}
+                        <button
+                            type="button"
+                            className="customer-profile-card__close"
+                            onClick={() => setProfileModal({ open: false, customer: null })}
+                            title="Fechar"
+                        >
+                            <X size={16} />
+                        </button>
+
+                        {/* Top Banner com o Botão de Editar (Lápis) no lugar do + */}
+                        <div className="customer-profile-card__banner">
+                            <button
+                                type="button"
+                                className="customer-profile-card__edit-btn"
+                                title="Editar Cliente"
+                                onClick={() => {
+                                    const cust = profileModal.customer
+                                    setProfileModal({ open: false, customer: null })
+                                    openEditModal(cust)
+                                }}
+                            >
+                                <Pencil size={18} strokeWidth={2.2} />
+                            </button>
+                        </div>
+
+                        {/* Avatar com borda branca e o ícone de verificado azul logo acima/ao lado */}
+                        <div className="customer-profile-card__avatar-section">
+                            <div className="customer-profile-card__avatar-wrap">
+                                {profileModal.customer.avatarUrl ? (
+                                    <img
+                                        src={profileModal.customer.avatarUrl}
+                                        alt={profileModal.customer.nome}
+                                        className="customer-profile-card__avatar-img"
+                                        onError={e => {
+                                            e.target.style.display = 'none'
+                                            e.target.nextSibling.style.display = 'flex'
+                                        }}
+                                    />
+                                ) : null}
+                                <div
+                                    className="customer-profile-card__avatar-fallback"
+                                    style={{ display: profileModal.customer.avatarUrl ? 'none' : 'flex' }}
+                                >
+                                    {profileModal.customer.nome ? profileModal.customer.nome.charAt(0).toUpperCase() : <Users size={32} />}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Nome do Cliente com o Badge Verificado */}
+                        <div className="customer-profile-card__body">
+                            <div className="customer-profile-card__name-row">
+                                <h2 className="customer-profile-card__name">{profileModal.customer.nome}</h2>
+                                <img
+                                    src={iconVerificImg}
+                                    alt="Verificado"
+                                    className="customer-profile-card__verific-icon"
+                                />
+                            </div>
+
+                            {/* Telefone / WhatsApp */}
+                            <div className="customer-profile-card__phone-row">
+                                <Phone size={14} className="customer-profile-card__phone-icon" />
+                                <span className="customer-profile-card__phone-text">{profileModal.customer.displayPhone}</span>
+                            </div>
+
+                            {/* Endereço Completo */}
+                            <div className="customer-profile-card__address-box">
+                                <MapPin size={15} className="customer-profile-card__address-icon" />
+                                <span className="customer-profile-card__address-text">
+                                    {profileModal.customer.fullAddress}
+                                </span>
+                            </div>
+
+                            {/* Contador de Pedidos */}
+                            <div className="customer-profile-card__stats-row">
+                                <div className="customer-profile-card__stat-item">
+                                    <span className="customer-profile-card__stat-val">
+                                        {profileModal.customer.totalOrders || 0}
+                                    </span>
+                                    <span className="customer-profile-card__stat-lbl">Pedidos</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>,
