@@ -1,6 +1,11 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, MapPin, CreditCard, Receipt, Edit3, CheckCircle, User, X, AlertTriangle } from 'lucide-react'
+import { ArrowLeft, MapPin, CreditCard, Receipt, Edit3, CheckCircle, User, X, AlertTriangle, Phone, Navigation } from 'lucide-react'
+import iconeEntrega from '../../assets/icons/entrega.png'
+import iconeRetirada from '../../assets/icons/retirada.png'
+import iconePix from '../../assets/icons/pix.png'
+import iconeCartao from '../../assets/icons/cartao.png'
+import iconeDinheiro from '../../assets/icons/dinheiro.png'
 import { useCart } from '../../hooks/useCart'
 import { useOrders } from '../../hooks/useOrders'
 import { useStore } from '../../hooks/useStore'
@@ -20,7 +25,7 @@ export default function CheckoutPage() {
     const { customer, updateLastOrder } = useCustomer()
     const [isSubmitting, setIsSubmitting] = useState(false)
     const submitLockRef = useRef(false)
-    const [validationError, setValidationError] = useState({ open: false, message: '' })
+    const [validationError, setValidationError] = useState({ open: false, message: '', type: '' })
     const nomeInputRef = useRef(null)
     const [outOfStockItems, setOutOfStockItems] = useState([])
     const [showOutOfStockModal, setShowOutOfStockModal] = useState(false)
@@ -217,7 +222,7 @@ export default function CheckoutPage() {
         const somenteRepetido = letras.length > 0 && new Set(letras.map(l => l.toLowerCase())).size === 1
         const nomeInvalido = letras.length < 2 || !temVogal || !temConsoante || somenteRepetido
         if (nomeInvalido) {
-            setValidationError({ open: true, message: 'Por favor, insira seu nome correto.' })
+            setValidationError({ open: true, message: 'Nome inválido. Corrija seu nome para continuar.', type: 'nome' })
             window.scrollTo({ top: 0, behavior: 'smooth' })
             return
         }
@@ -517,13 +522,13 @@ export default function CheckoutPage() {
                             className={`checkout-toggle__btn ${tipoPedido === 'entrega' ? 'checkout-toggle__btn--active' : ''}`}
                             onClick={() => setTipoPedido('entrega')}
                         >
-                            <span>🛵</span> Entrega
+                            <img src={iconeEntrega} alt="Entrega" style={{ width: 20, height: 20, objectFit: 'contain' }} /> Entrega
                         </button>
                         <button
                             className={`checkout-toggle__btn ${tipoPedido === 'retirada' ? 'checkout-toggle__btn--active' : ''}`}
                             onClick={() => setTipoPedido('retirada')}
                         >
-                            <span>🏪</span> Retirada
+                            <img src={iconeRetirada} alt="Retirada" style={{ width: 20, height: 20, objectFit: 'contain' }} /> Retirada
                         </button>
                     </div>
                 )}
@@ -582,35 +587,43 @@ export default function CheckoutPage() {
                         {hasAddress ? (
                             <div className="checkout-address-card">
                                 <div className="checkout-address-card__info">
-                                    <p className="checkout-address-card__street">
-                                        {addressData.rua}, {addressData.numero}
-                                    </p>
-                                    <p className="checkout-address-card__neighborhood">
-                                        {addressData.bairro}
-                                    </p>
-                                    {addressData.referencia && (
-                                        <p className="checkout-address-card__ref">
-                                            📍 {addressData.referencia}
-                                        </p>
-                                    )}
-                                    <div className="checkout-address-card__receiver">
-                                        <div className="checkout-address-card__receiver-group">
-                                            <div className="checkout-address-card__receiver-item">
-                                                <span className="receiver-item-icon"><User size={14} /></span>
-                                                <span className="receiver-item-text">{addressData.nome_recebedor}</span>
-                                            </div>
-                                            <div className="checkout-address-card__receiver-item">
-                                                <span className="receiver-item-icon" style={{ fontSize: '14px' }}>📱</span>
-                                                <span className="receiver-item-text">{addressData.telefone_recebedor.replace(/@s.whatsapp.net/g, '')}</span>
-                                            </div>
+                                    {/* Linha 1: Nome + Telefone */}
+                                    <div className="checkout-address-card__row">
+                                        <div className="checkout-address-card__meta-item">
+                                            <User size={13} className="checkout-addr-icon" />
+                                            <span>{addressData.nome_recebedor}</span>
+                                        </div>
+                                        <div className="checkout-address-card__meta-item">
+                                            <Phone size={13} className="checkout-addr-icon" />
+                                            <span>{addressData.telefone_recebedor.replace(/@s.whatsapp.net/g, '')}</span>
+                                        </div>
+                                    </div>
+
+                                    {/* Divisor */}
+                                    <div className="checkout-address-card__divider" />
+
+                                    {/* Linha 2: Endereço */}
+                                    <div className="checkout-address-card__addr-line">
+                                        <MapPin size={13} className="checkout-addr-icon" style={{ flexShrink: 0, marginTop: '2px' }} />
+                                        <div className="checkout-address-card__addr-text">
+                                            <span className="checkout-address-card__street">
+                                                {addressData.rua}, {addressData.numero} &mdash; {addressData.bairro}
+                                            </span>
+                                            {addressData.referencia && (
+                                                <span className="checkout-address-card__ref">{addressData.referencia}</span>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
+
                                 <button
                                     className="checkout-address-card__edit"
-                                    onClick={() => navigate(customerCode ? `/${customerCode}/carrinho` : '/carrinho')}
+                                    onClick={() => navigate(
+                                        customerCode ? `/${customerCode}/carrinho` : '/carrinho',
+                                        { state: { openAddressModal: true } }
+                                    )}
                                 >
-                                    <Edit3 size={16} />
+                                    <Edit3 size={14} />
                                     Editar
                                 </button>
                             </div>
@@ -634,14 +647,16 @@ export default function CheckoutPage() {
                             <div className="checkout-payment-options">
                                 <label className={`checkout-payment ${formaPagamento === 'pix' ? 'checkout-payment--active' : ''}`}>
                                     <input type="radio" name="pagamento" checked={formaPagamento === 'pix'} onChange={() => { setFormaPagamento('pix'); setCartaoExpandido(false) }} />
-                                    <span>💠 PIX</span>
+                                    <img src={iconePix} alt="PIX" style={{ width: 20, height: 20, objectFit: 'contain' }} />
+                                    <span>PIX</span>
                                 </label>
                                 <div className={`checkout-payment-card-group ${cartaoExpandido || isCartao ? 'checkout-payment-card-group--open' : ''}`}>
                                     <div
                                         className={`checkout-payment checkout-payment-card-header ${isCartao ? 'checkout-payment--active' : ''}`}
                                         onClick={() => setCartaoExpandido(!cartaoExpandido)}
                                     >
-                                        <span>💳 Cartão</span>
+                                        <img src={iconeCartao} alt="Cartão" style={{ width: 20, height: 20, objectFit: 'contain' }} />
+                                        <span>Cartão</span>
                                         <span className={`checkout-payment-card-arrow ${cartaoExpandido || isCartao ? 'checkout-payment-card-arrow--open' : ''}`}>▾</span>
                                     </div>
                                     {(cartaoExpandido || isCartao) && (
@@ -665,7 +680,8 @@ export default function CheckoutPage() {
                                 </div>
                                 <label className={`checkout-payment ${formaPagamento === 'dinheiro' ? 'checkout-payment--active' : ''}`}>
                                     <input type="radio" name="pagamento" checked={formaPagamento === 'dinheiro'} onChange={() => { setFormaPagamento('dinheiro'); setCartaoExpandido(false) }} />
-                                    <span>💵 Dinheiro</span>
+                                    <img src={iconeDinheiro} alt="Dinheiro" style={{ width: 20, height: 20, objectFit: 'contain' }} />
+                                    <span>Dinheiro</span>
                                 </label>
                             </div>
                             {formaPagamento === 'dinheiro' && (
@@ -788,7 +804,7 @@ export default function CheckoutPage() {
 
             {/* VALIDATION ERROR MODAL */}
             {validationError.open && (
-                <div className="modal-backdrop" onClick={() => setValidationError({ open: false, message: '' })} style={{ zIndex: 10000 }}>
+                <div className="modal-backdrop" onClick={() => setValidationError({ open: false, message: '', type: '' })} style={{ zIndex: 10000 }}>
                     <div className="bottom-sheet validation-modal" onClick={e => e.stopPropagation()}>
                         <div className="bottom-sheet__handle" />
                         <div className="validation-content">
@@ -799,19 +815,33 @@ export default function CheckoutPage() {
                             <p style={{ fontSize: '15px', color: 'var(--text-secondary)', marginBottom: '24px', lineHeight: '1.5' }}>
                                 {validationError.message}
                             </p>
-                            <button
-                                className="btn btn-primary btn-md btn-full"
-                                onClick={() => {
-                                    setValidationError({ open: false, message: '' })
-                                    // Focus name input so user knows exactly where to fix
-                                    setTimeout(() => {
-                                        nomeInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                                        nomeInputRef.current?.focus()
-                                    }, 150)
-                                }}
-                            >
-                                Corrigir nome
-                            </button>
+                            {validationError.type === 'nome' ? (
+                                <button
+                                    className="btn btn-primary btn-md btn-full"
+                                    onClick={() => {
+                                        setValidationError({ open: false, message: '', type: '' })
+                                        navigate(
+                                            customerCode ? `/${customerCode}/carrinho` : '/carrinho',
+                                            { state: { openAddressModal: true } }
+                                        )
+                                    }}
+                                >
+                                    Corrigir meu nome
+                                </button>
+                            ) : (
+                                <button
+                                    className="btn btn-primary btn-md btn-full"
+                                    onClick={() => {
+                                        setValidationError({ open: false, message: '', type: '' })
+                                        setTimeout(() => {
+                                            nomeInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                                            nomeInputRef.current?.focus()
+                                        }, 150)
+                                    }}
+                                >
+                                    Entendi
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>

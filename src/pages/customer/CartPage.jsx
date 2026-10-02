@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, X, Minus, Plus, MapPin, Truck, Store, Navigation, MapPinOff } from 'lucide-react'
+import { useNavigate, useParams, useLocation } from 'react-router-dom'
+import { ArrowLeft, X, Minus, Plus, MapPin, Navigation, MapPinOff } from 'lucide-react'
+import iconeEntrega from '../../assets/icons/entrega.png'
+import iconeRetirada from '../../assets/icons/retirada.png'
 import { useCart, getItemKey } from '../../hooks/useCart'
 import { useProducts } from '../../hooks/useProducts'
 import { useOrders, useComanda } from '../../hooks/useOrders'
@@ -15,6 +17,7 @@ import './CartPage.css'
 export default function CartPage() {
     const navigate = useNavigate()
     const { customerCode } = useParams()
+    const location = useLocation()
     const { items, removeItem, updateQuantity, clearCart, subtotal, addItem } = useCart()
     const { products } = useProducts()
     const { customer, updateCustomerData } = useCustomer()
@@ -27,6 +30,16 @@ export default function CartPage() {
     useEffect(() => {
         window.scrollTo(0, 0)
     }, [])
+
+    // Abre o modal de endereço automaticamente se vier do checkout com a flag
+    useEffect(() => {
+        if (location.state?.openAddressModal) {
+            // Limpa o state para não reabrir em navegações futuras
+            window.history.replaceState({}, '')
+            // Pequeno delay para garantir que os dados já carregaram
+            setTimeout(() => setIsAddressModalOpen(true), 100)
+        }
+    }, [location.state])
 
     // Upsell: products NOT already in cart
     const cartProductIds = items.map(i => i.produto_id)
@@ -172,6 +185,20 @@ export default function CartPage() {
             .slice(0, 15)
     }
 
+    // Title Case inteligente: capitaliza cada palavra, exceto artigos/preposições
+    const ARTIGOS = new Set(['de', 'da', 'do', 'das', 'dos', 'e', 'a', 'o', 'as', 'os', 'em', 'na', 'no', 'nas', 'nos', 'ao', 'aos', 'à', 'às'])
+    const toTitleCase = (str) => {
+        return str
+            .toLowerCase()
+            .split(' ')
+            .map((word, index) => {
+                if (!word) return word
+                if (index > 0 && ARTIGOS.has(word)) return word
+                return word.charAt(0).toUpperCase() + word.slice(1)
+            })
+            .join(' ')
+    }
+
     const handleTipoPedido = (tipo) => {
         setTipoPedido(tipo)
         localStorage.setItem('espetinho_tipo_pedido', tipo)
@@ -240,9 +267,14 @@ export default function CartPage() {
     }
 
     const handleSaveAddress = async (forceWithoutLocation = false) => {
-        // Validation: require at least 2 letters (blocks dots, emojis, single chars)
-        const letrasNoNome = (tempData.nome_recebedor || '').match(/[a-zA-ZÀ-ÿ]/g)
-        const hasText = letrasNoNome && letrasNoNome.length >= 2
+        const nomeRaw = (tempData.nome_recebedor || '').trim()
+
+        // Contagem de letras reais (ignora números, emojis, acentos isolados)
+        const letrasNoNome = nomeRaw.match(/[a-zA-ZÀ-ÿ]/g)
+        const temLetras = letrasNoNome && letrasNoNome.length >= 2
+
+        // Bloqueia: contém números
+        const temNumero = /\d/.test(nomeRaw)
 
         if (!tempData.rua || !tempData.numero) {
             setAddressError({ open: true, message: 'Por favor, informe a rua e o número da sua residência.' })
@@ -252,8 +284,8 @@ export default function CartPage() {
             setAddressError({ open: true, message: 'Você precisa selecionar seu bairro para calcularmos a entrega.' })
             return
         }
-        if (!tempData.nome_recebedor || !hasText) {
-            setAddressError({ open: true, message: 'Por favor, insira um nome válido com pelo menos 2 letras.' })
+        if (!nomeRaw || !temLetras || temNumero) {
+            setAddressError({ open: true, message: 'Nome inválido. Digite seu nome correto.' })
             return
         }
         if (!tempData.telefone_recebedor || tempData.telefone_recebedor.length < 14) {
@@ -583,13 +615,13 @@ export default function CartPage() {
                                 className={`cart-order-type__btn ${tipoPedido === 'entrega' ? 'cart-order-type__btn--active' : ''}`}
                                 onClick={() => handleTipoPedido('entrega')}
                             >
-                                <Truck size={16} /> Entrega
+                                <img src={iconeEntrega} alt="Entrega" style={{ width: 18, height: 18, objectFit: 'contain' }} /> Entrega
                             </button>
                             <button
                                 className={`cart-order-type__btn ${tipoPedido === 'retirada' ? 'cart-order-type__btn--active' : ''}`}
                                 onClick={() => handleTipoPedido('retirada')}
                             >
-                                <Store size={16} /> Retirada
+                                <img src={iconeRetirada} alt="Retirada" style={{ width: 18, height: 18, objectFit: 'contain' }} /> Retirada
                             </button>
                         </div>
                     </div>
@@ -680,15 +712,10 @@ export default function CartPage() {
                                 {isGeolocating
                                     ? 'Obtendo localização...'
                                     : tempData.google_maps_link
-                                        ? 'Localização vinculada ✅'
-                                        : 'Usar localização atual 📍'}
+                                        ? 'Localização ativa'
+                                        : 'Usar localização'}
                             </button>
 
-                            {tempData.google_maps_link && (
-                                <p className="location-success-tip">
-                                    📍 GPS vinculado! Isso ajuda o entregador a te encontrar rápido.
-                                </p>
-                            )}
 
                             <div className="form-grid">
                                 <div className="input-modern-group full">
@@ -739,12 +766,13 @@ export default function CartPage() {
                                 <div className="divider-label">Dados do Recebedor</div>
 
                                 <div className="input-modern-group full">
-                                    <label>Nome de quem recebe *</label>
+                                    <label>Nome *</label>
                                     <input
                                         type="text"
                                         value={tempData.nome_recebedor}
-                                        onChange={e => setTempData({ ...tempData, nome_recebedor: e.target.value })}
+                                        onChange={e => setTempData({ ...tempData, nome_recebedor: toTitleCase(e.target.value) })}
                                         placeholder="Seu nome"
+                                        autoComplete="name"
                                     />
                                 </div>
 
@@ -759,7 +787,7 @@ export default function CartPage() {
                                 </div>
 
                                 <button className="btn-save-address btn btn-primary full" onClick={() => handleSaveAddress(false)}>
-                                    Salvar Endereço
+                                    Salvar
                                 </button>
                             </div>
                         </div>

@@ -498,89 +498,99 @@
 /* Address Review Card */
 .checkout-address-card {
     background: white;
-    padding: 16px;
+    padding: 14px 16px;
     border-radius: 16px;
     border: 1px solid #E5E7EB;
     box-shadow: var(--sombra-sm);
     display: flex;
     align-items: flex-start;
-    gap: 16px;
+    gap: 14px;
 }
 
 .checkout-address-card__info {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 10px;
+    min-width: 0;
 }
 
-.checkout-address-card__street {
-    font-size: 15px;
-    font-weight: 700;
+/* Linha nome + telefone */
+.checkout-address-card__row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    row-gap: 6px;
+}
+
+.checkout-address-card__meta-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
+    font-weight: 600;
     color: #111827;
 }
 
-.checkout-address-card__neighborhood {
+/* Ícones monocromáticos */
+.checkout-addr-icon {
+    color: #9CA3AF;
+    flex-shrink: 0;
+}
+
+/* Divisor interno */
+.checkout-address-card__divider {
+    height: 1px;
+    background: #F3F4F6;
+}
+
+/* Linha de endereço */
+.checkout-address-card__addr-line {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+}
+
+.checkout-address-card__addr-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.checkout-address-card__street {
     font-size: 13px;
-    color: #6B7280;
+    font-weight: 500;
+    color: #374151;
+    line-height: 1.4;
 }
 
 .checkout-address-card__ref {
-    font-size: 13px;
-    color: #6B7280;
-    margin-top: 4px;
-}
-
-.checkout-address-card__receiver {
-    margin-top: 12px;
-    padding-top: 12px;
-    border-top: 1px solid #F3F4F6;
-}
-
-.checkout-address-card__receiver-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
-    row-gap: 8px;
-}
-
-.checkout-address-card__receiver-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 14px;
-    color: #4B5563;
-    font-weight: 500;
-}
-
-.receiver-item-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 20px;
+    font-size: 12px;
     color: #9CA3AF;
+    font-weight: 400;
 }
 
-.receiver-item-text {
-    white-space: nowrap;
-}
-
+/* Botão Editar — preto, minimalista */
 .checkout-address-card__edit {
     display: flex;
     align-items: center;
     gap: 4px;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
-    color: var(--cor-primaria);
-    background: rgba(196, 30, 46, 0.06);
-    padding: 8px 12px;
-    border-radius: 10px;
+    color: #111827;
+    background: transparent;
+    border: 1.5px solid #D1D5DB;
+    padding: 6px 10px;
+    border-radius: 8px;
     white-space: nowrap;
     transition: all 0.2s;
+    flex-shrink: 0;
 }
 
 .checkout-address-card__edit:active {
     transform: scale(0.96);
+    background: #F3F4F6;
 }
 
 /* Address empty state */
