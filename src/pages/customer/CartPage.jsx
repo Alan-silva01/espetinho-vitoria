@@ -249,6 +249,7 @@ export default function CartPage() {
 
         // Persist to database if customer is logged in
         if (customer) {
+            // Salva dentro do JSONB dados (nome_recebedor, endereço, etc.)
             await updateCustomerData({
                 nome_recebedor: dataToSave.nome_recebedor,
                 telefone_recebedor: dataToSave.telefone_recebedor,
@@ -260,6 +261,14 @@ export default function CartPage() {
                     google_maps_link: dataToSave.google_maps_link
                 }
             })
+
+            // Também atualiza o campo `nome` top-level para aparecer no painel admin
+            if (dataToSave.nome_recebedor && dataToSave.nome_recebedor.trim()) {
+                await supabase
+                    .from('clientes')
+                    .update({ nome: dataToSave.nome_recebedor.trim() })
+                    .eq('id', customer.id)
+            }
         }
 
         setIsAddressModalOpen(false)
