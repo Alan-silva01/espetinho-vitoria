@@ -714,3 +714,115 @@
     from { opacity: 0; }
     to { opacity: 1; }
 }
+
+/* ── Modal Notificação de Pedido Confirmado (Clean iOS com Selo Verde) ── */
+.checkout-success-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10000;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: checkout-fadeIn 0.2s ease-out;
+}
+
+.checkout-success-card {
+    background: #FFFFFF;
+    width: 100%;
+    max-width: 330px;
+    border-radius: 28px;
+    padding: 32px 24px 26px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.22), 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.checkout-success-badge {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.checkout-success-scallop {
+    width: 82px;
+    height: 82px;
+    background: #bbf7d0; /* Verde suave do fundo do selo */
+    border-radius: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-shadow: 0 6px 18px rgba(34, 197, 94, 0.22);
+}
+
+.checkout-success-scallop::before {
+    content: "";
+    position: absolute;
+    width: 82px;
+    height: 82px;
+    background: inherit;
+    border-radius: inherit;
+    transform: rotate(45deg);
+    z-index: 1;
+}
+
+.checkout-success-check {
+    position: relative;
+    z-index: 2;
+    color: #15803d; /* Verde escuro do check */
+}
+
+.checkout-success-title {
+    font-size: 23px;
+    font-weight: 800;
+    color: #111827;
+    margin: 0 0 8px;
+    letter-spacing: -0.02em;
+}
+
+.checkout-success-desc {
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: #6B7280;
+    margin: 0 0 24px;
+    font-weight: 500;
+}
+
+.checkout-success-desc strong {
+    color: #111827;
+    font-weight: 700;
+}
+
+.checkout-success-btn {
+    width: 100%;
+    height: 48px;
+    background: #18181B;
+    color: #FFFFFF;
+    font-size: 15px;
+    font-weight: 700;
+    border-radius: 14px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.14);
+}
+
+.checkout-success-btn:hover {
+    background: #000000;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.checkout-success-btn:active {
+    transform: translateY(0);
+}

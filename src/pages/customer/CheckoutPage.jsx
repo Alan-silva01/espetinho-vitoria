@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, MapPin, CreditCard, Receipt, Edit3, CheckCircle, User, X, AlertTriangle, Phone, Navigation } from 'lucide-react'
+import { ArrowLeft, MapPin, CreditCard, Receipt, Edit3, CheckCircle, User, X, AlertTriangle, Phone, Navigation, Check } from 'lucide-react'
 import iconeEntrega from '../../assets/icons/entrega.png'
 import iconeRetirada from '../../assets/icons/retirada.png'
 import iconePix from '../../assets/icons/pix.png'
@@ -29,6 +29,7 @@ export default function CheckoutPage() {
     const nomeInputRef = useRef(null)
     const [outOfStockItems, setOutOfStockItems] = useState([])
     const [showOutOfStockModal, setShowOutOfStockModal] = useState(false)
+    const [orderSuccessModal, setOrderSuccessModal] = useState({ open: false, pedidoId: null, numeroPedido: '' })
 
     useEffect(() => {
         window.scrollTo(0, 0)
@@ -462,7 +463,12 @@ export default function CheckoutPage() {
                 sessionStorage.removeItem('espetinho_opened_from_admin')
                 navigate('/admin/pedidos')
             } else {
-                navigate(customerCode ? `/${customerCode}/pedido/${pedido.id}` : `/pedido/${pedido.id}`)
+                // Abre o modal de agradecimento / confirmação antes de redirecionar
+                setOrderSuccessModal({
+                    open: true,
+                    pedidoId: pedido.id,
+                    numeroPedido: pedido.numero_pedido
+                })
             }
         } catch (err) {
             console.error('Erro ao confirmar pedido:', err)
@@ -853,6 +859,36 @@ export default function CheckoutPage() {
                 onClose={() => setShowOutOfStockModal(false)}
                 items={outOfStockItems}
             />
+
+            {/* Modal Notificação de Pedido Confirmado (Estilo Clean iOS com Selo Verde) */}
+            {orderSuccessModal.open && (
+                <div className="checkout-success-overlay">
+                    <div className="checkout-success-card animate-scale-in">
+                        <div className="checkout-success-badge">
+                            <div className="checkout-success-scallop">
+                                <Check size={36} strokeWidth={3.5} className="checkout-success-check" />
+                            </div>
+                        </div>
+
+                        <h3 className="checkout-success-title">Pedido Confirmado!</h3>
+                        <p className="checkout-success-desc">
+                            Seu pedido <strong>#{orderSuccessModal.numeroPedido || ''}</strong> foi recebido com sucesso e já está sendo preparado.
+                        </p>
+
+                        <button
+                            type="button"
+                            className="checkout-success-btn"
+                            onClick={() => {
+                                const pId = orderSuccessModal.pedidoId
+                                setOrderSuccessModal({ open: false, pedidoId: null, numeroPedido: '' })
+                                navigate(customerCode ? `/${customerCode}/pedido/${pId}` : `/pedido/${pId}`)
+                            }}
+                        >
+                            Obrigado
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }
