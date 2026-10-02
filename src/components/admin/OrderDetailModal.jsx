@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom'
 import {
     X, Timer, Printer, Receipt,
     Bike, ChefHat, Store, Utensils,
@@ -26,7 +27,7 @@ export default function OrderDetailModal({
 }) {
     if (!order) return null
 
-    return (
+    return createPortal(
         <div className="modal-overlay-v4" onClick={onClose}>
             <div className="modal-kitchen-v4" onClick={e => e.stopPropagation()}>
                 {/* NEW PREMIUM HEADER */}
@@ -249,6 +250,7 @@ export default function OrderDetailModal({
                     )}
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     )
 }

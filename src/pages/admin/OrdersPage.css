@@ -1778,17 +1778,25 @@
 }
 
 @media (max-width: 640px) {
+    .modal-overlay-v4 {
+        padding: 16px;
+        align-items: center;
+        justify-content: center;
+    }
+
     .modal-kitchen-v4 {
-        border-radius: 0;
-        max-height: 100vh;
-        height: 100vh;
+        border-radius: 16px;
+        max-height: 88vh;
+        width: 100%;
+        max-width: 500px;
+        margin: auto;
     }
 
     .modal-v5-header,
     .modal-v5-summary,
     .modal-v5-body,
     .modal-v5-footer {
-        padding: 16px 20px;
+        padding: 16px 18px;
     }
 
     .v5-footer-actions {
