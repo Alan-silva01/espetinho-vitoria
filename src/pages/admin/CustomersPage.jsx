@@ -229,29 +229,48 @@ export default function CustomersPage() {
         }
     }
 
+    const normalizeStr = (str) => {
+        if (!str) return ''
+        return str
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .trim()
+    }
+
     const filteredCustomers = customers.filter(c => {
         // Loyalty filter
         if (loyaltyFilter === 'with_orders' && c.totalOrders === 0) return false
         if (loyaltyFilter === 'no_orders' && c.totalOrders > 0) return false
 
-        if (!searchTerm) return true
-        const termLower = searchTerm.toLowerCase().trim()
+        if (!searchTerm || !searchTerm.trim()) return true
+        
+        const termNorm = normalizeStr(searchTerm)
         const digitsOnly = searchTerm.replace(/\D/g, '')
 
-        const nameLower = (c.nome || '').toLowerCase()
-        const codeLower = (c.codigo || '').toLowerCase()
-        const emailLower = (c.email || '').toLowerCase()
+        const nameNorm = normalizeStr(c.nome)
+        const receiverNorm = normalizeStr(c.dados?.nome_recebedor)
+        const codeNorm = normalizeStr(c.codigo)
+        const emailNorm = normalizeStr(c.email)
+        const addrNorm = normalizeStr(c.fullAddress)
 
-        if (nameLower.includes(termLower) || codeLower.includes(termLower) || emailLower.includes(termLower)) {
+        if (
+            nameNorm.includes(termNorm) ||
+            receiverNorm.includes(termNorm) ||
+            codeNorm.includes(termNorm) ||
+            emailNorm.includes(termNorm) ||
+            addrNorm.includes(termNorm)
+        ) {
             return true
         }
 
-        if (digitsOnly.length >= 3) {
+        if (digitsOnly.length >= 2) {
             const phoneDigits = (c.telefone || '').replace(/\D/g, '')
             const whatsappDigits = (c.dados?.whatsapp || '').replace(/\D/g, '')
+            const receiverPhoneDigits = (c.dados?.telefone_recebedor || '').replace(/\D/g, '')
             const displayDigits = (c.displayPhone || '').replace(/\D/g, '')
 
-            const allDigits = [phoneDigits, whatsappDigits, displayDigits].filter(Boolean)
+            const allDigits = [phoneDigits, whatsappDigits, receiverPhoneDigits, displayDigits].filter(Boolean)
 
             for (const pd of allDigits) {
                 if (pd.includes(digitsOnly)) return true
@@ -369,11 +388,25 @@ export default function CustomersPage() {
                     <div className="search-bar-v3">
                         <Search size={18} />
                         <input
-                            type="text"
+                            type="search"
+                            inputMode="search"
+                            autoCapitalize="none"
+                            autoComplete="off"
                             placeholder="Buscar por nome, WhatsApp ou e-mail..."
                             value={searchTerm}
                             onChange={e => setSearchTerm(e.target.value)}
                         />
+                        {searchTerm && (
+                            <button
+                                type="button"
+                                className="search-clear-btn"
+                                onClick={() => setSearchTerm('')}
+                                title="Limpar busca"
+                                aria-label="Limpar busca"
+                            >
+                                <X size={15} />
+                            </button>
+                        )}
                     </div>
                     <div className="toolbar-actions">
                         <div className="loyalty-filter-chips">
