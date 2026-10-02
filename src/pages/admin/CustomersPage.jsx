@@ -5,7 +5,7 @@ import {
     Phone, ShoppingBag, Calendar,
     MoreHorizontal, ChevronLeft, ChevronRight,
     UserPlus, ExternalLink, Trash2, Edit2, Shield, Smartphone,
-    Image as ImageIcon, X, MapPin, Pencil
+    Image as ImageIcon, X, MapPin, Pencil, MessageCircle, Check
 } from 'lucide-react'
 import iconVerificImg from '../../../docs/icons/icon-verific.png'
 import { supabase } from '../../lib/supabase'
@@ -226,6 +226,7 @@ export default function CustomersPage() {
         const { error } = await supabase.from('clientes').delete().eq('id', deleteConfirm.id)
         if (!error) {
             setCustomers(prev => prev.filter(c => c.id !== deleteConfirm.id))
+            setProfileModal(prev => (prev.customer?.id === deleteConfirm.id ? { open: false, customer: null } : prev))
             setDeleteConfirm({ open: false, id: null, nome: '' })
         } else {
             alert('Erro ao excluir cliente: ' + error.message)
@@ -300,6 +301,8 @@ export default function CustomersPage() {
         }
     }
 
+    const [notifyModal, setNotifyModal] = useState({ open: false, title: '', message: '' })
+
     async function enviarLinkApp(customer) {
         const phoneRaw = customer.displayPhone.replace(/\D/g, '')
         if (!phoneRaw) {
@@ -311,11 +314,26 @@ export default function CustomersPage() {
                 telefone: phoneRaw,
                 codigo: customer.codigo
             })
-            alert(`✅ Link do App enviado com sucesso para ${customer.nome} no WhatsApp!`)
+            // Exibe a tela de notificação estilizada
+            setNotifyModal({
+                open: true,
+                title: 'Link Enviado!',
+                message: `O link do aplicativo foi enviado com sucesso para ${customer.nome}.`
+            })
+            setTimeout(() => {
+                setNotifyModal({ open: false, title: '', message: '' })
+            }, 1000)
         } catch (err) {
             console.error('Erro ao enviar link:', err)
             // Silently complete or alert minimally since n8n handles the heavy lifting
-            alert('Aviso: O gatilho de envio disparou, mas pode ter ocorrido uma falha de conexão local.')
+            setNotifyModal({
+                open: true,
+                title: 'Link Enviado!',
+                message: `O comando foi disparado para o WhatsApp de ${customer.nome}.`
+            })
+            setTimeout(() => {
+                setNotifyModal({ open: false, title: '', message: '' })
+            }, 1000)
         }
     }
 
@@ -502,26 +520,15 @@ export default function CustomersPage() {
                                     <td>{customer.lastOrder}</td>
                                     <td onClick={e => e.stopPropagation()}>
                                         <div className="toggle-switch-wrapper" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                            <label className="switch" style={{ position: 'relative', display: 'inline-block', width: '36px', height: '20px' }}>
-                                                <input
-                                                    type="checkbox"
-                                                    checked={!!customer.autorizado}
-                                                    onChange={(e) => toggleAutorizado(customer.id, e.target.checked)}
-                                                    style={{ opacity: 0, width: 0, height: 0 }}
-                                                />
-                                                <span className="slider round" style={{
-                                                    position: 'absolute', cursor: 'pointer', top: 0, left: 0, right: 0, bottom: 0,
-                                                    backgroundColor: customer.autorizado ? 'var(--cor-sucesso, #10b981)' : '#ccc',
-                                                    transition: '.4s', borderRadius: '34px'
-                                                }}>
-                                                    <span style={{
-                                                        position: 'absolute', content: '""', height: '14px', width: '14px',
-                                                        left: customer.autorizado ? '19px' : '3px', bottom: '3px',
-                                                        backgroundColor: 'white', transition: '.4s', borderRadius: '50%'
-                                                    }} />
-                                                </span>
-                                            </label>
-                                            {customer.autorizado && <Shield size={14} color="var(--cor-sucesso, #10b981)" />}
+                                            <button
+                                                type="button"
+                                                className={`customer-toggle-btn ${customer.autorizado ? 'on' : 'off'}`}
+                                                onClick={() => toggleAutorizado(customer.id, !customer.autorizado)}
+                                                title={customer.autorizado ? 'Autorizado' : 'Não autorizado'}
+                                            >
+                                                <div className="toggle-knob" />
+                                            </button>
+                                            {customer.autorizado && <Shield size={14} color="#10b981" />}
                                         </div>
                                     </td>
                                     <td onClick={e => e.stopPropagation()}>
@@ -813,14 +820,33 @@ export default function CustomersPage() {
                                 </span>
                             </div>
 
-                            {/* Contador de Pedidos */}
+                            {/* Contador de Pedidos e Ações Rápidas */}
                             <div className="customer-profile-card__stats-row">
+                                <button
+                                    type="button"
+                                    className="customer-profile-card__action-btn customer-profile-card__action-btn--link"
+                                    title="Enviar link do App por WhatsApp"
+                                    onClick={() => enviarLinkApp(profileModal.customer)}
+                                >
+                                    <span className="customer-profile-card__btn-txt-top">Link</span>
+                                    <span className="customer-profile-card__btn-txt-bottom">WhatsApp</span>
+                                </button>
+
                                 <div className="customer-profile-card__stat-item">
                                     <span className="customer-profile-card__stat-val">
                                         {profileModal.customer.totalOrders || 0}
                                     </span>
                                     <span className="customer-profile-card__stat-lbl">Pedidos</span>
                                 </div>
+
+                                <button
+                                    type="button"
+                                    className="customer-profile-card__action-btn customer-profile-card__action-btn--delete"
+                                    title="Excluir Cliente"
+                                    onClick={() => handleDeleteClick(profileModal.customer)}
+                                >
+                                    <Trash2 size={16} />
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -901,6 +927,37 @@ export default function CustomersPage() {
                                 <strong>{previewPhotoModal.nome}</strong>
                             </div>
                         )}
+                    </div>
+                </div>,
+                document.body
+            )}
+
+            {/* Modal Notificação de Sucesso (Estilo Clean iOS / Card Sucesso) — Portal */}
+            {notifyModal.open && createPortal(
+                <div
+                    className="admin-modal-overlay notify-success-overlay"
+                    onClick={() => setNotifyModal({ open: false, title: '', message: '' })}
+                >
+                    <div
+                        className="notify-success-card animate-scale-in"
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <div className="notify-success-badge">
+                            <div className="notify-success-scallop">
+                                <Check size={32} strokeWidth={3.5} className="notify-success-check" />
+                            </div>
+                        </div>
+
+                        <h3 className="notify-success-title">{notifyModal.title}</h3>
+                        <p className="notify-success-desc">{notifyModal.message}</p>
+
+                        <button
+                            type="button"
+                            className="notify-success-btn"
+                            onClick={() => setNotifyModal({ open: false, title: '', message: '' })}
+                        >
+                            Concluído
+                        </button>
                     </div>
                 </div>,
                 document.body

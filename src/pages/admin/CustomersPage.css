@@ -542,6 +542,46 @@
     font-size: 13px;
 }
 
+/* Toggle Switch Compacto (Estilo Controle de Estoque com Verde Sucesso) */
+.customer-toggle-btn {
+    width: 34px;
+    height: 18px;
+    border-radius: 20px;
+    padding: 2px;
+    cursor: pointer;
+    border: none;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+.customer-toggle-btn.on {
+    background-color: #10b981;
+}
+
+.customer-toggle-btn.off {
+    background-color: #E5E7EB;
+}
+
+.customer-toggle-btn .toggle-knob {
+    width: 14px;
+    height: 14px;
+    background-color: white;
+    border-radius: 50%;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.customer-toggle-btn.on .toggle-knob {
+    transform: translateX(16px);
+}
+
+.customer-toggle-btn:hover {
+    opacity: 0.92;
+}
+
 .actions-cell {
     display: flex;
     gap: 6px;
@@ -1284,18 +1324,28 @@
 /* Seção de Contador de Pedidos (Estilo Stats na parte inferior) */
 .customer-profile-card__stats-row {
     width: 100%;
+    position: relative;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
     border-top: 1px solid #F1F3F5;
-    padding-top: 16px;
+    padding-top: 14px;
+    padding-bottom: 2px;
+    padding-left: 8px;
+    padding-right: 8px;
+    min-height: 52px;
 }
 
 .customer-profile-card__stat-item {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -40%);
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2px;
+    gap: 1px;
+    pointer-events: none;
 }
 
 .customer-profile-card__stat-val {
@@ -1307,8 +1357,188 @@
 }
 
 .customer-profile-card__stat-lbl {
-    font-size: 12px;
+    font-size: 11.5px;
     font-weight: 600;
     color: #9CA3AF;
     text-transform: capitalize;
+}
+
+/* Botões de Ação Minimalistas ao lado do contador (Clean / Preto) */
+.customer-profile-card__action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #E5E7EB;
+    background: #FFFFFF;
+    color: #111827;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    z-index: 1;
+}
+
+.customer-profile-card__action-btn--link {
+    height: 38px;
+    padding: 0 10px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    color: #111827;
+    border-color: #E5E7EB;
+    background: #FFFFFF;
+    line-height: 1.1;
+}
+
+.customer-profile-card__btn-txt-top {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: #6B7280;
+}
+
+.customer-profile-card__btn-txt-bottom {
+    font-size: 11.5px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    color: #111827;
+}
+
+.customer-profile-card__action-btn--link:hover {
+    background: #111827;
+    border-color: #111827;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.customer-profile-card__action-btn--link:hover .customer-profile-card__btn-txt-top {
+    color: #9CA3AF;
+}
+
+.customer-profile-card__action-btn--link:hover .customer-profile-card__btn-txt-bottom {
+    color: #FFFFFF;
+}
+
+.customer-profile-card__action-btn--delete {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    color: #111827;
+    border-color: #E5E7EB;
+    background: #FFFFFF;
+}
+
+.customer-profile-card__action-btn--delete:hover {
+    background: #111827;
+    color: #FFFFFF;
+    border-color: #111827;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.customer-profile-card__action-btn:active {
+    transform: translateY(0);
+}
+
+/* ── Modal Notificação de Sucesso (Estilo Clean iOS com Selo Verde) ── */
+.notify-success-overlay {
+    z-index: 10000;
+    backdrop-filter: blur(6px);
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.15s ease-out;
+}
+
+.notify-success-card {
+    background: #FFFFFF;
+    width: 90%;
+    max-width: 320px;
+    border-radius: 28px;
+    padding: 28px 24px 22px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.18), 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.notify-success-badge {
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notify-success-scallop {
+    width: 76px;
+    height: 76px;
+    background: #bbf7d0; /* Verde claro suave do contorno */
+    border-radius: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-shadow: 0 4px 14px rgba(34, 197, 94, 0.2);
+}
+
+.notify-success-scallop::before {
+    content: "";
+    position: absolute;
+    width: 76px;
+    height: 76px;
+    background: inherit;
+    border-radius: inherit;
+    transform: rotate(45deg);
+    z-index: 1;
+}
+
+.notify-success-check {
+    position: relative;
+    z-index: 2;
+    color: #15803d; /* Verde escuro do check */
+}
+
+.notify-success-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: #111827;
+    margin: 0 0 6px;
+    letter-spacing: -0.02em;
+}
+
+.notify-success-desc {
+    font-size: 13px;
+    line-height: 1.45;
+    color: #6B7280;
+    margin: 0 0 22px;
+    font-weight: 500;
+}
+
+.notify-success-btn {
+    width: 100%;
+    height: 44px;
+    background: #18181B;
+    color: #FFFFFF;
+    font-size: 14px;
+    font-weight: 700;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+.notify-success-btn:hover {
+    background: #000000;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+}
+
+.notify-success-btn:active {
+    transform: translateY(0);
 }
