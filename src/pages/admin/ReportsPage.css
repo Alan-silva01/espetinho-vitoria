@@ -577,13 +577,189 @@
     }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
     .reports-page-wrapper {
-        padding: 16px;
+        padding: 12px 14px;
+        height: auto;
+        min-height: 100%;
+        overflow-y: visible;
+    }
+
+    .reports-header-premium {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        margin-bottom: 14px;
+        padding-bottom: 12px;
+    }
+
+    .header-actions-complex {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+        gap: 8px;
+    }
+
+    .filter-mode-tabs {
+        width: 100%;
+    }
+
+    .filter-mode-tabs button {
+        flex: 1;
+        text-align: center;
+        padding: 7px 10px;
+        font-size: 12px;
+    }
+
+    .period-selector {
+        width: 100%;
+        height: 38px;
+        justify-content: space-between;
+    }
+
+    .period-selector select {
+        width: 100%;
+        font-size: 13px;
+    }
+
+    .advanced-filter-controls {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+        gap: 8px;
+        padding: 8px 10px;
+    }
+
+    .advanced-filter-controls select,
+    .advanced-filter-controls input[type="date"] {
+        width: 100%;
+        height: 36px;
+        padding: 0 8px;
+        border: 1px solid #E5E7EB;
+        border-radius: 6px;
+        background: #F9FAFB;
+        font-size: 13px;
+        box-sizing: border-box;
+    }
+
+    .date-range-inputs {
+        flex-direction: column;
+        width: 100%;
+        gap: 6px;
+    }
+
+    .date-range-inputs input[type="date"] {
+        width: 100%;
+    }
+
+    .date-range-inputs span {
+        text-align: center;
+        align-self: center;
+    }
+
+    .btn-apply-filter {
+        width: 100%;
+        height: 38px;
+        font-size: 13px;
+    }
+
+    .btn-export {
+        width: 100%;
+        height: 38px;
+        font-size: 13px;
+        justify-content: center;
+    }
+
+    /* Stats Grid Mobile */
+    .reports-stats-row {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        margin-bottom: 14px;
+    }
+
+    .stat-card {
+        padding: 12px;
+    }
+
+    .card-body h3 {
+        font-size: 18px;
+    }
+
+    /* Volumetric Cards Mobile */
+    .reports-stats-row.volumetric {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        margin-bottom: 14px;
+    }
+
+    .stat-item-card.mini {
+        padding: 10px 12px;
+    }
+
+    .stat-item-card.mini .item-value {
+        font-size: 18px;
+    }
+
+    /* Main Chart Container Mobile */
+    .chart-section-large {
+        padding: 14px 10px;
+    }
+
+    .section-header {
+        margin-bottom: 14px;
+        padding: 0 4px;
+    }
+
+    .chart-title-box h3 {
+        font-size: 14px;
+    }
+
+    .chart-legend-simple {
+        font-size: 11px;
+        gap: 8px;
+    }
+
+    .main-chart-container {
+        margin-left: -12px;
+        margin-right: -4px;
+    }
+
+    /* Sidebar and Donut Chart Mobile */
+    .reports-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .category-performance,
+    .payment-mix {
+        padding: 14px;
+    }
+
+    .donut-and-legend {
+        flex-direction: row;
+        align-items: center;
+        gap: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .reports-stats-row {
+        grid-template-columns: 1fr;
     }
 
     .reports-stats-row.volumetric {
         grid-template-columns: 1fr;
+    }
+
+    .donut-and-legend {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .legend-list {
+        width: 100%;
     }
 }
 

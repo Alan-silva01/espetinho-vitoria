@@ -751,9 +751,9 @@ export default function OrdersPage() {
 
     return (
         <div className="orders-kanban-wrapper animate-fade-in">
-            <header className="orders-header-premium" style={{ background: 'white', borderBottom: '1px solid #DFDFDF', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 24px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1 }}>
-                    <h2 style={{ fontSize: '15px', fontWeight: '700', color: '#171717', margin: 0, whiteSpace: 'nowrap' }}>Gerenciamento de Pedidos</h2>
+            <header className="orders-header-premium">
+                <div className="orders-header-left-group">
+                    <h2 className="orders-header-title">Gerenciamento de Pedidos</h2>
                     <div className="search-box">
                         <Search size={15} color="#9CA3AF" />
                         <input
@@ -765,10 +765,10 @@ export default function OrdersPage() {
                     </div>
                 </div>
 
-                <div className="header-right" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div className="orders-header-actions-row">
                     <div
+                        className="orders-date-filter-trigger"
                         onClick={() => dateInputRef.current?.showPicker?.() || dateInputRef.current?.click()}
-                        style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#F3F4F6', padding: '6px 10px', borderRadius: '8px', color: '#525252', cursor: 'pointer', fontSize: '12px', fontWeight: '600', border: '1px solid #DFDFDF' }}
                     >
                         <Calendar size={16} />
                         <span style={{ fontSize: '12px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
