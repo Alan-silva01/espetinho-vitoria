@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, MapPin, CreditCard, Receipt, Edit3, CheckCircle, User, X, AlertTriangle, Phone, Navigation, Check } from 'lucide-react'
 import iconeEntrega from '../../assets/icons/entrega.png'
@@ -483,7 +484,7 @@ export default function CheckoutPage() {
         }
     }
 
-    if (items.length === 0) {
+    if (items.length === 0 && !orderSuccessModal.open) {
         return (
             <div className="checkout-empty animate-fade-in">
                 <span className="checkout-empty__icon">🛒</span>
@@ -861,7 +862,7 @@ export default function CheckoutPage() {
             />
 
             {/* Modal Notificação de Pedido Confirmado (Estilo Clean iOS com Selo Verde) */}
-            {orderSuccessModal.open && (
+            {orderSuccessModal.open && createPortal(
                 <div className="checkout-success-overlay">
                     <div className="checkout-success-card animate-scale-in">
                         <div className="checkout-success-badge">
@@ -887,7 +888,8 @@ export default function CheckoutPage() {
                             Obrigado
                         </button>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     )
