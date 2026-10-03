@@ -4,89 +4,136 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(4px);
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(2px);
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 10000;
-    padding: 20px;
+    z-index: 99999;
+    padding: 16px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .v4-dialog-content {
-    background: white;
+    position: relative;
+    background: #FFFFFF;
     width: 100%;
-    max-width: 400px;
-    border-radius: 24px;
-    padding: 32px;
+    max-width: 360px;
+    border-radius: 0px;
+    border: 1px solid #1c1917;
+    padding: 24px 20px 20px 20px;
     text-align: center;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+    animation: dialogPop 0.18s ease-out;
+}
+
+.v4-dialog-close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: transparent;
+    border: none;
+    color: #78716c;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.15s;
+}
+
+.v4-dialog-close-btn:hover {
+    color: #171717;
 }
 
 .v4-dialog-icon {
     display: flex;
     justify-content: center;
-    margin-bottom: 20px;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.v4-dialog-alert-img {
+    width: 30px;
+    height: 30px;
+    object-fit: contain;
+    display: block;
 }
 
 .v4-dialog-content h3 {
-    margin: 0 0 12px;
-    font-size: 20px;
+    margin: 0 0 8px;
+    font-size: 16px;
     font-weight: 800;
-    color: #1e293b;
+    color: #171717;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
 }
 
 .v4-dialog-content p {
-    margin: 0 0 32px;
-    font-size: 16px;
-    color: #64748b;
-    line-height: 1.5;
+    margin: 0 0 20px;
+    font-size: 13px;
+    color: #525252;
+    line-height: 1.45;
+    font-weight: 500;
 }
 
 .v4-dialog-actions {
     display: flex;
-    gap: 12px;
+    gap: 8px;
 }
 
 .btn-dialog {
     flex: 1;
-    height: 52px;
-    border-radius: 14px;
-    font-size: 16px;
-    font-weight: 800;
+    height: 38px;
+    border-radius: 0px;
+    font-size: 13px;
+    font-weight: 700;
     cursor: pointer;
-    transition: all 0.2s;
-    border: none;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
 }
 
 .btn-dialog-cancel {
-    background: #f1f5f9;
-    color: #475569;
+    background: #f5f5f4;
+    color: #44403c;
+    border: 1px solid #d6d3d1;
 }
 
 .btn-dialog-cancel:hover {
-    background: #e2e8f0;
+    background: #e7e5e4;
+    color: #1c1917;
 }
 
 .btn-dialog-confirm {
-    background: var(--cor-primaria);
-    color: white;
+    background: #171717;
+    color: #FFFFFF;
+    border: 1px solid #171717;
 }
 
 .btn-dialog-confirm:hover {
-    filter: brightness(0.9);
+    background: #262626;
 }
 
-.animate-zoom-in {
-    animation: zoomIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+.btn-dialog-confirm.btn-danger {
+    background: #dc2626;
+    color: #FFFFFF;
+    border: 1px solid #dc2626;
 }
 
-@keyframes zoomIn {
+.btn-dialog-confirm.btn-danger:hover {
+    background: #b91c1c;
+    border-color: #b91c1c;
+}
+
+@keyframes dialogPop {
     from {
         opacity: 0;
-        transform: scale(0.9);
+        transform: scale(0.96);
     }
-
     to {
         opacity: 1;
         transform: scale(1);

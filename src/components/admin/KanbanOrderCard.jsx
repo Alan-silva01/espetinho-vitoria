@@ -7,18 +7,10 @@ import {
 import { formatCurrency } from '../../lib/utils'
 
 import {
-    SkewerIcon,
-    DrinkGlassIcon,
-    BowlAcaiLineIcon,
     getItemDisplayName,
-    getCleanInitial,
-    getProductIconPath,
-    renderItemProductIcon
+    getCleanInitial
 } from '../../lib/itemIcons'
 
-const getItemIcon = (item) => {
-    return renderItemProductIcon(item, { size: 24, imgClassName: 'card-ref-product-icon-img' })
-}
 
 const formatMinutesAgo = (date, getMinutesAgo) => {
     const rawMinutes = typeof getMinutesAgo === 'function' ? getMinutesAgo(date) : 0
@@ -149,15 +141,12 @@ const KanbanOrderCard = memo(function KanbanOrderCard({
             {/* Separador sutil */}
             <div className="card-ref-divider" />
 
-            {/* Lista dos Itens: Ícone de linha preta + Quantidade em negrito + Nome do Produto + Subtítulo */}
+            {/* Lista dos Itens: Quantidade em negrito + Nome do Produto + Subtítulo */}
             <div className="card-ref-items-list">
                 {order.itens?.map((item, idx) => {
                     const subtitle = getItemSubtitle(item)
                     return (
                         <div key={idx} className="card-ref-item-row">
-                            <div className="card-ref-item-icon">
-                                {getItemIcon(item)}
-                            </div>
                             <div className="card-ref-item-info">
                                 <div className="card-ref-item-headline">
                                     <span className="card-ref-item-qty">{item.quantidade}x</span>

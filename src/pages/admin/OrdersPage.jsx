@@ -962,7 +962,7 @@ export default function OrdersPage() {
                     handleCancelOrder(id)
                 }}
                 title="Cancelar Pedido?"
-                message={`Tem certeza que deseja cancelar o pedido #PED-${orderToCancel?.numero_pedido}? O pedido será marcado como cancelado e movido para a coluna Concluído. Você poderá reativá-lo depois.`}
+                message={`Tem certeza que deseja cancelar o ped - ${orderToCancel?.numero_pedido}? O pedido será marcado como cancelado e movido para a coluna Concluído. Você poderá reativá-lo depois.`}
             />
 
             {/* Reactivate Order Dialog */}
@@ -975,7 +975,7 @@ export default function OrdersPage() {
                     handleReactivateOrder(id)
                 }}
                 title="Reativar Pedido?"
-                message={`Deseja reativar o pedido #PED-${orderToReactivate?.numero_pedido}? Ele voltará para a coluna Recebido e entrará no fluxo normal.`}
+                message={`Deseja reativar o ped - ${orderToReactivate?.numero_pedido}? Ele voltará para a coluna Recebido e entrará no fluxo normal.`}
             />
 
             {/* Create Order Modal */}

@@ -762,6 +762,7 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
+    padding: 0 12px;
 }
 
 .card-ref-item-row {
@@ -1328,13 +1329,19 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(15, 23, 42, 0.4);
-    backdrop-filter: blur(8px);
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(6px);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 10000;
     padding: 20px;
+}
+
+/* Oculta o comprovante térmico da tela (só visível no @media print) */
+#thermal-receipt,
+#thermal-receipt-print {
+    display: none;
 }
 
 .modal-kitchen-v4 {
@@ -1765,7 +1772,7 @@
 .v5-total-final .amount {
     font-size: 24px;
     font-weight: 900;
-    color: var(--cor-primaria);
+    color: #0f172a;
 }
 
 .v5-footer-actions {
@@ -1815,6 +1822,703 @@
 .btn-v5-finish:hover {
     transform: translateY(-1px);
     opacity: 0.9;
+}
+
+/* ==========================================================================
+   NOVO DESIGN: CUPOM FISCAL / RECEIPT MODAL (ESTILO REFERÊNCIA)
+   ========================================================================== */
+
+.receipt-modal-wrapper {
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: receiptSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+@keyframes receiptSlideUp {
+    from {
+        transform: translateY(24px) scale(0.98);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}
+
+.receipt-card-container {
+    width: 100%;
+    background: #FFFFFF;
+    border-radius: 0; /* Bordas estritamente quadradas conforme pedido */
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: visible;
+}
+
+/* 1. TOPO ESCURO ESTILO RECIBO (DETALHES DO PEDIDO | N - 2819) */
+.receipt-top-bar {
+    background: #232220;
+    color: #FFFFFF;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 0;
+}
+
+.receipt-top-title {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #FFFFFF;
+}
+
+.receipt-top-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.receipt-top-number {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    color: #e5e5e5;
+}
+
+.receipt-top-close-btn {
+    background: transparent;
+    border: none;
+    color: #a3a3a3;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px;
+    transition: color 0.15s;
+}
+
+.receipt-top-close-btn:hover {
+    color: #FFFFFF;
+}
+
+/* CONTEÚDO COM ROLAGEM SUAVE */
+.receipt-content-scroll {
+    max-height: calc(85vh - 70px);
+    overflow-y: auto;
+    padding: 20px 22px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* 2. DADOS DO CLIENTE & META */
+.receipt-client-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.receipt-client-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.receipt-client-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 4px; /* Quadrado sutil */
+    background: #f1f5f9;
+    overflow: hidden;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: #475569;
+    font-size: 16px;
+    border: 1px solid #e2e8f0;
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.receipt-client-avatar.clickable {
+    cursor: pointer;
+}
+
+.receipt-client-avatar.clickable:hover {
+    transform: scale(1.08);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.receipt-client-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* LIGHTBOX DE ZOOM DA FOTO (300px) */
+.receipt-photo-zoom-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10005;
+    animation: zoomFadeIn 0.2s ease-out;
+}
+
+@keyframes zoomFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.receipt-photo-zoom-card {
+    position: relative;
+    background: #171717;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 90vw;
+    animation: zoomPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes zoomPop {
+    from { transform: scale(0.85); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.receipt-photo-zoom-img {
+    width: 300px;
+    height: 300px;
+    max-width: 80vw;
+    max-height: 80vw;
+    object-fit: cover;
+    display: block;
+}
+
+.receipt-photo-zoom-close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 32px;
+    height: 32px;
+    background: rgba(0, 0, 0, 0.6);
+    border: none;
+    border-radius: 50%;
+    color: #FFFFFF;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+    z-index: 10;
+}
+
+.receipt-photo-zoom-close:hover {
+    background: rgba(0, 0, 0, 0.9);
+}
+
+.receipt-photo-zoom-caption {
+    width: 100%;
+    padding: 8px 12px;
+    background: #232220;
+    color: #FFFFFF;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.receipt-client-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.receipt-client-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.receipt-client-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: #171717;
+    margin: 0;
+    line-height: 1.2;
+}
+
+/* Status Concluído sem fundo verde e com o ícone verificado */
+.receipt-status-concluido {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #16a34a;
+    background: transparent;
+    padding: 0;
+}
+
+.receipt-status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+.receipt-status-verified-img {
+    width: 13px;
+    height: 13px;
+    object-fit: contain;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.receipt-status-pill.confirmado {
+    background: transparent;
+    color: #16a34a;
+}
+
+.receipt-status-pill.preparando {
+    background: transparent;
+    color: #d97706;
+}
+
+.receipt-status-pill.saiu_entrega {
+    background: transparent;
+    color: #ea580c;
+}
+
+.receipt-status-pill.entregue {
+    background: transparent;
+    color: #16a34a;
+    border: none;
+}
+
+.receipt-status-pill.cancelado {
+    background: transparent;
+    color: #dc2626;
+}
+
+.receipt-meta-line {
+    font-size: 12px;
+    color: #525252;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.receipt-meta-sep {
+    color: #d4d4d4;
+}
+
+.receipt-meta-type {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 600;
+    color: #262626;
+}
+
+.receipt-alert-closing {
+    background: #fffbeb;
+    border: 1px dashed #f59e0b;
+    color: #b45309;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* 3. BARRA DE TABELA PRODUTOS | PREÇO (ESTILO RECIBO) */
+.receipt-table-header {
+    background: #232220;
+    color: #FFFFFF;
+    padding: 8px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+}
+
+/* 4. ITENS DO PEDIDO COMPACTOS E JUSTOS */
+.receipt-items-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.receipt-item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 4px;
+    border-bottom: 1px solid #e5e7eb; /* Linha super fina separando os produtos horizontalmente */
+    gap: 12px;
+}
+
+.receipt-item-row:last-child {
+    border-bottom: 1px solid #171717; /* Linha de encerramento da tabela de produtos */
+}
+
+.receipt-item-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+}
+
+.receipt-item-icon-box {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.receipt-product-img {
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
+    display: block;
+}
+
+.receipt-item-details {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+}
+
+.receipt-item-title {
+    font-size: 13px;
+    color: #171717;
+    line-height: 1.3;
+}
+
+.receipt-item-title strong {
+    font-weight: 700;
+    margin-right: 2px;
+}
+
+.receipt-item-sub {
+    font-size: 11px;
+    color: #737373;
+}
+
+.receipt-item-obs {
+    font-size: 11px;
+    color: #c41e2e;
+    font-weight: 500;
+}
+
+.receipt-item-price {
+    font-size: 13px;
+    font-weight: 700;
+    color: #171717;
+    white-space: nowrap;
+}
+
+/* 5. OBSERVAÇÕES & ENDEREÇO */
+.receipt-obs-box {
+    padding: 10px 12px;
+    background: #fafafa;
+    border-left: 3px solid #171717;
+    font-size: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.receipt-obs-label {
+    font-size: 10px;
+    font-weight: 800;
+    color: #525252;
+    letter-spacing: 0.05em;
+}
+
+.receipt-obs-text {
+    color: #171717;
+}
+
+.receipt-address-box {
+    padding: 10px 12px;
+    background: #fafafa;
+    border-left: 3px solid #232220;
+    font-size: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.receipt-address-label {
+    font-size: 10px;
+    font-weight: 800;
+    color: #525252;
+    letter-spacing: 0.05em;
+}
+
+.receipt-address-text {
+    margin: 0;
+    color: #171717;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.receipt-address-ref {
+    margin: 0;
+    font-size: 11px;
+    color: #737373;
+    font-style: italic;
+}
+
+/* 6. TOTAIS DO CUPOM COM LINHAS TRACEJADAS */
+.receipt-totals-section {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-top: 4px;
+}
+
+.receipt-total-line {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: #525252;
+}
+
+.receipt-total-final {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px dashed #171717;
+    padding-top: 10px;
+    margin-top: 4px;
+}
+
+.receipt-total-final span:first-child {
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    color: #171717;
+}
+
+.receipt-total-amount {
+    font-size: 20px;
+    font-weight: 900;
+    color: #171717;
+}
+
+/* Linha de Forma de Pagamento no estilo Cupom */
+.receipt-payment-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px dotted #e5e5e5;
+    padding-top: 8px;
+    margin-top: 2px;
+    font-size: 12px;
+}
+
+.receipt-payment-label {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    color: #525252;
+}
+
+.receipt-payment-value {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 700;
+    color: #171717;
+}
+
+.receipt-payment-icon-img {
+    width: 15px;
+    height: 15px;
+    object-fit: contain;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.receipt-payment-troco {
+    font-size: 11px;
+    font-weight: 600;
+    color: #737373;
+}
+
+.receipt-meta-line-spaced {
+    font-size: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-top: 4px;
+}
+
+.receipt-meta-date {
+    color: #525252;
+    font-weight: 500;
+}
+
+.receipt-meta-type-caps {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    color: #171717;
+    text-transform: uppercase;
+    background: #f5f5f5;
+    padding: 2px 6px;
+    border: 1px solid #e5e5e5;
+}
+
+/* 7. AÇÕES OPERACIONAIS - BOTÕES EM LINHA */
+.receipt-actions-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-top: 8px;
+}
+
+.receipt-buttons-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.receipt-buttons-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.receipt-buttons-right {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+}
+
+/* Botão outline base (Imprimir e Cancelar no mesmo formato) */
+.receipt-btn-action-outline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: #FFFFFF;
+    border: 1px solid #d4d4d4;
+    color: #171717;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 0;
+    transition: all 0.15s;
+    font-family: 'Inter', sans-serif;
+}
+
+.receipt-btn-action-outline:hover {
+    background: #f5f5f5;
+    border-color: #a3a3a3;
+}
+
+/* Cancelar Pedido: estilo neutro idêntico ao de imprimir (sem vermelho) */
+.receipt-btn-action-outline.cancel {
+    color: #171717;
+    border-color: #d4d4d4;
+}
+
+.receipt-btn-action-outline.cancel:hover {
+    background: #f5f5f5;
+    border-color: #a3a3a3;
+}
+
+.receipt-btn-action-outline.reactivate {
+    color: #16a34a;
+    border-color: #bbf7d0;
+}
+
+.receipt-btn-action-outline.reactivate:hover {
+    background: #f0fdf4;
+    border-color: #22c55e;
+}
+
+.receipt-btn-advance {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: #232220;
+    border: none;
+    color: #FFFFFF;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    border-radius: 0;
+    transition: background 0.15s;
+    margin-left: auto; /* Empurra o botão de avanço para a direita */
+    font-family: 'Inter', sans-serif;
+}
+
+.receipt-btn-advance:hover {
+    background: #000000;
+}
+
+.receipt-comanda-container {
+    border-top: 1px dashed #e5e5e5;
+    padding-top: 12px;
+}
+
+/* 8. SERRILHADO INFERIOR (ZIGZAG / SAWTOOTH) - VISÍVEL E NÍTIDO */
+.receipt-sawtooth-bottom {
+    width: 100%;
+    height: 14px;
+    background: 
+        linear-gradient(135deg, #FFFFFF 7px, transparent 0),
+        linear-gradient(-135deg, #FFFFFF 7px, transparent 0);
+    background-size: 14px 14px;
+    background-repeat: repeat-x;
+    background-position: left bottom;
+    flex-shrink: 0;
+    margin-bottom: -13px; /* Projeta os dentes brancos para fora da borda sobre o overlay */
 }
 
 @media (max-width: 640px) {

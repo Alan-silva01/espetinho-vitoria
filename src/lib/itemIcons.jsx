@@ -151,12 +151,12 @@ export const getProductIconPath = (item) => {
     if ((fullStr.includes('carne') || fullStr.includes('carn')) && fullStr.includes('frang') && (fullStr.includes('ling') || fullStr.includes('calabresa'))) {
         return '/icons/carn-frang-ling.png'
     }
-    // Carne com Linguiça
-    if ((fullStr.includes('carne') || fullStr.includes('carn')) && (fullStr.includes('ling') || fullStr.includes('calabresa'))) {
+    // Carne com Linguiça — exige presença explícita de ambos no NOME do produto
+    if ((nome.includes('carne') || nome.includes('carn')) && (nome.includes('ling') || nome.includes('calabresa'))) {
         return '/icons/carne-ling.png'
     }
     // Medalhão
-    if (fullStr.includes('medalhao') || fullStr.includes('med')) {
+    if (fullStr.includes('medalhao')) {
         if (fullStr.includes('frango')) return '/icons/med-frango.png'
         return '/icons/med-carne.png'
     }
