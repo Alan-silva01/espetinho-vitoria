@@ -116,8 +116,8 @@ export default function useQzTray() {
                 margins: { top: 0, right: 0, bottom: 0, left: 0 },
                 units: 'mm',
                 scaleContent: false,
-                rasterize: true, // Garante que o layout renderizado pela WebView seja preservado
-                density: 203    // DPI padrão de impressoras térmicas (evita escala gigante)
+                rasterize: true,
+                density: 203 // DPI padrão de impressoras térmicas 58mm
             })
 
             const data = [{
@@ -125,7 +125,7 @@ export default function useQzTray() {
                 format: 'plain',
                 data: htmlContent,
                 options: {
-                    pageWidth: 71,  // Usando milímetros direto (foi convertido de 2.8 pol)
+                    pageWidth: 58, // MPT II 58mm
                 }
             }]
 

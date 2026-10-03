@@ -12,6 +12,7 @@ import { formatCurrency, filterPersonalizacao, getSmartItemName } from '../../li
 import { useOrders, useComanda } from '../../hooks/useOrders'
 import { useVisibilityRefresh } from '../../hooks/useVisibilityRefresh'
 import { useNotificationSoundContext } from '../../context/NotificationSoundContext'
+import useQzTray from '../../hooks/useQzTray'
 
 import Dialog from '../../components/ui/Dialog'
 import CreateOrderModal from '../../components/admin/CreateOrderModal'
@@ -76,6 +77,7 @@ const getItemDisplayName = (item) => {
 export default function OrdersPage() {
     const { playNotificationSound } = useNotificationSoundContext()
     const { finalizeComanda } = useOrders()
+    const { connected: qzConnected, selectedPrinter, printHtml } = useQzTray()
     const [orders, setOrders] = useState([])
     const [loading, setLoading] = useState(true)
     const [selectedOrder, setSelectedOrder] = useState(null)
@@ -135,7 +137,44 @@ export default function OrdersPage() {
         })
     }
 
-    // Auto-print: fetch order, render #thermal-receipt, window.print() — SAME as manual
+    // Shared print helper: uses QZ Tray if connected, falls back to window.print()
+    const printReceipt = useCallback(async (receiptEl) => {
+        if (!receiptEl) return
+
+        // --- QZ Tray path (silent, no dialog) ---
+        if (qzConnected && selectedPrinter) {
+            try {
+                const styles = Array.from(document.styleSheets)
+                    .map(sheet => {
+                        try { return Array.from(sheet.cssRules).map(r => r.cssText).join('\n') }
+                        catch { return '' }
+                    }).join('\n')
+
+                const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+                    @page { size: 58mm auto; margin: 0; }
+                    body { margin: 0; padding: 0; background: white; }
+                    ${styles}
+                </style></head><body>${receiptEl.outerHTML}</body></html>`
+
+                const ok = await printHtml(html)
+                if (ok) return // success — done
+            } catch (err) {
+                console.warn('[Print] QZ Tray falhou, usando window.print():', err)
+            }
+        }
+
+        // --- Fallback: window.print() (comportamento atual) ---
+        const clone = receiptEl.cloneNode(true)
+        clone.id = 'thermal-receipt-print'
+        document.body.appendChild(clone)
+        const root = document.getElementById('root')
+        root.style.display = 'none'
+        window.print()
+        root.style.display = ''
+        clone.remove()
+    }, [qzConnected, selectedPrinter, printHtml])
+
+    // Auto-print: fetch order, render #thermal-receipt, print
     const autoPrintOrder = async (orderId) => {
         try {
             const { data: order, error } = await supabase
@@ -157,30 +196,13 @@ export default function OrdersPage() {
                 return
             }
 
-            // Set selectedOrder — React renders #thermal-receipt (exact same component as manual print)
             setSelectedOrder(order)
-
-            // Wait for React to render
             await new Promise(resolve => setTimeout(resolve, 400))
 
-            // Clone receipt into body, hide #root, print, restore — same as manual
             const receipt = document.getElementById('thermal-receipt')
-            if (receipt) {
-                const clone = receipt.cloneNode(true)
-                clone.id = 'thermal-receipt-print'
-                document.body.appendChild(clone)
-                const root = document.getElementById('root')
-                root.style.display = 'none'
-                window.print()
-                root.style.display = ''
-                clone.remove()
-            }
+            await printReceipt(receipt)
 
-            // After print dialog closes, clear selectedOrder
-            setTimeout(() => {
-                setSelectedOrder(null)
-            }, 1000)
-
+            setTimeout(() => setSelectedOrder(null), 1000)
             console.log('[AutoPrint] Imprimindo pedido #' + order.numero_pedido)
         } catch (err) {
             console.error('[AutoPrint] Erro:', err)
@@ -562,17 +584,9 @@ export default function OrdersPage() {
         }
     }
 
-    const handlePrint = () => {
+    const handlePrint = async () => {
         const receipt = document.getElementById('thermal-receipt')
-        if (!receipt) return
-        const clone = receipt.cloneNode(true)
-        clone.id = 'thermal-receipt-print'
-        document.body.appendChild(clone)
-        const root = document.getElementById('root')
-        root.style.display = 'none'
-        window.print()
-        root.style.display = ''
-        clone.remove()
+        await printReceipt(receipt)
     }
 
     const onDragStart = (e, orderId) => {
@@ -826,6 +840,13 @@ export default function OrdersPage() {
                         <Printer size={14} />
                         Impressão Auto
                     </button>
+
+                    <span
+                        className={`qz-status-badge ${qzConnected ? 'connected' : 'disconnected'}`}
+                        title={qzConnected ? `QZ Tray conectado (${selectedPrinter || 'sem impressora selecionada'})` : 'QZ Tray desconectado — usando diálogo do browser'}
+                    >
+                        🖨️ {qzConnected ? 'QZ ON' : 'QZ OFF'}
+                    </span>
                 </div>
             </header>
 
