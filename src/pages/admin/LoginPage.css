@@ -11,7 +11,7 @@
     width: 100%;
     max-width: 400px;
     background: white;
-    border-radius: 24px;
+    border-radius: 0;
     padding: 48px 32px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
@@ -21,29 +21,21 @@
     margin-bottom: 40px;
 }
 
-.login-logo__icon {
-    width: 64px;
-    height: 64px;
-    background: linear-gradient(135deg, #C41E2E, #E8353F);
-    border-radius: 20px;
-    margin: 0 auto 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 8px 24px rgba(196, 30, 46, 0.3);
-}
-
-.login-logo h1 {
-    font-family: var(--fonte-destaque);
-    font-size: 24px;
-    font-weight: 800;
-    color: var(--cor-primaria);
+.login-logo__img {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+    margin: 0 auto 12px;
+    display: block;
 }
 
 .login-logo p {
-    font-size: 14px;
+    font-size: 13px;
+    font-weight: 600;
     color: var(--texto-secundario);
-    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0;
 }
 
 .login-form {
@@ -68,7 +60,7 @@
     width: 100%;
     padding: 14px 16px 14px 48px;
     background: #f3f4f6;
-    border-radius: 12px;
+    border-radius: 0;
     font-size: 15px;
     color: var(--texto-principal);
     border: 2px solid transparent;
@@ -97,11 +89,11 @@
 .login-btn {
     width: 100%;
     padding: 16px;
-    background: linear-gradient(135deg, #C41E2E, #E8353F);
+    background: linear-gradient(135deg, #232220, #09090b);
     color: white;
     font-weight: 700;
     font-size: 16px;
-    border-radius: 12px;
+    border-radius: 0;
     box-shadow: 0 4px 16px rgba(196, 30, 46, 0.3);
     transition: all 0.2s;
     display: flex;

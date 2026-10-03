@@ -13,7 +13,7 @@
 
 .create-order-modal {
     background: #FFFFFF;
-    border-radius: 20px;
+    border-radius: 0;
     width: 100%;
     max-width: 900px;
     max-height: 90vh;
@@ -70,7 +70,7 @@
     border: none;
     width: 36px;
     height: 36px;
-    border-radius: 10px;
+    border-radius: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -162,7 +162,7 @@
     color: #991B1B;
     padding: 10px 16px;
     margin: 12px 24px 0 24px;
-    border-radius: 10px;
+    border-radius: 0;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -180,7 +180,7 @@
 .section-box {
     background: #F8FAFC;
     border: 1px solid #E2E8F0;
-    border-radius: 14px;
+    border-radius: 0;
     padding: 18px;
 }
 
@@ -220,7 +220,7 @@
     width: 100%;
     padding: 12px 14px 12px 42px;
     border: 1px solid #CBD5E1;
-    border-radius: 10px;
+    border-radius: 0;
     font-size: 14px;
     outline: none;
     transition: all 0.2s;
@@ -243,7 +243,7 @@
     margin-top: 10px;
     background: #FFFFFF;
     border: 1px solid #E2E8F0;
-    border-radius: 10px;
+    border-radius: 0;
     max-height: 200px;
     overflow-y: auto;
 }
@@ -280,7 +280,7 @@
     color: white;
     border: none;
     padding: 6px 12px;
-    border-radius: 8px;
+    border-radius: 0;
     font-weight: 600;
     font-size: 12px;
 }
@@ -301,7 +301,7 @@
     color: white;
     border: none;
     padding: 8px 16px;
-    border-radius: 8px;
+    border-radius: 0;
     font-weight: 600;
     font-size: 13px;
     display: flex;
@@ -313,7 +313,7 @@
 .selected-customer-card {
     background: #FFFFFF;
     border: 1px solid #E2E8F0;
-    border-radius: 10px;
+    border-radius: 0;
     padding: 14px;
 }
 
@@ -334,7 +334,7 @@
     font-size: 11px;
     font-weight: 700;
     padding: 2px 8px;
-    border-radius: 6px;
+    border-radius: 0;
     text-transform: uppercase;
 }
 
@@ -379,7 +379,7 @@
 .input-group select {
     padding: 10px 12px;
     border: 1px solid #CBD5E1;
-    border-radius: 8px;
+    border-radius: 0;
     font-size: 14px;
     background: #FFFFFF;
     color: #1E293B;
@@ -425,7 +425,7 @@
 
 .cat-pill {
     padding: 6px 14px;
-    border-radius: 20px;
+    border-radius: 0;
     background: #F1F5F9;
     border: 1px solid #E2E8F0;
     color: #64748B;
@@ -459,7 +459,7 @@
 .product-quick-card {
     background: #FFFFFF;
     border: 1px solid #E2E8F0;
-    border-radius: 12px;
+    border-radius: 0;
     padding: 10px;
     display: flex;
     flex-direction: column;
@@ -484,7 +484,7 @@
     width: 100%;
     height: 90px;
     object-fit: cover;
-    border-radius: 8px;
+    border-radius: 0;
     margin-bottom: 8px;
 }
 
@@ -513,7 +513,7 @@
     border: none;
     width: 28px;
     height: 28px;
-    border-radius: 8px;
+    border-radius: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -523,7 +523,7 @@
 .cart-summary-side {
     background: #F8FAFC;
     border: 1px solid #E2E8F0;
-    border-radius: 14px;
+    border-radius: 0;
     padding: 16px;
     display: flex;
     flex-direction: column;
@@ -553,7 +553,7 @@
 .cart-item-row {
     background: #FFFFFF;
     border: 1px solid #E2E8F0;
-    border-radius: 10px;
+    border-radius: 0;
     padding: 10px 12px;
     display: flex;
     justify-content: space-between;
@@ -587,7 +587,7 @@
     align-items: center;
     gap: 6px;
     background: #F1F5F9;
-    border-radius: 6px;
+    border-radius: 0;
     padding: 2px 4px;
 }
 
@@ -646,7 +646,7 @@
 .pay-btn {
     background: #FFFFFF;
     border: 2px solid #E2E8F0;
-    border-radius: 12px;
+    border-radius: 0;
     padding: 14px 10px;
     display: flex;
     flex-direction: column;
@@ -682,7 +682,7 @@
 .order-notes-textarea {
     width: 100%;
     border: 1px solid #CBD5E1;
-    border-radius: 8px;
+    border-radius: 0;
     padding: 10px;
     font-size: 14px;
     outline: none;
@@ -698,7 +698,7 @@
     margin-top: 20px;
     background: #0F172A;
     color: white;
-    border-radius: 14px;
+    border-radius: 0;
     padding: 16px 20px;
     display: flex;
     justify-content: space-between;
@@ -735,7 +735,7 @@
 
 .btn-stepper-nav {
     padding: 10px 20px;
-    border-radius: 10px;
+    border-radius: 0;
     font-weight: 700;
     font-size: 14px;
     display: flex;
@@ -765,7 +765,7 @@
     color: white;
     border: none;
     padding: 12px 24px;
-    border-radius: 10px;
+    border-radius: 0;
     font-weight: 800;
     font-size: 15px;
     cursor: pointer;
@@ -786,7 +786,7 @@
 
 .customizing-modal {
     background: #FFFFFF;
-    border-radius: 16px;
+    border-radius: 0;
     width: 100%;
     max-width: 440px;
     padding: 20px;
@@ -817,7 +817,7 @@
     justify-content: space-between;
     padding: 10px 14px;
     border: 1px solid #CBD5E1;
-    border-radius: 8px;
+    border-radius: 0;
     background: transparent;
     cursor: pointer;
     font-size: 14px;
@@ -835,7 +835,7 @@
     color: white;
     border: none;
     padding: 12px;
-    border-radius: 10px;
+    border-radius: 0;
     font-weight: 700;
     margin-top: 16px;
     cursor: pointer;

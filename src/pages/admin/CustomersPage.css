@@ -46,7 +46,7 @@
     color: white;
     padding: 7px 14px;
     border: 1px solid #171717;
-    border-radius: 0px;
+    border-radius: 0;
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
@@ -71,7 +71,7 @@
 .c-stat-card {
     background: white;
     padding: 12px 16px;
-    border-radius: 0px;
+    border-radius: 0;
     border: 1px solid #e5e7eb;
     display: flex;
     align-items: center;
@@ -82,7 +82,7 @@
 .c-stat-icon {
     width: 34px;
     height: 34px;
-    border-radius: 0px;
+    border-radius: 0;
     background: #f5f5f4 !important;
     color: #171717 !important;
     border: 1px solid #e5e7eb;
@@ -119,7 +119,7 @@
 /* Table Container */
 .customers-table-container {
     background: white;
-    border-radius: 0px;
+    border-radius: 0;
     border: 1px solid #1c1917;
     overflow: hidden;
     display: flex;
@@ -149,7 +149,7 @@
     gap: 8px;
     background: #ffffff;
     padding: 6px 10px;
-    border-radius: 0px;
+    border-radius: 0;
     border: 1px solid #d4d4d4;
     height: 34px;
     transition: border-color 0.15s;
@@ -190,7 +190,7 @@
     padding: 2px;
     cursor: pointer;
     color: #737373;
-    border-radius: 0px;
+    border-radius: 0;
     transition: color 0.15s;
     flex-shrink: 0;
 }
@@ -212,7 +212,7 @@
     align-items: center;
     gap: 2px;
     background: #f5f5f4;
-    border-radius: 0px;
+    border-radius: 0;
     padding: 2px;
     border: 1px solid #e5e7eb;
 }
@@ -223,7 +223,7 @@
     gap: 5px;
     padding: 4px 10px;
     border: none;
-    border-radius: 0px;
+    border-radius: 0;
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
@@ -263,7 +263,7 @@
     padding: 6px 12px;
     border: 1px solid #d4d4d4;
     background: white;
-    border-radius: 0px;
+    border-radius: 0;
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
@@ -338,7 +338,7 @@
 .customer-avatar-img {
     width: 40px;
     height: 40px;
-    border-radius: 0px;
+    border-radius: 0;
     object-fit: cover;
     border: 1px solid #1c1917;
     background: #f5f5f4;
@@ -349,7 +349,7 @@
 .avatar-fallback {
     width: 40px;
     height: 40px;
-    border-radius: 0px;
+    border-radius: 0;
     background: #f5f5f4;
     color: #171717;
     display: flex;
@@ -392,7 +392,7 @@
     position: relative;
     width: 110px;
     height: 110px;
-    border-radius: 0px;
+    border-radius: 0;
     overflow: hidden;
     cursor: pointer;
     border: 1px solid #1c1917;
@@ -435,7 +435,7 @@
 .modal-avatar-large-fallback {
     width: 110px;
     height: 110px;
-    border-radius: 0px;
+    border-radius: 0;
     background: #f5f5f4;
     border: 1px dashed #737373;
     display: flex;
@@ -486,7 +486,7 @@
 .photo-preview-img {
     max-width: 85vw;
     max-height: 80vh;
-    border-radius: 12px;
+    border-radius: 0;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
     object-fit: contain;
     border: 2px solid rgba(255, 255, 255, 0.15);
@@ -526,7 +526,7 @@
 .ref-code {
     background: #f5f5f4;
     padding: 2px 6px;
-    border-radius: 0px;
+    border-radius: 0;
     font-family: monospace;
     font-size: 11px;
     font-weight: 700;
@@ -551,7 +551,7 @@
     gap: 4px;
     background: transparent;
     padding: 0;
-    border-radius: 0px;
+    border-radius: 0;
     font-size: 12px;
     font-weight: 700;
     color: #171717;
@@ -571,7 +571,7 @@
 .actions-cell button {
     width: 28px;
     height: 28px;
-    border-radius: 0px;
+    border-radius: 0;
     border: 1px solid #d4d4d4;
     background: white;
     color: #171717;
@@ -616,7 +616,7 @@
 .pagination-ctrls button {
     width: 28px;
     height: 28px;
-    border-radius: 0px;
+    border-radius: 0;
     border: 1px solid #d4d4d4;
     background: white;
     display: flex;
@@ -659,7 +659,7 @@
     width: 100%;
     max-width: 500px;
     max-height: 90vh;
-    border-radius: 0px;
+    border-radius: 0;
     border: 1px solid #1c1917;
     overflow: hidden;
     display: flex;
@@ -715,7 +715,7 @@
     background: #ffffff;
     border: 1px solid #d4d4d4;
     padding: 8px 12px;
-    border-radius: 0px;
+    border-radius: 0;
     font-size: 12.5px;
     outline: none;
     transition: all 0.15s;
@@ -741,7 +741,7 @@
 .modal-footer button {
     flex: 1;
     padding: 8px;
-    border-radius: 0px;
+    border-radius: 0;
     font-weight: 700;
     font-size: 12px;
     text-transform: uppercase;
@@ -881,7 +881,7 @@
     /* Table adjustments */
     .table-responsive {
         -webkit-overflow-scrolling: touch;
-        border-radius: 0 0 8px 8px;
+        border-radius: 0;
     }
 
     .customers-table th,
@@ -914,7 +914,7 @@
 
     .modal-edit-customer {
         max-height: 94vh;
-        border-radius: 14px;
+        border-radius: 0;
     }
 
     .modal-customer-profile-header {
@@ -930,7 +930,7 @@
 
     .customer-profile-card {
         max-width: 100%;
-        border-radius: 20px;
+        border-radius: 0;
     }
 }
 
@@ -984,7 +984,7 @@
     background: white;
     width: 100%;
     max-width: 360px;
-    border-radius: 14px;
+    border-radius: 0;
     overflow: hidden;
     box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
     display: flex;
@@ -1000,12 +1000,12 @@
     width: 64px;
     height: 64px;
     border-radius: 50%;
-    background: #FEF2F2;
-    border: 2px solid #FECACA;
+    background: #F9FAFB;
+    border: 2px solid #D1D5DB;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #C41E2E;
+    color: #232220;
     margin-bottom: 18px;
     flex-shrink: 0;
 }
@@ -1044,7 +1044,7 @@
     gap: 6px;
     background: #FFF7ED;
     border: 1px solid #FED7AA;
-    border-radius: 8px;
+    border-radius: 0;
     padding: 8px 12px;
     font-size: 11px;
     color: #92400E;
@@ -1064,7 +1064,7 @@
 .btn-confirm-cancel {
     flex: 1;
     padding: 10px 0;
-    border-radius: 9px;
+    border-radius: 0;
     border: 1.5px solid #E5E7EB;
     background: white;
     color: #374151;
@@ -1083,9 +1083,9 @@
 .btn-confirm-delete {
     flex: 1;
     padding: 10px 0;
-    border-radius: 9px;
+    border-radius: 0;
     border: none;
-    background: #C41E2E;
+    background: #232220;
     color: white;
     font-size: 13px;
     font-weight: 700;
@@ -1117,14 +1117,14 @@
 }
 
 /* ═════════════════════════════════════════════════════════════════
-   MODAL DE PERFIL DO CLIENTE — DESIGN FIEL AO CARD
+   MODAL DE PERFIL DO CLIENTE — DESIGN RECIBO / MINIMALISTA
    ═════════════════════════════════════════════════════════════════ */
 .customer-profile-card-overlay {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(17, 24, 39, 0.45);
-    backdrop-filter: blur(8px);
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(2px);
     z-index: 9999;
 }
 
@@ -1133,8 +1133,9 @@
     width: 100%;
     max-width: 360px;
     background: #ffffff;
-    border-radius: 28px;
-    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.05);
+    border-radius: 0 !important;
+    border: 1px solid #1c1917;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -1143,81 +1144,78 @@
 /* Botão Fechar no canto superior esquerdo */
 .customer-profile-card__close {
     position: absolute;
-    top: 14px;
-    left: 14px;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.9);
+    top: 10px;
+    left: 10px;
+    width: 30px;
+    height: 30px;
+    border-radius: 0;
+    background: transparent;
     border: none;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #4B5563;
+    color: #ffffff;
     cursor: pointer;
     z-index: 10;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: all 0.15s ease;
 }
 
 .customer-profile-card__close:hover {
-    background: #ffffff;
-    color: #111827;
-    transform: scale(1.05);
+    color: #d4d4d4;
+    transform: none;
 }
 
-/* Top Banner Suave com Textura / Curvas Orgânicas */
+/* Top Banner Preto Sóbrio Estilo Recibo */
 .customer-profile-card__banner {
     position: relative;
-    height: 125px;
-    background: linear-gradient(135deg, #E6EFF8 0%, #DDE8F4 50%, #E2EDF8 100%);
-    background-image: 
-        radial-gradient(ellipse at 20% 30%, rgba(255, 255, 255, 0.6) 0%, transparent 60%),
-        radial-gradient(ellipse at 80% 70%, rgba(210, 225, 242, 0.7) 0%, transparent 60%);
+    height: 60px;
+    background: #171717;
     display: flex;
     justify-content: flex-end;
-    padding: 14px 16px;
+    align-items: center;
+    padding: 10px 14px;
+    border-bottom: 1px solid #1c1917;
 }
 
-/* Botão de Editar no canto superior direito (Lápis no lugar do +) */
+/* Botão de Editar no canto superior direito */
 .customer-profile-card__edit-btn {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: #ffffff;
-    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 0;
+    background: transparent;
+    border: 1px solid #525252;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #1F2937;
+    color: #ffffff;
     cursor: pointer;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
-    transition: all 0.2s ease;
+    transition: all 0.15s ease;
     z-index: 5;
 }
 
 .customer-profile-card__edit-btn:hover {
-    transform: scale(1.06);
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
-    color: #C41E2E;
+    background: #262626;
+    border-color: #ffffff;
+    color: #ffffff;
+    transform: none;
 }
 
-/* Avatar Centralizado flutuando sobre o Banner */
+/* Avatar Centralizado Quadrado */
 .customer-profile-card__avatar-section {
     position: relative;
     display: flex;
     justify-content: center;
-    margin-top: -54px;
+    margin-top: -36px;
     z-index: 2;
 }
 
 .customer-profile-card__avatar-wrap {
-    width: 98px;
-    height: 98px;
-    border-radius: 50%;
-    background: #F3F4F6;
-    border: 5px solid #ffffff;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    width: 72px;
+    height: 72px;
+    border-radius: 0;
+    background: #f5f5f4;
+    border: 2px solid #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     display: flex;
     align-items: center;
@@ -1233,18 +1231,19 @@
 .customer-profile-card__avatar-fallback {
     width: 100%;
     height: 100%;
-    background: #E5E7EB;
-    color: #374151;
-    font-size: 34px;
-    font-weight: 700;
+    background: #f5f5f4;
+    color: #171717;
+    font-size: 26px;
+    font-weight: 800;
     display: flex;
     align-items: center;
     justify-content: center;
+    border-radius: 0;
 }
 
 /* Corpo do Card */
 .customer-profile-card__body {
-    padding: 14px 24px 26px;
+    padding: 12px 20px 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1256,21 +1255,22 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 7px;
-    margin-bottom: 6px;
+    gap: 6px;
+    margin-bottom: 4px;
 }
 
 .customer-profile-card__name {
-    font-size: 20px;
+    font-size: 16px;
     font-weight: 800;
-    color: #111827;
+    color: #171717;
     margin: 0;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
 }
 
 .customer-profile-card__verific-icon {
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
     object-fit: contain;
     flex-shrink: 0;
 }
@@ -1280,112 +1280,128 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
-    color: #6B7280;
-    margin-bottom: 14px;
+    color: #737373;
+    margin-bottom: 12px;
 }
 
 .customer-profile-card__phone-icon {
-    color: #9CA3AF;
+    color: #737373;
 }
 
 /* Endereço de Entrega */
 .customer-profile-card__address-box {
     width: 100%;
-    background: #F9FAFB;
-    border: 1px solid #F0F2F5;
-    border-radius: 14px;
-    padding: 10px 14px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 0;
+    padding: 8px 12px;
     display: flex;
     align-items: center;
     gap: 8px;
     text-align: left;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
 }
 
 .customer-profile-card__address-icon {
-    color: #EF4444;
+    color: #171717;
     flex-shrink: 0;
 }
 
 .customer-profile-card__address-text {
-    font-size: 12.5px;
+    font-size: 11.5px;
     line-height: 1.4;
-    color: #4B5563;
+    color: #171717;
     font-weight: 500;
     word-break: break-word;
 }
 
-/* Seção de Contador de Pedidos (Estilo Stats na parte inferior) */
+/* Seção de Contador de Pedidos */
 .customer-profile-card__stats-row {
     width: 100%;
     position: relative;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border-top: 1px solid #F1F3F5;
-    padding-top: 14px;
-    padding-bottom: 2px;
-    padding-left: 8px;
-    padding-right: 8px;
-    min-height: 52px;
+    border-top: 1px solid #1c1917;
+    padding-top: 12px;
+    min-height: 48px;
 }
 
 .customer-profile-card__stat-item {
     position: absolute;
     left: 50%;
     top: 50%;
-    transform: translate(-50%, -40%);
+    transform: translate(-50%, -35%);
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1px;
+    gap: 0px;
     pointer-events: none;
 }
 
 .customer-profile-card__stat-val {
-    font-size: 24px;
+    font-size: 20px;
     font-weight: 800;
-    color: #111827;
+    color: #171717;
     line-height: 1;
     letter-spacing: -0.02em;
 }
 
 .customer-profile-card__stat-lbl {
-    font-size: 11.5px;
-    font-weight: 600;
-    color: #9CA3AF;
-    text-transform: capitalize;
+    font-size: 10.5px;
+    font-weight: 700;
+    color: #737373;
+    text-transform: uppercase;
 }
 
-/* Botões de Ação Minimalistas ao lado do contador (Clean / Preto) */
+/* Botões de Ação Minimalistas */
 .customer-profile-card__action-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid #E5E7EB;
-    background: #FFFFFF;
-    color: #111827;
+    border: 1px solid #d4d4d4;
+    background: #ffffff;
+    color: #171717;
     cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    border-radius: 0 !important;
+    transition: all 0.15s ease;
+    box-shadow: none;
     z-index: 1;
 }
 
 .customer-profile-card__action-btn--link {
-    height: 38px;
+    height: 32px;
     padding: 0 10px;
-    border-radius: 10px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 0;
-    color: #111827;
-    border-color: #E5E7EB;
-    background: #FFFFFF;
+    color: #171717;
+    border-color: #d4d4d4;
+    background: #ffffff;
     line-height: 1.1;
+}
+
+.customer-profile-card__action-btn--link:hover {
+    background: #f5f5f4;
+    border-color: #171717;
+}
+
+.customer-profile-card__action-btn--delete {
+    width: 32px;
+    height: 32px;
+    color: #dc2626;
+    border-color: #fca5a5;
+    background: #ffffff;
+}
+
+.customer-profile-card__action-btn--delete:hover {
+    background: #dc2626;
+    border-color: #dc2626;
+    color: #ffffff;
 }
 
 .customer-profile-card__btn-txt-top {
@@ -1421,7 +1437,7 @@
 .customer-profile-card__action-btn--delete {
     width: 38px;
     height: 38px;
-    border-radius: 10px;
+    border-radius: 0;
     color: #111827;
     border-color: #E5E7EB;
     background: #FFFFFF;
@@ -1454,7 +1470,7 @@
     background: #FFFFFF;
     width: 90%;
     max-width: 320px;
-    border-radius: 28px;
+    border-radius: 0;
     padding: 28px 24px 22px;
     display: flex;
     flex-direction: column;
@@ -1474,7 +1490,7 @@
     width: 76px;
     height: 76px;
     background: #bbf7d0; /* Verde claro suave do contorno */
-    border-radius: 26px;
+    border-radius: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1522,7 +1538,7 @@
     color: #FFFFFF;
     font-size: 14px;
     font-weight: 700;
-    border-radius: 12px;
+    border-radius: 0;
     border: none;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -1537,4 +1553,41 @@
 
 .notify-success-btn:active {
     transform: translateY(0);
+}
+
+/* ── Customer Toggle (Autorizado) ────────────────────────── */
+.customer-toggle-btn {
+    position: relative;
+    width: 36px;
+    height: 20px;
+    border-radius: 20px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0;
+    display: flex;
+    align-items: center;
+}
+
+.customer-toggle-btn.on {
+    background: #232220;
+}
+
+.customer-toggle-btn.off {
+    background: #E5E7EB;
+}
+
+.customer-toggle-btn .toggle-knob {
+    width: 14px;
+    height: 14px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    position: absolute;
+    left: 3px;
+}
+
+.customer-toggle-btn.on .toggle-knob {
+    transform: translateX(16px);
 }

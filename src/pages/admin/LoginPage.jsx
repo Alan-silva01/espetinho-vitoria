@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Flame, Lock, Mail, Eye, EyeOff } from 'lucide-react'
+import { Lock, Mail, Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
+import logoImg from '../../../logo.png'
 import './LoginPage.css'
 
 export default function LoginPage() {
@@ -46,10 +47,7 @@ export default function LoginPage() {
         <div className="login-page">
             <div className="login-card animate-fade-in">
                 <div className="login-logo">
-                    <div className="login-logo__icon">
-                        <Flame size={28} color="white" />
-                    </div>
-                    <h1>Espetinho Vitória</h1>
+                    <img src={logoImg} alt="Espetinho Vitória" className="login-logo__img" />
                     <p>Painel Administrativo</p>
                 </div>
 

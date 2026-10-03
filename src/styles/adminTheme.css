@@ -9,6 +9,18 @@
    - Verde (#16a34a) para confirmação/sucesso sem fundo colorido sólido
    ========================================================================== */
 
+/* ==========================================================================
+   ☢️  REGRA NUCLEAR — ZERO BORDER-RADIUS NO PAINEL ADMIN
+   Sobrescreve qualquer CSS inline, herdado ou de componente legado.
+   Exceção: elementos com .is-circle usam border-radius: 50%
+   ========================================================================== */
+.admin-container *:not(.is-circle):not(.fly-to-cart):not(.heart-burst__particle) {
+    border-radius: 0 !important;
+}
+.admin-container .is-circle {
+    border-radius: 50% !important;
+}
+
 :root {
     --admin-bg-base: #f8fafc;
     --admin-card-bg: #ffffff;

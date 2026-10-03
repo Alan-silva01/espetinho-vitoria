@@ -19,7 +19,7 @@
     background: #FFFFFF;
     width: 100%;
     max-width: 360px;
-    border-radius: 0px;
+    border-radius: 0;
     border: 1px solid #1c1917;
     padding: 24px 20px 20px 20px;
     text-align: center;
@@ -85,7 +85,7 @@
 .btn-dialog {
     flex: 1;
     height: 38px;
-    border-radius: 0px;
+    border-radius: 0;
     font-size: 13px;
     font-weight: 700;
     cursor: pointer;

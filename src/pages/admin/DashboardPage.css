@@ -42,7 +42,7 @@
     background: #FFFFFF;
     border: 1px solid #E5E7EB;
     padding: 8px 16px;
-    border-radius: 99px;
+    border-radius: 0;
     width: 280px;
 }
 
@@ -84,7 +84,7 @@
     right: 10px;
     width: 8px;
     height: 8px;
-    background: #EF4444;
+    background: #374151;
     border-radius: 50%;
     border: 2px solid white;
 }
@@ -103,7 +103,7 @@
 }
 
 .metric-card {
-    border-radius: 8px;
+    border-radius: 0;
     padding: 10px 14px;
     position: relative;
     overflow: hidden;
@@ -149,7 +149,7 @@
 .icon-wrapper {
     width: 24px;
     height: 24px;
-    border-radius: 5px;
+    border-radius: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -199,7 +199,7 @@
 .trend-badge {
     background: rgba(255, 255, 255, 0.2);
     padding: 1px 5px;
-    border-radius: 4px;
+    border-radius: 0;
     font-size: 10px;
     font-weight: 600;
     display: flex;
@@ -214,7 +214,7 @@
 }
 
 .trend-negative {
-    color: #EF4444;
+    color: #374151;
 }
 
 .trend-stable {
@@ -279,7 +279,7 @@
     gap: 12px;
     background: #F8F9FA;
     border: 1px solid #EAECF0;
-    border-radius: 10px;
+    border-radius: 0;
     padding: 10px 16px;
     margin-bottom: 24px;
 }
@@ -306,7 +306,7 @@
     background: #FFFFFF;
     border: 1px solid #E4E7EC;
     padding: 5px 14px;
-    border-radius: 6px;
+    border-radius: 0;
     font-size: 13px;
 }
 
@@ -371,7 +371,7 @@
 .modern-chart-tooltip {
     background: #FFFFFF;
     border: 1px solid #EAECF0;
-    border-radius: 8px;
+    border-radius: 0;
     padding: 10px 14px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
@@ -460,7 +460,7 @@
 .today-orders-section {
     background: #FFFFFF;
     border: 1px solid #E5E7EB;
-    border-radius: 12px;
+    border-radius: 0;
     padding: 18px 20px;
     margin-bottom: 20px;
     display: flex;
@@ -510,7 +510,7 @@
     position: absolute;
     width: 100%;
     height: 100%;
-    border-radius: 9999px;
+    border-radius: 0;
     background-color: #10B981;
     opacity: 0.75;
     animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
@@ -520,7 +520,7 @@
     position: relative;
     width: 8px;
     height: 8px;
-    border-radius: 9999px;
+    border-radius: 0;
     background-color: #059669;
 }
 
@@ -537,7 +537,7 @@
     font-size: 11px;
     font-weight: 700;
     padding: 2px 8px;
-    border-radius: 9999px;
+    border-radius: 0;
 }
 
 .dark .today-orders-count-badge {
@@ -595,7 +595,7 @@
     width: 280px;
     background: #F9FAFB;
     border: 1px solid #E5E7EB;
-    border-radius: 10px;
+    border-radius: 0;
     padding: 8px 12px;
     display: flex;
     flex-direction: row;
@@ -625,7 +625,7 @@
 .today-order-avatar-wrap {
     width: 32px;
     height: 32px;
-    border-radius: 8px;
+    border-radius: 0;
     overflow: hidden;
     background: #E5E7EB;
     flex-shrink: 0;
@@ -634,7 +634,7 @@
 .today-avatar-img {
     width: 32px;
     height: 32px;
-    border-radius: 8px;
+    border-radius: 0;
     object-fit: cover;
     border: none;
 }
@@ -642,7 +642,7 @@
 .today-avatar-fallback {
     width: 32px;
     height: 32px;
-    border-radius: 8px;
+    border-radius: 0;
     font-size: 12px;
     font-weight: 800;
     color: #374151;
@@ -688,7 +688,7 @@
     font-size: 9px;
     font-weight: 800;
     padding: 1px 5px;
-    border-radius: 4px;
+    border-radius: 0;
     letter-spacing: 0.01em;
     flex-shrink: 0;
 }
@@ -707,7 +707,7 @@
     color: #111827;
     background: #E5E7EB;
     padding: 1px 4px;
-    border-radius: 3px;
+    border-radius: 0;
     font-size: 10px;
 }
 
@@ -750,7 +750,7 @@
     gap: 8px;
     padding: 24px;
     background: #F9FAFB;
-    border-radius: 10px;
+    border-radius: 0;
     color: #6B7280;
     font-size: 13px;
     font-weight: 500;
@@ -773,7 +773,7 @@
 
 .today-orders-marquee::-webkit-scrollbar-thumb {
     background: #E5E7EB;
-    border-radius: 4px;
+    border-radius: 0;
 }
 
 .dark .today-orders-marquee::-webkit-scrollbar-thumb {
@@ -796,7 +796,7 @@
 .recent-orders-card,
 .stats-box-card {
     background: white;
-    border-radius: 8px;
+    border-radius: 0;
     padding: 16px 20px;
     border: 1px solid #E5E7EB;
     margin-bottom: 16px;
@@ -827,7 +827,7 @@
     background: #F9FAFB;
     border: none;
     padding: 4px 12px;
-    border-radius: 8px;
+    border-radius: 0;
     font-size: 12px;
     color: #6B7280;
     cursor: pointer;
@@ -853,7 +853,7 @@
     align-items: center;
     gap: 12px;
     padding: 8px 6px;
-    border-radius: 6px;
+    border-radius: 0;
     transition: all 0.2s;
 }
 
@@ -870,7 +870,7 @@
     position: relative;
     width: 42px;
     height: 42px;
-    border-radius: 10px;
+    border-radius: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -881,7 +881,7 @@
 .order-avatar-img {
     width: 42px;
     height: 42px;
-    border-radius: 10px;
+    border-radius: 0;
     object-fit: cover;
     border: 1.5px solid #EAECF0;
     background: #F3F4F6;
@@ -891,7 +891,7 @@
 .order-avatar-fallback {
     width: 42px;
     height: 42px;
-    border-radius: 10px;
+    border-radius: 0;
     background: #F3F4F6;
     color: #111827;
     display: flex;
@@ -930,7 +930,7 @@
     color: #6B7280;
     background: #F3F4F6;
     padding: 1px 6px;
-    border-radius: 4px;
+    border-radius: 0;
 }
 
 .dark .order-type-tiny {
@@ -960,7 +960,7 @@
     font-size: 10px;
     font-weight: 800;
     padding: 2px 8px;
-    border-radius: 4px;
+    border-radius: 0;
     text-transform: uppercase;
 }
 
@@ -988,7 +988,7 @@
 
 .status-tag.cancelado {
     background: #FEE2E2;
-    color: #B91C1C;
+    color: #232220;
 }
 
 /* Category Bars */
@@ -1008,7 +1008,7 @@
 .progress-bg {
     height: 8px;
     background: #F3F4F6;
-    border-radius: 4px;
+    border-radius: 0;
     overflow: hidden;
 }
 
@@ -1018,7 +1018,7 @@
 
 .progress-fill {
     height: 100%;
-    border-radius: 4px;
+    border-radius: 0;
 }
 
 /* Top Products Vertical */
@@ -1037,7 +1037,7 @@
 .product-img {
     width: 48px;
     height: 48px;
-    border-radius: 12px;
+    border-radius: 0;
     overflow: hidden;
     background: #F3F4F6;
 }
@@ -1072,7 +1072,7 @@
     display: block;
     font-size: 14px;
     font-weight: 800;
-    color: #B91C1C;
+    color: #232220;
 }
 
 .sales-unit {
@@ -1097,7 +1097,7 @@
     padding: 16px 20px;
     background: white;
     border: 1px solid #DFDFDF;
-    border-radius: 8px;
+    border-radius: 0;
 }
 
 .dark .metric-card.minimal {
@@ -1116,11 +1116,11 @@
 }
 
 .metric-card.minimal.red {
-    border-left: 4px solid #C41E2E;
+    border-left: 4px solid #232220;
 }
 
 .metric-card.minimal.purple {
-    border-left: 4px solid #E8353F;
+    border-left: 4px solid #6b7280;
 }
 
 .metric-card.minimal.purple-light {
@@ -1208,7 +1208,7 @@
     .recent-orders-card,
     .stats-box-card {
         padding: 20px;
-        border-radius: 20px;
+        border-radius: 0;
     }
 
     .order-row-item {
@@ -1279,3 +1279,4 @@
         height: 320px;
     }
 }
+.text-gray-600 { color: #4B5563; }

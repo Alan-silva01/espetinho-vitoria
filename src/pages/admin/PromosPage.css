@@ -32,7 +32,7 @@
 
 .promo-card {
     background: white;
-    border-radius: 16px;
+    border-radius: 0;
     overflow: hidden;
     border: 1px solid #E5E7EB;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
@@ -85,7 +85,7 @@
 /* Promo Preview in modal */
 .promo-preview {
     padding: 20px 24px;
-    border-radius: 12px;
+    border-radius: 0;
     font-weight: 600;
     font-size: 14px;
     text-align: center;
@@ -107,7 +107,7 @@
 .color-swatch {
     width: 36px;
     height: 36px;
-    border-radius: 10px;
+    border-radius: 0;
     border: 2px solid transparent;
     cursor: pointer;
     display: flex;
@@ -140,7 +140,7 @@
     width: 32px;
     height: 32px;
     border: none;
-    border-radius: 6px;
+    border-radius: 0;
     cursor: pointer;
     padding: 0;
 }

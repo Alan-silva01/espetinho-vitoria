@@ -193,7 +193,7 @@ export default function FreightPage() {
                 <div className="card-fees-card">
                     <div className="card-fees-header">
                         <div className="card-fees-title">
-                            <CreditCard size={18} color="#C41E2E" />
+                            <CreditCard size={18} color="#232220" />
                             <div>
                                 <h3>Taxas da Maquininha de Cartão</h3>
                                 <p>Defina a porcentagem de acréscimo cobrada no checkout para pagamentos em cartão.</p>

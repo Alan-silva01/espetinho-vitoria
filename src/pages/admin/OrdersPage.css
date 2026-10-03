@@ -23,7 +23,7 @@
     justify-content: space-between;
     padding: 12px 24px;
     margin-bottom: 20px;
-    border-radius: 8px;
+    border-radius: 0;
     gap: 16px;
     flex-wrap: wrap;
 }
@@ -57,7 +57,7 @@
     gap: 6px;
     background: #F3F4F6;
     padding: 6px 10px;
-    border-radius: 8px;
+    border-radius: 0;
     color: #525252;
     cursor: pointer;
     font-size: 12px;
@@ -82,7 +82,7 @@
     font-weight: 600;
     background: white;
     padding: 6px 12px;
-    border-radius: 10px;
+    border-radius: 0;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
@@ -98,13 +98,13 @@
 }
 
 .date-picker-trigger:hover {
-    background: #C41E2E;
+    background: #232220;
     color: white;
     box-shadow: none;
 }
 
 .dark .date-picker-trigger:hover {
-    background: #FF6A00;
+    background: #232220;
     color: white;
 }
 
@@ -141,7 +141,7 @@
     background: white;
     border: 1px solid #DFDFDF;
     padding: 6px 12px;
-    border-radius: 8px;
+    border-radius: 0;
     font-size: 12px;
     font-weight: 600;
     color: #525252;
@@ -151,9 +151,9 @@
 
 .btn-test-sound:hover,
 .btn-sound-test:hover {
-    background: #FEE2E2;
-    color: #C41E2E;
-    border-color: #FECACA;
+    background: #F3F4F6;
+    color: #09090b;
+    border-color: #D4D4D8;
 }
 
 .btn-test-sound svg,
@@ -168,7 +168,7 @@
     background: white;
     border: 1px solid #DFDFDF;
     padding: 6px 12px;
-    border-radius: 8px;
+    border-radius: 0;
     font-size: 12px;
     font-weight: 600;
     color: #525252;
@@ -177,15 +177,15 @@
 }
 
 .btn-auto-print.active {
-    background: #C41E2E;
+    background: #232220;
     color: white;
-    border-color: #C41E2E;
+    border-color: #232220;
 }
 
 .btn-auto-print:hover:not(.active) {
-    background: #FEE2E2;
-    border-color: #FECACA;
-    color: #C41E2E;
+    background: #F3F4F6;
+    border-color: #D4D4D8;
+    color: #09090b;
 }
 
 /* QZ Tray status badge */
@@ -194,7 +194,7 @@
     align-items: center;
     gap: 4px;
     padding: 4px 8px;
-    border-radius: 6px;
+    border-radius: 0;
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 0.3px;
@@ -232,21 +232,23 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    background: var(--cor-primaria, #FF6A00);
+    background: #232220;
     color: #FFFFFF;
     border: none;
-    padding: 6px 12px;
-    border-radius: 8px;
+    padding: 6px 14px;
+    border-radius: 4px;
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.15s;
-    box-shadow: 0 2px 6px rgba(255, 106, 0, 0.25);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 .btn-new-order-kanban:hover {
-    opacity: 0.92;
+    background: #09090b;
+    opacity: 0.95;
     transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
 }
 
 .btn-refresh-kanban {
@@ -257,7 +259,7 @@
     height: 30px;
     background: white;
     border: 1px solid #DFDFDF;
-    border-radius: 8px;
+    border-radius: 0;
     color: #525252;
     cursor: pointer;
     transition: all 0.15s;
@@ -281,7 +283,7 @@
     align-items: center;
     background: white;
     border: 1px solid #DFDFDF;
-    border-radius: 8px;
+    border-radius: 0;
     padding: 0 12px;
     height: 34px;
     width: 260px;
@@ -294,8 +296,8 @@
 }
 
 .search-box:focus-within {
-    border-color: #C41E2E;
-    box-shadow: 0 0 0 2px rgba(196, 30, 46, 0.1);
+    border-color: #09090b;
+    box-shadow: 0 0 0 2px rgba(9, 9, 11, 0.1);
 }
 
 .search-box input {
@@ -373,7 +375,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 99px;
+    border-radius: 0;
     border: 1px solid #DFDFDF;
 }
 
@@ -388,7 +390,7 @@
 
 .order-card-v2 {
     background: white;
-    border-radius: 12px;
+    border-radius: 0;
     padding: 16px;
     border: 1px solid #DFDFDF;
     box-shadow: none;
@@ -412,7 +414,7 @@
 
 .order-card-v2.cancelled {
     opacity: 0.6;
-    border: 2px dashed #DC2626;
+    border: 2px dashed #374151;
     background: #fef2f2;
 }
 
@@ -422,7 +424,7 @@
 }
 
 .status-badge-v5.cancelado {
-    background: #DC2626;
+    background: #374151;
     color: white;
 }
 
@@ -452,12 +454,12 @@
     text-transform: uppercase;
     letter-spacing: 0.05em;
     padding: 4px 8px;
-    border-radius: 4px;
+    border-radius: 0;
 }
 
 .type-tag.entrega {
-    background: #FEE2E2;
-    color: #C41E2E;
+    background: #F3F4F6;
+    color: #232220;
 }
 
 .type-tag.retirada {
@@ -528,13 +530,13 @@
    ======================================================== */
 .order-card-ref-exact {
     background: #ffffff;
-    border-radius: 14px;
+    border-radius: 8px 8px 0 0;
     padding: 14px 16px 14px 16px;
     border: 1px solid #e5e7eb;
+    border-bottom: none;
     box-shadow: 0 2px 8px -1px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0,0,0,0.05);
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
-    overflow: hidden;
     cursor: default;
     flex-shrink: 0;
     user-select: none;
@@ -542,6 +544,7 @@
     display: flex;
     flex-direction: column;
     gap: 9px;
+    margin-bottom: 6px;
 }
 
 /* Desktop only: draggable cursor */
@@ -563,32 +566,38 @@
     background: #fffafa;
 }
 
-/* Faixa superior preta do topo */
-.order-card-ref-exact::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: #0f172a;
-    border-top-left-radius: 14px;
-    border-top-right-radius: 14px;
+/* Faixa superior escura (mesma cor #232220 do modal de detalhes) com número centralizado */
+.card-ref-top-bar {
+    margin: -14px -16px 4px -16px;
+    background: #232220;
+    border-radius: 7px 7px 0 0;
+    padding: 7px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-ref-top-order-num {
+    color: #ffffff;
+    font-size: 13.5px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    line-height: 1;
 }
 
 /* Header do Card */
 .card-ref-header {
     display: flex;
     align-items: flex-start;
-    gap: 10px;
+    gap: 12px;
     position: relative;
     padding-top: 2px;
 }
 
 .card-ref-avatar-wrapper {
     position: relative;
-    width: 44px;
-    height: 44px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
     flex-shrink: 0;
 }
@@ -599,8 +608,8 @@
     border-radius: 50%;
     object-fit: cover;
     display: block;
-    border: 1.5px solid #ffffff;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    border: 2px solid #ffffff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 
 .card-ref-avatar-fallback {
@@ -609,25 +618,25 @@
     border-radius: 50%;
     background: #e2e8f0;
     color: #334155;
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 800;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1.5px solid #ffffff;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    border: 2px solid #ffffff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 
 .card-ref-status-dot {
     position: absolute;
-    bottom: 0px;
-    right: 0px;
-    width: 10px;
-    height: 10px;
+    bottom: 1px;
+    right: 1px;
+    width: 11px;
+    height: 11px;
     border-radius: 50%;
     background: #22c55e;
     border: 2px solid #ffffff;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
 }
 
 .card-ref-user-meta {
@@ -639,6 +648,8 @@
 }
 
 .card-ref-customer-name {
+    flex: 1;
+    min-width: 0;
     font-size: 14px;
     font-weight: 800;
     color: #09090b;
@@ -658,6 +669,67 @@
     line-height: 1.2;
 }
 
+.card-ref-name-status-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+}
+
+.card-ref-status-concluido {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #16a34a;
+    background: transparent;
+    padding: 0;
+    flex-shrink: 0;
+}
+
+.card-ref-status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    flex-shrink: 0;
+}
+
+.card-ref-status-verified-img {
+    width: 13px;
+    height: 13px;
+    object-fit: contain;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.card-ref-status-pill.confirmado {
+    color: #16a34a;
+}
+
+.card-ref-status-pill.preparando {
+    color: #d97706;
+}
+
+.card-ref-status-pill.saiu_entrega {
+    color: #ea580c;
+}
+
+.card-ref-status-pill.entregue {
+    color: #16a34a;
+}
+
+.card-ref-status-pill.cancelado {
+    color: #dc2626;
+}
+
 .card-ref-time-row {
     display: flex;
     align-items: center;
@@ -665,8 +737,8 @@
     font-size: 11px;
     color: #71717a;
     font-weight: 500;
-    margin-top: 1px;
-    line-height: 1.2;
+    margin-top: 2px;
+    line-height: 1.15;
 }
 
 .card-ref-clock-icon {
@@ -675,46 +747,39 @@
     height: 12px;
 }
 
-.card-ref-delivery-row {
+.card-ref-delivery-status-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     margin-top: 1px;
+    line-height: 1.15;
+    width: 100%;
 }
 
-.card-ref-type-clean {
+.card-ref-delivery-badge-group {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    font-size: 11px;
-    font-weight: 600;
-    background: transparent;
-    padding: 0;
-    margin: 0;
-    border: none;
-    letter-spacing: -0.01em;
-    line-height: 1.2;
+    gap: 5px;
 }
 
-.card-ref-type-clean.retirada {
-    color: #16a34a; /* Verde para Retirada */
+.card-ref-status-cancel-icon {
+    display: inline-flex;
+    align-items: center;
+    color: #dc2626;
 }
 
-.card-ref-type-clean.retirada svg {
-    color: #16a34a;
+.card-ref-type-caps {
+    font-size: 10.5px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #09090b;
 }
 
-.card-ref-type-clean.entrega {
-    color: #2563eb; /* Azul para Entrega */
-}
-
-.card-ref-type-clean.entrega svg {
-    color: #2563eb;
-}
-
-.card-ref-type-clean.mesa {
-    color: #db2777;
-}
-
-.card-ref-type-clean.mesa svg {
-    color: #db2777;
+.card-ref-type-caps.retirada,
+.card-ref-type-caps.entrega,
+.card-ref-type-caps.mesa {
+    color: #09090b;
 }
 
 .card-ref-menu-btn {
@@ -723,7 +788,7 @@
     color: #71717a;
     cursor: pointer;
     padding: 2px;
-    border-radius: 4px;
+    border-radius: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -744,7 +809,7 @@
     background: #fef3c7;
     color: #d97706;
     padding: 4px 8px;
-    border-radius: 6px;
+    border-radius: 0;
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.03em;
@@ -880,7 +945,7 @@
     border: 1px solid #e4e4e7;
     color: #18181b;
     padding: 6px 12px;
-    border-radius: 9px;
+    border-radius: 0;
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
@@ -900,7 +965,7 @@
 .card-ref-btn-trash {
     width: 30px;
     height: 30px;
-    border-radius: 8px;
+    border-radius: 0;
     border: 1px solid #e4e4e7;
     background: #ffffff;
     color: #71717a;
@@ -925,7 +990,7 @@
     color: #ffffff;
     border: none;
     padding: 6px 13px;
-    border-radius: 8px;
+    border-radius: 0;
     font-size: 12px;
     font-weight: 700;
     letter-spacing: 0.01em;
@@ -955,7 +1020,7 @@
 .card-ref-btn-reactivate {
     width: 30px;
     height: 30px;
-    border-radius: 8px;
+    border-radius: 0;
     border: 1px solid #a7f3d0;
     background: #ecfdf5;
     color: #059669;
@@ -969,6 +1034,33 @@
 .card-ref-btn-reactivate:hover {
     background: #10b981;
     color: #ffffff;
+}
+
+/* Serrilhado inferior (Zigzag tipo recibo/cupom fiscal) no Card Kanban */
+.card-ref-sawtooth-bottom {
+    position: absolute;
+    bottom: -10px;
+    left: -1px;
+    right: -1px;
+    height: 10px;
+    background: 
+        linear-gradient(135deg, #ffffff 5px, transparent 0),
+        linear-gradient(-135deg, #ffffff 5px, transparent 0);
+    background-size: 10px 10px;
+    background-repeat: repeat-x;
+    background-position: left top;
+    pointer-events: none;
+    filter: drop-shadow(0 2px 1.5px rgba(0, 0, 0, 0.05));
+    z-index: 2;
+}
+
+.order-card-ref-exact.cancelled .card-ref-sawtooth-bottom {
+    background: 
+        linear-gradient(135deg, #fffafa 5px, transparent 0),
+        linear-gradient(-135deg, #fffafa 5px, transparent 0);
+    background-size: 10px 10px;
+    background-repeat: repeat-x;
+    background-position: left top;
 }
 
 .address-preview {
@@ -1013,7 +1105,7 @@
 
 .quick-action {
     padding: 8px 16px;
-    border-radius: 8px;
+    border-radius: 0;
     border: none;
     font-size: 13px;
     font-weight: 800;
@@ -1032,7 +1124,7 @@
 
 /* We adapt the template's "Inciar/Detalhes" action styling based on primary color */
 .quick-action.stage-preparando {
-    background: var(--cor-primaria, #C41E2E);
+    background: var(--cor-primaria, #232220);
     color: white;
 }
 
@@ -1067,7 +1159,7 @@
 }
 
 .quick-action.stage-saiu_entrega {
-    background: var(--cor-primaria, #C41E2E);
+    background: var(--cor-primaria, #232220);
     color: white;
 }
 
@@ -1100,7 +1192,7 @@
     padding: 8px 16px;
     background: white;
     border: 1px solid #E2E8F0;
-    border-radius: 12px;
+    border-radius: 0;
     color: #64748B;
     font-size: 13px;
     font-weight: 700;
@@ -1124,7 +1216,7 @@
 .count-dot {
     background: rgba(0, 0, 0, 0.1);
     padding: 1px 6px;
-    border-radius: 6px;
+    border-radius: 0;
     font-size: 11px;
 }
 
@@ -1268,7 +1360,7 @@
     /* Managed by tabs */
 
     .order-card-v2 {
-        border-radius: 16px;
+        border-radius: 0;
         padding: 16px;
     }
 
@@ -1277,7 +1369,7 @@
         width: auto;
         padding: 10px 16px;
         font-size: 13px;
-        border-radius: 8px;
+        border-radius: 0;
         margin-top: 0;
         display: inline-flex;
         align-items: center;
@@ -1291,7 +1383,7 @@
     .order-card-v2 .btn-cancel-card {
         width: auto;
         padding: 10px;
-        border-radius: 8px;
+        border-radius: 0;
         margin-top: 0;
         display: inline-flex;
         align-items: center;
@@ -1349,7 +1441,7 @@
     width: 100%;
     max-width: 600px;
     max-height: 90vh;
-    border-radius: 12px;
+    border-radius: 0;
     display: flex;
     flex-direction: column;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
@@ -1397,8 +1489,8 @@
 .header-icon-box {
     background: rgba(196, 30, 46, 0.08);
     padding: 6px;
-    border-radius: 8px;
-    color: #C41E2E;
+    border-radius: 0;
+    color: #232220;
 }
 
 .header-text h2 {
@@ -1469,7 +1561,7 @@
 .summary-avatar-thumb {
     width: 72px;
     height: 72px;
-    border-radius: 14px;
+    border-radius: 0;
     overflow: hidden;
     flex-shrink: 0;
     box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
@@ -1481,13 +1573,13 @@
     height: 100%;
     object-fit: cover;
     display: block;
-    border-radius: 12px;
+    border-radius: 0;
 }
 
 .summary-avatar-fallback {
     width: 100%;
     height: 100%;
-    border-radius: 12px;
+    border-radius: 0;
     background: #f1f5f9;
     color: #475569;
     font-size: 28px;
@@ -1517,10 +1609,10 @@
 .summary-order-number-pill {
     font-size: 12px;
     font-weight: 800;
-    background: #FEE2E2;
-    color: #C41E2E;
+    background: #F3F4F6;
+    color: #232220;
     padding: 3px 8px;
-    border-radius: 6px;
+    border-radius: 0;
     letter-spacing: 0.02em;
 }
 
@@ -1554,7 +1646,7 @@
 
 .status-badge-v5 {
     padding: 4px 12px;
-    border-radius: 99px;
+    border-radius: 0;
     font-size: 11px;
     font-weight: 800;
     display: flex;
@@ -1600,7 +1692,7 @@
     padding: 8px 14px;
     background: #ffffff;
     border: 1px solid #DFDFDF;
-    border-radius: 8px;
+    border-radius: 0;
     font-size: 13px;
     font-weight: 600;
     color: #525252;
@@ -1618,9 +1710,9 @@
     align-items: center;
     gap: 8px;
     padding: 8px 16px;
-    background: #C41E2E;
+    background: #232220;
     border: none;
-    border-radius: 8px;
+    border-radius: 0;
     font-size: 13px;
     font-weight: 600;
     color: #ffffff;
@@ -1789,7 +1881,7 @@
     padding: 10px;
     border: 1px solid #DFDFDF;
     background: transparent;
-    border-radius: 8px;
+    border-radius: 0;
     font-size: 13px;
     font-weight: 600;
     color: #dc2626;
@@ -1811,7 +1903,7 @@
     background: #171717;
     color: #ffffff;
     border: none;
-    border-radius: 8px;
+    border-radius: 0;
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
@@ -1934,7 +2026,7 @@
 .receipt-client-avatar {
     width: 44px;
     height: 44px;
-    border-radius: 4px; /* Quadrado sutil */
+    border-radius: 0; /* Quadrado sutil */
     background: #f1f5f9;
     overflow: hidden;
     flex-shrink: 0;
@@ -1987,7 +2079,7 @@
 .receipt-photo-zoom-card {
     position: relative;
     background: #171717;
-    border-radius: 8px;
+    border-radius: 0;
     overflow: hidden;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
     display: flex;
@@ -2149,7 +2241,7 @@
     border: 1px dashed #f59e0b;
     color: #b45309;
     padding: 8px 12px;
-    border-radius: 4px;
+    border-radius: 0;
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
@@ -2529,7 +2621,7 @@
     }
 
     .modal-kitchen-v4 {
-        border-radius: 16px;
+        border-radius: 0;
         max-height: 88vh;
         width: 100%;
         max-width: 500px;
@@ -2586,7 +2678,7 @@
     color: #111827;
     border: 2px solid #E5E7EB;
     height: 60px;
-    border-radius: 16px;
+    border-radius: 0;
     font-size: 18px;
     font-weight: 800;
     cursor: pointer;
@@ -2597,7 +2689,7 @@
     color: white;
     border: none;
     height: 60px;
-    border-radius: 16px;
+    border-radius: 0;
     font-size: 20px;
     font-weight: 900;
     cursor: pointer;
@@ -2611,7 +2703,7 @@
     justify-content: center;
     width: 28px;
     height: 28px;
-    border-radius: 6px;
+    border-radius: 0;
     border: 1px solid #DFDFDF;
     background: #FFFFFF;
     color: #525252;
@@ -2621,19 +2713,19 @@
 }
 
 .btn-cancel-card:hover {
-    background: #FEE2E2;
-    color: #DC2626;
-    border-color: #FEE2E2;
+    background: #F3F4F6;
+    color: #374151;
+    border-color: #F3F4F6;
 }
 
 /* Cancel button in modal */
 .v4-btn-cancel {
     grid-column: 1 / -1;
     background: white;
-    color: #DC2626;
+    color: #374151;
     border: 1px solid #FCA5A5;
     height: 40px;
-    border-radius: 12px;
+    border-radius: 0;
     font-size: 14px;
     font-weight: 700;
     cursor: pointer;
@@ -2644,9 +2736,9 @@
 }
 
 .v4-btn-cancel:hover {
-    background: #DC2626;
+    background: #374151;
     color: white;
-    border-color: #DC2626;
+    border-color: #374151;
 }
 
 @media print {
@@ -2825,7 +2917,7 @@
     font-size: 10px;
     font-weight: 900;
     padding: 2px 6px;
-    border-radius: 4px;
+    border-radius: 0;
     margin-left: 8px;
     animation: blinker 1.5s linear infinite;
 }
@@ -2842,7 +2934,7 @@
     padding: 12px;
     background: #f8fafc;
     border: 1px solid #e2e8f0;
-    border-radius: 12px;
+    border-radius: 0;
 }
 
 .comanda-header-compact {
@@ -2860,7 +2952,7 @@
 
 .comanda-status-pill {
     padding: 2px 8px;
-    border-radius: 99px;
+    border-radius: 0;
     font-size: 10px;
     font-weight: 800;
 }
@@ -2887,7 +2979,7 @@
     color: white;
     border: none;
     padding: 10px;
-    border-radius: 8px;
+    border-radius: 0;
     font-size: 13px;
     font-weight: 800;
     cursor: pointer;

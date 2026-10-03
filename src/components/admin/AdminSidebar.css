@@ -63,7 +63,7 @@
 
 .brand-text span {
     font-size: 10px;
-    color: #C41E2E;
+    color: #9ca3af;
     text-transform: uppercase;
     letter-spacing: 0.1em;
     font-weight: 700;
@@ -91,7 +91,7 @@
 
 .sidebar-nav::-webkit-scrollbar-thumb {
     background: #DFDFDF;
-    border-radius: 10px;
+    border-radius: 0;
 }
 
 .nav-item {
@@ -99,7 +99,7 @@
     align-items: center;
     gap: 12px;
     padding: 10px 12px;
-    border-radius: 8px;
+    border-radius: 0;
     color: #525252;
     text-decoration: none;
     font-size: 13px;
@@ -169,12 +169,12 @@
 
 .nav-item.active {
     background: transparent;
-    color: #C41E2E;
-    font-weight: 600;
+    color: #171717;
+    font-weight: 700;
 }
 
 .nav-item.active svg {
-    color: #C41E2E;
+    color: #171717;
 }
 
 .nav-item.active::before {
@@ -186,7 +186,7 @@
     height: 18px;
     width: 3px;
     border-radius: 0 4px 4px 0;
-    background-color: #C41E2E;
+    background-color: #171717;
 }
 
 .sidebar-footer {
@@ -203,7 +203,7 @@
     background: #FFFFFF;
     border: 1px solid #DFDFDF;
     padding: 8px;
-    border-radius: 8px;
+    border-radius: 0;
 }
 
 .admin-profile-card img {

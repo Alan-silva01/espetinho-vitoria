@@ -669,7 +669,7 @@ export default function InventoryPage() {
                                                                                                     border: '1px solid #D1D5DB',
                                                                                                     fontSize: '13px',
                                                                                                     textAlign: 'center',
-                                                                                                    background: isAvailable ? '#fff' : '#FEE2E2'
+                                                                                                    background: isAvailable ? '#fff' : '#F3F4F6'
                                                                                                 }}
                                                                                             />
                                                                                         )}

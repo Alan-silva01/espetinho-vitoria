@@ -31,7 +31,7 @@
     width: 36px;
     height: 36px;
     background: #F3F4F6;
-    border-radius: 8px;
+    border-radius: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -64,7 +64,7 @@
     color: #525252;
     border: 1px solid #DFDFDF;
     padding: 6px 14px;
-    border-radius: 8px;
+    border-radius: 0;
     font-size: 12px;
     font-weight: 600;
     display: flex;
@@ -86,22 +86,23 @@
 }
 
 .btn-save-hours {
-    background: #C41E2E;
+    background: #232220;
     color: white;
     border: none;
     padding: 6px 16px;
-    border-radius: 8px;
+    border-radius: 4px;
     font-size: 12px;
     font-weight: 600;
     display: flex;
     align-items: center;
     gap: 6px;
     cursor: pointer;
-    transition: opacity 0.15s;
+    transition: opacity 0.15s, background 0.15s;
 }
 
 .btn-save-hours:hover:not(:disabled) {
-    opacity: 0.9;
+    opacity: 0.92;
+    background: #09090b;
 }
 
 .btn-save-hours:disabled {
@@ -133,7 +134,7 @@
 .glass-card {
     background: white;
     border: 1px solid #DFDFDF;
-    border-radius: 8px;
+    border-radius: 0;
     padding: 16px;
 }
 
@@ -186,7 +187,7 @@
     min-height: 80px;
     background: #F9FAFB;
     border: 1px solid #DFDFDF;
-    border-radius: 8px;
+    border-radius: 0;
     padding: 10px 12px;
     font-size: 13px;
     font-weight: 500;
@@ -199,7 +200,7 @@
 }
 
 .exception-body textarea:focus {
-    border-color: #C41E2E;
+    border-color: #232220;
     box-shadow: 0 0 0 2px rgba(196, 30, 46, 0.08);
 }
 
@@ -208,7 +209,7 @@
     align-items: center;
     gap: 6px;
     margin-top: 10px;
-    color: #C41E2E;
+    color: #232220;
     font-size: 11px;
     font-weight: 600;
 }
@@ -229,20 +230,20 @@
     align-items: center;
     gap: 12px;
     padding: 12px 16px;
-    border-radius: 8px;
+    border-radius: 0;
     background: #F9FAFB;
     border: 1px solid #DFDFDF;
     box-sizing: border-box;
 }
 
 .status-indicator-big.open {
-    border-color: #FECACA;
-    background: #FEF2F2;
+    border-color: #D1D5DB;
+    background: #F9FAFB;
 }
 
 .status-indicator-big.closed {
-    border-color: #FECACA;
-    background: #FEF2F2;
+    border-color: #D1D5DB;
+    background: #F9FAFB;
 }
 
 .pulsing-dot {
@@ -254,11 +255,11 @@
 }
 
 .open .pulsing-dot {
-    background: #C41E2E;
+    background: #232220;
 }
 
 .closed .pulsing-dot {
-    background: #C41E2E;
+    background: #232220;
 }
 
 .pulsing-dot::after {
@@ -291,7 +292,7 @@
 .status-indicator-big strong {
     font-size: 13px;
     font-weight: 700;
-    color: #C41E2E;
+    color: #232220;
 }
 
 .status-indicator-big span {
@@ -308,7 +309,7 @@
     gap: 8px;
     padding: 12px 16px;
     background: #F9FAFB;
-    border-radius: 8px;
+    border-radius: 0;
     color: #737373;
     font-size: 12px;
     font-weight: 500;
@@ -352,13 +353,13 @@
     align-items: center;
     padding: 10px 14px;
     background: white;
-    border-radius: 8px;
+    border-radius: 0;
     border: 1px solid #DFDFDF;
     transition: border-color 0.15s;
 }
 
 .day-item:hover {
-    border-color: #C41E2E;
+    border-color: #232220;
 }
 
 .day-item.is-closed {
@@ -385,7 +386,7 @@
     gap: 6px;
     background: #F3F4F6;
     padding: 5px 10px;
-    border-radius: 6px;
+    border-radius: 0;
     border: 1px solid #DFDFDF;
     color: #525252;
 }
@@ -437,7 +438,7 @@
     inset: 0;
     background-color: #E5E7EB;
     transition: 0.25s;
-    border-radius: 34px;
+    border-radius: 20px;
 }
 
 .premium-toggle .slider:before {
@@ -454,11 +455,11 @@
 }
 
 .premium-toggle input:checked + .slider {
-    background-color: #C41E2E;
+    background-color: #232220;
 }
 
 .premium-toggle.red input:checked + .slider {
-    background-color: #C41E2E;
+    background-color: #232220;
 }
 
 .premium-toggle input:checked + .slider:before {
@@ -471,7 +472,7 @@
     align-items: center;
     gap: 6px;
     padding: 6px 12px;
-    border-radius: 8px;
+    border-radius: 0;
     font-size: 12px;
     font-weight: 600;
     animation: fade-slide-in 0.3s ease-out;
@@ -484,9 +485,9 @@
 }
 
 .feedback-pill.error {
-    background: #FEF2F2;
-    color: #C41E2E;
-    border: 1px solid #FECACA;
+    background: #F9FAFB;
+    color: #232220;
+    border: 1px solid #D1D5DB;
 }
 
 @keyframes fade-slide-in {

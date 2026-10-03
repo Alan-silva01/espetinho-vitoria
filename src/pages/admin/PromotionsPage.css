@@ -37,18 +37,18 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    background: #C41E2E;
+    background: #232220;
     color: white;
     padding: 6px 14px;
     border: none;
-    border-radius: 8px;
+    border-radius: 4px;
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
     transition: opacity 0.15s;
 }
 
-.btn-add-promo:hover { opacity: 0.9; }
+.btn-add-promo:hover { opacity: 0.9; background: #09090b; }
 .btn-add-promo svg { width: 14px; height: 14px; stroke-width: 1.5; }
 
 /* Filtros */
@@ -60,7 +60,7 @@
 
 .filter-chip {
     padding: 5px 12px;
-    border-radius: 8px;
+    border-radius: 0;
     border: 1px solid #DFDFDF;
     background: white;
     font-size: 12px;
@@ -73,9 +73,9 @@
 .filter-chip:hover { background: #F3F4F6; }
 
 .filter-chip.active {
-    background: #C41E2E;
+    background: #232220;
     color: white;
-    border-color: #C41E2E;
+    border-color: #232220;
 }
 
 /* Grid de Cards */
@@ -88,7 +88,7 @@
 /* Card de Promoção */
 .promo-card-premium {
     background: white;
-    border-radius: 8px;
+    border-radius: 0;
     padding: 0;
     border: 1px solid #DFDFDF;
     position: relative;
@@ -99,7 +99,7 @@
 }
 
 .promo-card-premium:hover {
-    border-color: #C41E2E;
+    border-color: #232220;
 }
 
 /* Estado pausado — fundo sutil */
@@ -125,7 +125,7 @@
     font-size: 10px;
     font-weight: 700;
     padding: 2px 8px;
-    border-radius: 4px;
+    border-radius: 0;
     text-transform: uppercase;
     flex-shrink: 0;
 }
@@ -159,7 +159,7 @@
     font-size: 10px;
     font-weight: 700;
     padding: 2px 8px;
-    border-radius: 4px;
+    border-radius: 0;
     text-transform: uppercase;
     flex-shrink: 0;
 }
@@ -176,7 +176,7 @@
 .discount-circle {
     width: 44px;
     height: 44px;
-    border-radius: 8px;
+    border-radius: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -209,7 +209,7 @@
     color: #737373;
     width: 26px;
     height: 26px;
-    border-radius: 6px;
+    border-radius: 0;
     cursor: pointer;
     transition: all 0.15s;
     display: flex;
@@ -224,9 +224,9 @@
 }
 
 .promo-actions-menu button:hover {
-    background: #FEE2E2;
-    color: #C41E2E;
-    border-color: #FECACA;
+    background: #F3F4F6;
+    color: #232220;
+    border-color: #D1D5DB;
 }
 
 /* ── BODY DO CARD ───────────────────────────── */
@@ -255,7 +255,7 @@
     margin-bottom: 12px;
     padding: 10px;
     background: #F9FAFB;
-    border-radius: 8px;
+    border-radius: 0;
     border: 1px solid #DFDFDF;
 }
 
@@ -311,7 +311,7 @@
 .color-item span {
     width: 14px;
     height: 14px;
-    border-radius: 3px;
+    border-radius: 0;
     border: 1px solid #DFDFDF;
     flex-shrink: 0;
 }
@@ -326,7 +326,7 @@
     margin-top: 10px;
     font-size: 16px;
     font-weight: 800;
-    color: #C41E2E;
+    color: #232220;
 }
 
 .promo-card-items-list {
@@ -342,7 +342,7 @@
     background: #F3F4F6;
     color: #525252;
     padding: 2px 6px;
-    border-radius: 4px;
+    border-radius: 0;
     border: 1px solid #DFDFDF;
 }
 
@@ -352,7 +352,7 @@
     background: none;
     border: 1px solid #DFDFDF;
     padding: 5px 10px;
-    border-radius: 6px;
+    border-radius: 0;
     font-size: 11px;
     font-weight: 600;
     color: #525252;
@@ -378,7 +378,7 @@
     width: 100%;
     padding: 7px 10px;
     border: 1px solid #DFDFDF;
-    border-radius: 8px;
+    border-radius: 0;
     font-size: 12px;
     outline: none;
     font-family: inherit;
@@ -388,7 +388,7 @@
 
 .promo-edit-form input:focus,
 .promo-edit-form textarea:focus {
-    border-color: #C41E2E;
+    border-color: #232220;
     background: white;
     box-shadow: 0 0 0 2px rgba(196,30,46,0.08);
 }
@@ -409,7 +409,7 @@
     overflow-y: auto;
     padding: 6px;
     background: #F9FAFB;
-    border-radius: 8px;
+    border-radius: 0;
     border: 1px solid #DFDFDF;
 }
 
@@ -419,18 +419,18 @@
     font-weight: 600;
     background: white;
     border: 1px solid #DFDFDF;
-    border-radius: 6px;
+    border-radius: 0;
     cursor: pointer;
     transition: all 0.15s;
     text-align: center;
 }
 
-.product-pill:hover { border-color: #C41E2E; color: #C41E2E; }
+.product-pill:hover { border-color: #232220; color: #232220; }
 
 .product-pill.selected {
-    background: #C41E2E;
+    background: #232220;
     color: white;
-    border-color: #C41E2E;
+    border-color: #232220;
 }
 
 .promo-edit-colors label {
@@ -451,7 +451,7 @@
 
 /* Botões do card de ação */
 .btn-save-edit {
-    background: #C41E2E !important;
+    background: #232220 !important;
     color: white !important;
     border: none !important;
 }
@@ -474,7 +474,7 @@
 
 .promo-card-footer button {
     padding: 7px;
-    border-radius: 8px;
+    border-radius: 0;
     font-size: 11px;
     font-weight: 700;
     cursor: pointer;
@@ -503,12 +503,12 @@
 .btn-edit-promo:hover { background: #F3F4F6; }
 
 .btn-toggle-promo {
-    background: #C41E2E;
+    background: #232220;
     border: none;
     color: white;
 }
 
-.btn-toggle-promo:hover { background: #A31825; }
+.btn-toggle-promo:hover { background: #09090b; }
 
 /* Quando pausada, o toggle mostra "ativar" */
 .promo-card-premium.pausado .btn-toggle-promo {
@@ -518,9 +518,9 @@
 }
 
 .promo-card-premium.pausado .btn-toggle-promo:hover {
-    background: #C41E2E;
+    background: #232220;
     color: white;
-    border-color: #C41E2E;
+    border-color: #232220;
 }
 
 /* ── MODAL ──────────────────────────────────── */
@@ -540,7 +540,7 @@
     background: white;
     width: 100%;
     max-width: 460px;
-    border-radius: 10px;
+    border-radius: 0;
     overflow: hidden;
     box-shadow: 0 20px 40px rgba(0,0,0,0.15);
 }
@@ -582,7 +582,7 @@
 .modal-form textarea {
     padding: 8px 10px;
     border: 1px solid #DFDFDF;
-    border-radius: 8px;
+    border-radius: 0;
     font-size: 13px;
     font-family: inherit;
     outline: none;
@@ -592,7 +592,7 @@
 
 .modal-form input:focus,
 .modal-form textarea:focus {
-    border-color: #C41E2E;
+    border-color: #232220;
     background: white;
     box-shadow: 0 0 0 2px rgba(196,30,46,0.08);
 }
@@ -608,7 +608,7 @@
 
 .modal-actions button {
     padding: 8px;
-    border-radius: 8px;
+    border-radius: 0;
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
@@ -617,11 +617,11 @@
 }
 
 .btn-confirm-create {
-    background: #C41E2E;
+    background: #232220;
     color: white;
 }
 
-.btn-confirm-create:hover { opacity: 0.9; }
+.btn-confirm-create:hover { opacity: 0.9; background: #09090b; }
 .btn-confirm-create:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .btn-close-modal {
@@ -637,7 +637,7 @@
     background: #F3F4F6;
     border: 1px solid #DFDFDF;
     color: #525252;
-    border-radius: 8px;
+    border-radius: 0;
     padding: 6px 12px;
     font-size: 11px;
     font-weight: 600;
@@ -649,16 +649,16 @@
 }
 
 .btn-destaque-toggle.is-destaque {
-    background: #C41E2E;
+    background: #232220;
     color: white;
-    border-color: #C41E2E;
+    border-color: #232220;
 }
 
 /* Card dashed para adicionar */
 .add-promo-card-dashed {
     background: transparent;
     border: 2px dashed #DFDFDF;
-    border-radius: 8px;
+    border-radius: 0;
     padding: 32px 20px;
     display: flex;
     flex-direction: column;
@@ -671,14 +671,14 @@
 }
 
 .add-promo-card-dashed:hover {
-    border-color: #C41E2E;
+    border-color: #232220;
     background: rgba(196,30,46,0.02);
 }
 
 .icon-circle {
     width: 44px;
     height: 44px;
-    border-radius: 8px;
+    border-radius: 0;
     background: #F3F4F6;
     color: #9CA3AF;
     display: flex;
@@ -691,7 +691,7 @@
 .icon-circle svg { width: 20px; height: 20px; stroke-width: 1.5; }
 
 .add-promo-card-dashed:hover .icon-circle {
-    background: #C41E2E;
+    background: #232220;
     color: white;
 }
 
@@ -718,15 +718,15 @@
     gap: 8px;
     padding: 20px;
     border: 2px dashed #DFDFDF;
-    border-radius: 8px;
+    border-radius: 0;
     cursor: pointer;
     transition: all 0.15s;
     background: #F9FAFB;
 }
 
 .promo-upload-btn:hover {
-    border-color: #C41E2E;
-    background: #FEF2F2;
+    border-color: #232220;
+    background: #F9FAFB;
 }
 
 .promo-upload-btn svg { width: 18px; height: 18px; color: #9CA3AF; }
@@ -740,7 +740,7 @@
 .promo-preview {
     position: relative;
     width: 100%;
-    border-radius: 8px;
+    border-radius: 0;
     overflow: hidden;
 }
 
@@ -768,13 +768,13 @@
     transition: background 0.15s;
 }
 
-.promo-preview button:hover { background: #C41E2E; }
+.promo-preview button:hover { background: #232220; }
 
 .promo-upload-status {
     text-align: center;
     font-size: 11px;
     font-weight: 700;
-    color: #C41E2E;
+    color: #232220;
     margin-top: 6px;
 }
 

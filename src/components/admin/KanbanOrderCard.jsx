@@ -2,7 +2,7 @@ import { memo } from 'react'
 import {
     Timer, Receipt, Trash2,
     Store, Bike, Utensils, RotateCcw,
-    Wallet, MessageSquare, MoreVertical
+    Wallet, MessageSquare, MoreVertical, X
 } from 'lucide-react'
 import { formatCurrency } from '../../lib/utils'
 
@@ -80,7 +80,12 @@ const KanbanOrderCard = memo(function KanbanOrderCard({
             className={`order-card-ref-exact ${order.status === 'cancelado' ? 'cancelled' : ''}`}
             onClick={() => onSelect(order)}
         >
-            {/* Header: Foto com status verde + Nome + Pedido + Tempo + Tag Entrega abaixo + 3 pontos à direita */}
+            {/* Faixa preta superior mais larga com número do pedido centralizado */}
+            <div className="card-ref-top-bar">
+                <span className="card-ref-top-order-num">{order.numero_pedido}</span>
+            </div>
+
+            {/* Header: Foto maior com status verde + Nome em linha cheia + Tempo + Linha Entrega/Retirada e Status */}
             <div className="card-ref-header">
                 <div className="card-ref-avatar-wrapper">
                     {customerAvatar ? (
@@ -102,19 +107,38 @@ const KanbanOrderCard = memo(function KanbanOrderCard({
                     <h4 className="card-ref-customer-name" title={order.nome_cliente || 'Sem nome'}>
                         {order.nome_cliente || 'Sem nome'}
                     </h4>
-                    <p className="card-ref-order-id">
-                        Pedido: {order.numero_pedido}
-                    </p>
+
                     <div className="card-ref-time-row">
-                        <Timer size={13} className="card-ref-clock-icon" />
+                        <Timer size={12} className="card-ref-clock-icon" />
                         <span>{formatMinutesAgo(order.criado_em, getMinutesAgo)}</span>
                     </div>
 
-                    <div className="card-ref-delivery-row">
-                        <span className={`card-ref-type-clean ${order.tipo_pedido}`}>
-                            {order.tipo_pedido === 'entrega' ? <Bike size={13} /> : order.tipo_pedido === 'mesa' ? <Utensils size={13} /> : <Store size={13} />}
-                            <span>{order.tipo_pedido === 'mesa' ? (order.mesas ? `Mesa ${order.mesas.numero}` : 'Mesa') : order.tipo_pedido === 'entrega' ? 'Entrega' : 'Retirada'}</span>
-                        </span>
+                    {/* Linha com ENTREGA/RETIRADA e o ícone de status ao lado */}
+                    <div className="card-ref-delivery-status-row">
+                        <div className="card-ref-delivery-badge-group">
+                            <span className={`card-ref-type-caps ${order.tipo_pedido}`}>
+                                {order.tipo_pedido === 'mesa' && order.mesas
+                                    ? `MESA ${order.mesas.numero}`
+                                    : order.tipo_pedido === 'entrega'
+                                        ? 'ENTREGA'
+                                        : 'RETIRADA'}
+                            </span>
+
+                            {/* Somente o ícone ao lado de ENTREGA/RETIRADA na última coluna */}
+                            {(stage?.id === 'entregue' || order.status === 'entregue') && (
+                                <img
+                                    src="/icons/verificado-verde.png"
+                                    alt="Concluído"
+                                    className="card-ref-status-verified-img"
+                                    title="Concluído"
+                                />
+                            )}
+                            {order.status === 'cancelado' && (
+                                <span className="card-ref-status-cancel-icon" title="Cancelado">
+                                    <X size={12} strokeWidth={2.5} />
+                                </span>
+                            )}
+                        </div>
                     </div>
                 </div>
 
@@ -212,6 +236,9 @@ const KanbanOrderCard = memo(function KanbanOrderCard({
                     )}
                 </div>
             </div>
+
+            {/* SERRILHADO INFERIOR (ZIGZAG TIPO RECIBO/NOTA) */}
+            <div className="card-ref-sawtooth-bottom" aria-hidden="true" />
 
         </div>
     )

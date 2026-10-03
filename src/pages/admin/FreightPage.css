@@ -44,11 +44,11 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    background: #C41E2E;
+    background: #232220;
     color: white;
     border: none;
     padding: 6px 14px;
-    border-radius: 8px;
+    border-radius: 4px;
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
@@ -66,7 +66,7 @@
 .card-fees-card {
     background: #ffffff;
     border: 1px solid #DFDFDF;
-    border-radius: 8px;
+    border-radius: 0;
     padding: 16px 20px;
     display: flex;
     flex-direction: column;
@@ -133,7 +133,7 @@
     align-items: center;
     background: #f9fafb;
     border: 1px solid #d1d5db;
-    border-radius: 6px;
+    border-radius: 0;
     padding: 6px 10px;
     height: 36px;
     width: 110px;
@@ -141,7 +141,7 @@
 }
 
 .card-fee-field:focus-within {
-    border-color: #C41E2E;
+    border-color: #232220;
     background: #ffffff;
     box-shadow: 0 0 0 2px rgba(196, 30, 46, 0.1);
 }
@@ -171,7 +171,7 @@
     color: white;
     border: none;
     padding: 8px 16px;
-    border-radius: 6px;
+    border-radius: 0;
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
@@ -180,7 +180,7 @@
 }
 
 .btn-save-card-fees:hover:not(:disabled) {
-    background: #C41E2E;
+    background: #09090b;
 }
 
 .btn-save-card-fees:disabled {
@@ -209,7 +209,7 @@
     display: flex;
     align-items: center;
     padding: 6px 12px;
-    border-radius: 8px;
+    border-radius: 0;
     border: 1px solid #DFDFDF;
     gap: 8px;
     height: 34px;
@@ -217,8 +217,8 @@
 }
 
 .search-box-premium:focus-within {
-    border-color: #C41E2E;
-    box-shadow: 0 0 0 2px rgba(196,30,46,0.08);
+    border-color: #09090b;
+    box-shadow: 0 0 0 2px rgba(9, 9, 11, 0.08);
 }
 
 .search-box-premium svg { width: 13px; height: 13px; color: #9CA3AF; flex-shrink: 0; }
@@ -235,7 +235,7 @@
 .stat-item {
     background: white;
     padding: 6px 14px;
-    border-radius: 8px;
+    border-radius: 0;
     border: 1px solid #DFDFDF;
     display: flex;
     align-items: center;
@@ -245,7 +245,7 @@
 .stat-value {
     font-size: 16px;
     font-weight: 800;
-    color: #C41E2E;
+    color: #171717;
 }
 
 .stat-label {
@@ -263,7 +263,7 @@
 
 .freight-card-premium {
     background: white;
-    border-radius: 8px;
+    border-radius: 0;
     padding: 16px;
     display: flex;
     align-items: flex-start;
@@ -275,7 +275,7 @@
 }
 
 .freight-card-premium:hover {
-    border-color: #C41E2E;
+    border-color: #232220;
 }
 
 /* Ícone PADRÃO CINZA */
@@ -283,7 +283,7 @@
     background: #F3F4F6;
     color: #525252;
     padding: 8px;
-    border-radius: 8px;
+    border-radius: 0;
     flex-shrink: 0;
     display: flex;
     align-items: center;
@@ -330,7 +330,7 @@
     border: 1px solid #DFDFDF;
     color: #525252;
     padding: 6px;
-    border-radius: 6px;
+    border-radius: 0;
     cursor: pointer;
     transition: all 0.15s;
     display: flex;
@@ -341,15 +341,15 @@
 .btn-icon-premium svg { width: 13px; height: 13px; stroke-width: 1.5; }
 
 .btn-icon-premium:hover {
-    background: #FEE2E2;
-    color: #C41E2E;
-    border-color: #FECACA;
+    background: #F3F4F6;
+    color: #232220;
+    border-color: #D1D5DB;
 }
 
 .btn-icon-premium.delete:hover {
-    background: #FEE2E2;
-    color: #C41E2E;
-    border-color: #FECACA;
+    background: #F3F4F6;
+    color: #232220;
+    border-color: #D1D5DB;
 }
 
 /* Modal */
@@ -369,7 +369,7 @@
     background: white;
     width: 100%;
     max-width: 400px;
-    border-radius: 10px;
+    border-radius: 0;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
     overflow: hidden;
 }
@@ -399,7 +399,7 @@
     justify-content: center;
     width: 28px;
     height: 28px;
-    border-radius: 6px;
+    border-radius: 0;
     transition: background 0.15s;
 }
 
@@ -428,7 +428,7 @@
     padding: 8px 12px;
     background: #F9FAFB;
     border: 1px solid #DFDFDF;
-    border-radius: 8px;
+    border-radius: 0;
     font-size: 13px;
     outline: none;
     transition: border-color 0.15s;
@@ -436,7 +436,7 @@
 }
 
 .input-group-premium input:focus {
-    border-color: #C41E2E;
+    border-color: #232220;
     background: white;
     box-shadow: 0 0 0 2px rgba(196,30,46,0.08);
 }
@@ -470,7 +470,7 @@
     padding: 8px;
     border: 1px solid #DFDFDF;
     background: white;
-    border-radius: 8px;
+    border-radius: 0;
     font-size: 12px;
     font-weight: 600;
     color: #525252;
@@ -483,10 +483,10 @@
 .btn-primary-premium {
     flex: 2;
     padding: 8px;
-    background: #C41E2E;
+    background: #232220;
     color: white;
     border: none;
-    border-radius: 8px;
+    border-radius: 4px;
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;

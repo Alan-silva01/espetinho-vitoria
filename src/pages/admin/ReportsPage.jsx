@@ -265,7 +265,7 @@ export default function ReportsPage() {
                 setPaymentData(Object.entries(payments).map(([name, count]) => ({
                     name,
                     value: Math.round((count / validOrders.length) * 100),
-                    color: name === 'PIX' ? '#22C55E' : name === 'CRÉDITO' ? '#3B82F6' : name === 'DÉBITO' ? '#06B6D4' : name === 'DINHEIRO' ? '#F59E0B' : '#9CA3AF'
+                    color: name === 'PIX' ? '#232220' : name === 'CRÉDITO' ? '#4B5563' : name === 'DÉBITO' ? '#6B7280' : name === 'DINHEIRO' ? '#9CA3AF' : '#D1D5DB'
                 })))
 
                 // Category performance
@@ -279,7 +279,7 @@ export default function ReportsPage() {
                 setCategoryData(Object.entries(cats).map(([name, count]) => ({
                     name,
                     percent: Math.round((count / totalItems) * 100),
-                    color: name === 'Espetinhos' ? '#C62828' : '#3B82F6'
+                    color: name === 'Espetinhos' ? '#232220' : name === 'Açaí' ? '#4B5563' : name === 'Caldos' ? '#6B7280' : '#9CA3AF'
                 })).sort((a, b) => b.percent - a.percent))
 
                 // Chart data - GROUP BY DAY or MONTH with SP Timezone and comparison with previous period

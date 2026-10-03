@@ -220,7 +220,7 @@ export default function DashboardPage() {
             const categoryData = Object.entries(catMap).map(([name, count]) => ({
                 name,
                 percent: Math.round((count / totalItems) * 100),
-                color: name === 'Espetinhos' ? '#B91C1C' : name === 'Bebidas' ? '#3B82F6' : '#F59E0B'
+                color: name === 'Espetinhos' ? '#232220' : name === 'Açaí' ? '#4B5563' : name === 'Caldos' ? '#6B7280' : '#9CA3AF'
             })).sort((a, b) => b.percent - a.percent)
 
             setCategorySales(categoryData)
@@ -603,14 +603,14 @@ export default function DashboardPage() {
                                         <div key={p.id} className="progress-item alert-item">
                                             <div className="progress-info">
                                                 <span>{p.nome}</span>
-                                                <strong className="text-red-600">{p.quantidade_disponivel} rest</strong>
+                                                <strong className="text-gray-600">{p.quantidade_disponivel} rest</strong>
                                             </div>
                                             <div className="progress-bg">
                                                 <div
                                                     className="progress-fill"
                                                     style={{
                                                         width: `${(p.quantidade_disponivel / 5) * 100}%`,
-                                                        backgroundColor: '#EF4444'
+                                                        backgroundColor: '#374151'
                                                     }}
                                                 />
                                             </div>

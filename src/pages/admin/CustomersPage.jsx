@@ -659,8 +659,9 @@ export default function CustomersPage() {
                                 </div>
                             </div>
 
-                            <div className="input-group-heading" style={{ marginTop: '16px', marginBottom: '8px', fontWeight: 'bold', fontSize: '14px', color: 'var(--cor-primaria, #FF6A00)' }}>
-                                📍 Endereço de Entrega
+                            <div className="input-group-heading" style={{ marginTop: '16px', marginBottom: '8px', fontWeight: '700', fontSize: '13px', color: '#09090b', display: 'flex', alignItems: 'center', gap: '6px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                                <MapPin size={13} strokeWidth={1.75} />
+                                Endereço de Entrega
                             </div>
 
                             <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '12px' }}>

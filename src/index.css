@@ -759,11 +759,11 @@ textarea {
   --gap-grid: 12px;
   --padding-card: 12px;
 
-  /* Bordas minimalistas */
-  --raio-sm: 4px;
-  --raio-md: 8px;
-  --raio-lg: 10px;
-  --raio-xl: 12px;
+  /* Bordas estritamente quadradas (design recibo) */
+  --raio-sm: 0px;
+  --raio-md: 0px;
+  --raio-lg: 0px;
+  --raio-xl: 0px;
 
   /* Sombras ultra limpas (quase sem sombra) */
   --sombra-sm: none;

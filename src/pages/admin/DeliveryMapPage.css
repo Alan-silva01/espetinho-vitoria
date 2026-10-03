@@ -57,7 +57,7 @@
     gap: 6px;
     padding: 6px 12px;
     background: #F3F4F6;
-    border-radius: 20px;
+    border-radius: 0;
     font-size: 12px;
     font-weight: 500;
     color: #374151;
@@ -115,7 +115,7 @@
     gap: 10px;
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(8px);
-    border-radius: 12px;
+    border-radius: 0;
     padding: 10px 16px;
     z-index: 5;
     border: 1px solid #E5E7EB;
@@ -131,7 +131,7 @@
 .map-page-legend-bar {
     width: 140px;
     height: 10px;
-    border-radius: 5px;
+    border-radius: 0;
     background: linear-gradient(to right,
         rgba(59, 130, 246, 0.8),
         rgba(16, 185, 129, 0.85),
