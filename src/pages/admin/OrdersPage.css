@@ -2709,7 +2709,8 @@
     html, body {
         margin: 0 !important;
         padding: 0 !important;
-        width: 58mm !important;
+        width: 100% !important;
+        max-width: 58mm !important;
         overflow: visible !important;
     }
 
@@ -2733,14 +2734,12 @@
     #thermal-receipt,
     #thermal-receipt-print {
         display: block !important;
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 54mm;
-        max-width: 54mm;
+        position: static !important;
+        width: 100% !important;
+        max-width: 100% !important;
         height: auto;
-        margin: 0 auto;
-        padding: 0 1mm;
+        margin: 0;
+        padding: 0;
         box-sizing: border-box;
         background: white !important;
         color: black !important;
