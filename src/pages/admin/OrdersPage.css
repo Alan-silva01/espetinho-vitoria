@@ -2728,16 +2728,16 @@
         position: absolute;
         left: 0;
         top: 0;
-        width: 71mm;
+        width: 52mm;
         height: fit-content;
         margin: 0;
-        padding: 0mm 1mm 0mm 0mm;
+        padding: 0mm 2mm 0mm 1mm;
         box-sizing: border-box;
         background: white !important;
         color: black !important;
         font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         page-break-after: avoid;
-        font-size: 15px;
+        font-size: 14px;
         line-height: 1.2;
         text-transform: uppercase;
         overflow: hidden;
@@ -2823,6 +2823,8 @@
 
     .receipt-table td:nth-child(3) {
         white-space: nowrap;
+        text-align: right;
+        padding-right: 1mm;
     }
 
     .receipt-item-details {
