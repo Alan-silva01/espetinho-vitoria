@@ -12,6 +12,7 @@ import { formatCurrency, filterPersonalizacao, getSmartItemName } from '../../li
 import { useOrders, useComanda } from '../../hooks/useOrders'
 import { useVisibilityRefresh } from '../../hooks/useVisibilityRefresh'
 import { useNotificationSoundContext } from '../../context/NotificationSoundContext'
+import useQzTray from '../../hooks/useQzTray'
 
 import Dialog from '../../components/ui/Dialog'
 import CreateOrderModal from '../../components/admin/CreateOrderModal'
@@ -103,6 +104,7 @@ export default function OrdersPage() {
         return localStorage.getItem('espetinho_auto_print') === 'true'
     })
     const autoPrintRef = useRef(autoPrint)
+    const { connected: qzConnected, printHtml: qzPrintHtml, connectedRef: qzConnectedRef } = useQzTray()
 
     // Controlled clock for "X min atrás" — updates every 30s instead of every render
     const [clockTick, setClockTick] = useState(Date.now())
@@ -135,9 +137,51 @@ export default function OrdersPage() {
         })
     }
 
-    // Auto-print: fetch order, render #thermal-receipt, window.print() — SAME as manual
+    // Helper: get receipt HTML string for QZ Tray
+    const getReceiptHtml = () => {
+        const receipt = document.getElementById('thermal-receipt')
+        if (!receipt) return null
+        // Wrap in full HTML with print styles inlined
+        return `<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { width: 48mm; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 14px; line-height: 1.2; text-transform: uppercase; font-weight: 700; color: #000; background: #fff; }
+img { max-width: 35mm; display: block; margin: 0 auto 2mm; filter: grayscale(1) contrast(2); }
+.receipt-divider { border-top: 2px dashed black; margin: 2.5mm 0; }
+.receipt-section-title { text-align: center; font-weight: 900; font-size: 16px; margin-bottom: 2mm; border: 1px solid black; padding: 0.5mm; }
+.receipt-header-info { text-align: center; margin-bottom: 4mm; }
+.receipt-order-num { font-size: 24px; font-weight: 950; margin-bottom: 1mm; }
+.receipt-data-row { display: flex; justify-content: space-between; margin-bottom: 1mm; }
+.receipt-label { font-weight: 900; }
+.receipt-table { width: 100%; border-collapse: collapse; margin: 3mm 0; table-layout: fixed; }
+.receipt-table th { text-align: left; border-bottom: 2px solid black; padding-bottom: 1mm; font-size: 13px; font-weight: 900; }
+.receipt-table td { padding: 2mm 0; vertical-align: top; font-size: 15px; font-weight: 800; }
+.receipt-table td:nth-child(2) { word-break: break-word; overflow-wrap: break-word; }
+.receipt-item-details { font-size: 12px; font-weight: 800; padding-left: 1mm; margin-top: 1mm; line-height: 1.4; }
+.receipt-total-row { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 1mm; }
+.receipt-total-big { font-size: 22px; font-weight: 950; margin-top: 2.5mm; border-top: 2px dashed black; padding-top: 2.5mm; display: flex; justify-content: space-between; }
+.receipt-footer-msg { text-align: center; margin-top: 4mm; font-size: 14px; font-weight: 800; }
+.receipt-end-line { margin-top: 15mm; border-bottom: 0.5px solid black; width: 100%; }
+</style>
+</head><body>${receipt.innerHTML}</body></html>`
+    }
 
-    // Auto-print: fetch order, render #thermal-receipt, print
+    // Fallback: browser print dialog
+    const browserPrint = () => {
+        const receipt = document.getElementById('thermal-receipt')
+        if (!receipt) return
+        const clone = receipt.cloneNode(true)
+        clone.id = 'thermal-receipt-print'
+        document.body.appendChild(clone)
+        const root = document.getElementById('root')
+        root.style.display = 'none'
+        window.print()
+        root.style.display = ''
+        clone.remove()
+    }
+
+    // Auto-print: fetch order, render #thermal-receipt, print via QZ Tray (or fallback)
     const autoPrintOrder = async (orderId) => {
         try {
             const { data: order, error } = await supabase
@@ -159,30 +203,34 @@ export default function OrdersPage() {
                 return
             }
 
-            // Set selectedOrder — React renders #thermal-receipt (exact same component as manual print)
+            // Set selectedOrder — React renders #thermal-receipt
             setSelectedOrder(order)
 
             // Wait for React to render
             await new Promise(resolve => setTimeout(resolve, 400))
 
-            // Clone receipt into body, hide #root, print, restore — same as manual
-            const receipt = document.getElementById('thermal-receipt')
-            if (receipt) {
-                const clone = receipt.cloneNode(true)
-                clone.id = 'thermal-receipt-print'
-                document.body.appendChild(clone)
-                const root = document.getElementById('root')
-                root.style.display = 'none'
-                window.print()
-                root.style.display = ''
-                clone.remove()
+            // Try QZ Tray first (silent), fallback to window.print()
+            if (qzConnectedRef.current) {
+                const html = getReceiptHtml()
+                if (html) {
+                    const success = await qzPrintHtml(html)
+                    if (success) {
+                        console.log('[AutoPrint] ✅ QZ Tray — Pedido #' + order.numero_pedido)
+                    } else {
+                        console.warn('[AutoPrint] QZ Tray falhou, usando window.print()')
+                        browserPrint()
+                    }
+                } else {
+                    browserPrint()
+                }
+            } else {
+                browserPrint()
             }
 
-            // After print dialog closes, clear selectedOrder
+            // After print, clear selectedOrder
             setTimeout(() => {
                 setSelectedOrder(null)
             }, 1000)
-            console.log('[AutoPrint] Imprimindo pedido #' + order.numero_pedido)
         } catch (err) {
             console.error('[AutoPrint] Erro:', err)
         }
@@ -563,17 +611,20 @@ export default function OrdersPage() {
         }
     }
 
-    const handlePrint = () => {
-        const receipt = document.getElementById('thermal-receipt')
-        if (!receipt) return
-        const clone = receipt.cloneNode(true)
-        clone.id = 'thermal-receipt-print'
-        document.body.appendChild(clone)
-        const root = document.getElementById('root')
-        root.style.display = 'none'
-        window.print()
-        root.style.display = ''
-        clone.remove()
+    const handlePrint = async () => {
+        // Try QZ Tray first (silent print), fallback to browser dialog
+        if (qzConnectedRef.current) {
+            const html = getReceiptHtml()
+            if (html) {
+                const success = await qzPrintHtml(html)
+                if (success) {
+                    console.log('[Print] ✅ QZ Tray — impressão silenciosa')
+                    return
+                }
+            }
+        }
+        // Fallback: browser print dialog
+        browserPrint()
     }
 
     const onDragStart = (e, orderId) => {

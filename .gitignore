@@ -33,3 +33,4 @@ dist/
 dist-ssr/
 .vercel
 .env*.local
+certs/
