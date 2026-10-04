@@ -228,6 +228,8 @@ export default function ThermalReceipt({ order }) {
                         ESPETINHO VITÓRIA
                     </div>
                 </div>
+
+                <div className="receipt-end-line"></div>
             </div>
         </div>
     )
