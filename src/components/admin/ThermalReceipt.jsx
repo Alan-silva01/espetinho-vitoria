@@ -27,7 +27,7 @@ export default function ThermalReceipt({ order }) {
                                 ? (order.nome_cliente?.toUpperCase().includes('MESA') ? order.nome_cliente?.toUpperCase() : `MESA - ${order.nome_cliente?.toUpperCase()}`)
                                 : 'RETIRADA'}
                     </h2>
-                    <div className="receipt-order-num">PEDIDO #{order.numero_pedido}</div>
+                    <div className="receipt-order-num">PEDIDO {order.numero_pedido}</div>
                     <div className="receipt-date">
                         {new Date(order.criado_em).toLocaleDateString('pt-BR')} - {new Date(order.criado_em).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                     </div>
