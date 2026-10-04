@@ -2734,10 +2734,10 @@
     #thermal-receipt-print {
         display: block !important;
         position: relative !important;
-        width: 54mm !important;
-        max-width: 54mm !important;
+        width: 45mm !important;
+        max-width: 45mm !important;
         margin: 0 auto !important;
-        padding: 0 !important;
+        padding: 0 1mm 10mm 1mm !important;
         box-sizing: border-box !important;
         background: white !important;
         color: black !important;
@@ -2893,7 +2893,7 @@
     }
 
     .receipt-end-line {
-        margin-top: 2mm;
+        margin-top: 10mm;
         border-bottom: 0.5px solid black;
         width: 100%;
     }

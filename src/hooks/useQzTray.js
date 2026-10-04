@@ -143,7 +143,7 @@ export default function useQzTray() {
                 format: 'plain',
                 data: htmlContent,
                 options: {
-                    pageWidth: 54,
+                    pageWidth: 48,
                     pageHeight: null,
                 }
             }]
