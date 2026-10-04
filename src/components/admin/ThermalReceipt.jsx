@@ -22,10 +22,10 @@ export default function ThermalReceipt({ order }) {
                 <div className="receipt-header-info">
                     <h2 style={{ fontSize: '22px', fontWeight: '900', textAlign: 'center', margin: '8px 0', textTransform: 'uppercase', borderBottom: '2px dashed #000', paddingBottom: '8px' }}>
                         {order.tipo_pedido === 'entrega'
-                            ? '🚀 ENTREGA'
+                            ? 'ENTREGA'
                             : order.tipo_pedido === 'mesa'
-                                ? (order.nome_cliente?.toUpperCase().includes('MESA') ? order.nome_cliente?.toUpperCase() : `🍽️ MESA - ${order.nome_cliente?.toUpperCase()}`)
-                                : '🛍️ RETIRADA'}
+                                ? (order.nome_cliente?.toUpperCase().includes('MESA') ? order.nome_cliente?.toUpperCase() : `MESA - ${order.nome_cliente?.toUpperCase()}`)
+                                : 'RETIRADA'}
                     </h2>
                     <div className="receipt-order-num">PEDIDO #{order.numero_pedido}</div>
                     <div className="receipt-date">
@@ -91,21 +91,21 @@ export default function ThermalReceipt({ order }) {
                                         {item.personalizacao && typeof item.personalizacao === 'object' && (() => {
                                             const isAcai = getItemDisplayName(item)?.toLowerCase().includes('açaí') || getItemDisplayName(item)?.toLowerCase().includes('acai')
                                             const elements = []
-                                            
+
                                             for (const [key, val] of Object.entries(item.personalizacao)) {
                                                 if (!val || (Array.isArray(val) && val.length === 0)) continue
-                                                
+
                                                 const keyLower = key.toLowerCase()
                                                 const isPaid = keyLower.includes('pago') || keyLower === 'adicionais'
                                                 const isFruitSelection = keyLower.includes('escolha') || keyLower.includes('incl')
-                                                
+
                                                 if (isPaid) {
                                                     elements.push(
                                                         <div key={`title-${key}`} className="receipt-item-details" style={{ textTransform: 'uppercase', marginTop: '1mm' }}>
                                                             * Adicionais pagos:
                                                         </div>
                                                     )
-                                                    
+
                                                     const itemsArray = Array.isArray(val) ? val : [val]
                                                     const counts = {}
                                                     itemsArray.forEach(v => {
@@ -196,8 +196,8 @@ export default function ThermalReceipt({ order }) {
                     <div className="receipt-data-row">
                         <span>{
                             order.forma_pagamento === 'cartao_credito' ? 'CARTÃO CRÉDITO' :
-                            order.forma_pagamento === 'cartao_debito' ? 'CARTÃO DÉBITO' :
-                            order.forma_pagamento?.toUpperCase()
+                                order.forma_pagamento === 'cartao_debito' ? 'CARTÃO DÉBITO' :
+                                    order.forma_pagamento?.toUpperCase()
                         }</span>
                         <span>{formatCurrency(order.valor_total)}</span>
                     </div>
