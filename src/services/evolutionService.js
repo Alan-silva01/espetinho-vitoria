@@ -38,7 +38,7 @@ export const evolutionService = {
      * Possíveis valores: "open" (conectado), "close" (desconectado), "connecting"
      */
     async getConnectionState() {
-        return request('GET', `/instance/connectionState/${EVO_INSTANCE}`)
+        return request('GET', `/instance/connectionState/${encodeURIComponent(EVO_INSTANCE)}`)
     },
 
     /**
@@ -46,21 +46,21 @@ export const evolutionService = {
      * Retorna { base64: "data:image/png;base64,...", code: "..." }
      */
     async getQrCode() {
-        return request('GET', `/instance/connect/${EVO_INSTANCE}`)
+        return request('GET', `/instance/connect/${encodeURIComponent(EVO_INSTANCE)}`)
     },
 
     /**
      * Desconecta (logout) a instância do WhatsApp.
      */
     async logout() {
-        return request('DELETE', `/instance/logout/${EVO_INSTANCE}`)
+        return request('DELETE', `/instance/logout/${encodeURIComponent(EVO_INSTANCE)}`)
     },
 
     /**
      * Retorna informações gerais da instância.
      */
     async getInstanceInfo() {
-        return request('GET', `/instance/fetchInstances?instanceName=${EVO_INSTANCE}`)
+        return request('GET', `/instance/fetchInstances?instanceName=${encodeURIComponent(EVO_INSTANCE)}`)
     }
 }
 

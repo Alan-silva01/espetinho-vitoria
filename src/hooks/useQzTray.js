@@ -70,10 +70,28 @@ export default function useQzTray() {
             setPrinters(printerList)
             console.log('[QZ Tray] Conectado! Impressoras:', printerList)
 
-            // Auto-select saved printer if available
+            // Auto-select saved printer if available, or fallback to system default
             const saved = localStorage.getItem('espetinho_qz_printer')
             if (saved && printerList.includes(saved)) {
                 setSelectedPrinter(saved)
+            } else {
+                try {
+                    const defaultPrinter = await qz.printers.getDefault()
+                    if (defaultPrinter) {
+                        setSelectedPrinter(defaultPrinter)
+                        localStorage.setItem('espetinho_qz_printer', defaultPrinter)
+                        console.log('[QZ Tray] Impressora padrão auto-selecionada:', defaultPrinter)
+                    } else if (printerList.length > 0) {
+                        setSelectedPrinter(printerList[0])
+                        localStorage.setItem('espetinho_qz_printer', printerList[0])
+                        console.log('[QZ Tray] Primeira impressora auto-selecionada:', printerList[0])
+                    }
+                } catch {
+                    if (printerList.length > 0) {
+                        setSelectedPrinter(printerList[0])
+                        localStorage.setItem('espetinho_qz_printer', printerList[0])
+                    }
+                }
             }
 
             setConnecting(false)
@@ -125,7 +143,7 @@ export default function useQzTray() {
                 format: 'plain',
                 data: htmlContent,
                 options: {
-                    pageWidth: 58, // MPT II 58mm
+                    pageWidth: 71,  // Usando milímetros direto (71mm para não cortar nas laterais)
                 }
             }]
 

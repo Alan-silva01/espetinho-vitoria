@@ -151,7 +151,7 @@ export default function OrdersPage() {
                     }).join('\n')
 
                 const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>
-                    @page { size: 58mm auto; margin: 0; }
+                    @page { size: 71mm auto; margin: 0; }
                     body { margin: 0; padding: 0; background: white; }
                     ${styles}
                 </style></head><body>${receiptEl.outerHTML}</body></html>`
