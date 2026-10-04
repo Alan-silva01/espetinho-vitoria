@@ -143,8 +143,7 @@ export default function useQzTray() {
                 format: 'plain',
                 data: htmlContent,
                 options: {
-                    pageWidth: 48,
-                    pageHeight: null,
+                    pageWidth: 71,  // Usando milímetros direto (foi convertido de 2.8 pol)
                 }
             }]
 

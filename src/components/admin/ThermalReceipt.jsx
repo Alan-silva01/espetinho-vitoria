@@ -22,10 +22,10 @@ export default function ThermalReceipt({ order }) {
                 <div className="receipt-header-info">
                     <h2 style={{ fontSize: '22px', fontWeight: '900', textAlign: 'center', margin: '8px 0', textTransform: 'uppercase', borderBottom: '2px dashed #000', paddingBottom: '8px' }}>
                         {order.tipo_pedido === 'entrega'
-                            ? 'ENTREGA'
+                            ? '🚀 ENTREGA'
                             : order.tipo_pedido === 'mesa'
-                                ? (order.nome_cliente?.toUpperCase().includes('MESA') ? order.nome_cliente?.toUpperCase() : `MESA - ${order.nome_cliente?.toUpperCase()}`)
-                                : 'RETIRADA'}
+                                ? (order.nome_cliente?.toUpperCase().includes('MESA') ? order.nome_cliente?.toUpperCase() : `🍽️ MESA - ${order.nome_cliente?.toUpperCase()}`)
+                                : '🛍️ RETIRADA'}
                     </h2>
                     <div className="receipt-order-num">PEDIDO #{order.numero_pedido}</div>
                     <div className="receipt-date">
@@ -225,8 +225,6 @@ export default function ThermalReceipt({ order }) {
                         ESPETINHO VITÓRIA
                     </div>
                 </div>
-
-                <div className="receipt-end-line"></div>
             </div>
         </div>
     )

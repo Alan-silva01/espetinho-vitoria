@@ -2701,16 +2701,8 @@
 
 @media print {
     @page {
-        margin: 0 !important;
-        padding: 0 !important;
+        margin: 0;
         size: 58mm auto;
-    }
-
-    html, body {
-        margin: 0 !important;
-        padding: 0 !important;
-        width: 100% !important;
-        overflow: visible !important;
     }
 
     body * {
@@ -2733,27 +2725,27 @@
     #thermal-receipt,
     #thermal-receipt-print {
         display: block !important;
-        position: relative !important;
-        width: 45mm !important;
-        max-width: 45mm !important;
-        margin: 0 auto !important;
-        padding: 0 1mm 10mm 1mm !important;
-        box-sizing: border-box !important;
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 71mm;
+        height: fit-content;
+        margin: 0;
+        padding: 0mm 1mm 0mm 0mm;
+        box-sizing: border-box;
         background: white !important;
         color: black !important;
         font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         page-break-after: avoid;
-        page-break-inside: avoid;
-        font-size: 11px;
-        line-height: 1.15;
+        font-size: 15px;
+        line-height: 1.2;
         text-transform: uppercase;
-        overflow: visible !important;
+        overflow: hidden;
         font-weight: 700;
     }
 
     .receipt-print-container {
         width: 100%;
-        box-sizing: border-box;
     }
 
     .receipt-logo-container {
@@ -2762,50 +2754,40 @@
     }
 
     .receipt-logo {
-        max-width: 28mm;
+        max-width: 35mm;
         filter: grayscale(1) contrast(2);
     }
 
     .receipt-divider {
         border-top: 2px dashed black;
-        margin: 2mm 0;
+        margin: 2.5mm 0;
     }
 
     .receipt-section-title {
         text-align: center;
         font-weight: 900;
-        font-size: 12px;
-        margin-bottom: 1.5mm;
+        font-size: 16px;
+        margin-bottom: 2mm;
         border: 1px solid black;
         padding: 0.5mm;
     }
 
     .receipt-header-info {
         text-align: center;
-        margin-bottom: 2mm;
+        margin-bottom: 4mm;
         margin-top: 0mm;
     }
 
-    .receipt-header-info h2 {
-        font-size: 14px !important;
-        line-height: 1.15 !important;
-    }
-
     .receipt-order-num {
-        font-size: 16px;
+        font-size: 24px;
         font-weight: 950;
         margin-bottom: 1mm;
-    }
-
-    .receipt-date {
-        font-size: 10.5px;
     }
 
     .receipt-data-row {
         display: flex;
         justify-content: space-between;
-        margin-bottom: 0.8mm;
-        font-size: 11px;
+        margin-bottom: 1mm;
     }
 
     .receipt-label {
@@ -2815,47 +2797,40 @@
     .receipt-table {
         width: 100%;
         border-collapse: collapse;
-        margin: 2mm 0;
+        margin: 3mm 0;
         table-layout: fixed;
     }
 
     .receipt-table th {
         text-align: left;
         border-bottom: 2px solid black;
-        padding-bottom: 0.8mm;
-        font-size: 10.5px;
+        padding-bottom: 1mm;
+        font-size: 13px;
         font-weight: 900;
     }
 
     .receipt-table td {
-        padding: 1mm 0;
+        padding: 2mm 0;
         vertical-align: top;
-        font-size: 11px;
+        font-size: 15px;
         font-weight: 800;
     }
 
-    .receipt-table td:nth-child(1) {
-        width: 15%;
-    }
-
     .receipt-table td:nth-child(2) {
-        width: 50%;
         word-break: break-word;
         overflow-wrap: break-word;
     }
 
     .receipt-table td:nth-child(3) {
-        width: 35%;
         white-space: nowrap;
-        text-align: right;
     }
 
     .receipt-item-details {
-        font-size: 9.5px;
+        font-size: 12px;
         font-weight: 800;
         padding-left: 1mm;
-        margin-top: 0.5mm;
-        line-height: 1.2;
+        margin-top: 1mm;
+        line-height: 1.4;
         opacity: 1;
         color: #000 !important;
         -webkit-print-color-adjust: exact;
@@ -2863,39 +2838,33 @@
     }
 
     .receipt-total-section {
-        margin-top: 1.5mm;
+        margin-top: 2mm;
     }
 
     .receipt-total-row {
         display: flex;
         justify-content: space-between;
-        font-size: 11.5px;
-        margin-bottom: 0.8mm;
+        font-size: 14px;
+        margin-bottom: 1mm;
     }
 
     .receipt-total-big {
-        font-size: 15px;
+        font-size: 22px;
         font-weight: 950;
-        margin-top: 2mm;
+        margin-top: 2.5mm;
         border-top: 2px dashed black;
-        padding-top: 2mm;
+        padding-top: 2.5mm;
         display: flex;
         justify-content: space-between;
     }
 
     .receipt-footer-msg {
         text-align: center;
-        margin-top: 3mm;
+        margin-top: 4mm;
         margin-bottom: 0;
-        font-size: 11px;
+        font-size: 14px;
         padding-bottom: 0;
         font-weight: 800;
-    }
-
-    .receipt-end-line {
-        margin-top: 10mm;
-        border-bottom: 0.5px solid black;
-        width: 100%;
     }
 }
 
