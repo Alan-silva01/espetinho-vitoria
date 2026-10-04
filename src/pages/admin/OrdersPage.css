@@ -2728,10 +2728,10 @@
         position: absolute;
         left: 0;
         top: 0;
-        width: 48mm;
+        width: 50mm;
         height: fit-content;
         margin: 0;
-        padding: 0mm 2mm 0mm 0mm;
+        padding: 0mm 1mm 0mm 0mm;
         box-sizing: border-box;
         background: white !important;
         color: black !important;

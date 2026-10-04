@@ -77,17 +77,18 @@ export default function ThermalReceipt({ order }) {
                     <table className="receipt-table">
                         <thead>
                             <tr>
-                                <th style={{ width: '15%' }}>QTD</th>
-                                <th style={{ width: '53%', paddingLeft: '1mm' }}>ITENS</th>
-                                <th style={{ width: '32%', textAlign: 'right' }}>PREÇO</th>
+                                <th style={{ width: '12%' }}>QTD</th>
+                                <th style={{ width: '88%', paddingLeft: '1mm' }}>ITENS</th>
                             </tr>
                         </thead>
                         <tbody>
                             {order.itens?.map((item, i) => (
-                                <tr key={i}>
-                                    <td>{item.quantidade}</td>
-                                    <td>
-                                        <div>{getItemDisplayName(item)?.toUpperCase()}</div>
+                                <tr key={i} style={{ borderBottom: '1px dashed #ddd' }}>
+                                    <td style={{ verticalAlign: 'top', paddingTop: '1.5mm' }}>{item.quantidade}</td>
+                                    <td style={{ paddingTop: '1.5mm', paddingBottom: '1.5mm' }}>
+                                        <div style={{ fontSize: '14.5px', fontWeight: '900', wordBreak: 'break-word', lineHeight: '1.2' }}>
+                                            {getItemDisplayName(item)?.toUpperCase()}
+                                        </div>
                                         {item.personalizacao && typeof item.personalizacao === 'object' && (() => {
                                             const isAcai = getItemDisplayName(item)?.toLowerCase().includes('açaí') || getItemDisplayName(item)?.toLowerCase().includes('acai')
                                             const elements = []
@@ -156,8 +157,10 @@ export default function ThermalReceipt({ order }) {
                                                 * OBS: {item.observacoes.toUpperCase()}
                                             </div>
                                         )}
+                                        <div style={{ textAlign: 'right', fontWeight: '950', fontSize: '14.5px', marginTop: '1mm' }}>
+                                            {formatCurrency(item.preco_unitario * item.quantidade)}
+                                        </div>
                                     </td>
-                                    <td style={{ textAlign: 'right' }}>{formatCurrency(item.preco_unitario * item.quantidade)}</td>
                                 </tr>
                             ))}
                         </tbody>
