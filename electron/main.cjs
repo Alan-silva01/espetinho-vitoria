@@ -14,10 +14,14 @@
 const {
   app,
   BrowserWindow,
+  Menu,
   ipcMain,
   powerSaveBlocker,
 } = require('electron')
 const path = require('path')
+
+// ── Desativa menu padrão do sistema (File, Edit, View, Window) ───────────────
+Menu.setApplicationMenu(null)
 
 // ── URL do painel admin ──────────────────────────────────────────────────────
 // Em desenvolvimento, carrega o Vite local.
@@ -40,6 +44,7 @@ function createWindow() {
     width: 1280,
     height: 800,
     title: 'Espetinho Vitória — Caixa',
+    autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
       contextIsolation: true,        // Segurança: React não acessa Node diretamente
@@ -47,6 +52,8 @@ function createWindow() {
       backgroundThrottling: false,   // Mantém Realtime do Supabase ativo quando minimizado
     },
   })
+
+  mainWindow.removeMenu()
 
   mainWindow.loadURL(ADMIN_URL)
 
