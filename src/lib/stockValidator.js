@@ -35,32 +35,50 @@ export function getOptionStock(optionName, products = [], productOrOptions = nul
     const nameNorm = normalizeText(optionName)
     if (!nameNorm) return null
 
+    // Helper para extrair quantidade válida de um objeto de opção
+    const extractQty = (opt) => {
+        if (typeof opt !== 'object' || opt === null) return null
+        if (opt.quantidade !== undefined && opt.quantidade !== null && opt.quantidade !== '') {
+            return Number(opt.quantidade)
+        }
+        if (opt.quantidade_disponivel !== undefined && opt.quantidade_disponivel !== null) {
+            return Number(opt.quantidade_disponivel)
+        }
+        return null
+    }
+
     // 1. Verificar em productOrOptions (opcoes_personalizacao do produto)
     if (productOrOptions) {
         let groups = []
         if (Array.isArray(productOrOptions)) {
-            // Pode ser um array de grupos ou array de opções
             groups = productOrOptions
         } else if (productOrOptions.opcoes_personalizacao && Array.isArray(productOrOptions.opcoes_personalizacao)) {
             groups = productOrOptions.opcoes_personalizacao
         }
 
+        // 1a. Passada 1: Correspondência EXATA
         for (const g of groups) {
-            // Se o item for um grupo com 'opcoes'
+            const opts = Array.isArray(g?.opcoes) ? g.opcoes : (g?.nome ? [g] : [])
+            for (const opt of opts) {
+                const oName = typeof opt === 'string' ? opt : (opt?.nome || opt?.name)
+                if (!oName) continue
+                if (normalizeText(oName) === nameNorm) {
+                    const qty = extractQty(opt)
+                    if (qty !== null) return qty
+                }
+            }
+        }
+
+        // 1b. Passada 2: Correspondência por SUBSTRING (apenas se não achou exata)
+        for (const g of groups) {
             const opts = Array.isArray(g?.opcoes) ? g.opcoes : (g?.nome ? [g] : [])
             for (const opt of opts) {
                 const oName = typeof opt === 'string' ? opt : (opt?.nome || opt?.name)
                 if (!oName) continue
                 const oNorm = normalizeText(oName)
-                if (oNorm === nameNorm || oNorm.includes(nameNorm) || nameNorm.includes(oNorm)) {
-                    if (typeof opt === 'object' && opt !== null) {
-                        if (opt.quantidade !== undefined && opt.quantidade !== null && opt.quantidade !== '') {
-                            return Number(opt.quantidade)
-                        }
-                        if (opt.quantidade_disponivel !== undefined && opt.quantidade_disponivel !== null) {
-                            return Number(opt.quantidade_disponivel)
-                        }
-                    }
+                if (oNorm.includes(nameNorm) || nameNorm.includes(oNorm)) {
+                    const qty = extractQty(opt)
+                    if (qty !== null) return qty
                 }
             }
         }
@@ -84,7 +102,25 @@ export function getOptionStock(optionName, products = [], productOrOptions = nul
             return found.quantidade_disponivel ?? 0
         }
 
-        // 2c. Se não achou na linha principal do produto, verificar se algum produto tem a opção nas suas opcoes_personalizacao
+        // 2c. Se não achou na linha principal do produto, verificar nas opcoes_personalizacao dos produtos
+        // Primeiro busca exata em todos os produtos
+        for (const p of products) {
+            if (p.opcoes_personalizacao && Array.isArray(p.opcoes_personalizacao)) {
+                for (const g of p.opcoes_personalizacao) {
+                    if (!g?.opcoes) continue
+                    for (const opt of g.opcoes) {
+                        const oName = typeof opt === 'string' ? opt : (opt?.nome || opt?.name)
+                        if (!oName) continue
+                        if (normalizeText(oName) === nameNorm) {
+                            const qty = extractQty(opt)
+                            if (qty !== null) return qty
+                        }
+                    }
+                }
+            }
+        }
+
+        // Depois busca por substring
         for (const p of products) {
             if (p.opcoes_personalizacao && Array.isArray(p.opcoes_personalizacao)) {
                 for (const g of p.opcoes_personalizacao) {
@@ -93,15 +129,9 @@ export function getOptionStock(optionName, products = [], productOrOptions = nul
                         const oName = typeof opt === 'string' ? opt : (opt?.nome || opt?.name)
                         if (!oName) continue
                         const oNorm = normalizeText(oName)
-                        if (oNorm === nameNorm || oNorm.includes(nameNorm) || nameNorm.includes(oNorm)) {
-                            if (typeof opt === 'object' && opt !== null) {
-                                if (opt.quantidade !== undefined && opt.quantidade !== null && opt.quantidade !== '') {
-                                    return Number(opt.quantidade)
-                                }
-                                if (opt.quantidade_disponivel !== undefined && opt.quantidade_disponivel !== null) {
-                                    return Number(opt.quantidade_disponivel)
-                                }
-                            }
+                        if (oNorm.includes(nameNorm) || nameNorm.includes(oNorm)) {
+                            const qty = extractQty(opt)
+                            if (qty !== null) return qty
                         }
                     }
                 }
@@ -115,7 +145,7 @@ export function getOptionStock(optionName, products = [], productOrOptions = nul
 
 /**
  * Conta quantas vezes uma opção já está no carrinho (somando quantidades).
- * Percorre personalizacao de cada item do carrinho com normalização flexível.
+ * Percorre personalizacao de cada item do carrinho com prioridade para match exato.
  *
  * @param {string} optionName - Nome da opção para contar
  * @param {Array} cartItems - Itens atuais do carrinho
@@ -135,8 +165,15 @@ export function getOptionCartCount(optionName, cartItems) {
             pList.forEach(name => {
                 if (typeof name === 'string') {
                     const itemNorm = normalizeText(name)
-                    if (itemNorm === nameNorm || itemNorm.includes(nameNorm) || nameNorm.includes(itemNorm)) {
+                    // Match exato ou substring somente se um contiver o outro com tamanho similar
+                    if (itemNorm === nameNorm) {
                         count += (cartItem.quantidade || 1)
+                    } else if (itemNorm.includes(nameNorm) || nameNorm.includes(itemNorm)) {
+                        // Evita falsos positivos como 'arroz com cenoura' casando com 'arroz com cenoura e calabresa'
+                        const diff = Math.abs(itemNorm.length - nameNorm.length)
+                        if (diff <= 5) {
+                            count += (cartItem.quantidade || 1)
+                        }
                     }
                 }
             })
