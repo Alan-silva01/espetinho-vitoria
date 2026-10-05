@@ -37,7 +37,8 @@ export default function ThermalReceipt({ order }) {
 
                 <div className="receipt-section">
                     <div className="receipt-section-title">ESTABELECIMENTO</div>
-                    <div style={{ textAlign: 'center' }}>ESPETINHO VITÓRIA - ESPETOS, AÇAÍ E CALDOS</div>
+                    <div style={{ textAlign: 'center', fontSize: '14.5px', fontWeight: '950' }}>ESPETINHO VITÓRIA</div>
+                    <div style={{ textAlign: 'center', fontSize: '11px', fontWeight: '800', marginTop: '0.5mm', letterSpacing: '-0.2px' }}>ESPETOS, AÇAÍ E CALDOS</div>
                 </div>
 
                 <div className="receipt-divider"></div>
@@ -77,8 +78,8 @@ export default function ThermalReceipt({ order }) {
                     <table className="receipt-table">
                         <thead>
                             <tr>
-                                <th style={{ width: '12%' }}>QTD</th>
-                                <th style={{ width: '88%', paddingLeft: '1mm' }}>ITENS</th>
+                                <th style={{ width: '18%', paddingRight: '2mm' }}>QTD</th>
+                                <th style={{ width: '82%', paddingLeft: '1mm' }}>ITENS</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -170,18 +171,18 @@ export default function ThermalReceipt({ order }) {
                 <div className="receipt-divider"></div>
 
                 <div className="receipt-total-section">
-                    <div className="receipt-total-row">
-                        <span>ITENS DO PEDIDO</span>
+                    <div className="receipt-total-row" style={{ fontSize: '13px', whiteSpace: 'nowrap' }}>
+                        <span>SUBTOTAL</span>
                         <span>{formatCurrency(order.subtotal)}</span>
                     </div>
                     {order.taxa_entrega > 0 && (
-                        <div className="receipt-total-row">
-                            <span>TAXA DE ENTREGA</span>
+                        <div className="receipt-total-row" style={{ fontSize: '13px', whiteSpace: 'nowrap' }}>
+                            <span>TAXA ENTREGA</span>
                             <span>{formatCurrency(order.taxa_entrega)}</span>
                         </div>
                     )}
                     {order.taxa_cartao > 0 && (
-                        <div className="receipt-total-row">
+                        <div className="receipt-total-row" style={{ fontSize: '13px', whiteSpace: 'nowrap' }}>
                             <span>TAXA CARTÃO</span>
                             <span>{formatCurrency(order.taxa_cartao)}</span>
                         </div>
