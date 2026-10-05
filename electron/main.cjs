@@ -41,7 +41,7 @@ function createWindow() {
     height: 800,
     title: 'Espetinho Vitória — Caixa',
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: path.join(__dirname, 'preload.cjs'),
       contextIsolation: true,        // Segurança: React não acessa Node diretamente
       nodeIntegration: false,        // Segurança: desabilita Node no renderer
       backgroundThrottling: false,   // Mantém Realtime do Supabase ativo quando minimizado

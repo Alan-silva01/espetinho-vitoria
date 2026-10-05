@@ -630,18 +630,33 @@ img { max-width: 35mm; display: block; margin: 0 auto 2mm; filter: grayscale(1) 
     }
 
     const handlePrint = async () => {
-        // Try QZ Tray first (silent print), fallback to browser dialog
+        const html = getReceiptHtml()
+        if (!html) {
+            browserPrint()
+            return
+        }
+
+        // 1. Electron nativo silencioso (App desktop do caixa)
+        if (window.electronAPI?.printReceipt) {
+            const savedPrinter = localStorage.getItem('espetinho_qz_printer') || ''
+            const result = await window.electronAPI.printReceipt(html, savedPrinter)
+            if (result?.success) {
+                console.log('[Print] ✅ Electron nativo — impressão silenciosa')
+                return
+            }
+            console.warn('[Print] Electron falhou, tentando QZ Tray...')
+        }
+
+        // 2. QZ Tray silencioso
         if (qzConnectedRef.current) {
-            const html = getReceiptHtml()
-            if (html) {
-                const success = await qzPrintHtml(html)
-                if (success) {
-                    console.log('[Print] ✅ QZ Tray — impressão silenciosa')
-                    return
-                }
+            const success = await qzPrintHtml(html)
+            if (success) {
+                console.log('[Print] ✅ QZ Tray — impressão silenciosa')
+                return
             }
         }
-        // Fallback: browser print dialog
+
+        // 3. Fallback: browser print dialog
         browserPrint()
     }
 

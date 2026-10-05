@@ -2,7 +2,7 @@
   "name": "espetinho-vitoria-caixa",
   "private": true,
   "version": "1.0.0",
-  "main": "electron/main.js",
+  "main": "electron/main.cjs",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -11,7 +11,7 @@
     "preview": "vite preview",
     "test": "node --test test/*.spec.test.js",
     "electron:dev": "ELECTRON_SKIP_BINARY_DOWNLOAD=1 electron .",
-    "electron:build": "ELECTRON_SKIP_BINARY_DOWNLOAD=1 electron-builder --win portable"
+    "electron:build": "ELECTRON_SKIP_BINARY_DOWNLOAD=1 electron-builder --win portable --x64"
   },
   "build": {
     "appId": "com.espetinhovitoria.caixa",
@@ -21,12 +21,15 @@
     },
     "win": {
       "target": "portable",
-      "icon": "logo.png"
+      "icon": "electron/icon.ico"
     },
     "files": [
       "electron/**/*",
       "logo.png"
-    ]
+    ],
+    "extraMetadata": {
+      "main": "electron/main.cjs"
+    }
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.95.3",
