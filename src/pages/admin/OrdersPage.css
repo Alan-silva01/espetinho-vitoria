@@ -2766,10 +2766,11 @@
     .receipt-section-title {
         text-align: center;
         font-weight: 900;
-        font-size: 16px;
+        font-size: 13.5px;
+        letter-spacing: -0.2px;
         margin-bottom: 2mm;
         border: 1px solid black;
-        padding: 0.5mm;
+        padding: 0.4mm 0.5mm;
     }
 
     .receipt-header-info {

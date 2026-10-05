@@ -58,7 +58,7 @@ export default function ThermalReceipt({ order }) {
                     <>
                         <div className="receipt-divider"></div>
                         <div className="receipt-section">
-                            <div className="receipt-section-title">ENDEREÇO DE ENTREGA</div>
+                            <div className="receipt-section-title" style={{ fontSize: '13px', letterSpacing: '-0.3px', whiteSpace: 'nowrap' }}>ENDEREÇO DE ENTREGA</div>
                             <div>
                                 {typeof order.endereco === 'string'
                                     ? order.endereco.toUpperCase()
@@ -195,7 +195,7 @@ export default function ThermalReceipt({ order }) {
                 <div className="receipt-divider"></div>
 
                 <div className="receipt-section">
-                    <div className="receipt-section-title">FORMA DE PAGAMENTO</div>
+                    <div className="receipt-section-title" style={{ fontSize: '13px', letterSpacing: '-0.3px', whiteSpace: 'nowrap' }}>FORMA DE PAGAMENTO</div>
                     <div className="receipt-data-row">
                         <span>{
                             order.forma_pagamento === 'cartao_credito' ? 'CARTÃO CRÉDITO' :

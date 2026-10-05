@@ -149,7 +149,7 @@ export default function OrdersPage() {
 body { width: 48mm; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 14px; line-height: 1.2; text-transform: uppercase; font-weight: 700; color: #000; background: #fff; }
 img { max-width: 35mm; display: block; margin: 0 auto 2mm; filter: grayscale(1) contrast(2); }
 .receipt-divider { border-top: 2px dashed black; margin: 2.5mm 0; }
-.receipt-section-title { text-align: center; font-weight: 900; font-size: 16px; margin-bottom: 2mm; border: 1px solid black; padding: 0.5mm; }
+.receipt-section-title { text-align: center; font-weight: 900; font-size: 13.5px; letter-spacing: -0.2px; margin-bottom: 2mm; border: 1px solid black; padding: 0.4mm 0.5mm; }
 .receipt-header-info { text-align: center; margin-bottom: 4mm; }
 .receipt-order-num { font-size: 24px; font-weight: 950; margin-bottom: 1mm; }
 .receipt-data-row { display: flex; justify-content: space-between; margin-bottom: 1mm; }
