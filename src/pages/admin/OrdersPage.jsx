@@ -156,12 +156,13 @@ img { max-width: 35mm; display: block; margin: 0 auto 2mm; filter: grayscale(1) 
 .receipt-label { font-weight: 900; }
 .receipt-table { width: 100%; border-collapse: collapse; margin: 3mm 0; table-layout: fixed; }
 .receipt-table th { text-align: left; border-bottom: 2px solid black; padding-bottom: 1mm; font-size: 13px; font-weight: 900; }
-.receipt-table th:first-child { width: 18%; }
+.receipt-table th:first-child { width: 20%; text-align: center; }
 .receipt-table td { padding: 2mm 0; vertical-align: top; font-size: 15px; font-weight: 800; }
+.receipt-table td:first-child { text-align: center; }
 .receipt-table td:nth-child(2) { word-break: break-word; overflow-wrap: break-word; }
 .receipt-item-details { font-size: 12px; font-weight: 800; padding-left: 1mm; margin-top: 1mm; line-height: 1.4; }
 .receipt-total-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; margin-bottom: 1mm; white-space: nowrap; }
-.receipt-total-big { font-size: 22px; font-weight: 950; margin-top: 2.5mm; border-top: 2px dashed black; padding-top: 2.5mm; display: flex; justify-content: space-between; }
+.receipt-total-big { font-size: 16px; font-weight: 950; margin-top: 2mm; border-top: 2px dashed black; padding-top: 2mm; display: flex; justify-content: space-between; align-items: baseline; white-space: nowrap; }
 .receipt-footer-msg { text-align: center; margin-top: 4mm; font-size: 14px; font-weight: 800; }
 .receipt-end-line { margin-top: 15mm; border-bottom: 0.5px solid black; width: 100%; }
 </style>

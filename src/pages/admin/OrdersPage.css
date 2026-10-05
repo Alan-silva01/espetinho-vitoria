@@ -2854,13 +2854,15 @@
     }
 
     .receipt-total-big {
-        font-size: 22px;
+        font-size: 16px;
         font-weight: 950;
-        margin-top: 2.5mm;
+        margin-top: 2mm;
         border-top: 2px dashed black;
-        padding-top: 2.5mm;
+        padding-top: 2mm;
         display: flex;
         justify-content: space-between;
+        align-items: baseline;
+        white-space: nowrap;
     }
 
     .receipt-footer-msg {

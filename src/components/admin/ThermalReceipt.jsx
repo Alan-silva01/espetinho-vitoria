@@ -27,7 +27,10 @@ export default function ThermalReceipt({ order }) {
                                 ? (order.nome_cliente?.toUpperCase().includes('MESA') ? order.nome_cliente?.toUpperCase() : `MESA - ${order.nome_cliente?.toUpperCase()}`)
                                 : 'RETIRADA'}
                     </h2>
-                    <div className="receipt-order-num">PEDIDO {order.numero_pedido}</div>
+                    <div style={{ textAlign: 'center', lineHeight: '1.1' }}>
+                        <div style={{ fontSize: '24px', fontWeight: '950', letterSpacing: '0.5px' }}>{order.numero_pedido}</div>
+                        <div style={{ fontSize: '11px', fontWeight: '800', letterSpacing: '1px', opacity: 0.85, marginTop: '1px' }}>PEDIDO</div>
+                    </div>
                     <div className="receipt-date">
                         {new Date(order.criado_em).toLocaleDateString('pt-BR')} - {new Date(order.criado_em).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                     </div>
@@ -45,7 +48,7 @@ export default function ThermalReceipt({ order }) {
 
                 <div className="receipt-section">
                     <div className="receipt-section-title">CLIENTE</div>
-                    <div style={{ textAlign: 'center', fontSize: '15px', fontWeight: '900', marginBottom: '1.5mm' }}>
+                    <div style={{ textAlign: 'center', fontSize: '13px', fontWeight: '800', lineHeight: '1.2', marginBottom: '1.5mm', wordBreak: 'break-word' }}>
                         {order.nome_cliente?.toUpperCase() || 'N/A'}
                     </div>
                     <div className="receipt-data-row">
@@ -77,15 +80,15 @@ export default function ThermalReceipt({ order }) {
                     <table className="receipt-table">
                         <thead>
                             <tr>
-                                <th style={{ width: '18%', paddingRight: '2mm' }}>QTD</th>
-                                <th style={{ width: '82%', paddingLeft: '1mm' }}>ITENS</th>
+                                <th style={{ width: '20%', textAlign: 'center' }}>QTD</th>
+                                <th style={{ width: '80%', paddingLeft: '1.5mm' }}>ITENS</th>
                             </tr>
                         </thead>
                         <tbody>
                             {order.itens?.map((item, i) => (
                                 <tr key={i} style={{ borderBottom: '1px dashed #ddd' }}>
-                                    <td style={{ verticalAlign: 'top', paddingTop: '1.5mm' }}>{item.quantidade}</td>
-                                    <td style={{ paddingTop: '1.5mm', paddingBottom: '1.5mm' }}>
+                                    <td style={{ verticalAlign: 'top', paddingTop: '1.5mm', textAlign: 'center', fontWeight: '950', fontSize: '15px' }}>{item.quantidade}</td>
+                                    <td style={{ paddingTop: '1.5mm', paddingBottom: '1.5mm', paddingLeft: '1.5mm' }}>
                                         <div style={{ fontSize: '14.5px', fontWeight: '900', wordBreak: 'break-word', lineHeight: '1.2' }}>
                                             {getItemDisplayName(item)?.toUpperCase()}
                                         </div>
