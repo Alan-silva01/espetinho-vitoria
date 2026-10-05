@@ -1,14 +1,32 @@
 {
-  "name": "temp-vite",
+  "name": "espetinho-vitoria-caixa",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "main": "electron/main.js",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "node --test test/*.spec.test.js"
+    "test": "node --test test/*.spec.test.js",
+    "electron:dev": "ELECTRON_SKIP_BINARY_DOWNLOAD=1 electron .",
+    "electron:build": "ELECTRON_SKIP_BINARY_DOWNLOAD=1 electron-builder --win portable"
+  },
+  "build": {
+    "appId": "com.espetinhovitoria.caixa",
+    "productName": "Espetinho Vitoria",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "win": {
+      "target": "portable",
+      "icon": "logo.png"
+    },
+    "files": [
+      "electron/**/*",
+      "logo.png"
+    ]
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.95.3",
@@ -26,6 +44,8 @@
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",
+    "electron": "^44.5.1",
+    "electron-builder": "^26.15.3",
     "eslint": "^9.39.1",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",

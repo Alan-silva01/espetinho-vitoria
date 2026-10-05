@@ -182,7 +182,7 @@ img { max-width: 35mm; display: block; margin: 0 auto 2mm; filter: grayscale(1) 
         clone.remove()
     }
 
-    // Auto-print: fetch order, render #thermal-receipt, print via QZ Tray (or fallback)
+    // Auto-print: fetch order, render #thermal-receipt, print via Electron (nativo) → QZ Tray → window.print()
     const autoPrintOrder = async (orderId) => {
         try {
             const { data: order, error } = await supabase
@@ -210,9 +210,24 @@ img { max-width: 35mm; display: block; margin: 0 auto 2mm; filter: grayscale(1) 
             // Wait for React to render
             await new Promise(resolve => setTimeout(resolve, 400))
 
-            // Try QZ Tray first (silent), fallback to window.print()
-            if (qzConnectedRef.current) {
-                const html = getReceiptHtml()
+            const html = getReceiptHtml()
+
+            // ── Prioridade 1: Electron (app desktop do caixa, Windows nativo) ──
+            // window.electronAPI só existe quando rodando dentro do .exe do caixa.
+            // Em navegadores comuns (celular, Chrome) essa verificação retorna false
+            // e o código segue para o próximo fallback sem nenhum erro.
+            if (window.electronAPI?.printReceipt && html) {
+                const savedPrinter = localStorage.getItem('espetinho_qz_printer') || ''
+                const result = await window.electronAPI.printReceipt(html, savedPrinter)
+                if (result?.success) {
+                    console.log('[AutoPrint] ✅ Electron nativo — Pedido #' + order.numero_pedido)
+                } else {
+                    console.warn('[AutoPrint] Electron falhou:', result?.error)
+                    browserPrint()
+                }
+            }
+            // ── Prioridade 2: QZ Tray (impressão silenciosa via Java) ──
+            else if (qzConnectedRef.current) {
                 if (html) {
                     const success = await qzPrintHtml(html)
                     if (success) {
@@ -224,7 +239,9 @@ img { max-width: 35mm; display: block; margin: 0 auto 2mm; filter: grayscale(1) 
                 } else {
                     browserPrint()
                 }
-            } else {
+            }
+            // ── Fallback: diálogo de impressão do navegador ──
+            else {
                 browserPrint()
             }
 
