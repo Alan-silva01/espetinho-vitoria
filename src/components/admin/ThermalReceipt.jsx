@@ -45,9 +45,8 @@ export default function ThermalReceipt({ order }) {
 
                 <div className="receipt-section">
                     <div className="receipt-section-title">CLIENTE</div>
-                    <div className="receipt-data-row">
-                        <span className="receipt-label">NOME:</span>
-                        <span>{order.nome_cliente?.toUpperCase() || 'N/A'}</span>
+                    <div style={{ textAlign: 'center', fontSize: '15px', fontWeight: '900', marginBottom: '1.5mm' }}>
+                        {order.nome_cliente?.toUpperCase() || 'N/A'}
                     </div>
                     <div className="receipt-data-row">
                         <span className="receipt-label">TEL:</span>
