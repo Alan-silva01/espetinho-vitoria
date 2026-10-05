@@ -22,4 +22,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Retorna: { success: boolean, error?: string }
   printReceipt: (html, printerName) =>
     ipcRenderer.invoke('print-receipt', html, printerName),
+
+  // Controle de janela (barra de título customizada)
+  minimizeWindow: () => ipcRenderer.send('window-minimize'),
+  maximizeWindow: () => ipcRenderer.send('window-maximize'),
+  closeWindow: () => ipcRenderer.send('window-close'),
 })

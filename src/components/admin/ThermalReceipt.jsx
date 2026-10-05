@@ -1,5 +1,5 @@
 import { formatCurrency, getSmartItemName } from '../../lib/utils'
-import logoImg from '../../../logo.png'
+import { LOGO_BASE64 } from '../../lib/logoBase64'
 
 const getItemDisplayName = (item) => {
     return getSmartItemName(
@@ -16,7 +16,7 @@ export default function ThermalReceipt({ order }) {
         <div id="thermal-receipt">
             <div className="receipt-print-container">
                 <div className="receipt-logo-container">
-                    <img src={logoImg} alt="VITORIA" className="receipt-logo" />
+                    <img src={LOGO_BASE64} alt="VITORIA" className="receipt-logo" />
                 </div>
 
                 <div className="receipt-header-info">
