@@ -152,7 +152,7 @@ img { max-width: 35mm; display: block; margin: 0 auto 2mm; filter: grayscale(1) 
 .receipt-section-title { text-align: center; font-weight: 900; font-size: 13.5px; letter-spacing: -0.2px; margin-bottom: 2mm; border: 1px solid black; padding: 0.4mm 0.5mm; }
 .receipt-header-info { text-align: center; margin-bottom: 4mm; }
 .receipt-order-num { font-size: 24px; font-weight: 950; margin-bottom: 1mm; }
-.receipt-data-row { display: flex; justify-content: space-between; margin-bottom: 1mm; }
+.receipt-data-row { display: flex; justify-content: space-between; align-items: baseline; gap: 2mm; margin-bottom: 1mm; }
 .receipt-label { font-weight: 900; }
 .receipt-table { width: 100%; border-collapse: collapse; margin: 3mm 0; table-layout: fixed; }
 .receipt-table th { text-align: left; border-bottom: 2px solid black; padding-bottom: 1mm; font-size: 13px; font-weight: 900; }

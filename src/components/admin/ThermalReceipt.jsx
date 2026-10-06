@@ -47,14 +47,23 @@ export default function ThermalReceipt({ order }) {
                 <div className="receipt-divider"></div>
 
                 <div className="receipt-section">
-                    <div className="receipt-section-title">CLIENTE</div>
-                    <div style={{ textAlign: 'center', fontSize: '13px', fontWeight: '800', lineHeight: '1.2', marginBottom: '1.5mm', wordBreak: 'break-word' }}>
+                    <div className="receipt-section-title">{order.tipo_pedido === 'mesa' ? 'IDENTIFICAÇÃO' : 'CLIENTE'}</div>
+                    <div style={{ 
+                        textAlign: 'center', 
+                        fontSize: '13px', 
+                        fontWeight: '800', 
+                        lineHeight: '1.2', 
+                        marginBottom: (order.tipo_pedido !== 'mesa' && order.telefone_cliente && !/^0+$/.test(String(order.telefone_cliente).trim())) ? '1.5mm' : '0', 
+                        wordBreak: 'break-word' 
+                    }}>
                         {order.nome_cliente?.toUpperCase() || 'N/A'}
                     </div>
-                    <div className="receipt-data-row">
-                        <span className="receipt-label">TEL:</span>
-                        <span>{order.telefone_cliente || order.clientes?.telefone || 'N/A'}</span>
-                    </div>
+                    {order.tipo_pedido !== 'mesa' && order.telefone_cliente && !/^0+$/.test(String(order.telefone_cliente).trim()) && (
+                        <div className="receipt-data-row">
+                            <span className="receipt-label">TEL:</span>
+                            <span>{order.telefone_cliente || order.clientes?.telefone || 'N/A'}</span>
+                        </div>
+                    )}
                 </div>
 
                 {order.tipo_pedido === 'entrega' && order.endereco && (
@@ -199,13 +208,14 @@ export default function ThermalReceipt({ order }) {
 
                 <div className="receipt-section">
                     <div className="receipt-section-title" style={{ fontSize: '13px', letterSpacing: '-0.3px', whiteSpace: 'nowrap' }}>FORMA DE PAGAMENTO</div>
-                    <div className="receipt-data-row">
+                    <div className="receipt-data-row" style={{ gap: '2mm' }}>
                         <span>{
+                            order.forma_pagamento === 'pagar_na_mesa' ? 'NA MESA' :
                             order.forma_pagamento === 'cartao_credito' ? 'CARTÃO CRÉDITO' :
-                                order.forma_pagamento === 'cartao_debito' ? 'CARTÃO DÉBITO' :
-                                    order.forma_pagamento?.toUpperCase()
+                            order.forma_pagamento === 'cartao_debito' ? 'CARTÃO DÉBITO' :
+                            order.forma_pagamento?.replace(/_/g, ' ').toUpperCase()
                         }</span>
-                        <span>{formatCurrency(order.valor_total)}</span>
+                        <span style={{ whiteSpace: 'nowrap' }}>{formatCurrency(order.valor_total)}</span>
                     </div>
                     {order.troco_para && (
                         <div className="receipt-data-row" style={{ marginTop: '2mm' }}>
@@ -215,15 +225,21 @@ export default function ThermalReceipt({ order }) {
                     )}
                 </div>
 
-                {order.observacoes && (
-                    <>
-                        <div className="receipt-divider"></div>
-                        <div className="receipt-section">
-                            <div className="receipt-section-title">OBSERVAÇÃO GERAL</div>
-                            <div style={{ textAlign: 'center', fontWeight: 'bold' }}>{order.observacoes.toUpperCase()}</div>
-                        </div>
-                    </>
-                )}
+                {order.observacoes && (() => {
+                    const cleanObs = order.observacoes.trim()
+                    if (order.tipo_pedido === 'mesa' && /^mesa\s*\d+$/i.test(cleanObs)) {
+                        return null
+                    }
+                    return (
+                        <>
+                            <div className="receipt-divider"></div>
+                            <div className="receipt-section">
+                                <div className="receipt-section-title">OBSERVAÇÃO GERAL</div>
+                                <div style={{ textAlign: 'center', fontWeight: 'bold' }}>{cleanObs.toUpperCase()}</div>
+                            </div>
+                        </>
+                    )
+                })()}
 
                 <div className="receipt-footer-msg">
                     <div className="footer">
