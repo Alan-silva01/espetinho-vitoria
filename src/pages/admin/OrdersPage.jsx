@@ -184,32 +184,62 @@ img { max-width: 35mm; display: block; margin: 0 auto 2mm; filter: grayscale(1) 
     }
 
     // Auto-print: fetch order, render #thermal-receipt, print via Electron (nativo) → QZ Tray → window.print()
+    // Usa retry inteligente: se os itens ainda não foram gravados pelo celular do cliente,
+    // aguarda 500ms e tenta novamente (até 3x) em vez de esperar cegamente 2,5 segundos.
     const autoPrintOrder = async (orderId) => {
-        try {
-            const { data: order, error } = await supabase
-                .from('pedidos')
-                .select(`
-                    *,
-                    itens:itens_pedido(
-                        *,
-                        produtos(nome, opcoes_personalizacao),
-                        variacoes_produto(nome)
-                    ),
-                    clientes(telefone, nome, avatr_url)
-                `)
-                .eq('id', orderId)
-                .single()
+        const MAX_RETRIES = 3
+        const RETRY_DELAY = 500 // ms entre tentativas se itens estiverem vazios
 
-            if (error || !order) {
-                console.error('[AutoPrint] Erro ao buscar pedido:', error)
-                return
+        try {
+            let order = null
+
+            // ── Busca com retry: garante que os itens existam antes de imprimir ──
+            for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+                const { data, error } = await supabase
+                    .from('pedidos')
+                    .select(`
+                        *,
+                        itens:itens_pedido(
+                            *,
+                            produtos(nome, opcoes_personalizacao),
+                            variacoes_produto(nome)
+                        ),
+                        clientes(telefone, nome, avatr_url)
+                    `)
+                    .eq('id', orderId)
+                    .single()
+
+                if (error || !data) {
+                    console.error(`[AutoPrint] Tentativa ${attempt}/${MAX_RETRIES} — Erro ao buscar pedido:`, error)
+                    if (attempt < MAX_RETRIES) {
+                        await new Promise(r => setTimeout(r, RETRY_DELAY))
+                        continue
+                    }
+                    return // Todas as tentativas falharam
+                }
+
+                // Verificação de segurança: os itens já foram gravados no banco?
+                if (!data.itens || data.itens.length === 0) {
+                    console.log(`[AutoPrint] Tentativa ${attempt}/${MAX_RETRIES} — Itens ainda não gravados, aguardando...`)
+                    if (attempt < MAX_RETRIES) {
+                        await new Promise(r => setTimeout(r, RETRY_DELAY))
+                        continue
+                    }
+                    // Última tentativa: imprime mesmo assim (melhor imprimir algo do que nada)
+                    console.warn('[AutoPrint] ⚠️ Itens ainda vazios após 3 tentativas, imprimindo mesmo assim')
+                }
+
+                order = data
+                break
             }
+
+            if (!order) return
 
             // Set selectedOrder — React renders #thermal-receipt
             setSelectedOrder(order)
 
-            // Wait for React to render
-            await new Promise(resolve => setTimeout(resolve, 400))
+            // Wait for React to render (150ms é suficiente para montar o DOM do recibo)
+            await new Promise(resolve => setTimeout(resolve, 150))
 
             const html = getReceiptHtml()
 
@@ -291,8 +321,10 @@ img { max-width: 35mm; display: block; margin: 0 auto 2mm; filter: grayscale(1) 
                     scheduleFetchRef.current?.(800)
 
                     // Auto-print if enabled (skip table orders)
+                    // Delay de 300ms: dá tempo mínimo para os itens serem gravados.
+                    // Se ainda não estiverem prontos, o retry dentro de autoPrintOrder cuida.
                     if (autoPrintRef.current && payload.new?.id && payload.new?.tipo_pedido !== 'mesa') {
-                        setTimeout(() => autoPrintOrder(payload.new.id), 2500)
+                        setTimeout(() => autoPrintOrder(payload.new.id), 300)
                     }
                 }
 
