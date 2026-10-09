@@ -45,9 +45,14 @@ function createWindow() {
     height: 800,
     title: 'Espetinho Vitória — Caixa',
     icon: path.join(__dirname, 'icon.ico'), // Ícone oficial na barra de tarefas e Alt+Tab
-    frame: true,                     // Barra e botões 100% nativos do Windows
+    titleBarStyle: 'hidden',
+    titleBarOverlay: {
+      color: '#00000000',            // Fundo 100% transparente: usa o fundo cinza claro da aplicação
+      symbolColor: '#1a1a1a',        // Cor dos símbolos do Windows (minimizar, maximizar, fechar)
+      height: 36,                    // Altura exata de 36px para casar com o respiro do topo
+    },
     autoHideMenuBar: true,
-    backgroundColor: '#1a1a2e',      // Evita flash de tela branca durante o carregamento
+    backgroundColor: '#EEEFF1',      // Fundo padrão claro da aplicação
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
       contextIsolation: true,        // Segurança: React não acessa Node diretamente
@@ -59,6 +64,36 @@ function createWindow() {
   mainWindow.removeMenu()
 
   mainWindow.loadURL(ADMIN_URL)
+
+  // ── Área arrastável nativa no topo (36px) sem sobrepor botões ou elementos clicáveis ──
+  mainWindow.webContents.on('did-finish-load', () => {
+    mainWindow.webContents.insertCSS(`
+      /* Área de arraste no topo de 36px para mover a janela */
+      #electron-drag-region {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 140px; /* Deixa livre os botões nativos do Windows no canto superior direito */
+        height: 36px;
+        -webkit-app-region: drag;
+        z-index: 99998;
+        pointer-events: none;
+      }
+      /* Garante que qualquer botão ou input abaixo continue clicável */
+      button, input, select, a, [role="button"], .mobile-menu-toggle {
+        -webkit-app-region: no-drag !important;
+      }
+    `).catch(() => {})
+
+    mainWindow.webContents.executeJavaScript(`
+      (function() {
+        if (document.getElementById('electron-drag-region')) return;
+        const dragDiv = document.createElement('div');
+        dragDiv.id = 'electron-drag-region';
+        document.body.prepend(dragDiv);
+      })()
+    `).catch(() => {})
+  })
 
 
   // Bloqueia navegação para qualquer domínio externo ao Espetinho Vitória
