@@ -45,7 +45,7 @@ function createWindow() {
     height: 800,
     title: 'Espetinho Vitória — Caixa',
     icon: path.join(__dirname, 'icon.ico'), // Ícone oficial na barra de tarefas e Alt+Tab
-    frame: false,                    // Remove a barra de título nativa do Windows
+    frame: true,                     // Barra e botões 100% nativos do Windows
     autoHideMenuBar: true,
     backgroundColor: '#1a1a2e',      // Evita flash de tela branca durante o carregamento
     webPreferences: {
