@@ -11,17 +11,27 @@
     "preview": "vite preview",
     "test": "node --test test/*.spec.test.js",
     "electron:dev": "ELECTRON_SKIP_BINARY_DOWNLOAD=1 electron .",
-    "electron:build": "ELECTRON_SKIP_BINARY_DOWNLOAD=1 electron-builder --win portable --x64"
+    "electron:build": "ELECTRON_SKIP_BINARY_DOWNLOAD=1 electron-builder --win nsis --x64"
   },
   "build": {
     "appId": "com.espetinhovitoria.caixa",
-    "productName": "Espetinho Vitoria",
+    "productName": "Espetinho Vitória - Caixa",
     "directories": {
       "output": "dist-electron"
     },
     "win": {
-      "target": "portable",
+      "target": "nsis",
       "icon": "electron/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Espetinho Vitória - Caixa",
+      "installerIcon": "electron/icon.ico",
+      "uninstallerIcon": "electron/icon.ico",
+      "deleteAppDataOnUninstall": true
     },
     "files": [
       "electron/**/*",
