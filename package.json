@@ -37,12 +37,20 @@
       "electron/**/*",
       "logo.png"
     ],
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "Alan-silva01",
+        "repo": "espetinho-vitoria"
+      }
+    ],
     "extraMetadata": {
       "main": "electron/main.cjs"
     }
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.95.3",
+    "electron-updater": "^6.8.9",
     "lucide-react": "^0.563.0",
     "mapbox-gl": "^3.32.0",
     "qrcode.react": "^4.2.0",

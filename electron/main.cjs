@@ -17,7 +17,9 @@ const {
   Menu,
   ipcMain,
   powerSaveBlocker,
+  dialog,
 } = require('electron')
+const { autoUpdater } = require('electron-updater')
 const path = require('path')
 
 // ── Desativa menu padrão do sistema (File, Edit, View, Window) ───────────────
@@ -115,6 +117,42 @@ app.whenReady().then(() => {
   powerSaveBlocker.start('prevent-app-suspension')
 
   createWindow()
+
+  // ── Auto-Update (GitHub Releases) ─────────────────────────────────────────
+  if (app.isPackaged) {
+    autoUpdater.autoDownload = true
+    autoUpdater.autoInstallOnAppQuit = true
+
+    autoUpdater.on('update-available', (info) => {
+      console.log('[AutoUpdater] Nova versão encontrada:', info.version)
+    })
+
+    autoUpdater.on('update-downloaded', (info) => {
+      console.log('[AutoUpdater] Atualização baixada com sucesso:', info.version)
+      dialog.showMessageBox(mainWindow, {
+        type: 'info',
+        title: 'Atualização do Caixa',
+        message: `Uma nova versão (${info.version}) do aplicativo foi baixada!`,
+        detail: 'Deseja reiniciar o aplicativo agora para aplicar a atualização?',
+        buttons: ['Reiniciar Agora', 'Depois'],
+        defaultId: 0,
+        cancelId: 1,
+      }).then((result) => {
+        if (result.response === 0) {
+          autoUpdater.quitAndInstall()
+        }
+      })
+    })
+
+    autoUpdater.on('error', (err) => {
+      console.warn('[AutoUpdater] Verificação de update:', err?.message || err)
+    })
+
+    // Checa por atualizações após 3 segundos de abertura
+    setTimeout(() => {
+      autoUpdater.checkForUpdates().catch(() => {})
+    }, 3000)
+  }
 })
 
 // ── Se tentar abrir uma segunda instância, foca na que já está aberta ────────
