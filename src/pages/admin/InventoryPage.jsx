@@ -327,6 +327,241 @@ export default function InventoryPage() {
         }
     }
 
+    // Atualizar quantidade de um sabor de copo de suco (e sincronizar com a jarra se zerar ou reabastecer)
+    const updateJuiceCupStock = async (saborNome, newQty) => {
+        const copoProduct = inventory.find(p => p.id === 'b0000001-0001-0001-0001-000000000001')
+        const jarraProduct = inventory.find(p => p.id === 'b0000001-0001-0001-0001-000000000002')
+        if (!copoProduct) return
+
+        const val = newQty === '' || newQty === null ? null : Math.max(0, parseInt(newQty) || 0)
+        setSavingItem(`juice-cup-${saborNome}`)
+
+        try {
+            // 1. Atualizar opções do Copo
+            const updatedCopoOpts = JSON.parse(JSON.stringify(copoProduct.opcoes_personalizacao || []))
+            const copoGroup = updatedCopoOpts.find(g => (g.grupo || '').toLowerCase().includes('sabor'))
+            if (!copoGroup) return
+
+            const copoOptIdx = copoGroup.opcoes.findIndex(o => (typeof o === 'string' ? o : o.nome) === saborNome)
+            if (copoOptIdx === -1) return
+
+            const copoOpt = copoGroup.opcoes[copoOptIdx]
+            const isAvailable = val === null || val > 0
+            copoGroup.opcoes[copoOptIdx] = typeof copoOpt === 'string'
+                ? { nome: copoOpt, preco: 0, disponivel: isAvailable, quantidade: val }
+                : { ...copoOpt, disponivel: isAvailable, quantidade: val }
+
+            const { error: copoErr } = await supabase
+                .from('produtos')
+                .update({ opcoes_personalizacao: updatedCopoOpts })
+                .eq('id', copoProduct.id)
+            if (copoErr) throw copoErr
+
+            // 2. Sincronizar com a Jarra: Se o copo zerou (val === 0) -> desativa jarra. Se reabasteceu (val > 0) -> reativa jarra.
+            let updatedJarraOpts = null
+            if (jarraProduct && jarraProduct.opcoes_personalizacao) {
+                updatedJarraOpts = JSON.parse(JSON.stringify(jarraProduct.opcoes_personalizacao || []))
+                const jarraGroup = updatedJarraOpts.find(g => (g.grupo || '').toLowerCase().includes('sabor'))
+                if (jarraGroup) {
+                    const jarraOptIdx = jarraGroup.opcoes.findIndex(o => (typeof o === 'string' ? o : o.nome) === saborNome)
+                    if (jarraOptIdx !== -1) {
+                        const jarraOpt = jarraGroup.opcoes[jarraOptIdx]
+                        const jarraNextAvailable = val === 0 ? false : true
+                        jarraGroup.opcoes[jarraOptIdx] = typeof jarraOpt === 'string'
+                            ? { nome: jarraOpt, preco: 0, disponivel: jarraNextAvailable }
+                            : { ...jarraOpt, disponivel: jarraNextAvailable }
+
+                        const { error: jarraErr } = await supabase
+                            .from('produtos')
+                            .update({ opcoes_personalizacao: updatedJarraOpts })
+                            .eq('id', jarraProduct.id)
+                        if (jarraErr) throw jarraErr
+                    }
+                }
+            }
+
+            // Atualiza estado local de ambos
+            setInventory(prev => prev.map(p => {
+                if (p.id === copoProduct.id) return { ...p, opcoes_personalizacao: updatedCopoOpts }
+                if (jarraProduct && p.id === jarraProduct.id && updatedJarraOpts) return { ...p, opcoes_personalizacao: updatedJarraOpts }
+                return p
+            }))
+        } catch (err) {
+            console.error('Erro ao atualizar estoque do suco:', err)
+        } finally {
+            setSavingItem(null)
+        }
+    }
+
+    // Toggle disponibilidade do sabor do copo (Liga / Desliga manual)
+    const toggleJuiceCupAvailability = async (saborNome) => {
+        const copoProduct = inventory.find(p => p.id === 'b0000001-0001-0001-0001-000000000001')
+        const jarraProduct = inventory.find(p => p.id === 'b0000001-0001-0001-0001-000000000002')
+        if (!copoProduct) return
+
+        const updatedCopoOpts = JSON.parse(JSON.stringify(copoProduct.opcoes_personalizacao || []))
+        const copoGroup = updatedCopoOpts.find(g => (g.grupo || '').toLowerCase().includes('sabor'))
+        if (!copoGroup) return
+        const optIdx = copoGroup.opcoes.findIndex(o => (typeof o === 'string' ? o : o.nome) === saborNome)
+        if (optIdx === -1) return
+
+        const opt = copoGroup.opcoes[optIdx]
+        const currentAvail = typeof opt === 'string' ? true : (opt.disponivel !== false)
+        const nextAvail = !currentAvail
+
+        setSavingItem(`juice-cup-${saborNome}`)
+        try {
+            copoGroup.opcoes[optIdx] = typeof opt === 'string'
+                ? { nome: opt, preco: 0, disponivel: nextAvail }
+                : { ...opt, disponivel: nextAvail }
+
+            const { error: copoErr } = await supabase
+                .from('produtos')
+                .update({ opcoes_personalizacao: updatedCopoOpts })
+                .eq('id', copoProduct.id)
+            if (copoErr) throw copoErr
+
+            // Se desativou o copo, desativa a jarra também. Se ativou o copo, reativa a jarra se tiver estoque
+            let updatedJarraOpts = null
+            if (jarraProduct && jarraProduct.opcoes_personalizacao) {
+                updatedJarraOpts = JSON.parse(JSON.stringify(jarraProduct.opcoes_personalizacao || []))
+                const jarraGroup = updatedJarraOpts.find(g => (g.grupo || '').toLowerCase().includes('sabor'))
+                if (jarraGroup) {
+                    const jarraOptIdx = jarraGroup.opcoes.findIndex(o => (typeof o === 'string' ? o : o.nome) === saborNome)
+                    if (jarraOptIdx !== -1) {
+                        const jarraOpt = jarraGroup.opcoes[jarraOptIdx]
+                        const jarraNextAvail = nextAvail
+                        jarraGroup.opcoes[jarraOptIdx] = typeof jarraOpt === 'string'
+                            ? { nome: jarraOpt, preco: 0, disponivel: jarraNextAvail }
+                            : { ...jarraOpt, disponivel: jarraNextAvail }
+
+                        await supabase
+                            .from('produtos')
+                            .update({ opcoes_personalizacao: updatedJarraOpts })
+                            .eq('id', jarraProduct.id)
+                    }
+                }
+            }
+
+            setInventory(prev => prev.map(p => {
+                if (p.id === copoProduct.id) return { ...p, opcoes_personalizacao: updatedCopoOpts }
+                if (jarraProduct && p.id === jarraProduct.id && updatedJarraOpts) return { ...p, opcoes_personalizacao: updatedJarraOpts }
+                return p
+            }))
+        } catch (err) {
+            console.error('Erro ao alternar disponibilidade do sabor do copo:', err)
+        } finally {
+            setSavingItem(null)
+        }
+    }
+
+    // Toggle disponibilidade do sabor da Jarra (Liga / Desliga manual individual da jarra)
+    const toggleJuiceJarraAvailability = async (saborNome) => {
+        const jarraProduct = inventory.find(p => p.id === 'b0000001-0001-0001-0001-000000000002')
+        if (!jarraProduct) return
+
+        const updatedJarraOpts = JSON.parse(JSON.stringify(jarraProduct.opcoes_personalizacao || []))
+        const jarraGroup = updatedJarraOpts.find(g => (g.grupo || '').toLowerCase().includes('sabor'))
+        if (!jarraGroup) return
+        const optIdx = jarraGroup.opcoes.findIndex(o => (typeof o === 'string' ? o : o.nome) === saborNome)
+        if (optIdx === -1) return
+
+        const opt = jarraGroup.opcoes[optIdx]
+        const currentAvail = typeof opt === 'string' ? true : (opt.disponivel !== false)
+        const nextAvail = !currentAvail
+
+        setSavingItem(`juice-jarra-${saborNome}`)
+        try {
+            jarraGroup.opcoes[optIdx] = typeof opt === 'string'
+                ? { nome: opt, preco: 0, disponivel: nextAvail }
+                : { ...opt, disponivel: nextAvail }
+
+            const { error } = await supabase
+                .from('produtos')
+                .update({ opcoes_personalizacao: updatedJarraOpts })
+                .eq('id', jarraProduct.id)
+            if (error) throw error
+
+            setInventory(prev => prev.map(p => p.id === jarraProduct.id ? { ...p, opcoes_personalizacao: updatedJarraOpts } : p))
+        } catch (err) {
+            console.error('Erro ao alternar disponibilidade da jarra:', err)
+        } finally {
+            setSavingItem(null)
+        }
+    }
+
+    // Atualizar quantidade de uma opção/sabor de refrigerante (Lata ou Garrafa)
+    const updateSodaStock = async (productId, groupName, optionName, newQty) => {
+        const prod = inventory.find(p => p.id === productId)
+        if (!prod) return
+
+        const val = newQty === '' || newQty === null ? null : Math.max(0, parseInt(newQty) || 0)
+        setSavingItem(`soda-${productId}-${groupName}-${optionName}`)
+
+        try {
+            const updatedOpts = JSON.parse(JSON.stringify(prod.opcoes_personalizacao || []))
+            const group = updatedOpts.find(g => g.grupo === groupName)
+            if (!group) return
+
+            const optIdx = group.opcoes.findIndex(o => (typeof o === 'string' ? o : o.nome) === optionName)
+            if (optIdx === -1) return
+
+            const opt = group.opcoes[optIdx]
+            const isAvailable = val === null || val > 0
+            group.opcoes[optIdx] = typeof opt === 'string'
+                ? { nome: opt, preco: 0, disponivel: isAvailable, quantidade: val }
+                : { ...opt, disponivel: isAvailable, quantidade: val }
+
+            const { error } = await supabase
+                .from('produtos')
+                .update({ opcoes_personalizacao: updatedOpts })
+                .eq('id', prod.id)
+            if (error) throw error
+
+            setInventory(prev => prev.map(p => p.id === prod.id ? { ...p, opcoes_personalizacao: updatedOpts } : p))
+        } catch (err) {
+            console.error('Erro ao atualizar estoque de refrigerante:', err)
+        } finally {
+            setSavingItem(null)
+        }
+    }
+
+    // Toggle disponibilidade de opção/sabor de refrigerante (Liga / Desliga)
+    const toggleSodaAvailability = async (productId, groupName, optionName) => {
+        const prod = inventory.find(p => p.id === productId)
+        if (!prod) return
+
+        const updatedOpts = JSON.parse(JSON.stringify(prod.opcoes_personalizacao || []))
+        const group = updatedOpts.find(g => g.grupo === groupName)
+        if (!group) return
+
+        const optIdx = group.opcoes.findIndex(o => (typeof o === 'string' ? o : o.nome) === optionName)
+        if (optIdx === -1) return
+
+        const opt = group.opcoes[optIdx]
+        const currentAvail = typeof opt === 'string' ? true : (opt.disponivel !== false)
+        const nextAvail = !currentAvail
+
+        setSavingItem(`soda-${productId}-${groupName}-${optionName}`)
+        try {
+            group.opcoes[optIdx] = typeof opt === 'string'
+                ? { nome: opt, preco: 0, disponivel: nextAvail }
+                : { ...opt, disponivel: nextAvail }
+
+            const { error } = await supabase
+                .from('produtos')
+                .update({ opcoes_personalizacao: updatedOpts })
+                .eq('id', prod.id)
+            if (error) throw error
+
+            setInventory(prev => prev.map(p => p.id === prod.id ? { ...p, opcoes_personalizacao: updatedOpts } : p))
+        } catch (err) {
+            console.error('Erro ao alternar disponibilidade de refrigerante:', err)
+        } finally {
+            setSavingItem(null)
+        }
+    }
+
     const toggleVariationAvailability = async (categoryName, variationName) => {
         const affectedProducts = inventory.filter(p => p.categorias?.nome === categoryName && p.variacoes_produto?.some(v => v.nome === variationName))
         if (affectedProducts.length === 0) return
@@ -377,6 +612,7 @@ export default function InventoryPage() {
         if (activeTab === 'espetinhos') return cat === 'Espetinhos'
         if (activeTab === 'caldos') return cat === 'Caldos'
         if (activeTab === 'arroz') return cat === 'Porções' || nome.includes('arroz')
+        if (activeTab === 'sucos') return cat === 'Bebidas' && (nome.includes('suco') || nome.includes('jarra'))
         if (activeTab === 'refrigerantes') return cat === 'Bebidas' && (nome.includes('refrigerante') || nome.includes('coca') || nome.includes('guaraná') || nome.includes('sprite') || nome.includes('fanta') || nome.includes('pepsi') || nome.includes('kuat') || nome.includes('bare') || nome.includes('tuchaua') || nome.includes('lata') || nome.includes('litro'))
         if (activeTab === 'jarras_sucos') return cat === 'Bebidas' && (nome.includes('jarra') || nome.includes('litro') && nome.includes('suco'))
         if (activeTab === 'sucos_naturais') return cat === 'Bebidas' && (nome.includes('suco') || nome.includes('polpa')) && !nome.includes('jarra')
@@ -460,14 +696,13 @@ export default function InventoryPage() {
                         <button className={`inv-tab ${activeTab === 'acais' ? 'active' : ''}`} onClick={() => setActiveTab('acais')}>Açaís</button>
                         <button className={`inv-tab ${activeTab === 'espetinhos' ? 'active' : ''}`} onClick={() => setActiveTab('espetinhos')}>Espetinhos</button>
                         <button className={`inv-tab ${activeTab === 'caldos' ? 'active' : ''}`} onClick={() => setActiveTab('caldos')}>Caldos</button>
+                        <button className={`inv-tab ${activeTab === 'sucos' ? 'active' : ''}`} onClick={() => setActiveTab('sucos')}>Sucos</button>
                         <button className={`inv-tab ${activeTab === 'refrigerantes' ? 'active' : ''}`} onClick={() => setActiveTab('refrigerantes')}>Refrigerantes</button>
-                        <button className={`inv-tab ${activeTab === 'jarras_sucos' ? 'active' : ''}`} onClick={() => setActiveTab('jarras_sucos')}>Jarras de Suco</button>
-                        <button className={`inv-tab ${activeTab === 'sucos_naturais' ? 'active' : ''}`} onClick={() => setActiveTab('sucos_naturais')}>Sucos Naturais</button>
                     </div>
 
 
                     {/* Fast Entry View */}
-                    {activeTab !== 'acomp_acai' && activeTab !== 'acomp_espeto' && activeTab !== 'tamanhos_ml' && (
+                    {activeTab !== 'acomp_acai' && activeTab !== 'acomp_espeto' && activeTab !== 'tamanhos_ml' && activeTab !== 'sucos' && activeTab !== 'refrigerantes' && (
                         <div className="fast-entry-container" style={{ marginBottom: '24px' }}>
                             {inventory.filter(matchesSearch).filter(matchesTab).length === 0 ? (
                                 <div style={{ padding: '60px 20px', textAlign: 'center', color: '#9CA3AF' }}>Nenhum produto encontrado nesta categoria.</div>
@@ -485,6 +720,13 @@ export default function InventoryPage() {
                                         {inventory
                                             .filter(matchesSearch)
                                             .filter(matchesTab)
+                                            .filter(item => {
+                                                // Se estiver na aba Sucos, não mostrar os produtos globais na tabela rápida (pois o controle é 100% por sabor)
+                                                if (activeTab === 'sucos' && (item.id === 'b0000001-0001-0001-0001-000000000001' || item.id === 'b0000001-0001-0001-0001-000000000002')) {
+                                                    return false
+                                                }
+                                                return true
+                                            })
                                             .map(item => (
                                                 <tr key={item.id} className={item.is_dirty ? 'dirty' : ''}>
                                                     <td>
@@ -757,8 +999,357 @@ export default function InventoryPage() {
                                             </div>
                                         )}
 
-                                        {/* Individual product inclusion cards (Sabores Sucos, Refrigerantes, etc) */}
-                                        {activeTab !== 'acomp_acai' && activeTab !== 'acomp_espeto' && activeTab !== 'tamanhos_ml' && productsWithAddons.map(item => {
+                                        {/* Card Unificado e Especial de Sucos (Copos com Qtd + Jarras com Toggle) */}
+                                        {catName === 'Bebidas' && (activeTab === 'todos' || activeTab === 'sucos') && (() => {
+                                            const copo = items.find(i => i.id === 'b0000001-0001-0001-0001-000000000001')
+                                            const jarra = items.find(i => i.id === 'b0000001-0001-0001-0001-000000000002')
+                                            if (!copo && !jarra) return null
+
+                                            const copoGroup = copo?.opcoes_personalizacao?.find(g => (g.grupo || '').toLowerCase().includes('sabor'))
+                                            const jarraGroup = jarra?.opcoes_personalizacao?.find(g => (g.grupo || '').toLowerCase().includes('sabor'))
+                                            if (!copoGroup && !jarraGroup) return null
+
+                                            return (
+                                                <div className="addon-management-card juice-unified-card" style={{ gridColumn: '1 / -1' }}>
+                                                    <div className="addon-card-header" style={{ display: 'flex', alignItems: 'center', gap: '12px', borderBottom: '1px solid #E5E7EB', paddingBottom: '12px' }}>
+                                                        <img src={copo?.imagem_url || jarra?.imagem_url || 'https://via.placeholder.com/150'} alt="Sucos" style={{ width: '48px', height: '48px', borderRadius: '8px', objectFit: 'cover' }} />
+                                                        <div>
+                                                            <h4 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: '#111827' }}>Controle Integrado de Sucos (Por Sabor)</h4>
+                                                            <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: '#6B7280' }}>
+                                                                Defina as unidades dos <strong>Copos</strong>. Se zerar o copo, a <strong>Jarra</strong> é esgotada automaticamente.
+                                                            </p>
+                                                        </div>
+                                                    </div>
+
+                                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', marginTop: '16px' }}>
+                                                        {/* Coluna 1: Copos (Suco Natural) */}
+                                                        <div style={{ background: '#F9FAFB', padding: '14px', borderRadius: '8px', border: '1px solid #E5E7EB' }}>
+                                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', borderBottom: '1px solid #E5E7EB', paddingBottom: '8px' }}>
+                                                                <span style={{ fontSize: '13px', fontWeight: 700, color: '#1F2937', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
+                                                                    Copos (Suco Natural)
+                                                                </span>
+                                                                <span style={{ fontSize: '11px', color: '#6B7280', fontWeight: 500 }}>Qtd. em estoque</span>
+                                                            </div>
+                                                            <div className="addon-options-grid" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                                                {copoGroup?.opcoes?.map((opt, oIdx) => {
+                                                                    const name = typeof opt === 'string' ? opt : opt.nome
+                                                                    const isAvailable = typeof opt === 'string' ? true : (opt.disponivel !== false)
+                                                                    const isSaving = savingItem === `juice-cup-${name}`
+                                                                    const quantidade = typeof opt === 'object' ? (opt.quantidade ?? '') : ''
+
+                                                                    return (
+                                                                        <div key={oIdx} className={`addon-toggle-row ${!isAvailable ? 'off' : ''}`} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 10px', background: '#FFFFFF', borderRadius: '6px', border: '1px solid #E5E7EB' }}>
+                                                                            <span style={{ fontWeight: 600, fontSize: '13px', color: isAvailable ? '#111827' : '#9CA3AF' }}>{name}</span>
+                                                                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                                                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                                                    <input
+                                                                                        type="number"
+                                                                                        min="0"
+                                                                                        placeholder="0"
+                                                                                        value={quantidade}
+                                                                                        onChange={(e) => updateJuiceCupStock(name, e.target.value)}
+                                                                                        disabled={isSaving}
+                                                                                        style={{
+                                                                                            width: '56px',
+                                                                                            padding: '5px 6px',
+                                                                                            borderRadius: '6px',
+                                                                                            border: '1px solid #D1D5DB',
+                                                                                            fontSize: '13px',
+                                                                                            textAlign: 'center',
+                                                                                            fontWeight: 700,
+                                                                                            color: '#111827',
+                                                                                            background: isAvailable ? '#FFFFFF' : '#F3F4F6'
+                                                                                        }}
+                                                                                    />
+                                                                                    <span style={{ fontSize: '11px', color: '#6B7280', fontWeight: 600 }}>und</span>
+                                                                                </div>
+                                                                                <button
+                                                                                    className={`addon-toggle-btn ${isAvailable ? 'on' : 'off'}`}
+                                                                                    onClick={() => toggleJuiceCupAvailability(name)}
+                                                                                    disabled={isSaving}
+                                                                                    title={isAvailable ? 'Desativar sabor' : 'Ativar sabor'}
+                                                                                >
+                                                                                    {isSaving ? (
+                                                                                        <RefreshCw size={12} className="animate-spin" />
+                                                                                    ) : (
+                                                                                        <div className="toggle-knob" />
+                                                                                    )}
+                                                                                </button>
+                                                                            </div>
+                                                                        </div>
+                                                                    )
+                                                                })}
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Coluna 2: Jarras (Jarra de Suco) */}
+                                                        <div style={{ background: '#F9FAFB', padding: '14px', borderRadius: '8px', border: '1px solid #E5E7EB' }}>
+                                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', borderBottom: '1px solid #E5E7EB', paddingBottom: '8px' }}>
+                                                                <span style={{ fontSize: '13px', fontWeight: 700, color: '#1F2937', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
+                                                                    Jarras de Suco
+                                                                </span>
+                                                                <span style={{ fontSize: '11px', color: '#6B7280', fontWeight: 500 }}>Ativar / Desativar</span>
+                                                            </div>
+                                                            <div className="addon-options-grid" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                                                {jarraGroup?.opcoes?.map((opt, oIdx) => {
+                                                                    const name = typeof opt === 'string' ? opt : opt.nome
+                                                                    const rawAvailable = typeof opt === 'string' ? true : (opt.disponivel !== false)
+                                                                    const isSaving = savingItem === `juice-jarra-${name}`
+                                                                    
+                                                                    // Se o copo correspondente estiver com 0 unidades ou desligado, a jarra DEVE estar desligada
+                                                                    const copoOpt = copoGroup?.opcoes?.find(o => (typeof o === 'string' ? o : o.nome) === name)
+                                                                    const copoQty = typeof copoOpt === 'object' ? (copoOpt?.quantidade ?? null) : null
+                                                                    const isCopoOff = typeof copoOpt === 'object' && copoOpt?.disponivel === false
+                                                                    const isCopoZero = (copoQty !== null && copoQty <= 0) || isCopoOff
+
+                                                                    // A jarra só está ligada se tiver copo em estoque E o switch dela estiver ligado
+                                                                    const isAvailable = isCopoZero ? false : rawAvailable
+
+                                                                    return (
+                                                                        <div key={oIdx} className={`addon-toggle-row ${!isAvailable ? 'off' : ''}`} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 10px', background: '#FFFFFF', borderRadius: '6px', border: '1px solid #E5E7EB' }}>
+                                                                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                                                <span style={{ fontWeight: 600, fontSize: '13px', color: isAvailable ? '#111827' : '#9CA3AF' }}>{name}</span>
+                                                                                {isCopoZero && (
+                                                                                    <span style={{ fontSize: '10px', color: '#EF4444', fontWeight: 500 }}>Copo zerado no estoque</span>
+                                                                                )}
+                                                                            </div>
+                                                                            <button
+                                                                                className={`addon-toggle-btn ${isAvailable ? 'on' : 'off'}`}
+                                                                                onClick={() => toggleJuiceJarraAvailability(name)}
+                                                                                disabled={isSaving || isCopoZero}
+                                                                                title={isCopoZero ? 'Copo zerado no estoque' : (isAvailable ? 'Desativar Jarra deste sabor' : 'Ativar Jarra deste sabor')}
+                                                                            >
+                                                                                {isSaving ? (
+                                                                                    <RefreshCw size={12} className="animate-spin" />
+                                                                                ) : (
+                                                                                    <div className="toggle-knob" />
+                                                                                )}
+                                                                            </button>
+                                                                        </div>
+                                                                    )
+                                                                })}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )
+                                        })()}
+
+                                        {/* Card Unificado e Especial de Refrigerantes (Lata e Garrafas por Sabor e Tamanho) */}
+                                        {catName === 'Bebidas' && (activeTab === 'todos' || activeTab === 'refrigerantes') && (() => {
+                                            const lata = items.find(i => i.id === '40f4e774-8591-42f3-9dc0-ad5c2d078ffd')
+                                            const garrafa = items.find(i => i.id === 'b0000001-0001-0001-0001-000000000003')
+                                            if (!lata && !garrafa) return null
+
+                                            const lataGroup = lata?.opcoes_personalizacao?.find(g => (g.grupo || '').toLowerCase().includes('sabor'))
+                                            const garrafaTamanhos = garrafa?.opcoes_personalizacao?.find(g => (g.grupo || '').toLowerCase().includes('tamanho'))
+                                            const garrafaSabores = garrafa?.opcoes_personalizacao?.find(g => (g.grupo || '').toLowerCase().includes('sabor'))
+
+                                            return (
+                                                <div className="addon-management-card soda-unified-card" style={{ gridColumn: '1 / -1' }}>
+                                                    <div className="addon-card-header" style={{ display: 'flex', alignItems: 'center', gap: '12px', borderBottom: '1px solid #E5E7EB', paddingBottom: '12px' }}>
+                                                        <img src={lata?.imagem_url || garrafa?.imagem_url || 'https://res.cloudinary.com/dhlmg4odx/image/upload/v1791239120/espetinho-vitoria/opcoes/zzguzhnsquebyvyva5hp.png'} alt="Refrigerantes" style={{ width: '48px', height: '48px', borderRadius: '8px', objectFit: 'cover' }} />
+                                                        <div>
+                                                            <h4 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: '#111827' }}>Controle Integrado de Refrigerantes</h4>
+                                                            <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: '#6B7280' }}>
+                                                                Defina as quantidades individuais de <strong>Latas</strong> e <strong>Garrafas</strong> por sabor e tamanho.
+                                                            </p>
+                                                        </div>
+                                                    </div>
+
+                                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', marginTop: '16px' }}>
+                                                        {/* Coluna 1: Refrigerante Lata */}
+                                                        {lata && (
+                                                            <div style={{ background: '#F9FAFB', padding: '14px', borderRadius: '8px', border: '1px solid #E5E7EB' }}>
+                                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', borderBottom: '1px solid #E5E7EB', paddingBottom: '8px' }}>
+                                                                    <span style={{ fontSize: '13px', fontWeight: 700, color: '#1F2937', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
+                                                                        Refrigerante Lata
+                                                                    </span>
+                                                                    <span style={{ fontSize: '11px', color: '#6B7280', fontWeight: 500 }}>Qtd. em estoque</span>
+                                                                </div>
+                                                                <div className="addon-options-grid" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                                                    {lataGroup?.opcoes?.map((opt, oIdx) => {
+                                                                        const name = typeof opt === 'string' ? opt : opt.nome
+                                                                        const isAvailable = typeof opt === 'string' ? true : (opt.disponivel !== false)
+                                                                        const isSaving = savingItem === `soda-${lata.id}-${lataGroup.grupo}-${name}`
+                                                                        const quantidade = typeof opt === 'object' ? (opt.quantidade ?? '') : ''
+
+                                                                        return (
+                                                                            <div key={oIdx} className={`addon-toggle-row ${!isAvailable ? 'off' : ''}`} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 10px', background: '#FFFFFF', borderRadius: '6px', border: '1px solid #E5E7EB' }}>
+                                                                                <span style={{ fontWeight: 600, fontSize: '13px', color: isAvailable ? '#111827' : '#9CA3AF' }}>{name}</span>
+                                                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                                                        <input
+                                                                                            type="number"
+                                                                                            min="0"
+                                                                                            placeholder="0"
+                                                                                            value={quantidade}
+                                                                                            onChange={(e) => updateSodaStock(lata.id, lataGroup.grupo, name, e.target.value)}
+                                                                                            disabled={isSaving}
+                                                                                            style={{
+                                                                                                width: '56px',
+                                                                                                padding: '5px 6px',
+                                                                                                borderRadius: '6px',
+                                                                                                border: '1px solid #D1D5DB',
+                                                                                                fontSize: '13px',
+                                                                                                textAlign: 'center',
+                                                                                                fontWeight: 700,
+                                                                                                color: '#111827',
+                                                                                                background: isAvailable ? '#FFFFFF' : '#F3F4F6'
+                                                                                            }}
+                                                                                        />
+                                                                                        <span style={{ fontSize: '11px', color: '#6B7280', fontWeight: 600 }}>und</span>
+                                                                                    </div>
+                                                                                    <button
+                                                                                        className={`addon-toggle-btn ${isAvailable ? 'on' : 'off'}`}
+                                                                                        onClick={() => toggleSodaAvailability(lata.id, lataGroup.grupo, name)}
+                                                                                        disabled={isSaving}
+                                                                                        title={isAvailable ? 'Desativar sabor' : 'Ativar sabor'}
+                                                                                    >
+                                                                                        {isSaving ? (
+                                                                                            <RefreshCw size={12} className="animate-spin" />
+                                                                                        ) : (
+                                                                                            <div className="toggle-knob" />
+                                                                                        )}
+                                                                                    </button>
+                                                                                </div>
+                                                                            </div>
+                                                                        )
+                                                                    })}
+                                                                </div>
+                                                            </div>
+                                                        )}
+
+                                                        {/* Coluna 2: Refrigerante Garrafa (Tamanhos e Sabores) */}
+                                                        {garrafa && (
+                                                            <div style={{ background: '#F9FAFB', padding: '14px', borderRadius: '8px', border: '1px solid #E5E7EB' }}>
+                                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', borderBottom: '1px solid #E5E7EB', paddingBottom: '8px' }}>
+                                                                    <span style={{ fontSize: '13px', fontWeight: 700, color: '#1F2937', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
+                                                                        Refrigerante Garrafa (Litros)
+                                                                    </span>
+                                                                    <span style={{ fontSize: '11px', color: '#6B7280', fontWeight: 500 }}>Qtd. em estoque</span>
+                                                                </div>
+
+                                                                {/* Tamanhos da Garrafa */}
+                                                                {garrafaTamanhos && (
+                                                                    <div style={{ marginBottom: '16px' }}>
+                                                                        <div style={{ fontSize: '11px', fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', marginBottom: '8px' }}>Tamanhos Disponíveis</div>
+                                                                        <div className="addon-options-grid" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                                                            {garrafaTamanhos.opcoes?.map((opt, oIdx) => {
+                                                                                const name = typeof opt === 'string' ? opt : opt.nome
+                                                                                const isAvailable = typeof opt === 'string' ? true : (opt.disponivel !== false)
+                                                                                const isSaving = savingItem === `soda-${garrafa.id}-${garrafaTamanhos.grupo}-${name}`
+                                                                                const quantidade = typeof opt === 'object' ? (opt.quantidade ?? '') : ''
+
+                                                                                return (
+                                                                                    <div key={oIdx} className={`addon-toggle-row ${!isAvailable ? 'off' : ''}`} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 10px', background: '#FFFFFF', borderRadius: '6px', border: '1px solid #E5E7EB' }}>
+                                                                                        <span style={{ fontWeight: 600, fontSize: '13px', color: isAvailable ? '#111827' : '#9CA3AF' }}>{name}</span>
+                                                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                                                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                                                                <input
+                                                                                                    type="number"
+                                                                                                    min="0"
+                                                                                                    placeholder="0"
+                                                                                                    value={quantidade}
+                                                                                                    onChange={(e) => updateSodaStock(garrafa.id, garrafaTamanhos.grupo, name, e.target.value)}
+                                                                                                    disabled={isSaving}
+                                                                                                    style={{
+                                                                                                        width: '56px',
+                                                                                                        padding: '4px 6px',
+                                                                                                        borderRadius: '6px',
+                                                                                                        border: '1px solid #D1D5DB',
+                                                                                                        fontSize: '13px',
+                                                                                                        textAlign: 'center',
+                                                                                                        fontWeight: 700,
+                                                                                                        color: '#111827',
+                                                                                                        background: isAvailable ? '#FFFFFF' : '#F3F4F6'
+                                                                                                    }}
+                                                                                                />
+                                                                                                <span style={{ fontSize: '11px', color: '#6B7280', fontWeight: 600 }}>und</span>
+                                                                                            </div>
+                                                                                            <button
+                                                                                                className={`addon-toggle-btn ${isAvailable ? 'on' : 'off'}`}
+                                                                                                onClick={() => toggleSodaAvailability(garrafa.id, garrafaTamanhos.grupo, name)}
+                                                                                                disabled={isSaving}
+                                                                                            >
+                                                                                                {isSaving ? (
+                                                                                                    <RefreshCw size={12} className="animate-spin" />
+                                                                                                ) : (
+                                                                                                    <div className="toggle-knob" />
+                                                                                                )}
+                                                                                            </button>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                )
+                                                                            })}
+                                                                        </div>
+                                                                    </div>
+                                                                )}
+
+                                                                {/* Sabores da Garrafa */}
+                                                                {garrafaSabores && (
+                                                                    <div>
+                                                                        <div style={{ fontSize: '11px', fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', marginBottom: '8px' }}>Sabores de Garrafa</div>
+                                                                        <div className="addon-options-grid" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                                                            {garrafaSabores.opcoes?.map((opt, oIdx) => {
+                                                                                const name = typeof opt === 'string' ? opt : opt.nome
+                                                                                const isAvailable = typeof opt === 'string' ? true : (opt.disponivel !== false)
+                                                                                const isSaving = savingItem === `soda-${garrafa.id}-${garrafaSabores.grupo}-${name}`
+                                                                                const quantidade = typeof opt === 'object' ? (opt.quantidade ?? '') : ''
+
+                                                                                return (
+                                                                                    <div key={oIdx} className={`addon-toggle-row ${!isAvailable ? 'off' : ''}`} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 10px', background: '#FFFFFF', borderRadius: '6px', border: '1px solid #E5E7EB' }}>
+                                                                                        <span style={{ fontWeight: 600, fontSize: '13px', color: isAvailable ? '#111827' : '#9CA3AF' }}>{name}</span>
+                                                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                                                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                                                                <input
+                                                                                                    type="number"
+                                                                                                    min="0"
+                                                                                                    placeholder="0"
+                                                                                                    value={quantidade}
+                                                                                                    onChange={(e) => updateSodaStock(garrafa.id, garrafaSabores.grupo, name, e.target.value)}
+                                                                                                    disabled={isSaving}
+                                                                                                    style={{
+                                                                                                        width: '56px',
+                                                                                                        padding: '4px 6px',
+                                                                                                        borderRadius: '6px',
+                                                                                                        border: '1px solid #D1D5DB',
+                                                                                                        fontSize: '13px',
+                                                                                                        textAlign: 'center',
+                                                                                                        fontWeight: 700,
+                                                                                                        color: '#111827',
+                                                                                                        background: isAvailable ? '#FFFFFF' : '#F3F4F6'
+                                                                                                    }}
+                                                                                                />
+                                                                                                <span style={{ fontSize: '11px', color: '#6B7280', fontWeight: 600 }}>und</span>
+                                                                                            </div>
+                                                                                            <button
+                                                                                                className={`addon-toggle-btn ${isAvailable ? 'on' : 'off'}`}
+                                                                                                onClick={() => toggleSodaAvailability(garrafa.id, garrafaSabores.grupo, name)}
+                                                                                                disabled={isSaving}
+                                                                                            >
+                                                                                                {isSaving ? (
+                                                                                                    <RefreshCw size={12} className="animate-spin" />
+                                                                                                ) : (
+                                                                                                    <div className="toggle-knob" />
+                                                                                                )}
+                                                                                            </button>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                )
+                                                                            })}
+                                                                        </div>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )
+                                        })()}
+
+                                        {/* Individual product inclusion cards (Outros produtos genéricos) */}
+                                        {activeTab !== 'acomp_acai' && activeTab !== 'acomp_espeto' && activeTab !== 'tamanhos_ml' && productsWithAddons.filter(item => item.id !== 'b0000001-0001-0001-0001-000000000001' && item.id !== 'b0000001-0001-0001-0001-000000000002' && item.id !== '40f4e774-8591-42f3-9dc0-ad5c2d078ffd' && item.id !== 'b0000001-0001-0001-0001-000000000003').map(item => {
                                             const inclusionGroups = item.opcoes_personalizacao.filter(g =>
                                                 g.grupo &&
                                                 g.grupo.trim() !== '' &&

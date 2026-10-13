@@ -220,6 +220,55 @@ export function useOrders() {
                         }
                     }
                 }
+
+                // Decrementar estoque de sabores de Copos de Suco (Suco Natural)
+                const sucoChoices = {}
+                for (const item of orderData.itens) {
+                    const isSucoCopo = item.produto_id === 'b0000001-0001-0001-0001-000000000001'
+                    if (!isSucoCopo || !item.personalizacao || typeof item.personalizacao !== 'object') continue
+                    const itemQty = Number(item.quantidade) || 1
+
+                    for (const [groupKey, val] of Object.entries(item.personalizacao)) {
+                        if (groupKey.toLowerCase().includes('sabor')) {
+                            const flavor = typeof val === 'string' ? val.trim() : (Array.isArray(val) ? val[0] : null)
+                            if (flavor) {
+                                sucoChoices[flavor] = (sucoChoices[flavor] || 0) + itemQty
+                            }
+                        }
+                    }
+                }
+
+                if (Object.keys(sucoChoices).length > 0) {
+                    const { error: sucoRpcError } = await supabase.rpc('decrementar_estoque_suco', {
+                        suco_choices: sucoChoices
+                    })
+                    if (sucoRpcError) {
+                        console.warn('[Juice Stock] RPC error:', sucoRpcError.message)
+                    } else {
+                        console.log('[Juice Stock] Decremented via RPC:', sucoChoices)
+                    }
+                }
+
+                // Decrementar estoque de Refrigerantes (Lata e Garrafas por sabor e tamanho)
+                for (const item of orderData.itens) {
+                    const isLata = item.produto_id === '40f4e774-8591-42f3-9dc0-ad5c2d078ffd'
+                    const isGarrafa = item.produto_id === 'b0000001-0001-0001-0001-000000000003'
+                    if ((!isLata && !isGarrafa) || !item.personalizacao || typeof item.personalizacao !== 'object') continue
+                    const itemQty = Number(item.quantidade) || 1
+
+                    for (const [, val] of Object.entries(item.personalizacao)) {
+                        const choices = Array.isArray(val) ? val : [val]
+                        for (const choice of choices) {
+                            if (typeof choice === 'string' && choice.trim()) {
+                                await supabase.rpc('decrementar_estoque_refrigerante', {
+                                    prod_id: item.produto_id,
+                                    choice_name: choice.trim(),
+                                    qty: itemQty
+                                })
+                            }
+                        }
+                    }
+                }
             } catch (stockErr) {
                 // Non-blocking: log but don't fail the order
                 console.error('[Accompaniment Stock] Error decrementing:', stockErr)

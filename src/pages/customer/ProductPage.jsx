@@ -87,6 +87,34 @@ export default function ProductPage() {
             }
         }
 
+        // Nova verificação integrada para Jarra de Suco:
+        // Se este produto for 'Jarra de Suco', checar se o sabor está esgotado ou zerado no 'Suco Natural' (Copo)
+        const isJarra = (product?.nome || '').toLowerCase().includes('jarra')
+        if (isJarra && products?.length > 0) {
+            const copoProd = products.find(p => p.id === 'b0000001-0001-0001-0001-000000000001' || (p.nome || '').toLowerCase().includes('suco natural'))
+            if (copoProd && copoProd.opcoes_personalizacao) {
+                for (const g of copoProd.opcoes_personalizacao) {
+                    if ((g.grupo || '').toLowerCase().includes('sabor')) {
+                        const match = g.opcoes?.find(o => {
+                            const pName = typeof o === 'string' ? o : (o.nome || o.name)
+                            return String(pName).toLowerCase() === nameStr
+                        })
+                        if (match && typeof match !== 'string') {
+                            if (match.disponivel === false) return false
+                            if (match.quantidade !== undefined && match.quantidade !== null && Number(match.quantidade) <= 0) {
+                                return false
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Se for o próprio copo de suco, verificar a quantidade específica da opção se houver
+        if (typeof opt === 'object' && opt.quantidade !== undefined && opt.quantidade !== null) {
+            if (Number(opt.quantidade) <= 0) return false
+        }
+
         if (products?.length > 0) {
             // Find an exact match in the catalog safely
             const matchingProduct = products.find(p => p?.nome && String(p.nome).toLowerCase() === nameStr && p.id !== product?.id);
@@ -96,7 +124,7 @@ export default function ProductPage() {
             }
         }
         return true;
-    }, [products, product?.id]);
+    }, [products, product?.id, product?.nome]);
 
     const [qty, setQty] = useState(1)
     const [notes, setNotes] = useState('')
