@@ -110,7 +110,7 @@ export default function ThermalReceipt({ order }) {
 
                                                 const keyLower = key.toLowerCase()
                                                 const isPaid = keyLower.includes('pago') || keyLower === 'adicionais'
-                                                const isFruitSelection = keyLower.includes('escolha') || keyLower.includes('incl')
+                                                const isFruitSelection = isAcai && (keyLower.includes('escolha') || keyLower.includes('incl') || keyLower.includes('fruta'))
 
                                                 if (isPaid) {
                                                     elements.push(
@@ -152,7 +152,7 @@ export default function ThermalReceipt({ order }) {
                                                             Frutas Escolhidas: {displayVal}
                                                         </div>
                                                     )
-                                                } else if (!isAcai) {
+                                                } else {
                                                     const displayVal = Array.isArray(val) ? val.join(', ') : String(val)
                                                     elements.push(
                                                         <div key={`other-${key}`} className="receipt-item-details">
