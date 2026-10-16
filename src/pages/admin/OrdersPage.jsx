@@ -338,13 +338,15 @@ img { max-width: 35mm; display: block; margin: 0 auto 2mm; filter: grayscale(1) 
                         return
                     }
 
-                    // Detect comanda events (sound is handled by useOrderNotificationSound)
+                    // Detect if admin added item (valor_total increased)
                     const isNewItemAdded = payload.new.valor_total > (oldOrder?.valor_total || 0)
 
                     if (isNewItemAdded) {
-                        // New items added to comanda — need to fetch to get new itens_pedido relations
+                        // New items added — schedule a fetch to get fresh itens_pedido relations
                         console.log('[Realtime] New items detected (valor_total increased), scheduling fetch...')
                         scheduleFetchRef.current?.(1500)
+                        // Also update the orders list with the new totals from payload
+                        setOrders(prev => prev.map(o => o.id === orderId ? { ...o, ...payload.new } : o))
                         return
                     }
 
@@ -464,6 +466,15 @@ img { max-width: 35mm; display: block; margin: 0 auto 2mm; filter: grayscale(1) 
             if (ordersErr) throw ordersErr
 
             setOrders(data || [])
+
+            // If a modal is open and its order was just refreshed (e.g., temp IDs replaced),
+            // sync selectedOrder so the modal gets real DB IDs and unlocks edit/delete buttons
+            if (selectedOrderRef.current && data) {
+                const freshOrder = data.find(o => o.id === selectedOrderRef.current.id)
+                if (freshOrder) {
+                    setSelectedOrder(freshOrder)
+                }
+            }
 
             if (isSilent) setError(null) // Clear errors on successful silent refresh
         } catch (err) {
@@ -1026,6 +1037,11 @@ img { max-width: 35mm; display: block; margin: 0 auto 2mm; filter: grayscale(1) 
                         onReactivate={setOrderToReactivate}
                         onFinalizeComanda={setComandaToFinalize}
                         ComandaSummary={ComandaSummary}
+                        onOrderUpdated={(updatedOrder) => {
+                            // Instantly sync the orders list with optimistic data from modal
+                            setOrders(prev => prev.map(o => o.id === updatedOrder.id ? { ...o, ...updatedOrder } : o))
+                            setSelectedOrder(updatedOrder)
+                        }}
                     />
                     <ThermalReceipt order={selectedOrder} />
                 </>

@@ -321,7 +321,220 @@ export function useOrders() {
         }
     }
 
-    return { orders, loading, createOrder, requestComandaClosing, finalizeComanda }
+    async function addItemToOrder(orderId, newItem, currentOrder) {
+        // newItem: { produto_id, variacao_id?, quantidade, preco_unitario }
+        // currentOrder: full pedido object from state
+        setLoading(true)
+        try {
+            const isCard = currentOrder.forma_pagamento?.includes('cartao')
+            const currentSubtotal = Number(currentOrder.subtotal) || 0
+            const currentEntrega = Number(currentOrder.taxa_entrega) || 0
+            const currentCardFee = Number(currentOrder.taxa_cartao) || 0
+            const currentTotal = Number(currentOrder.valor_total) || 0
+
+            // Derive card fee percentage from existing order
+            const base = currentSubtotal + currentEntrega
+            const taxa_pct = isCard && base > 0 ? currentCardFee / base : 0
+
+            const itemSubtotal = Number(newItem.preco_unitario) * Number(newItem.quantidade)
+            const itemCardFee = isCard ? itemSubtotal * taxa_pct : 0
+
+            const newSubtotal = currentSubtotal + itemSubtotal
+            const newCardFee = currentCardFee + itemCardFee
+            const newTotal = currentTotal + itemSubtotal + itemCardFee
+
+            // 1. Insert item into order
+            const { data: insertedItem, error: itemErr } = await supabase
+                .from('itens_pedido')
+                .insert({
+                    pedido_id: orderId,
+                    produto_id: newItem.produto_id,
+                    variacao_id: newItem.variacao_id || null,
+                    quantidade: newItem.quantidade,
+                    preco_unitario: newItem.preco_unitario,
+                    eh_upsell: false,
+                    observacoes: newItem.observacoes || null,
+                    personalizacao: newItem.personalizacao || null,
+                })
+                .select('id')
+                .single()
+            if (itemErr) throw itemErr
+
+            // 2. Update order totals
+            const { error: updateErr } = await supabase
+                .from('pedidos')
+                .update({
+                    subtotal: newSubtotal,
+                    taxa_cartao: newCardFee,
+                    valor_total: newTotal,
+                })
+                .eq('id', orderId)
+            if (updateErr) throw updateErr
+
+            // Return updated order object with insertedItem for instant real ID
+            return {
+                ...currentOrder,
+                subtotal: newSubtotal,
+                taxa_cartao: newCardFee,
+                valor_total: newTotal,
+                _lastInsertedId: insertedItem?.id || null,
+            }
+        } catch (err) {
+            console.error('[addItemToOrder] Erro:', err)
+            throw err
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    async function editItemInOrder(itemId, newQuantity, currentOrder, updatedData = null) {
+        // itemId: the itens_pedido row id
+        // newQuantity: the new quantity for the item
+        // currentOrder: full pedido object from state
+        // updatedData?: { quantidade, preco_unitario, variacao_id, personalizacao, observacoes, _variation }
+        setLoading(true)
+        try {
+            const isCard = currentOrder.forma_pagamento?.includes('cartao')
+            const currentEntrega = Number(currentOrder.taxa_entrega) || 0
+
+            // Find the item being edited to get old price contribution
+            const oldItem = currentOrder.itens?.find(i => i.id === itemId)
+            if (!oldItem) throw new Error('Item não encontrado')
+
+            const finalQty = updatedData?.quantidade !== undefined ? Number(updatedData.quantidade) : Number(newQuantity)
+            const finalUnitPrice = updatedData?.preco_unitario !== undefined ? Number(updatedData.preco_unitario) : Number(oldItem.preco_unitario)
+            const finalVariationId = updatedData?.variacao_id !== undefined ? updatedData.variacao_id : oldItem.variacao_id
+            const finalPersonalizacao = updatedData?.personalizacao !== undefined ? updatedData.personalizacao : oldItem.personalizacao
+            const finalObservacoes = updatedData?.observacoes !== undefined ? updatedData.observacoes : oldItem.observacoes
+
+            const oldItemSubtotal = Number(oldItem.preco_unitario) * Number(oldItem.quantidade)
+            const newItemSubtotal = finalUnitPrice * finalQty
+            const delta = newItemSubtotal - oldItemSubtotal
+
+            const currentSubtotal = Number(currentOrder.subtotal) || 0
+            const currentCardFee = Number(currentOrder.taxa_cartao) || 0
+            const currentTotal = Number(currentOrder.valor_total) || 0
+
+            // Derive card fee pct
+            const base = currentSubtotal + currentEntrega
+            const taxa_pct = isCard && base > 0 ? currentCardFee / base : 0
+
+            const deltaCardFee = isCard ? delta * taxa_pct : 0
+
+            const newSubtotal = currentSubtotal + delta
+            const newCardFee = currentCardFee + deltaCardFee
+            const newTotal = currentTotal + delta + deltaCardFee
+
+            // 1. Update item in itens_pedido with all fields
+            const updatePayload = {
+                quantidade: finalQty,
+                preco_unitario: finalUnitPrice,
+                variacao_id: finalVariationId,
+                personalizacao: finalPersonalizacao,
+                observacoes: finalObservacoes,
+            }
+
+            const { error: itemErr } = await supabase
+                .from('itens_pedido')
+                .update(updatePayload)
+                .eq('id', itemId)
+            if (itemErr) throw itemErr
+
+            // 2. Update order totals
+            const { error: updateErr } = await supabase
+                .from('pedidos')
+                .update({
+                    subtotal: newSubtotal,
+                    taxa_cartao: newCardFee,
+                    valor_total: newTotal,
+                })
+                .eq('id', currentOrder.id)
+            if (updateErr) throw updateErr
+
+            return {
+                ...currentOrder,
+                subtotal: newSubtotal,
+                taxa_cartao: newCardFee,
+                valor_total: newTotal,
+                itens: currentOrder.itens.map(i => {
+                    if (i.id !== itemId) return i
+                    return {
+                        ...i,
+                        ...updatePayload,
+                        variacoes_produto: updatedData?._variation ? {
+                            nome: updatedData._variation.nome,
+                            imagem_url: updatedData._variation.imagem_url,
+                        } : (finalVariationId ? i.variacoes_produto : null),
+                    }
+                }),
+            }
+        } catch (err) {
+            console.error('[editItemInOrder] Erro:', err)
+            throw err
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    async function removeItemFromOrder(itemId, currentOrder) {
+        // itemId: the itens_pedido row id
+        // currentOrder: full pedido object from state
+        setLoading(true)
+        try {
+            const isCard = currentOrder.forma_pagamento?.includes('cartao')
+            const currentEntrega = Number(currentOrder.taxa_entrega) || 0
+
+            const removedItem = currentOrder.itens?.find(i => i.id === itemId)
+            if (!removedItem) throw new Error('Item não encontrado')
+
+            const removedSubtotal = Number(removedItem.preco_unitario) * Number(removedItem.quantidade)
+
+            const currentSubtotal = Number(currentOrder.subtotal) || 0
+            const currentCardFee = Number(currentOrder.taxa_cartao) || 0
+            const currentTotal = Number(currentOrder.valor_total) || 0
+
+            const base = currentSubtotal + currentEntrega
+            const taxa_pct = isCard && base > 0 ? currentCardFee / base : 0
+            const removedCardFee = isCard ? removedSubtotal * taxa_pct : 0
+
+            const newSubtotal = Math.max(0, currentSubtotal - removedSubtotal)
+            const newCardFee = Math.max(0, currentCardFee - removedCardFee)
+            const newTotal = Math.max(0, currentTotal - removedSubtotal - removedCardFee)
+
+            // 1. Delete item
+            const { error: itemErr } = await supabase
+                .from('itens_pedido')
+                .delete()
+                .eq('id', itemId)
+            if (itemErr) throw itemErr
+
+            // 2. Update order totals
+            const { error: updateErr } = await supabase
+                .from('pedidos')
+                .update({
+                    subtotal: newSubtotal,
+                    taxa_cartao: newCardFee,
+                    valor_total: newTotal,
+                })
+                .eq('id', currentOrder.id)
+            if (updateErr) throw updateErr
+
+            return {
+                ...currentOrder,
+                subtotal: newSubtotal,
+                taxa_cartao: newCardFee,
+                valor_total: newTotal,
+                itens: currentOrder.itens.filter(i => i.id !== itemId),
+            }
+        } catch (err) {
+            console.error('[removeItemFromOrder] Erro:', err)
+            throw err
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    return { orders, loading, createOrder, requestComandaClosing, finalizeComanda, addItemToOrder, editItemInOrder, removeItemFromOrder }
 }
 
 export async function getActiveComanda(mesaId) {

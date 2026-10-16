@@ -1,5 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
+import { isOrderNotificationSuppressed } from '../lib/soundSuppressor'
 
 export function useOrderNotificationSound(isAuthenticated) {
     const audioRef = useRef(new Audio('/notification.mp3'))
@@ -87,6 +88,15 @@ export function useOrderNotificationSound(isAuthenticated) {
                     shouldPlaySound = true
                 } 
                 else if (payload.eventType === 'UPDATE') {
+                    if (isOrderNotificationSuppressed(orderId)) {
+                        console.log('[Notification Sound] Som suprimido para adição manual no pedido:', orderId)
+                        orderCacheRef.current[orderId] = {
+                            valor_total: newRecord.valor_total || 0,
+                            comanda_status: newRecord.comanda_status || 'aberta'
+                        }
+                        return
+                    }
+
                     if (!cached) {
                         orderCacheRef.current[orderId] = {
                             valor_total: newRecord.valor_total || 0,

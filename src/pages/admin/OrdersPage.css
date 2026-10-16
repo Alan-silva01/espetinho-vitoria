@@ -1383,8 +1383,9 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(15, 23, 42, 0.45);
-    backdrop-filter: blur(6px);
+    background: rgba(15, 23, 42, 0.55);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2697,6 +2698,11 @@
     background: #374151;
     color: white;
     border-color: #374151;
+}
+
+/* Oculto na tela para não vazar atrás do blur do modal; o DOM continua existindo para o QZ Tray / clone */
+#thermal-receipt {
+    display: none;
 }
 
 @media print {
