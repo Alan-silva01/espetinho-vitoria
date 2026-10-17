@@ -323,7 +323,7 @@ export default function OrderDetailModal({
                                             </div>
                                             <div className="receipt-item-details">
                                                 <span className="receipt-item-title">
-                                                    <strong>{item.quantidade}x</strong> {getItemDisplayName(item)}
+                                                    <strong>{item.quantidade}x</strong> <strong>{getItemDisplayName(item)}</strong>
                                                 </span>
                                                 {item.personalizacao && typeof item.personalizacao === 'object' && filterPersonalizacao(item.personalizacao, getItemDisplayName(item)).map((p, pIdx) => (
                                                     <span key={pIdx} className="receipt-item-sub">

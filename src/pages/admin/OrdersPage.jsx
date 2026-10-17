@@ -4,7 +4,7 @@ import {
     MoreHorizontal, Phone, MapPin, DollarSign,
     User, ChevronRight, X, Utensils, Timer, Plus,
     Store, Bike, Play, Check, Calendar, Search, Bell, Printer, RefreshCw, Receipt, Trash2,
-    ReceiptText, ChefHat, GlassWater, IceCreamCone, UtensilsCrossed, XCircle, CheckCircle, ArrowRight, RotateCcw
+    ReceiptText, ChefHat, GlassWater, IceCreamCone, UtensilsCrossed, XCircle, CheckCircle, ArrowRight, RotateCcw, Volume2
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import n8nService from '../../services/n8nService'
@@ -935,9 +935,12 @@ img { max-width: 35mm; display: block; margin: 0 auto 2mm; filter: grayscale(1) 
                         <RefreshCw size={14} className={isRefreshing ? 'spin' : ''} />
                     </button>
 
-                    <button className="btn-sound-test" onClick={playNotificationSound}>
-                        <Play size={14} />
-                        Ativar Som
+                    <button
+                        className="btn-sound-test"
+                        onClick={playNotificationSound}
+                        title="Testar Som de Notificação"
+                    >
+                        <Volume2 size={15} />
                     </button>
 
                     <button

@@ -137,23 +137,26 @@
 .btn-sound-test {
     display: flex;
     align-items: center;
-    gap: 6px;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
     background: white;
     border: 1px solid #DFDFDF;
-    padding: 6px 12px;
     border-radius: 0;
     font-size: 12px;
     font-weight: 600;
     color: #525252;
     cursor: pointer;
     transition: all 0.15s;
+    flex-shrink: 0;
+    padding: 0;
 }
 
 .btn-test-sound:hover,
 .btn-sound-test:hover {
     background: #F3F4F6;
-    color: #09090b;
-    border-color: #D4D4D8;
+    color: #171717;
+    border-color: #DFDFDF;
 }
 
 .btn-test-sound svg,

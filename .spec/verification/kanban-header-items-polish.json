@@ -1,0 +1,32 @@
+{
+  "feature": "kanban-header-items-polish",
+  "timestamp": "2026-10-17T12:28:38.563Z",
+  "gitRev": "d1f37a5",
+  "command": "node --test --test-reporter=tap",
+  "reporter": "tap",
+  "exitCode": 0,
+  "testsParsed": 53,
+  "results": {
+    "AC-058": {
+      "status": "pass",
+      "testName": "AC-058: Botão de som no header utiliza Volume2 sem texto solto e com title @spec:AC-058",
+      "method": "tap"
+    },
+    "AC-059": {
+      "status": "pass",
+      "testName": "AC-059: Botão de som e gatilho de data possuem estilo padronizado no CSS @spec:AC-059",
+      "method": "tap"
+    },
+    "AC-060": {
+      "status": "pass",
+      "testName": "AC-060: Nome do item no modal de detalhes possui destaque em negrito @spec:AC-060",
+      "method": "tap"
+    },
+    "AC-061": {
+      "status": "pass",
+      "testName": "AC-061: Nome dos itens no card do Kanban possui estilo com font-weight destacado @spec:AC-061",
+      "method": "tap"
+    }
+  },
+  "principles": {}
+}
