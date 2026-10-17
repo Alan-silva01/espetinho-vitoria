@@ -4,6 +4,7 @@ import { X, Check, ShoppingBag, Bike, CreditCard, Banknote, QrCode, AlertCircle 
 import { supabase } from '../../lib/supabase'
 import { formatCurrency } from '../../lib/utils'
 import { calculateOrderTotals } from '../../lib/orderCalculation'
+import CustomSelect from '../ui/CustomSelect'
 import './EditOrderDetailsSheet.css'
 
 export default function EditOrderDetailsSheet({ isOpen, order, onClose, onSave }) {
@@ -143,18 +144,23 @@ export default function EditOrderDetailsSheet({ isOpen, order, onClose, onSave }
                     {tipoPedido === 'entrega' && (
                         <div className="edit-order-form-group">
                             <label className="edit-order-form-label">Taxa de Entrega / Bairro</label>
-                            <select
-                                className="edit-order-select"
-                                onChange={handleSelectDeliveryFee}
-                                defaultValue=""
-                            >
-                                <option value="" disabled>Selecione um bairro ou taxa...</option>
-                                {deliveryFees.map(fee => (
-                                    <option key={fee.id} value={fee.id}>
-                                        {fee.local} — {formatCurrency(fee.valor_frete)}
-                                    </option>
-                                ))}
-                            </select>
+                            <CustomSelect
+                                options={deliveryFees.map(fee => ({
+                                    value: String(fee.id),
+                                    label: `${fee.local} — ${formatCurrency(fee.valor_frete)}`
+                                }))}
+                                value={(() => {
+                                    const match = deliveryFees.find(f => Number(f.valor_frete) === Number(taxaEntrega))
+                                    return match ? String(match.id) : ''
+                                })()}
+                                onChange={(selectedId) => {
+                                    const fee = deliveryFees.find(f => String(f.id) === String(selectedId))
+                                    if (fee) {
+                                        setTaxaEntrega(Number(fee.valor_frete))
+                                    }
+                                }}
+                                placeholder="Selecione um bairro ou taxa..."
+                            />
                             <div style={{ marginTop: '6px' }}>
                                 <label style={{ fontSize: '11px', color: '#666', fontWeight: 600 }}>Valor do Frete (R$):</label>
                                 <input
@@ -173,19 +179,20 @@ export default function EditOrderDetailsSheet({ isOpen, order, onClose, onSave }
                     {/* Forma de Pagamento */}
                     <div className="edit-order-form-group">
                         <label className="edit-order-form-label">Forma de Pagamento</label>
-                        <select
-                            className="edit-order-select"
+                        <CustomSelect
+                            options={[
+                                { value: 'pix', label: 'PIX' },
+                                { value: 'dinheiro', label: 'Dinheiro' },
+                                { value: 'cartao_credito', label: 'Cartão de Crédito' },
+                                { value: 'cartao_debito', label: 'Cartão de Débito' }
+                            ]}
                             value={formaPagamento}
-                            onChange={e => {
-                                setFormaPagamento(e.target.value)
+                            onChange={(val) => {
+                                setFormaPagamento(val)
                                 setIsentoTaxaCartao(false)
                             }}
-                        >
-                            <option value="pix">PIX</option>
-                            <option value="dinheiro">Dinheiro</option>
-                            <option value="cartao_credito">Cartão de Crédito</option>
-                            <option value="cartao_debito">Cartão de Débito</option>
-                        </select>
+                            placeholder="Selecione a forma de pagamento..."
+                        />
                     </div>
 
                     {/* Campo de Troco (se for Dinheiro) */}

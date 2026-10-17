@@ -1,0 +1,27 @@
+{
+  "feature": "custom-select-component",
+  "timestamp": "2026-10-17T12:45:29.141Z",
+  "gitRev": "17a66d6",
+  "command": "node --test --test-reporter=tap",
+  "reporter": "tap",
+  "exitCode": 0,
+  "testsParsed": 57,
+  "results": {
+    "AC-063": {
+      "status": "pass",
+      "testName": "AC-063: Componente CustomSelect existe e possui suporte a click-outside e dropdown @spec:AC-063",
+      "method": "tap"
+    },
+    "AC-064": {
+      "status": "pass",
+      "testName": "AC-064: EditOrderDetailsSheet utiliza CustomSelect para seleção de Bairros / Taxas @spec:AC-064",
+      "method": "tap"
+    },
+    "AC-065": {
+      "status": "pass",
+      "testName": "AC-065: EditOrderDetailsSheet utiliza CustomSelect para seleção de Forma de Pagamento @spec:AC-065",
+      "method": "tap"
+    }
+  },
+  "principles": {}
+}
