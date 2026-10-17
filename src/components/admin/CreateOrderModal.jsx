@@ -3,7 +3,7 @@ import {
     Search, User, Phone, MapPin, X, ExternalLink, UserPlus, Sparkles, ArrowRight
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
-import { formatPhone } from '../../lib/utils'
+import { formatPhone, formatPhoneForDatabaseWhatsApp } from '../../lib/utils'
 import './CreateOrderModal.css'
 
 export default function CreateOrderModal({ isOpen, onClose }) {
@@ -17,6 +17,23 @@ export default function CreateOrderModal({ isOpen, onClose }) {
     const [newName, setNewName] = useState('')
     const [newPhone, setNewPhone] = useState('')
     const [isSubmittingNew, setIsSubmittingNew] = useState(false)
+    const [duplicateCustomer, setDuplicateCustomer] = useState(null)
+
+    // Formata o telefone enquanto o usuário digita: (XX) 9XXXX-XXXX
+    function handlePhoneChange(e) {
+        let v = e.target.value.replace(/\D/g, '')
+        if (v.length > 11) v = v.slice(0, 11)
+
+        let formatted = v
+        if (v.length > 6) {
+            formatted = `(${v.slice(0, 2)}) ${v.slice(2, 7)}-${v.slice(7)}`
+        } else if (v.length > 2) {
+            formatted = `(${v.slice(0, 2)}) ${v.slice(2)}`
+        } else if (v.length > 0) {
+            formatted = `(${v}`
+        }
+        setNewPhone(formatted)
+    }
 
     // Reset ao abrir/fechar
     useEffect(() => {
@@ -27,6 +44,7 @@ export default function CreateOrderModal({ isOpen, onClose }) {
             setIsCreatingNew(false)
             setNewName('')
             setNewPhone('')
+            setDuplicateCustomer(null)
         }
     }, [isOpen])
 
@@ -134,14 +152,16 @@ export default function CreateOrderModal({ isOpen, onClose }) {
         try {
             const rawPhone = newPhone.replace(/\D/g, '')
             const generatedCode = 'CLI-' + Math.random().toString(36).substring(2, 8).toUpperCase()
+            const whatsappDbFormat = formatPhoneForDatabaseWhatsApp(rawPhone) || rawPhone
+            const displayWhatsapp = formatPhone(rawPhone) || rawPhone
 
             const payload = {
                 nome: newName.trim(),
-                telefone: rawPhone,
+                telefone: whatsappDbFormat,
                 codigo: generatedCode,
                 dados: {
                     nome: newName.trim(),
-                    whatsapp: rawPhone
+                    whatsapp: displayWhatsapp
                 }
             }
 
@@ -151,11 +171,36 @@ export default function CreateOrderModal({ isOpen, onClose }) {
                 .select()
                 .single()
 
-            if (error) throw error
+            if (error) {
+                // Tratamento especial para telefone duplicado
+                if (error.code === '23505' || error.message?.includes('clientes_telefone_key') || error.message?.includes('duplicate key')) {
+                    // Buscar o cliente já existente pelo telefone
+                    const { data: existingClient } = await supabase
+                        .from('clientes')
+                        .select('id, codigo, nome, telefone, avatr_url, dados')
+                        .or(`telefone.eq.${whatsappDbFormat},telefone.ilike.%${rawPhone}%,dados->>whatsapp.ilike.%${rawPhone}%`)
+                        .limit(1)
+                        .maybeSingle()
+
+                    if (existingClient) {
+                        setDuplicateCustomer(existingClient)
+                        return
+                    } else {
+                        setDuplicateCustomer({
+                            nome: newName.trim(),
+                            telefone: whatsappDbFormat,
+                            dados: { whatsapp: displayWhatsapp }
+                        })
+                        return
+                    }
+                }
+                throw error
+            }
 
             handleOpenCustomerApp(data)
         } catch (err) {
-            alert('Erro ao cadastrar cliente: ' + err.message)
+            console.error('[CreateOrderModal] Erro ao cadastrar cliente:', err)
+            alert('Não foi possível cadastrar o cliente: ' + (err.message || 'Erro desconhecido.'))
         } finally {
             setIsSubmittingNew(false)
         }
@@ -298,9 +343,10 @@ export default function CreateOrderModal({ isOpen, onClose }) {
                                 <label>WhatsApp / Telefone</label>
                                 <input
                                     type="text"
-                                    placeholder="Ex: (99) 99999-9999"
+                                    placeholder="Ex: (99) 99137-2552"
                                     value={newPhone}
-                                    onChange={e => setNewPhone(e.target.value)}
+                                    onChange={handlePhoneChange}
+                                    maxLength={16}
                                 />
                             </div>
 
@@ -326,6 +372,134 @@ export default function CreateOrderModal({ isOpen, onClose }) {
                     )}
                 </div>
             </div>
+
+            {/* Modal de Aviso: Cliente já cadastrado */}
+            {duplicateCustomer && (
+                <div
+                    style={{
+                        position: 'fixed',
+                        inset: 0,
+                        zIndex: 10060,
+                        background: 'rgba(15, 23, 42, 0.65)',
+                        backdropFilter: 'blur(4px)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '16px'
+                    }}
+                    onClick={() => setDuplicateCustomer(null)}
+                >
+                    <div
+                        style={{
+                            background: '#FFFFFF',
+                            border: '1.5px solid #232220',
+                            width: '100%',
+                            maxWidth: '400px',
+                            boxShadow: '0 16px 40px rgba(0,0,0,0.25)',
+                            overflow: 'hidden'
+                        }}
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <div style={{
+                            background: '#232220',
+                            color: '#FFFFFF',
+                            padding: '12px 16px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between'
+                        }}>
+                            <span style={{ fontSize: '13px', fontWeight: 800, letterSpacing: '0.05em' }}>CLIENTE JÁ CADASTRADO</span>
+                            <button
+                                type="button"
+                                onClick={() => setDuplicateCustomer(null)}
+                                style={{ background: 'transparent', border: 'none', color: '#a3a3a3', cursor: 'pointer', padding: 2 }}
+                            >
+                                <X size={16} />
+                            </button>
+                        </div>
+                        <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                            <p style={{ margin: 0, fontSize: '13px', color: '#404040', lineHeight: 1.5 }}>
+                                Este número de WhatsApp já pertence a um cliente no sistema:
+                            </p>
+                            <div style={{
+                                background: '#F5F5F5',
+                                border: '1px solid #E5E5E5',
+                                padding: '12px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '12px'
+                            }}>
+                                <div style={{
+                                    width: '38px',
+                                    height: '38px',
+                                    background: '#232220',
+                                    color: '#FFFFFF',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontWeight: 700,
+                                    fontSize: '14px',
+                                    overflow: 'hidden'
+                                }}>
+                                    {duplicateCustomer.avatr_url || duplicateCustomer.dados?.avatar_url ? (
+                                        <img
+                                            src={duplicateCustomer.avatr_url || duplicateCustomer.dados?.avatar_url}
+                                            alt=""
+                                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                        />
+                                    ) : (
+                                        <span>{(duplicateCustomer.nome || 'C').charAt(0).toUpperCase()}</span>
+                                    )}
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', minWidth: 0 }}>
+                                    <strong style={{ fontSize: '14px', color: '#171717' }}>{duplicateCustomer.nome || 'Cliente'}</strong>
+                                    <span style={{ fontSize: '12px', color: '#737373' }}>
+                                        {formatPhone(duplicateCustomer.dados?.whatsapp || duplicateCustomer.telefone)}
+                                    </span>
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '6px' }}>
+                                <button
+                                    type="button"
+                                    onClick={() => setDuplicateCustomer(null)}
+                                    style={{
+                                        padding: '8px 14px',
+                                        border: '1px solid #D4D4D4',
+                                        background: '#FFFFFF',
+                                        fontSize: '12px',
+                                        fontWeight: 600,
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    Corrigir Número
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setDuplicateCustomer(null)
+                                        handleOpenCustomerApp(duplicateCustomer)
+                                    }}
+                                    style={{
+                                        padding: '8px 16px',
+                                        border: 'none',
+                                        background: '#16A34A',
+                                        color: '#FFFFFF',
+                                        fontSize: '12px',
+                                        fontWeight: 700,
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '6px'
+                                    }}
+                                >
+                                    <span>Ir para o Cliente</span>
+                                    <ExternalLink size={13} />
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

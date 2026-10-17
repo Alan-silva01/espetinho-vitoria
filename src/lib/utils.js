@@ -48,6 +48,37 @@ export function formatPhone(phone) {
 }
 
 /**
+ * Converte telefone informado para o padrão do WhatsApp bot no banco:
+ * 55 + DDD (2 dígitos) + 8 dígitos (descarta o 9 se for o 3º número) + @s.whatsapp.net
+ */
+export function formatPhoneForDatabaseWhatsApp(phone) {
+    if (!phone) return null
+    let digits = String(phone).split('@')[0].replace(/\D/g, '')
+
+    // Se começou com 55 e tem mais de 11 dígitos, remove o DDI inicial temporariamente
+    if (digits.startsWith('55') && digits.length >= 12) {
+        digits = digits.substring(2)
+    }
+
+    // Se tem 11 dígitos (DDD 2 dígitos + 9 dígitos onde o 3º é 9)
+    if (digits.length === 11 && digits.charAt(2) === '9') {
+        digits = `${digits.slice(0, 2)}${digits.slice(3)}`
+    }
+
+    // Se agora tiver 10 dígitos (DDD 2 + 8 dígitos)
+    if (digits.length === 10) {
+        return `55${digits}@s.whatsapp.net`
+    }
+
+    // Fallback: se já tem 12 dígitos sem o 9 (ex: 559991372552)
+    if (digits.length === 12 && digits.startsWith('55')) {
+        return `${digits}@s.whatsapp.net`
+    }
+
+    return digits ? `55${digits}@s.whatsapp.net` : null
+}
+
+/**
  * Gera URL da imagem do Supabase Storage
  */
 export function getImageUrl(path) {

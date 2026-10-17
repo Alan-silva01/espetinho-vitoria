@@ -314,7 +314,7 @@
 }
 
 .btn-confirm-order {
-    background: #C41E2E;
+    background: #16A34A;
     color: #FFFFFF;
     border: none;
     padding: 10px 18px;
@@ -326,5 +326,5 @@
 }
 
 .btn-confirm-order:hover {
-    background: #A31825;
+    background: #15803D;
 }

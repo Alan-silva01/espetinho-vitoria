@@ -5,15 +5,15 @@
 
 ## Contexto
 
-Modernizar e padronizar o modal de criação de novo pedido para cliente (`CreateOrderModal`) no painel administrativo Kanban, alinhando-o estritamente com o Design System oficial do sistema (barra de topo `#232220`, botão verde de ação, exibição de foto real do cliente, formatação de telefone sem `@s.whatsapp.net` e barra flutuante de retorno rápido ao painel administrativo quando aberto pelo admin).
+Modernizar e padronizar o modal de criação de novo pedido para cliente (`CreateOrderModal`) no painel administrativo Kanban, alinhando-o estritamente com o Design System oficial do sistema (barra de topo `#232220`, botão verde de ação, exibição de foto real do cliente, formatação de telefone sem `@s.whatsapp.net`, máscara dinâmica enquanto o usuário digita o WhatsApp, salvamento do novo cliente com telefone normalizado no formato padrão WhatsApp descartando o nono dígito `55{DDD}{8digitos}@s.whatsapp.net`, detecção amigável de duplicidade com busca do cliente existente e banner flutuante de retorno rápido ao painel administrativo quando aberto pelo admin).
 
 ## Histórias
 
 ### US-012 — Interface padronizada e moderna para iniciar novo pedido no Kanban
 
 Como operador do painel administrativo,
-quero abrir o modal de novo pedido com a mesma identidade visual de recibo do sistema, visualizar a foto e telefone formatado do cliente, acionar o pedido com botão verde e ter uma forma simples de voltar ao admin caso desista de montar o pedido,
-para que a experiência seja rápida, visualmente agradável e sem bloqueios de navegação.
+quero abrir o modal de novo pedido com a mesma identidade visual de recibo do sistema, visualizar a máscara do telefone formatando dinamicamente enquanto digito, cadastrar clientes com telefone padronizado no formato WhatsApp oficial (descartando o nono dígito do DDD móvel no banco e mantendo legível em dados.whatsapp), receber modal amigável com botão direto para o cliente caso o número já exista e ter uma forma simples de voltar ao admin caso desista de montar o pedido,
+para que a experiência seja rápida, visualmente agradável, sem bloqueios de navegação e sem alertas técnicos ou indecifráveis do banco de dados.
 
 #### AC-049 — Cabeçalho do modal segue o tema de recibo com barra escura #232220 e sem emojis
 
@@ -50,6 +50,24 @@ para que a experiência seja rápida, visualmente agradável e sem bloqueios de 
 - **Dado** que o operador clicou em 'Iniciar Pedido' e foi direcionado para a tela de pedidos do cliente com `admin=true`
 - **Quando** visualiza o cardápio ou qualquer página do cliente
 - **Então** uma barra fixa discreta no topo avisa que está em modo de atendimento e fornece um botão para retornar imediatamente ao `/admin/pedidos` sem precisar concluir o pedido
+
+#### AC-055 — Normalização de telefone ao salvar novo cliente descartando o 3º número se for 9
+
+- **Dado** o operador cadastrando um novo cliente e informando um número de 11 dígitos com DDD (ex: `99991372552` ou `(99) 99137-2552`)
+- **Quando** o cadastro é enviado para o Supabase
+- **Então** o terceiro dígito (o nono dígito '9') é descartado caso presente, gravando no campo `telefone` o formato `559991372552@s.whatsapp.net` e no campo `dados.whatsapp` a exibição formatada legível `(99) 99137-2552`
+
+#### AC-056 — Máscara de telefone interativa enquanto digita (XX) 9XXXX-XXXX
+
+- **Dado** o operador digitando no campo de WhatsApp do formulário de novo cliente
+- **Quando** digita os números
+- **Então** a máscara aplica dinamicamente o formato `(XX)` para os dois primeiros dígitos e `(XX) 9XXXX-XXXX` para 11 dígitos em tempo real
+
+#### AC-057 — Tratamento de cliente já existente com modal amigável e botão 'Ir para o Cliente'
+
+- **Dado** o operador tentando cadastrar um telefone que já existe no banco de dados (`duplicate key / unique constraint`)
+- **Quando** o erro 23505 é retornado pelo Supabase
+- **Então** não é exibido o alert feio do navegador, e sim um modal elegante em português informando que o cliente já está cadastrado com o botão direto 'Ir para o Cliente' para iniciar o pedido imediatamente
 
 ## Fora de escopo
 

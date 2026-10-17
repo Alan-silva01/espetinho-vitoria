@@ -2,7 +2,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import path from 'node:path'
-import { formatPhone } from '../src/lib/utils.js'
+import { formatPhone, formatPhoneForDatabaseWhatsApp } from '../src/lib/utils.js'
 
 const jsxPath = path.resolve('src/components/admin/CreateOrderModal.jsx')
 const cssPath = path.resolve('src/components/admin/CreateOrderModal.css')
@@ -28,7 +28,7 @@ test('AC-050: Campo de busca de clientes integrado com foco na cor institucional
 })
 
 // AC-051 — Botão 'Iniciar Pedido' na cor verde
-test('AC-051: Botão Iniciar Pedido utiliza estilo verde @spec:AC-051', () => {
+test('AC-051: Botão Iniciar Pedido e Botão Cadastrar utilizam estilo verde @spec:AC-051', () => {
     const jsxContent = fs.readFileSync(jsxPath, 'utf8')
     const cssContent = fs.readFileSync(cssPath, 'utf8')
 
@@ -56,4 +56,31 @@ test('AC-054: Layout do cliente renderiza botão de retorno ao admin quando aber
 
     assert.equal(layoutContent.includes('espetinho_opened_from_admin'), true)
     assert.equal(layoutContent.includes('Voltar ao Painel'), true, 'Deve possuir botão Voltar ao Painel')
+})
+
+// AC-055 — Normalização de telefone ao salvar novo cliente descartando o 3º número se for 9
+test('AC-055: Telefone com 11 dígitos descarta 3º número (o 9) e salva como 55{DDD}{8digitos}@s.whatsapp.net @spec:AC-055', () => {
+    const input1 = '99991372552'
+    const input2 = '(99) 99137-2552'
+
+    const db1 = formatPhoneForDatabaseWhatsApp(input1)
+    const db2 = formatPhoneForDatabaseWhatsApp(input2)
+
+    assert.equal(db1, '559991372552@s.whatsapp.net', 'Deve descartar o 9º dígito móvel e salvar no padrão WhatsApp')
+    assert.equal(db2, '559991372552@s.whatsapp.net', 'Deve tratar pontuação e descartar o 9º dígito móvel')
+})
+
+// AC-056 — Máscara de telefone interativa enquanto digita (XX) 9XXXX-XXXX
+test('AC-056: Campo de WhatsApp possui manipulador com máscara interativa @spec:AC-056', () => {
+    const jsxContent = fs.readFileSync(jsxPath, 'utf8')
+
+    assert.equal(jsxContent.includes('handlePhoneChange'), true, 'Deve usar handlePhoneChange para máscara')
+})
+
+// AC-057 — Tratamento de cliente já existente com modal amigável e botão Ir para o Cliente
+test('AC-057: Modal de aviso amigável exibe botão Ir para o Cliente quando número já existe @spec:AC-057', () => {
+    const jsxContent = fs.readFileSync(jsxPath, 'utf8')
+
+    assert.equal(jsxContent.includes('CLIENTE JÁ CADASTRADO'), true)
+    assert.equal(jsxContent.includes('Ir para o Cliente'), true)
 })
