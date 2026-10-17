@@ -1,0 +1,37 @@
+{
+  "feature": "edicao-tipo-pagamento-pedido",
+  "timestamp": "2026-10-17T10:52:33.203Z",
+  "gitRev": "6c93d5c",
+  "command": "node --test --test-reporter=tap",
+  "reporter": "tap",
+  "exitCode": 0,
+  "testsParsed": 40,
+  "results": {
+    "AC-044": {
+      "status": "pass",
+      "testName": "AC-044: Alternar entrega para retirada zera taxa_entrega e deduz do total @spec:AC-044",
+      "method": "tap"
+    },
+    "AC-045": {
+      "status": "pass",
+      "testName": "AC-045: Cartão de crédito calcula taxa percentual sobre subtotal + entrega @spec:AC-045",
+      "method": "tap"
+    },
+    "AC-046": {
+      "status": "pass",
+      "testName": "AC-046: Isenção de taxa de cartão zera encargo e deduz do total @spec:AC-046",
+      "method": "tap"
+    },
+    "AC-047": {
+      "status": "pass",
+      "testName": "AC-047: Dinheiro com troco zera taxa de cartão e armazena troco @spec:AC-047",
+      "method": "tap"
+    },
+    "AC-048": {
+      "status": "pass",
+      "testName": "AC-048: Objeto de totais gerado é consistente para sincronização em tempo real @spec:AC-048",
+      "method": "tap"
+    }
+  },
+  "principles": {}
+}

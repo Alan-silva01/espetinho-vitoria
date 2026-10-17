@@ -968,73 +968,73 @@
       "codigo": "ID_DUPLICADO",
       "feature": "fix-tela-preta",
       "ref": "US-001",
-      "ocorrencias": 2,
+      "ocorrencias": 3,
       "primeiraVez": "2026-10-01T22:08:24.939Z",
-      "ultimaVez": "2026-10-01T22:12:32.376Z",
-      "gitRev": "7f3d8ed"
+      "ultimaVez": "2026-10-17T10:45:09.626Z",
+      "gitRev": "6c93d5c"
     },
     "ID_DUPLICADO::fix-tela-preta::AC-001": {
       "codigo": "ID_DUPLICADO",
       "feature": "fix-tela-preta",
       "ref": "AC-001",
-      "ocorrencias": 2,
+      "ocorrencias": 3,
       "primeiraVez": "2026-10-01T22:08:24.944Z",
-      "ultimaVez": "2026-10-01T22:12:32.377Z",
-      "gitRev": "7f3d8ed"
+      "ultimaVez": "2026-10-17T10:45:09.626Z",
+      "gitRev": "6c93d5c"
     },
     "ID_DUPLICADO::fix-tela-preta::AC-002": {
       "codigo": "ID_DUPLICADO",
       "feature": "fix-tela-preta",
       "ref": "AC-002",
-      "ocorrencias": 2,
+      "ocorrencias": 3,
       "primeiraVez": "2026-10-01T22:08:24.944Z",
-      "ultimaVez": "2026-10-01T22:12:32.377Z",
-      "gitRev": "7f3d8ed"
+      "ultimaVez": "2026-10-17T10:45:09.626Z",
+      "gitRev": "6c93d5c"
     },
     "ID_DUPLICADO::fix-tela-preta::AC-003": {
       "codigo": "ID_DUPLICADO",
       "feature": "fix-tela-preta",
       "ref": "AC-003",
-      "ocorrencias": 2,
+      "ocorrencias": 3,
       "primeiraVez": "2026-10-01T22:08:24.944Z",
-      "ultimaVez": "2026-10-01T22:12:32.377Z",
-      "gitRev": "7f3d8ed"
+      "ultimaVez": "2026-10-17T10:45:09.626Z",
+      "gitRev": "6c93d5c"
     },
     "ID_DUPLICADO::fix-tela-preta::AC-004": {
       "codigo": "ID_DUPLICADO",
       "feature": "fix-tela-preta",
       "ref": "AC-004",
-      "ocorrencias": 2,
+      "ocorrencias": 3,
       "primeiraVez": "2026-10-01T22:08:24.944Z",
-      "ultimaVez": "2026-10-01T22:12:32.377Z",
-      "gitRev": "7f3d8ed"
+      "ultimaVez": "2026-10-17T10:45:09.626Z",
+      "gitRev": "6c93d5c"
     },
     "ID_DUPLICADO::fix-tela-preta::ASM-001": {
       "codigo": "ID_DUPLICADO",
       "feature": "fix-tela-preta",
       "ref": "ASM-001",
-      "ocorrencias": 2,
+      "ocorrencias": 3,
       "primeiraVez": "2026-10-01T22:08:24.944Z",
-      "ultimaVez": "2026-10-01T22:12:32.377Z",
-      "gitRev": "7f3d8ed"
+      "ultimaVez": "2026-10-17T10:45:09.626Z",
+      "gitRev": "6c93d5c"
     },
     "ID_DUPLICADO::fix-tela-preta::ASM-002": {
       "codigo": "ID_DUPLICADO",
       "feature": "fix-tela-preta",
       "ref": "ASM-002",
-      "ocorrencias": 2,
+      "ocorrencias": 3,
       "primeiraVez": "2026-10-01T22:08:24.944Z",
-      "ultimaVez": "2026-10-01T22:12:32.377Z",
-      "gitRev": "7f3d8ed"
+      "ultimaVez": "2026-10-17T10:45:09.626Z",
+      "gitRev": "6c93d5c"
     },
     "SECAO_AUSENTE::controle-estoque-arroz::.spec/features/controle-estoque-arroz/spec.md": {
       "codigo": "SECAO_AUSENTE",
       "feature": "controle-estoque-arroz",
       "ref": ".spec/features/controle-estoque-arroz/spec.md",
-      "ocorrencias": 2,
+      "ocorrencias": 3,
       "primeiraVez": "2026-10-01T22:08:24.944Z",
-      "ultimaVez": "2026-10-01T22:12:32.377Z",
-      "gitRev": "7f3d8ed"
+      "ultimaVez": "2026-10-17T10:45:09.627Z",
+      "gitRev": "6c93d5c"
     },
     "REF_MALFORMADA::controle-estoque-arroz::T-001": {
       "codigo": "REF_MALFORMADA",
@@ -1058,19 +1058,19 @@
       "codigo": "TASK_CONCLUIDA_SEM_PROVA",
       "feature": "controle-estoque-arroz",
       "ref": "T-001",
-      "ocorrencias": 2,
+      "ocorrencias": 10,
       "primeiraVez": "2026-10-01T22:08:24.944Z",
-      "ultimaVez": "2026-10-01T22:08:24.944Z",
-      "gitRev": "7f3d8ed"
+      "ultimaVez": "2026-10-17T10:45:09.627Z",
+      "gitRev": "6c93d5c"
     },
     "TASK_CONCLUIDA_SEM_PROVA::controle-estoque-arroz::T-002": {
       "codigo": "TASK_CONCLUIDA_SEM_PROVA",
       "feature": "controle-estoque-arroz",
       "ref": "T-002",
-      "ocorrencias": 2,
+      "ocorrencias": 10,
       "primeiraVez": "2026-10-01T22:08:24.944Z",
-      "ultimaVez": "2026-10-01T22:08:24.944Z",
-      "gitRev": "7f3d8ed"
+      "ultimaVez": "2026-10-17T10:45:09.627Z",
+      "gitRev": "6c93d5c"
     },
     "TASK_CONCLUIDA_SEM_PROVA::controle-estoque-arroz::T-004": {
       "codigo": "TASK_CONCLUIDA_SEM_PROVA",
@@ -1256,37 +1256,361 @@
       "codigo": "TASK_CONCLUIDA_SEM_PROVA",
       "feature": "fix-tela-preta",
       "ref": "T-001",
-      "ocorrencias": 2,
+      "ocorrencias": 4,
       "primeiraVez": "2026-10-01T22:08:24.944Z",
-      "ultimaVez": "2026-10-01T22:08:24.944Z",
-      "gitRev": "7f3d8ed"
+      "ultimaVez": "2026-10-17T10:45:09.627Z",
+      "gitRev": "6c93d5c"
     },
     "TASK_CONCLUIDA_SEM_PROVA::fix-tela-preta::T-002": {
       "codigo": "TASK_CONCLUIDA_SEM_PROVA",
       "feature": "fix-tela-preta",
       "ref": "T-002",
-      "ocorrencias": 1,
+      "ocorrencias": 2,
       "primeiraVez": "2026-10-01T22:08:24.944Z",
-      "ultimaVez": "2026-10-01T22:08:24.944Z",
-      "gitRev": "7f3d8ed"
+      "ultimaVez": "2026-10-17T10:45:09.627Z",
+      "gitRev": "6c93d5c"
     },
     "TASK_CONCLUIDA_SEM_PROVA::fix-tela-preta::T-003": {
       "codigo": "TASK_CONCLUIDA_SEM_PROVA",
       "feature": "fix-tela-preta",
       "ref": "T-003",
-      "ocorrencias": 1,
+      "ocorrencias": 2,
       "primeiraVez": "2026-10-01T22:08:24.944Z",
-      "ultimaVez": "2026-10-01T22:08:24.944Z",
-      "gitRev": "7f3d8ed"
+      "ultimaVez": "2026-10-17T10:45:09.627Z",
+      "gitRev": "6c93d5c"
     },
     "VERIFY_OBSOLETO::fix-tela-preta::—": {
       "codigo": "VERIFY_OBSOLETO",
       "feature": "fix-tela-preta",
       "ref": "—",
-      "ocorrencias": 1,
+      "ocorrencias": 2,
       "primeiraVez": "2026-10-01T22:08:24.944Z",
-      "ultimaVez": "2026-10-01T22:08:24.944Z",
-      "gitRev": "7f3d8ed"
+      "ultimaVez": "2026-10-17T10:45:09.627Z",
+      "gitRev": "6c93d5c"
+    },
+    "ID_DUPLICADO::controle-estoque-arroz::US-001": {
+      "codigo": "ID_DUPLICADO",
+      "feature": "controle-estoque-arroz",
+      "ref": "US-001",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-17T10:45:09.620Z",
+      "ultimaVez": "2026-10-17T10:45:09.626Z",
+      "gitRev": "6c93d5c"
+    },
+    "ID_DUPLICADO::controle-estoque-arroz::AC-001": {
+      "codigo": "ID_DUPLICADO",
+      "feature": "controle-estoque-arroz",
+      "ref": "AC-001",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-17T10:45:09.626Z",
+      "ultimaVez": "2026-10-17T10:45:09.626Z",
+      "gitRev": "6c93d5c"
+    },
+    "ID_DUPLICADO::controle-estoque-arroz::AC-002": {
+      "codigo": "ID_DUPLICADO",
+      "feature": "controle-estoque-arroz",
+      "ref": "AC-002",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-17T10:45:09.626Z",
+      "ultimaVez": "2026-10-17T10:45:09.626Z",
+      "gitRev": "6c93d5c"
+    },
+    "ID_DUPLICADO::controle-estoque-arroz::AC-003": {
+      "codigo": "ID_DUPLICADO",
+      "feature": "controle-estoque-arroz",
+      "ref": "AC-003",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-17T10:45:09.626Z",
+      "ultimaVez": "2026-10-17T10:45:09.626Z",
+      "gitRev": "6c93d5c"
+    },
+    "ID_DUPLICADO::controle-estoque-arroz::AC-004": {
+      "codigo": "ID_DUPLICADO",
+      "feature": "controle-estoque-arroz",
+      "ref": "AC-004",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-17T10:45:09.626Z",
+      "ultimaVez": "2026-10-17T10:45:09.626Z",
+      "gitRev": "6c93d5c"
+    },
+    "ID_DUPLICADO::controle-estoque-arroz::AC-005": {
+      "codigo": "ID_DUPLICADO",
+      "feature": "controle-estoque-arroz",
+      "ref": "AC-005",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-17T10:45:09.626Z",
+      "ultimaVez": "2026-10-17T10:45:09.626Z",
+      "gitRev": "6c93d5c"
+    },
+    "ID_DUPLICADO::controle-estoque-arroz::AC-006": {
+      "codigo": "ID_DUPLICADO",
+      "feature": "controle-estoque-arroz",
+      "ref": "AC-006",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-17T10:45:09.626Z",
+      "ultimaVez": "2026-10-17T10:45:09.626Z",
+      "gitRev": "6c93d5c"
+    },
+    "ID_DUPLICADO::controle-estoque-arroz::AC-007": {
+      "codigo": "ID_DUPLICADO",
+      "feature": "controle-estoque-arroz",
+      "ref": "AC-007",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-17T10:45:09.626Z",
+      "ultimaVez": "2026-10-17T10:45:09.626Z",
+      "gitRev": "6c93d5c"
+    },
+    "ID_DUPLICADO::controle-estoque-arroz::AC-008": {
+      "codigo": "ID_DUPLICADO",
+      "feature": "controle-estoque-arroz",
+      "ref": "AC-008",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-17T10:45:09.626Z",
+      "ultimaVez": "2026-10-17T10:45:09.626Z",
+      "gitRev": "6c93d5c"
+    },
+    "ID_DUPLICADO::dashboard-grafico-scroll-pedidos::US-003": {
+      "codigo": "ID_DUPLICADO",
+      "feature": "dashboard-grafico-scroll-pedidos",
+      "ref": "US-003",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-17T10:45:09.626Z",
+      "ultimaVez": "2026-10-17T10:45:09.626Z",
+      "gitRev": "6c93d5c"
+    },
+    "ID_DUPLICADO::edicao-tipo-pagamento-pedido::ASM-001": {
+      "codigo": "ID_DUPLICADO",
+      "feature": "edicao-tipo-pagamento-pedido",
+      "ref": "ASM-001",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-17T10:45:09.626Z",
+      "ultimaVez": "2026-10-17T10:45:09.626Z",
+      "gitRev": "6c93d5c"
+    },
+    "ID_DUPLICADO::fix-tela-preta::US-002": {
+      "codigo": "ID_DUPLICADO",
+      "feature": "fix-tela-preta",
+      "ref": "US-002",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-17T10:45:09.626Z",
+      "ultimaVez": "2026-10-17T10:45:09.626Z",
+      "gitRev": "6c93d5c"
+    },
+    "ID_DUPLICADO::fix-tela-preta::Q-001": {
+      "codigo": "ID_DUPLICADO",
+      "feature": "fix-tela-preta",
+      "ref": "Q-001",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-17T10:45:09.626Z",
+      "ultimaVez": "2026-10-17T10:45:09.626Z",
+      "gitRev": "6c93d5c"
+    },
+    "STATUS_INVALIDO::app-windows-instalador::.spec/features/app-windows-instalador/spec.md": {
+      "codigo": "STATUS_INVALIDO",
+      "feature": "app-windows-instalador",
+      "ref": ".spec/features/app-windows-instalador/spec.md",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-17T10:45:09.626Z",
+      "ultimaVez": "2026-10-17T10:45:09.626Z",
+      "gitRev": "6c93d5c"
+    },
+    "SECAO_AUSENTE::app-windows-instalador::.spec/features/app-windows-instalador/spec.md": {
+      "codigo": "SECAO_AUSENTE",
+      "feature": "app-windows-instalador",
+      "ref": ".spec/features/app-windows-instalador/spec.md",
+      "ocorrencias": 2,
+      "primeiraVez": "2026-10-17T10:45:09.627Z",
+      "ultimaVez": "2026-10-17T10:45:09.627Z",
+      "gitRev": "6c93d5c"
+    },
+    "TASK_CONCLUIDA_SEM_PROVA::app-windows-instalador::T-001": {
+      "codigo": "TASK_CONCLUIDA_SEM_PROVA",
+      "feature": "app-windows-instalador",
+      "ref": "T-001",
+      "ocorrencias": 2,
+      "primeiraVez": "2026-10-17T10:45:09.627Z",
+      "ultimaVez": "2026-10-17T10:45:09.627Z",
+      "gitRev": "6c93d5c"
+    },
+    "TASK_CONCLUIDA_SEM_PROVA::app-windows-instalador::T-002": {
+      "codigo": "TASK_CONCLUIDA_SEM_PROVA",
+      "feature": "app-windows-instalador",
+      "ref": "T-002",
+      "ocorrencias": 3,
+      "primeiraVez": "2026-10-17T10:45:09.627Z",
+      "ultimaVez": "2026-10-17T10:45:09.627Z",
+      "gitRev": "6c93d5c"
+    },
+    "TASK_CONCLUIDA_SEM_PROVA::app-windows-instalador::T-003": {
+      "codigo": "TASK_CONCLUIDA_SEM_PROVA",
+      "feature": "app-windows-instalador",
+      "ref": "T-003",
+      "ocorrencias": 3,
+      "primeiraVez": "2026-10-17T10:45:09.627Z",
+      "ultimaVez": "2026-10-17T10:45:09.627Z",
+      "gitRev": "6c93d5c"
+    },
+    "TASK_CONCLUIDA_SEM_PROVA::app-windows-instalador::T-004": {
+      "codigo": "TASK_CONCLUIDA_SEM_PROVA",
+      "feature": "app-windows-instalador",
+      "ref": "T-004",
+      "ocorrencias": 2,
+      "primeiraVez": "2026-10-17T10:45:09.627Z",
+      "ultimaVez": "2026-10-17T10:45:09.627Z",
+      "gitRev": "6c93d5c"
+    },
+    "AC_SEM_PROVA::app-windows-instalador::AC-001": {
+      "codigo": "AC_SEM_PROVA",
+      "feature": "app-windows-instalador",
+      "ref": "AC-001",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-17T10:45:09.627Z",
+      "ultimaVez": "2026-10-17T10:45:09.627Z",
+      "gitRev": "6c93d5c"
+    },
+    "AC_SEM_PROVA::app-windows-instalador::AC-002": {
+      "codigo": "AC_SEM_PROVA",
+      "feature": "app-windows-instalador",
+      "ref": "AC-002",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-17T10:45:09.627Z",
+      "ultimaVez": "2026-10-17T10:45:09.627Z",
+      "gitRev": "6c93d5c"
+    },
+    "AC_SEM_PROVA::app-windows-instalador::AC-003": {
+      "codigo": "AC_SEM_PROVA",
+      "feature": "app-windows-instalador",
+      "ref": "AC-003",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-17T10:45:09.627Z",
+      "ultimaVez": "2026-10-17T10:45:09.627Z",
+      "gitRev": "6c93d5c"
+    },
+    "AC_SEM_PROVA::app-windows-instalador::AC-004": {
+      "codigo": "AC_SEM_PROVA",
+      "feature": "app-windows-instalador",
+      "ref": "AC-004",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-17T10:45:09.627Z",
+      "ultimaVez": "2026-10-17T10:45:09.627Z",
+      "gitRev": "6c93d5c"
+    },
+    "AC_SEM_PROVA::app-windows-instalador::AC-005": {
+      "codigo": "AC_SEM_PROVA",
+      "feature": "app-windows-instalador",
+      "ref": "AC-005",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-17T10:45:09.627Z",
+      "ultimaVez": "2026-10-17T10:45:09.627Z",
+      "gitRev": "6c93d5c"
+    },
+    "AC_SEM_PROVA::app-windows-instalador::AC-006": {
+      "codigo": "AC_SEM_PROVA",
+      "feature": "app-windows-instalador",
+      "ref": "AC-006",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-17T10:45:09.627Z",
+      "ultimaVez": "2026-10-17T10:45:09.627Z",
+      "gitRev": "6c93d5c"
+    },
+    "AC_SEM_PROVA::app-windows-instalador::AC-007": {
+      "codigo": "AC_SEM_PROVA",
+      "feature": "app-windows-instalador",
+      "ref": "AC-007",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-17T10:45:09.627Z",
+      "ultimaVez": "2026-10-17T10:45:09.627Z",
+      "gitRev": "6c93d5c"
+    },
+    "AC_SEM_PROVA::app-windows-instalador::AC-008": {
+      "codigo": "AC_SEM_PROVA",
+      "feature": "app-windows-instalador",
+      "ref": "AC-008",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-17T10:45:09.627Z",
+      "ultimaVez": "2026-10-17T10:45:09.627Z",
+      "gitRev": "6c93d5c"
+    },
+    "VERIFY_OBSOLETO::controle-estoque-arroz::—": {
+      "codigo": "VERIFY_OBSOLETO",
+      "feature": "controle-estoque-arroz",
+      "ref": "—",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-17T10:45:09.627Z",
+      "ultimaVez": "2026-10-17T10:45:09.627Z",
+      "gitRev": "6c93d5c"
+    },
+    "VERIFY_OBSOLETO::dashboard-grafico-scroll-pedidos::—": {
+      "codigo": "VERIFY_OBSOLETO",
+      "feature": "dashboard-grafico-scroll-pedidos",
+      "ref": "—",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-17T10:45:09.627Z",
+      "ultimaVez": "2026-10-17T10:45:09.627Z",
+      "gitRev": "6c93d5c"
+    },
+    "ARQUIVO_INEXISTENTE::edicao-tipo-pagamento-pedido::T-001": {
+      "codigo": "ARQUIVO_INEXISTENTE",
+      "feature": "edicao-tipo-pagamento-pedido",
+      "ref": "T-001",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-17T10:45:09.627Z",
+      "ultimaVez": "2026-10-17T10:45:09.627Z",
+      "gitRev": "6c93d5c"
+    },
+    "AC_SEM_TESTE::edicao-tipo-pagamento-pedido::AC-044": {
+      "codigo": "AC_SEM_TESTE",
+      "feature": "edicao-tipo-pagamento-pedido",
+      "ref": "AC-044",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-17T10:45:09.627Z",
+      "ultimaVez": "2026-10-17T10:45:09.627Z",
+      "gitRev": "6c93d5c"
+    },
+    "STATUS_INVALIDO::fix-nome-cliente-revert::.spec/features/fix-nome-cliente-revert/spec.md": {
+      "codigo": "STATUS_INVALIDO",
+      "feature": "fix-nome-cliente-revert",
+      "ref": ".spec/features/fix-nome-cliente-revert/spec.md",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-17T10:45:09.627Z",
+      "ultimaVez": "2026-10-17T10:45:09.627Z",
+      "gitRev": "6c93d5c"
+    },
+    "AC_SEM_PROVA::fix-nome-cliente-revert::AC-040": {
+      "codigo": "AC_SEM_PROVA",
+      "feature": "fix-nome-cliente-revert",
+      "ref": "AC-040",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-17T10:45:09.627Z",
+      "ultimaVez": "2026-10-17T10:45:09.627Z",
+      "gitRev": "6c93d5c"
+    },
+    "AC_SEM_PROVA::fix-nome-cliente-revert::AC-041": {
+      "codigo": "AC_SEM_PROVA",
+      "feature": "fix-nome-cliente-revert",
+      "ref": "AC-041",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-17T10:45:09.627Z",
+      "ultimaVez": "2026-10-17T10:45:09.627Z",
+      "gitRev": "6c93d5c"
+    },
+    "AC_SEM_TESTE::fix-nome-cliente-revert::AC-042": {
+      "codigo": "AC_SEM_TESTE",
+      "feature": "fix-nome-cliente-revert",
+      "ref": "AC-042",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-17T10:45:09.627Z",
+      "ultimaVez": "2026-10-17T10:45:09.627Z",
+      "gitRev": "6c93d5c"
+    },
+    "AC_SEM_PROVA::fix-nome-cliente-revert::AC-043": {
+      "codigo": "AC_SEM_PROVA",
+      "feature": "fix-nome-cliente-revert",
+      "ref": "AC-043",
+      "ocorrencias": 1,
+      "primeiraVez": "2026-10-17T10:45:09.627Z",
+      "ultimaVez": "2026-10-17T10:45:09.627Z",
+      "gitRev": "6c93d5c"
     }
   }
 }

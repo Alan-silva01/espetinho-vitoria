@@ -4,7 +4,7 @@ import {
     X, Timer, Printer, Receipt,
     Bike, ChefHat, Store, Utensils,
     XCircle, CheckCircle, ArrowRight, RotateCcw, ReceiptText, Plus,
-    Pencil, Trash2, Minus, Check
+    Pencil, Trash2, Minus, Check, Settings2
 } from 'lucide-react'
 import { formatCurrency, filterPersonalizacao, getSmartItemName } from '../../lib/utils'
 import { renderItemProductIcon, getCleanInitial } from '../../lib/itemIcons'
@@ -13,6 +13,7 @@ import { suppressOrderNotification } from '../../lib/soundSuppressor'
 import AddItemSheet from './AddItemSheet'
 import DeleteItemDialog from './DeleteItemDialog'
 import EditItemSheet from './EditItemSheet'
+import EditOrderDetailsSheet from './EditOrderDetailsSheet'
 import pixIcon from '../../assets/icons/pix.png'
 import dinheiroIcon from '../../assets/icons/dinheiro.png'
 import cartaoIcon from '../../assets/icons/cartao.png'
@@ -59,13 +60,32 @@ export default function OrderDetailModal({
     const [isPhotoZoomed, setIsPhotoZoomed] = useState(false)
     const [showAddItem, setShowAddItem] = useState(false)
     const [showEditItem, setShowEditItem] = useState(null) // item being edited
+    const [showEditDetails, setShowEditDetails] = useState(false)
     // Delete confirmation dialog
     const [deleteTarget, setDeleteTarget] = useState(null) // { id, name }
     // Local copy of the order so we can update instantly without closing modal
     const [localOrder, setLocalOrder] = useState(order)
     const [actionLoading, setActionLoading] = useState(false)
 
-    const { addItemToOrder, editItemInOrder, removeItemFromOrder } = useOrders()
+    const { addItemToOrder, editItemInOrder, removeItemFromOrder, updateOrderDetails } = useOrders()
+
+    const handleSaveOrderDetails = useCallback(async (updatedFields) => {
+        if (!localOrder) return
+        setActionLoading(true)
+        try {
+            suppressOrderNotification(localOrder.id, 8000)
+            const updated = await updateOrderDetails(localOrder.id, updatedFields, localOrder)
+            if (updated) {
+                setLocalOrder(updated)
+                onOrderUpdated?.(updated)
+            }
+        } catch (err) {
+            console.error('[OrderDetailModal] handleSaveOrderDetails error:', err)
+            throw err
+        } finally {
+            setActionLoading(false)
+        }
+    }, [localOrder, updateOrderDetails, onOrderUpdated])
 
     // Sync localOrder when parent sends fresh DB data (e.g. after fetchOrders replaces temp IDs)
     // Only sync if the incoming order has meaningful differences (new items or no temp IDs)
@@ -237,17 +257,43 @@ export default function OrderDetailModal({
                                             </div>
                                         )}
                                     </div>
-                                    <div className="receipt-meta-line-spaced">
+                                    <div className="receipt-meta-line-spaced" style={{ alignItems: 'center' }}>
                                         <span className="receipt-meta-date">{new Date(localOrder.criado_em).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })} às {new Date(localOrder.criado_em).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
-                                        <span className="receipt-meta-type-caps">
-                                            {localOrder.tipo_pedido === 'mesa' && localOrder.mesas ? (
-                                                `MESA ${localOrder.mesas.numero}`
-                                            ) : localOrder.tipo_pedido === 'entrega' ? (
-                                                'ENTREGA'
-                                            ) : (
-                                                'RETIRADA'
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                            <span className="receipt-meta-type-caps">
+                                                {localOrder.tipo_pedido === 'mesa' && localOrder.mesas ? (
+                                                    `MESA ${localOrder.mesas.numero}`
+                                                ) : localOrder.tipo_pedido === 'entrega' ? (
+                                                    'ENTREGA'
+                                                ) : (
+                                                    'RETIRADA'
+                                                )}
+                                            </span>
+                                            {isActiveOrder && localOrder.tipo_pedido !== 'mesa' && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowEditDetails(true)}
+                                                    style={{
+                                                        border: '1px solid #d4d4d4',
+                                                        background: '#ffffff',
+                                                        color: '#171717',
+                                                        cursor: 'pointer',
+                                                        padding: '2px 6px',
+                                                        fontSize: '11px',
+                                                        fontWeight: 700,
+                                                        display: 'inline-flex',
+                                                        alignItems: 'center',
+                                                        gap: '4px',
+                                                        borderRadius: '3px',
+                                                        lineHeight: 1.2
+                                                    }}
+                                                    title="Editar Tipo e Pagamento do Pedido"
+                                                >
+                                                    <Pencil size={10} />
+                                                    <span>EDITAR</span>
+                                                </button>
                                             )}
-                                        </span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -560,6 +606,14 @@ export default function OrderDetailModal({
                 itemName={deleteTarget?.name}
                 onCancel={() => setDeleteTarget(null)}
                 onConfirm={() => handleRemoveItem(deleteTarget.id)}
+            />
+
+            {/* SHEET DE EDIÇÃO DE TIPO, TAXA E PAGAMENTO */}
+            <EditOrderDetailsSheet
+                isOpen={showEditDetails}
+                order={localOrder}
+                onClose={() => setShowEditDetails(false)}
+                onSave={handleSaveOrderDetails}
             />
         </div>,
         document.body

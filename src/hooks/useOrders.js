@@ -534,7 +534,29 @@ export function useOrders() {
         }
     }
 
-    return { orders, loading, createOrder, requestComandaClosing, finalizeComanda, addItemToOrder, editItemInOrder, removeItemFromOrder }
+    async function updateOrderDetails(orderId, updateFields, currentOrder) {
+        setLoading(true)
+        try {
+            const { error: updateErr } = await supabase
+                .from('pedidos')
+                .update(updateFields)
+                .eq('id', orderId)
+
+            if (updateErr) throw updateErr
+
+            return {
+                ...(currentOrder || {}),
+                ...updateFields,
+            }
+        } catch (err) {
+            console.error('[updateOrderDetails] Erro:', err)
+            throw err
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    return { orders, loading, createOrder, requestComandaClosing, finalizeComanda, addItemToOrder, editItemInOrder, removeItemFromOrder, updateOrderDetails }
 }
 
 export async function getActiveComanda(mesaId) {
