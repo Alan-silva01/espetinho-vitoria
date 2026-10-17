@@ -16,3 +16,8 @@
 - Refs: US-013, AC-060, AC-061
 - Arquivos: src/components/admin/OrderDetailModal.jsx, src/pages/admin/OrdersPage.css
 - Notas: Ajustar receipt-item-title e garantir font-weight 700 no nome do produto tanto no recibo quanto no card Kanban.
+
+## T-020 — Implementar detecção e alternância de som ativo (verde) e inativo (vermelho) [concluida]
+- Refs: US-013, AC-062
+- Arquivos: src/hooks/useOrderNotificationSound.js, src/context/NotificationSoundContext.jsx, src/layouts/AdminLayout.jsx, src/pages/admin/OrdersPage.jsx, src/pages/admin/OrdersPage.css
+- Notas: Persistir estado no localStorage, alternar com toggleSound, tocar som de teste ao reativar e aplicar classes .sound-active e .sound-inactive.

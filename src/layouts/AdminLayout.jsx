@@ -17,7 +17,7 @@ export default function AdminLayout() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
     // Ativa o som global de notificação para o Admin
-    const { playNotificationSound } = useOrderNotificationSound(isAuthenticated)
+    const { playNotificationSound, isSoundActive, toggleSound } = useOrderNotificationSound(isAuthenticated)
 
     const toggleSidebar = () => {
         setIsCollapsed(prev => {
@@ -76,7 +76,7 @@ export default function AdminLayout() {
                 onCloseMobile={() => setIsMobileMenuOpen(false)}
             />
             <main className="admin-main">
-                <NotificationSoundContext.Provider value={{ playNotificationSound }}>
+                <NotificationSoundContext.Provider value={{ playNotificationSound, isSoundActive, toggleSound }}>
                     <Outlet />
                 </NotificationSoundContext.Provider>
             </main>

@@ -35,6 +35,11 @@ Para que a visualização seja rápida, profissional e sem poluição visual.
 - **Quando** os itens do pedido são listados no card
 - **Então** tanto a quantidade quanto o nome do produto devem estar destacados em negrito com contraste limpo e legível.
 
+#### AC-062 — Indicador visual de som ativo (verde) e inativo (vermelho) com toggle
+- **Dado** que o operador clica no botão de som do cabeçalho
+- **Quando** o estado de som é alternado ou carregado
+- **Então** o botão deve refletir visualmente se o som está ativo com fundo e borda verde (`.sound-active`), ou vermelho quando inativo (`.sound-inactive`), alternando os ícones Volume2 e VolumeX com tooltips correspondentes.
+
 ## Fora de escopo
 
 - Alterações na lógica de WebSocket/Realtime do som de notificação.

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { isOrderNotificationSuppressed } from '../lib/soundSuppressor'
 
@@ -7,22 +7,47 @@ export function useOrderNotificationSound(isAuthenticated) {
     const audioUnlockedRef = useRef(false)
     const orderCacheRef = useRef({})
 
+    const [isSoundActive, setIsSoundActive] = useState(() => {
+        return localStorage.getItem('admin_sound_enabled') !== 'false'
+    })
+
     // Helper para tocar o som lidando com o bloqueio do navegador
     const playNotificationSound = useCallback(() => {
+        if (!isSoundActive) return
+
         const audio = audioRef.current
         audio.currentTime = 0
-        audio.play().catch(() => {
+        audio.play().then(() => {
+            audioUnlockedRef.current = true
+        }).catch(() => {
             // Browser blocked autoplay — register a one-time click listener to unlock
             if (!audioUnlockedRef.current) {
                 const unlock = () => {
-                    audioRef.current.play().catch(() => { })
-                    audioUnlockedRef.current = true
+                    audioRef.current.play().then(() => {
+                        audioUnlockedRef.current = true
+                    }).catch(() => { })
                     document.removeEventListener('click', unlock)
                     document.removeEventListener('touchstart', unlock)
                 }
                 document.addEventListener('click', unlock, { once: true })
                 document.addEventListener('touchstart', unlock, { once: true })
             }
+        })
+    }, [isSoundActive])
+
+    const toggleSound = useCallback(() => {
+        setIsSoundActive(prev => {
+            const next = !prev
+            localStorage.setItem('admin_sound_enabled', String(next))
+            if (next) {
+                // Toca som curto de confirmação e desbloqueia o áudio no navegador
+                const audio = audioRef.current
+                audio.currentTime = 0
+                audio.play().then(() => {
+                    audioUnlockedRef.current = true
+                }).catch(() => { })
+            }
+            return next
         })
     }, [])
 
@@ -137,5 +162,5 @@ export function useOrderNotificationSound(isAuthenticated) {
         }
     }, [isAuthenticated, playNotificationSound])
 
-    return { playNotificationSound }
+    return { playNotificationSound, isSoundActive, toggleSound }
 }

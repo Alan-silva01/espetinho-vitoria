@@ -12,7 +12,13 @@ const kanbanCardJsxPath = path.resolve('src/components/admin/KanbanOrderCard.jsx
 test('AC-058: Botão de som no header utiliza Volume2 sem texto solto e com title @spec:AC-058', () => {
     const content = fs.readFileSync(ordersPageJsxPath, 'utf8')
     assert.equal(content.includes('Volume2'), true, 'OrdersPage deve importar e usar o ícone Volume2')
-    assert.equal(content.includes('title="Testar Som de Notificação"') || content.includes('title="Testar som"'), true, 'Botão de som deve ter atributo title/tooltip')
+    assert.equal(
+        content.includes('Som ativo (Clique para desativar)') ||
+        content.includes('title="Testar Som de Notificação"') ||
+        content.includes('title="Testar som"'),
+        true,
+        'Botão de som deve ter atributo title/tooltip dinâmico'
+    )
     // Não deve ter o texto "Ativar Som" solto
     assert.equal(content.includes('>Ativar Som<') || content.includes('Ativar Som\n'), false, 'Não deve exibir texto solto Ativar Som')
 })
@@ -48,3 +54,18 @@ test('AC-061: Nome dos itens no card do Kanban possui estilo com font-weight des
     assert.equal(cssContent.includes('.card-ref-item-name'), true, 'CSS deve conter classe card-ref-item-name')
     assert.equal(cssContent.includes('font-weight: 700') || cssContent.includes('font-weight: 800'), true, 'card-ref-item-name deve ter font-weight em negrito')
 })
+
+// AC-062 — Indicador visual de som ativo (verde) e inativo (vermelho) com toggle
+test('AC-062: Botão de som possui estados sound-active e sound-inactive e alterna com toggle @spec:AC-062', () => {
+    const ordersJsx = fs.readFileSync(ordersPageJsxPath, 'utf8')
+    const cssContent = fs.readFileSync(ordersPageCssPath, 'utf8')
+    const hookContent = fs.readFileSync(path.resolve('src/hooks/useOrderNotificationSound.js'), 'utf8')
+
+    assert.equal(ordersJsx.includes('sound-active') && ordersJsx.includes('sound-inactive'), true, 'OrdersPage deve alternar classes sound-active e sound-inactive')
+    assert.equal(ordersJsx.includes('toggleSound'), true, 'OrdersPage deve acionar toggleSound ao clicar')
+    assert.equal(cssContent.includes('.btn-sound-test.sound-active'), true, 'CSS deve conter estilo para .sound-active verde')
+    assert.equal(cssContent.includes('.btn-sound-test.sound-inactive'), true, 'CSS deve conter estilo para .sound-inactive vermelho')
+    assert.equal(hookContent.includes('toggleSound'), true, 'Hook de som deve exportar toggleSound')
+    assert.equal(hookContent.includes('isSoundActive'), true, 'Hook de som deve gerenciar isSoundActive')
+})
+

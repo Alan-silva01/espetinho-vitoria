@@ -159,6 +159,30 @@
     border-color: #DFDFDF;
 }
 
+.btn-sound-test.sound-active {
+    background: #ECFDF5;
+    border-color: #A7F3D0;
+    color: #059669;
+}
+
+.btn-sound-test.sound-active:hover {
+    background: #D1FAE5;
+    border-color: #6EE7B7;
+    color: #047857;
+}
+
+.btn-sound-test.sound-inactive {
+    background: #FEF2F2;
+    border-color: #FECACA;
+    color: #DC2626;
+}
+
+.btn-sound-test.sound-inactive:hover {
+    background: #FEE2E2;
+    border-color: #FCA5A5;
+    color: #B91C1C;
+}
+
 .btn-test-sound svg,
 .btn-sound-test svg {
     color: inherit;

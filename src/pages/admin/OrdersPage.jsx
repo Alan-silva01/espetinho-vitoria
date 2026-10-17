@@ -4,7 +4,7 @@ import {
     MoreHorizontal, Phone, MapPin, DollarSign,
     User, ChevronRight, X, Utensils, Timer, Plus,
     Store, Bike, Play, Check, Calendar, Search, Bell, Printer, RefreshCw, Receipt, Trash2,
-    ReceiptText, ChefHat, GlassWater, IceCreamCone, UtensilsCrossed, XCircle, CheckCircle, ArrowRight, RotateCcw, Volume2
+    ReceiptText, ChefHat, GlassWater, IceCreamCone, UtensilsCrossed, XCircle, CheckCircle, ArrowRight, RotateCcw, Volume2, VolumeX
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import n8nService from '../../services/n8nService'
@@ -75,7 +75,7 @@ const getItemDisplayName = (item) => {
 }
 
 export default function OrdersPage() {
-    const { playNotificationSound } = useNotificationSoundContext()
+    const { playNotificationSound, isSoundActive, toggleSound } = useNotificationSoundContext()
     const { finalizeComanda } = useOrders()
     const [orders, setOrders] = useState([])
     const [loading, setLoading] = useState(true)
@@ -936,11 +936,11 @@ img { max-width: 35mm; display: block; margin: 0 auto 2mm; filter: grayscale(1) 
                     </button>
 
                     <button
-                        className="btn-sound-test"
-                        onClick={playNotificationSound}
-                        title="Testar Som de Notificação"
+                        className={`btn-sound-test ${isSoundActive ? 'sound-active' : 'sound-inactive'}`}
+                        onClick={toggleSound}
+                        title={isSoundActive ? 'Som ativo (Clique para desativar)' : 'Som desativado (Clique para ativar)'}
                     >
-                        <Volume2 size={15} />
+                        {isSoundActive ? <Volume2 size={15} /> : <VolumeX size={15} />}
                     </button>
 
                     <button

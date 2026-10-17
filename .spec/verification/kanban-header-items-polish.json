@@ -1,11 +1,11 @@
 {
   "feature": "kanban-header-items-polish",
-  "timestamp": "2026-10-17T12:28:38.563Z",
-  "gitRev": "d1f37a5",
+  "timestamp": "2026-10-17T12:37:27.421Z",
+  "gitRev": "fee25eb",
   "command": "node --test --test-reporter=tap",
   "reporter": "tap",
   "exitCode": 0,
-  "testsParsed": 53,
+  "testsParsed": 54,
   "results": {
     "AC-058": {
       "status": "pass",
@@ -25,6 +25,11 @@
     "AC-061": {
       "status": "pass",
       "testName": "AC-061: Nome dos itens no card do Kanban possui estilo com font-weight destacado @spec:AC-061",
+      "method": "tap"
+    },
+    "AC-062": {
+      "status": "pass",
+      "testName": "AC-062: Botão de som possui estados sound-active e sound-inactive e alterna com toggle @spec:AC-062",
       "method": "tap"
     }
   },
