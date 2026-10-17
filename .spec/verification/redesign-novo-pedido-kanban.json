@@ -1,0 +1,42 @@
+{
+  "feature": "redesign-novo-pedido-kanban",
+  "timestamp": "2026-10-17T11:39:43.260Z",
+  "gitRev": "bb87c9a",
+  "command": "node --test --test-reporter=tap",
+  "reporter": "tap",
+  "exitCode": 0,
+  "testsParsed": 46,
+  "results": {
+    "AC-049": {
+      "status": "pass",
+      "testName": "AC-049: Cabeçalho possui barra escura \\#232220 e título institucional sem emojis @spec:AC-049",
+      "method": "tap"
+    },
+    "AC-050": {
+      "status": "pass",
+      "testName": "AC-050: Campo de busca de clientes integrado com foco na cor institucional @spec:AC-050",
+      "method": "tap"
+    },
+    "AC-051": {
+      "status": "pass",
+      "testName": "AC-051: Botão Iniciar Pedido utiliza estilo verde @spec:AC-051",
+      "method": "tap"
+    },
+    "AC-052": {
+      "status": "pass",
+      "testName": "AC-052: Avatar do cliente suporta imagem de foto @spec:AC-052",
+      "method": "tap"
+    },
+    "AC-053": {
+      "status": "pass",
+      "testName": "AC-053: Telefone com @s.whatsapp.net e DDI 55 é formatado corretamente @spec:AC-053",
+      "method": "tap"
+    },
+    "AC-054": {
+      "status": "pass",
+      "testName": "AC-054: Layout do cliente renderiza botão de retorno ao admin quando aberto a partir do admin @spec:AC-054",
+      "method": "tap"
+    }
+  },
+  "principles": {}
+}

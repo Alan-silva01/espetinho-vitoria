@@ -3,6 +3,7 @@ import {
     Search, User, Phone, MapPin, X, ExternalLink, UserPlus, Sparkles, ArrowRight
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
+import { formatPhone } from '../../lib/utils'
 import './CreateOrderModal.css'
 
 export default function CreateOrderModal({ isOpen, onClose }) {
@@ -75,7 +76,7 @@ export default function CreateOrderModal({ isOpen, onClose }) {
                 if (digitsOnly.length >= 3) {
                     const { data } = await supabase
                         .from('clientes')
-                        .select('id, codigo, nome, telefone, dados')
+                        .select('id, codigo, nome, telefone, avatr_url, dados')
                         .or(`nome.ilike.%${term}%,codigo.ilike.%${term}%,telefone.ilike.%${digitsOnly}%,dados->>whatsapp.ilike.%${digitsOnly}%`)
                         .order('criado_em', { ascending: false })
                         .limit(50)
@@ -83,7 +84,7 @@ export default function CreateOrderModal({ isOpen, onClose }) {
                 } else {
                     const { data } = await supabase
                         .from('clientes')
-                        .select('id, codigo, nome, telefone, dados')
+                        .select('id, codigo, nome, telefone, avatr_url, dados')
                         .or(`nome.ilike.%${term}%,codigo.ilike.%${term}%`)
                         .limit(30)
                     rawData = data || []
@@ -93,7 +94,7 @@ export default function CreateOrderModal({ isOpen, onClose }) {
                 if (rawData.length === 0 && digitsOnly.length >= 4) {
                     const { data: fallbackData } = await supabase
                         .from('clientes')
-                        .select('id, codigo, nome, telefone, dados')
+                        .select('id, codigo, nome, telefone, avatr_url, dados')
                         .order('criado_em', { ascending: false })
                         .limit(200)
 
@@ -163,14 +164,14 @@ export default function CreateOrderModal({ isOpen, onClose }) {
     return (
         <div className="create-order-overlay" onClick={onClose}>
             <div className="create-order-modal animate-scale-in" onClick={e => e.stopPropagation()} style={{ maxWidth: '560px' }}>
-                {/* Cabeçalho */}
+                {/* Cabeçalho no padrão do sistema */}
                 <div className="create-order-header">
                     <div>
-                        <h2>⚡ Novo Pedido para Cliente</h2>
-                        <p>Selecione o cliente para abrir o cardápio pré-identificado com os dados dele</p>
+                        <h2>NOVO PEDIDO PARA CLIENTE</h2>
+                        <p>Selecione o cliente para abrir o cardápio com os dados pré-identificados</p>
                     </div>
-                    <button className="btn-close-modal" onClick={onClose}>
-                        <X size={20} />
+                    <button className="btn-close-modal" onClick={onClose} title="Fechar (ESC)">
+                        <X size={18} />
                     </button>
                 </div>
 
@@ -178,13 +179,13 @@ export default function CreateOrderModal({ isOpen, onClose }) {
                 <div className="create-order-body" style={{ padding: '20px' }}>
                     {!isCreatingNew ? (
                         <div className="section-box">
-                            <h3><User size={18} /> Buscar Cliente Existente</h3>
+                            <h3><User size={16} /> Buscar Cliente Cadastrado</h3>
 
                             <div className="search-input-wrapper" style={{ marginTop: '10px' }}>
-                                <Search size={18} className="search-icon" />
+                                <Search size={16} className="search-icon" />
                                 <input
                                     type="text"
-                                    placeholder="Digite o Nome ou WhatsApp do cliente..."
+                                    placeholder="Digite o Nome, Código ou WhatsApp do cliente..."
                                     value={searchTerm}
                                     onChange={e => setSearchTerm(e.target.value)}
                                     autoFocus
@@ -192,35 +193,60 @@ export default function CreateOrderModal({ isOpen, onClose }) {
                             </div>
 
                             {searchingCustomers && (
-                                <div className="searching-spinner" style={{ margin: '14px 0', fontSize: '13px', color: '#64748B' }}>
-                                    Buscando na lista de clientes...
+                                <div className="searching-spinner" style={{ margin: '14px 0', fontSize: '12px', color: '#737373' }}>
+                                    Buscando clientes...
                                 </div>
                             )}
 
                             {customerResults.length > 0 && (
-                                <div className="customer-results-list" style={{ marginTop: '12px', maxHeight: '240px' }}>
-                                    {customerResults.map(c => (
-                                        <div
-                                            key={c.id}
-                                            className="customer-result-item"
-                                            onClick={() => handleOpenCustomerApp(c)}
-                                        >
-                                            <div className="cust-info">
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                                    <strong>{c.nome}</strong>
-                                                    <span style={{ fontSize: '11px', background: '#E2E8F0', padding: '2px 6px', borderRadius: '4px', color: '#475569', fontWeight: '700' }}>
-                                                        {c.codigo}
+                                <div className="customer-results-list" style={{ marginTop: '12px', maxHeight: '260px' }}>
+                                    {customerResults.map(c => {
+                                        const avatar = c.avatr_url || c.dados?.avatar_url || null
+                                        const rawPhone = c.dados?.whatsapp || c.telefone || ''
+                                        const displayPhone = formatPhone(rawPhone) || 'Sem telefone'
+
+                                        return (
+                                            <div
+                                                key={c.id}
+                                                className="customer-result-item"
+                                                onClick={() => handleOpenCustomerApp(c)}
+                                            >
+                                                <div className="cust-avatar-badge">
+                                                    {avatar ? (
+                                                        <img
+                                                            src={avatar}
+                                                            alt={c.nome || 'Cliente'}
+                                                            className="cust-avatar-img"
+                                                            onError={e => {
+                                                                e.target.style.display = 'none'
+                                                                if (e.target.nextSibling) e.target.nextSibling.style.display = 'flex'
+                                                            }}
+                                                        />
+                                                    ) : null}
+                                                    <span style={{ display: avatar ? 'none' : 'flex' }}>
+                                                        {(c.nome || 'C').charAt(0).toUpperCase()}
                                                     </span>
                                                 </div>
-                                                <span style={{ fontSize: '12px', color: '#64748B' }}>
-                                                    <Phone size={12} /> {c.telefone || c.dados?.whatsapp || 'Sem telefone'}
-                                                </span>
+                                                <div className="cust-info">
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                        <strong>{c.nome}</strong>
+                                                        {c.codigo && (
+                                                            <span className="cust-code-badge">
+                                                                {c.codigo}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <span style={{ fontSize: '12px', color: '#737373', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                        <Phone size={12} /> {displayPhone}
+                                                    </span>
+                                                </div>
+                                                <button className="btn-select-cust" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                    <span>Iniciar Pedido</span>
+                                                    <ExternalLink size={13} />
+                                                </button>
                                             </div>
-                                            <button className="btn-select-cust" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                                Abrir App <ExternalLink size={14} />
-                                            </button>
-                                        </div>
-                                    ))}
+                                        )
+                                    })}
                                 </div>
                             )}
 
@@ -293,7 +319,7 @@ export default function CreateOrderModal({ isOpen, onClose }) {
                                     disabled={isSubmittingNew}
                                     style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
                                 >
-                                    {isSubmittingNew ? 'Criando...' : <>Criar & Abrir App <ArrowRight size={16} /></>}
+                                    {isSubmittingNew ? 'Cadastrando...' : <>Cadastrar & Iniciar <ArrowRight size={16} /></>}
                                 </button>
                             </div>
                         </form>

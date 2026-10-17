@@ -29,11 +29,22 @@ export function timeAgo(date) {
  */
 export function formatPhone(phone) {
     if (!phone) return ''
-    const digits = phone.replace(/\D/g, '')
+    let digits = String(phone).split('@')[0].replace(/\D/g, '')
+    // Se tiver prefixo 55 com 12 ou 13 dígitos (ex: 559991372552)
+    if (digits.startsWith('55') && (digits.length === 12 || digits.length === 13)) {
+        digits = digits.substring(2)
+    }
+    // Se ficou com 10 dígitos (DDD + 8 dígitos), e começa com 8 ou 9 no número móvel, ajusta com o 9
+    if (digits.length === 10 && ['8', '9'].includes(digits.charAt(2))) {
+        digits = `${digits.slice(0, 2)}9${digits.slice(2)}`
+    }
     if (digits.length === 11) {
         return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`
     }
-    return phone
+    if (digits.length === 10) {
+        return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`
+    }
+    return phone.split('@')[0]
 }
 
 /**

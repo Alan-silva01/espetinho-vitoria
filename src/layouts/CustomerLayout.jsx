@@ -56,8 +56,61 @@ export default function CustomerLayout() {
     const hideNav = ['/checkout', '/pedido'].some(p => location.pathname.startsWith(p))
     const isProfilePage = location.pathname === '/perfil'
 
+    // Detect if this session was launched from Admin
+    const isFromAdmin = sessionStorage.getItem('espetinho_opened_from_admin') === 'true' || location.search.includes('admin=true')
+
+    const handleReturnToAdmin = () => {
+        sessionStorage.removeItem('espetinho_opened_from_admin')
+        navigate('/admin/pedidos')
+    }
+
     return (
         <div className="customer-layout">
+            {/* Barra fixa discreta para o administrador retornar ao Kanban */}
+            {isFromAdmin && (
+                <div style={{
+                    position: 'sticky',
+                    top: 0,
+                    zIndex: 9999,
+                    background: '#232220',
+                    color: '#ffffff',
+                    padding: '8px 14px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
+                }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{
+                            display: 'inline-block',
+                            width: '8px',
+                            height: '8px',
+                            borderRadius: '50%',
+                            background: '#16a34a'
+                        }} />
+                        <span>Modo Atendimento — Criando pedido para {customer?.nome || 'Cliente'}</span>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={handleReturnToAdmin}
+                        style={{
+                            background: '#ffffff',
+                            color: '#171717',
+                            border: 'none',
+                            padding: '4px 10px',
+                            fontSize: '11px',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            borderRadius: '3px'
+                        }}
+                    >
+                        Voltar ao Painel
+                    </button>
+                </div>
+            )}
+
             <div className="customer-container">
                 <Outlet />
             </div>
