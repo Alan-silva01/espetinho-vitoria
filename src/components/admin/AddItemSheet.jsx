@@ -57,26 +57,21 @@ export default function AddItemSheet({ isOpen, onClose, order, onConfirmItem }) 
             .trim()
     }
 
-    // Filtro de produtos (oculta esgotados)
+    // Filtro de produtos — no painel admin, exibe TODOS os produtos ativos (disponivel !== false),
+    // independente do estoque. O admin pode adicionar itens mesmo com estoque zerado.
     const filteredProducts = useMemo(() => {
         if (!products) return []
         const term = normalizeText(searchTerm)
         return products.filter(p => {
+            // Oculta apenas produtos explicitamente desativados
             if (p.disponivel === false) return false
-
-            // Se o produto estiver esgotado no estoque diário, não exibe
-            const stock = stockMap[p.id]
-            if (stock && (stock.esgotado || stock.qtd_atual <= 0)) return false
-
-            // Se tem controle de estoque no produto e está zerado
-            if (p.controlar_estoque && (p.quantidade_disponivel || 0) <= 0) return false
 
             if (!term) return true
             const prodName = normalizeText(p.nome)
             const catName = normalizeText(p.categorias?.nome)
             return prodName.includes(term) || catName.includes(term)
         })
-    }, [products, searchTerm, stockMap])
+    }, [products, searchTerm])
 
     // Validador de disponibilidade da opção (Arroz, Frutas do Açaí, Adicionais, Sabores de Refri)
     const checkOptionAvailable = (opt, groupName) => {
@@ -144,11 +139,15 @@ export default function AddItemSheet({ isOpen, onClose, order, onConfirmItem }) 
         }
 
         // 5. Regra para produtos que existem como item independente no catálogo (ex: refrigerantes, adicionais cadastrados como produtos)
+        // ATENÇÃO: só bloqueia se disponivel === false. NÃO bloqueia por controle de estoque,
+        // pois a opção pode representar uma variação do produto (ex: "Refrigerante 1L" vs "Refrigerante 2L")
+        // e não temos como saber a quantidade exata por variação aqui.
         if (products?.length > 0) {
             const matchingProd = products.find(p => p?.nome && String(p.nome).toLowerCase() === nameStr && p.id !== selectedProduct?.id)
             if (matchingProd) {
                 if (matchingProd.disponivel === false) return false
-                if (matchingProd.controlar_estoque && (matchingProd.quantidade_disponivel || 0) <= 0) return false
+                // Não bloquear por estoque aqui — o match é por nome e pode ser apenas
+                // uma variação (1L, 2L) que não tem estoque separado cadastrado
             }
         }
 
@@ -540,7 +539,15 @@ export default function AddItemSheet({ isOpen, onClose, order, onConfirmItem }) 
                                                     <div className="add-item-sub-meta">
                                                         <span className="add-item-cat">{p.categorias?.nome || 'Geral'}</span>
                                                         {stock && stock.qtd_atual !== undefined && (
-                                                            <span className="add-item-stock-tag">Estoque: {stock.qtd_atual}</span>
+                                                            <span
+                                                                className="add-item-stock-tag"
+                                                                style={stock.qtd_atual <= 0 || stock.esgotado ? { background: '#fee2e2', color: '#dc2626' } : {}}
+                                                            >
+                                                                {stock.esgotado || stock.qtd_atual <= 0 ? 'Esgotado' : `Estoque: ${stock.qtd_atual}`}
+                                                            </span>
+                                                        )}
+                                                        {!stock && p.controlar_estoque && (p.quantidade_disponivel || 0) <= 0 && (
+                                                            <span className="add-item-stock-tag" style={{ background: '#fee2e2', color: '#dc2626' }}>Esgotado</span>
                                                         )}
                                                     </div>
                                                 </div>

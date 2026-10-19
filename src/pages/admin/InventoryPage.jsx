@@ -518,6 +518,39 @@ export default function InventoryPage() {
                 .eq('id', prod.id)
             if (error) throw error
 
+            // Sincronizar estoque_diario do produto pai com a soma de todas as quantidades de tamanhos
+            // Isso garante que o produto não apareça como "Esgotado" no AddItemSheet do admin
+            const today = new Date().toISOString().split('T')[0]
+            const tamanhoGroup = updatedOpts.find(g => (g.grupo || '').toLowerCase().includes('tamanho'))
+            const saborGroup = updatedOpts.find(g => (g.grupo || '').toLowerCase().includes('sabor'))
+            const referenceGroup = tamanhoGroup || saborGroup
+            if (referenceGroup) {
+                const totalQty = referenceGroup.opcoes.reduce((acc, o) => {
+                    if (typeof o === 'object' && o.quantidade != null) return acc + (Number(o.quantidade) || 0)
+                    return acc
+                }, 0)
+                const anyAvailable = referenceGroup.opcoes.some(o =>
+                    typeof o === 'object' ? (o.disponivel !== false && (o.quantidade == null || o.quantidade > 0)) : true
+                )
+                const { data: existing } = await supabase
+                    .from('estoque_diario')
+                    .select('id')
+                    .eq('produto_id', productId)
+                    .eq('data', today)
+                    .maybeSingle()
+
+                if (existing) {
+                    await supabase
+                        .from('estoque_diario')
+                        .update({ qtd_atual: totalQty, esgotado: !anyAvailable })
+                        .eq('id', existing.id)
+                } else {
+                    await supabase
+                        .from('estoque_diario')
+                        .insert({ produto_id: productId, qtd_inicial: totalQty, qtd_atual: totalQty, esgotado: !anyAvailable, data: today })
+                }
+            }
+
             setInventory(prev => prev.map(p => p.id === prod.id ? { ...p, opcoes_personalizacao: updatedOpts } : p))
         } catch (err) {
             console.error('Erro ao atualizar estoque de refrigerante:', err)
