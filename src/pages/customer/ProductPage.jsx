@@ -147,9 +147,16 @@ export default function ProductPage() {
                 if (vCompleto) setSelectedVariation(vCompleto)
                 else setSelectedVariation(product.variacoes_produto[0]) // Fallback to first if no "Completo" found
             } else {
-                // Default to 300ml for others if exists (like Açaí)
+                // Default to 300ml if exists (like Açaí), otherwise pick the first available variation
                 const v300 = product.variacoes_produto.find(v => v.nome === '300ml')
-                if (v300) setSelectedVariation(v300)
+                const firstAvailable = product.variacoes_produto.find(v => v.disponivel !== false && (!v.controlar_estoque || v.quantidade_disponivel > 0))
+                if (v300 && (v300.disponivel !== false && (!v300.controlar_estoque || v300.quantidade_disponivel > 0))) {
+                    setSelectedVariation(v300)
+                } else if (firstAvailable) {
+                    setSelectedVariation(firstAvailable)
+                } else {
+                    setSelectedVariation(product.variacoes_produto[0])
+                }
             }
         }
     }, [product])
@@ -173,7 +180,13 @@ export default function ProductPage() {
         const isEspetinho = product.categoria?.nome === 'Espetinhos' || product.nome?.toLowerCase().includes('espetinho')
 
         product.opcoes_personalizacao.forEach(group => {
-            if (group.padrao) {
+            const groupLower = (group.grupo || '').toLowerCase()
+            const isSaborOrTipo = group.tipo === 'radio' && (groupLower.includes('sabor') || groupLower.includes('tipo'))
+
+            // Grupos de sabor/tipo nunca começam pré-selecionados — cliente deve escolher
+            if (isSaborOrTipo) {
+                defaults[group.grupo] = ''
+            } else if (group.padrao) {
                 defaults[group.grupo] = group.padrao
             } else if (group.tipo === 'checkbox') {
                 if (isEspetinho) {
@@ -186,13 +199,8 @@ export default function ProductPage() {
                     defaults[group.grupo] = []
                 }
             } else {
-                // Radio option: if there's only 1 available option, pre-select it automatically
-                const availableOpts = group.opcoes.filter(opt => checkOptionAvailable(opt))
-                if (availableOpts.length === 1) {
-                    defaults[group.grupo] = optName(availableOpts[0])
-                } else {
-                    defaults[group.grupo] = ''
-                }
+                // Radio option: start unselected so the customer has to choose
+                defaults[group.grupo] = ''
             }
         })
         setSelectedOptions(defaults)
@@ -375,6 +383,20 @@ export default function ProductPage() {
         })
         if (!escolhaValid) return false
 
+        // Check required radio groups (e.g. Sabor)
+        const radioValid = product.opcoes_personalizacao.every(group => {
+            if (group.tipo === 'radio') {
+                const groupName = group.grupo?.toLowerCase() || ''
+                const isSaborOrTipo = groupName.includes('sabor') || groupName.includes('tipo')
+                if (isSaborOrTipo) {
+                    const current = selectedOptions[group.grupo]
+                    return !!current && current !== ''
+                }
+            }
+            return true
+        })
+        if (!radioValid) return false
+
         // When Completo is selected, arroz group is required
         const isCompleto = selectedVariation?.nome?.toLowerCase().includes('completo')
         if (isCompleto) {
@@ -522,6 +544,24 @@ export default function ProductPage() {
 
                 if (remaining > 0) return `Escolha mais ${remaining} ${remaining === 1 ? 'item' : 'itens'}`
                 return `Selecione ${required} itens`
+            }
+
+            // Check missing required radio option (e.g. Sabor)
+            const missingRadio = product.opcoes_personalizacao.find(group => {
+                if (group.tipo === 'radio') {
+                    const groupName = group.grupo?.toLowerCase() || ''
+                    const isSaborOrTipo = groupName.includes('sabor') || groupName.includes('tipo')
+                    if (isSaborOrTipo) {
+                        const current = selectedOptions[group.grupo]
+                        return !current || current === ''
+                    }
+                }
+                return false
+            })
+            if (missingRadio) {
+                const groupName = missingRadio.grupo?.toLowerCase() || ''
+                if (groupName.includes('sabor')) return 'Escolha um sabor'
+                return `Escolha o ${missingRadio.grupo.toLowerCase()}`
             }
         }
         // Check arroz requirement for Completo
