@@ -177,14 +177,17 @@ export default function ProductPage() {
         hasInitializedDefaults.current = true
 
         const defaults = {}
-        const isEspetinho = product.categoria?.nome === 'Espetinhos' || product.nome?.toLowerCase().includes('espetinho')
+        const catName = (product.categoria?.nome || product.categorias?.nome || '').toLowerCase()
+        const prodName = (product.nome || '').toLowerCase()
+        const isBebida = catName.includes('bebida') || prodName.includes('refrigerante') || prodName.includes('suco') || prodName.includes('coca') || prodName.includes('fanta') || prodName.includes('guaraná')
+        const isEspetinho = catName.includes('espetinho') || prodName.includes('espetinho') || prodName.includes('medalhão') || prodName.includes('carne')
 
         product.opcoes_personalizacao.forEach(group => {
             const groupLower = (group.grupo || '').toLowerCase()
-            const isSaborOrTipo = group.tipo === 'radio' && (groupLower.includes('sabor') || groupLower.includes('tipo'))
+            const isSaborBebida = isBebida && group.tipo === 'radio' && groupLower.includes('sabor')
 
-            // Grupos de sabor/tipo nunca começam pré-selecionados — cliente deve escolher
-            if (isSaborOrTipo) {
+            // Grupos de sabor de bebidas nunca começam pré-selecionados — cliente deve escolher
+            if (isSaborBebida) {
                 defaults[group.grupo] = ''
             } else if (group.padrao) {
                 defaults[group.grupo] = group.padrao
@@ -383,15 +386,16 @@ export default function ProductPage() {
         })
         if (!escolhaValid) return false
 
-        // Check required radio groups (e.g. Sabor)
+        // Check required radio groups for Bebidas (e.g. Sabor do Refrigerante/Suco)
+        const catName = (product.categoria?.nome || product.categorias?.nome || '').toLowerCase()
+        const prodName = (product.nome || '').toLowerCase()
+        const isBebida = catName.includes('bebida') || prodName.includes('refrigerante') || prodName.includes('suco') || prodName.includes('coca') || prodName.includes('fanta') || prodName.includes('guaraná')
+
         const radioValid = product.opcoes_personalizacao.every(group => {
-            if (group.tipo === 'radio') {
-                const groupName = group.grupo?.toLowerCase() || ''
-                const isSaborOrTipo = groupName.includes('sabor') || groupName.includes('tipo')
-                if (isSaborOrTipo) {
-                    const current = selectedOptions[group.grupo]
-                    return !!current && current !== ''
-                }
+            if (disabledGroups.has(group.grupo)) return true
+            if (isBebida && group.tipo === 'radio' && (group.grupo || '').toLowerCase().includes('sabor')) {
+                const current = selectedOptions[group.grupo]
+                return !!current && current !== ''
             }
             return true
         })
@@ -404,7 +408,7 @@ export default function ProductPage() {
             const arrozGroup = product.opcoes_personalizacao.find(g =>
                 arrozKeywords.some(kw => g.grupo.toLowerCase().includes(kw))
             )
-            if (arrozGroup) {
+            if (arrozGroup && !disabledGroups.has(arrozGroup.grupo)) {
                 const arrozSelection = selectedOptions[arrozGroup.grupo]
                 if (!arrozSelection || (Array.isArray(arrozSelection) && arrozSelection.length === 0)) {
                     return false
@@ -413,7 +417,7 @@ export default function ProductPage() {
         }
 
         return true
-    }, [product, selectedOptions, selectedVariation])
+    }, [product, selectedOptions, selectedVariation, disabledGroups])
 
     if (loading) return <Loading fullScreen />
     if (!product) return <div className="page-padding" style={{ paddingTop: 80 }}>Produto não encontrado</div>
@@ -546,22 +550,21 @@ export default function ProductPage() {
                 return `Selecione ${required} itens`
             }
 
-            // Check missing required radio option (e.g. Sabor)
+            // Check missing required radio option for Bebidas (e.g. Sabor)
+            const catName = (product.categoria?.nome || product.categorias?.nome || '').toLowerCase()
+            const prodName = (product.nome || '').toLowerCase()
+            const isBebida = catName.includes('bebida') || prodName.includes('refrigerante') || prodName.includes('suco') || prodName.includes('coca') || prodName.includes('fanta') || prodName.includes('guaraná')
+
             const missingRadio = product.opcoes_personalizacao.find(group => {
-                if (group.tipo === 'radio') {
-                    const groupName = group.grupo?.toLowerCase() || ''
-                    const isSaborOrTipo = groupName.includes('sabor') || groupName.includes('tipo')
-                    if (isSaborOrTipo) {
-                        const current = selectedOptions[group.grupo]
-                        return !current || current === ''
-                    }
+                if (disabledGroups.has(group.grupo)) return false
+                if (isBebida && group.tipo === 'radio' && (group.grupo || '').toLowerCase().includes('sabor')) {
+                    const current = selectedOptions[group.grupo]
+                    return !current || current === ''
                 }
                 return false
             })
             if (missingRadio) {
-                const groupName = missingRadio.grupo?.toLowerCase() || ''
-                if (groupName.includes('sabor')) return 'Escolha um sabor'
-                return `Escolha o ${missingRadio.grupo.toLowerCase()}`
+                return 'Escolha um sabor'
             }
         }
         // Check arroz requirement for Completo
@@ -571,7 +574,7 @@ export default function ProductPage() {
             const arrozGroup = product.opcoes_personalizacao.find(g =>
                 arrozKeywords.some(kw => g.grupo.toLowerCase().includes(kw))
             )
-            if (arrozGroup) {
+            if (arrozGroup && !disabledGroups.has(arrozGroup.grupo)) {
                 const arrozSelection = selectedOptions[arrozGroup.grupo]
                 if (!arrozSelection || (Array.isArray(arrozSelection) && arrozSelection.length === 0)) {
                     return 'Escolha o tipo de arroz'
@@ -792,7 +795,8 @@ export default function ProductPage() {
 
                     const hasPaid = groupHasPaidOptions(group)
                     const isOptional = group.tipo === 'radio'
-                    const badgeText = hasPaid ? 'Selecione' : (isOptional ? 'Escolha 1' : 'Incluso')
+                    const isGroupDisabled = disabledGroups.has(group.grupo)
+                    const badgeText = isGroupDisabled ? 'Apenas no Completo' : (hasPaid ? 'Selecione' : (isOptional ? 'Escolha 1' : 'Incluso'))
 
                     const selectedValue = group.tipo === 'radio' ? selectedOptions[group.grupo] : null
 
