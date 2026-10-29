@@ -186,7 +186,7 @@ export default function ProductPage() {
             const groupLower = (group.grupo || '').toLowerCase()
             const isSaborBebida = isBebida && group.tipo === 'radio' && groupLower.includes('sabor')
 
-            // Grupos de sabor de bebidas nunca começam pré-selecionados — cliente deve escolher
+            // Sabor de bebidas (refrigerante/suco) nunca vem pré-selecionado — cliente deve escolher manualmente
             if (isSaborBebida) {
                 defaults[group.grupo] = ''
             } else if (group.padrao) {
