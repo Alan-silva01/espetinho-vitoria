@@ -50,6 +50,14 @@ export const evolutionService = {
     },
 
     /**
+     * Reinicia a instância (refaz a conexão com o WhatsApp).
+     * NÃO desconecta o número, não pede QR Code e não altera o webhook.
+     */
+    async restart() {
+        return request('POST', `/instance/restart/${encodeURIComponent(EVO_INSTANCE)}`)
+    },
+
+    /**
      * Desconecta (logout) a instância do WhatsApp.
      */
     async logout() {

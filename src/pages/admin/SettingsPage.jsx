@@ -5,7 +5,7 @@ import {
     MessageSquare, Bell,
     Save, ChevronRight,
     AlertCircle, CheckCircle2,
-    RefreshCw, WifiOff, Wifi, LogOut, Smartphone
+    RefreshCw, WifiOff, Wifi, LogOut, Smartphone, RotateCw
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { formatCurrency } from '../../lib/utils'
@@ -145,6 +145,24 @@ export default function SettingsPage() {
             }
         } catch (err) {
             setWaError('Erro ao gerar QR Code: ' + err.message)
+        } finally {
+            setWaLoading(false)
+        }
+    }
+
+    async function handleWaRestart() {
+        if (!window.confirm('Reiniciar a conexão do WhatsApp? Leva alguns segundos e não precisa ler QR Code.')) return
+        setWaLoading(true)
+        setWaError('')
+        try {
+            await evolutionService.restart()
+            // Dá tempo da instância reconectar antes de checar o status
+            await new Promise(r => setTimeout(r, 4000))
+            setFeedback({ type: 'success', msg: 'WhatsApp reiniciado com sucesso!' })
+            setTimeout(() => setFeedback({ type: '', msg: '' }), 4000)
+            await fetchWaStatus()
+        } catch (err) {
+            setWaError('Erro ao reiniciar: ' + err.message)
         } finally {
             setWaLoading(false)
         }
@@ -309,6 +327,9 @@ export default function SettingsPage() {
                                         <div className="wa-actions">
                                             <button className="wa-btn wa-btn--secondary" onClick={fetchWaStatus} disabled={waLoading}>
                                                 <RefreshCw size={16} /> Verificar status
+                                            </button>
+                                            <button className="wa-btn wa-btn--primary" onClick={handleWaRestart} disabled={waLoading}>
+                                                <RotateCw size={16} className={waLoading ? 'spin' : ''} /> {waLoading ? 'Reiniciando...' : 'Reiniciar'}
                                             </button>
                                             <button className="wa-btn wa-btn--danger" onClick={handleWaLogout} disabled={waLoading}>
                                                 <LogOut size={16} /> Desconectar
